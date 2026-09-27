@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/changelog/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/changelog/">
       
       
         <link rel="prev" href="../backlog/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Changelog - Replio</title>
+        <title>Changelog - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href=".." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href=".." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -402,6 +402,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0370-2026-09-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.37.0 - 2026-09-27
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0360-2026-09-24" class="md-nav__link">
@@ -868,7 +879,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1532,6 +1543,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0370-2026-09-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.37.0 - 2026-09-27
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0360-2026-09-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1945,6 +1967,11 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0370-2026-09-27">v0.37.0 - 2026-09-27<a class="headerlink" href="#v0370-2026-09-27" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Renamed the project from Replio to Polyglav - the Python package (<code>src/polyglav</code>), the <code>polyglav</code> CLI and <code>python -m polyglav</code>, the worktree directory (<code>.polyglav/</code>), the global config directory (<code>~/.config/polyglav/</code>), the <code>POLYGLAV_*</code> environment variables, the bundled <code>polyglav-core-*</code> plugins with their <code>polyglav_version</code> manifest field, and all repository, PyPI, and documentation URLs. Existing <code>.replio/</code> configs and sessions are not migrated.</li>
+<li>Rewrote the README around outcomes with the "One agent, many heads" slogan and moved the technical quick start, CLI, API, swarm, jobs, fleet, MCP, Docker, and plugin material into a new <code>INSTALL.md</code>.</li>
+</ul>
 <h2 id="v0360-2026-09-24">v0.36.0 - 2026-09-24<a class="headerlink" href="#v0360-2026-09-24" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed scoped <code>code_test</code> no-match detection on Python 3.11 - the dev wrapper now also treats <code>Ran 0 tests</code> in the output as no tests, because the <code>NO TESTS RAN</code> message and exit code 5 for a target with no tests were only added in Python 3.12. A scoped run on 3.11 now reports <code>no tests matched "&lt;target&gt;"</code> instead of looking like a passing check. The test no longer asserts the 3.12-only message or exit code, which also unblocks the all-plugins run on 3.11. Tests: <code>plugins/replio-core-dev/tests/test_tools.py</code></li>

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/architecture/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/architecture/">
       
       
         <link rel="prev" href="../api/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Architecture - Replio</title>
+        <title>Architecture - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1419,10 +1419,10 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>Replio is a terminal-based agentic REPL core: the model is the planner, the tool registry is how it acts. It is a zero-dependency Python app (stdlib only) built around a <strong>single agent loop</strong>: one SSE stream per turn where the model emits content or requests tool calls, which the loop executes and feeds back until the model answers.</p>
+<p>Polyglav is a terminal-based agentic REPL core: the model is the planner, the tool registry is how it acts. It is a zero-dependency Python app (stdlib only) built around a <strong>single agent loop</strong>: one SSE stream per turn where the model emits content or requests tool calls, which the loop executes and feeds back until the model answers.</p>
 <h2 id="the-three-core-layers">The three core layers<a class="headerlink" href="#the-three-core-layers" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Agent loop</strong> (<code>src/replio/engine.py</code>) - the headless core. Each turn runs a single streaming request. The provider's <code>chat()</code> is a generator yielding events the engine reacts to:</li>
+<li><strong>Agent loop</strong> (<code>src/polyglav/engine.py</code>) - the headless core. Each turn runs a single streaming request. The provider's <code>chat()</code> is a generator yielding events the engine reacts to:</li>
 <li><code>thinking</code> / <code>token</code> - streamed to the sink (<code>UISink</code>)</li>
 <li><code>tool_calls</code> - appends a <code>tool</code> part per call (name/input), executes each call, fills in its result, then continues the loop</li>
 <li><code>error</code> - records and prints, then bails</li>
@@ -1430,25 +1430,25 @@
 <p><code>done</code> - closes the turn (status, end timestamp) and stops</p>
 </li>
 <li>
-<p><strong>ToolRegistry</strong> (<code>src/replio/tools/registry.py</code>) - the single dispatch point. The model invokes tools via OpenAI function calling, slash commands are thin wrappers calling the same <code>execute()</code>. The loop never special-cases tool names - per-tool behavior comes from registration metadata. See <a href="../tools/">tools.md</a>.</p>
+<p><strong>ToolRegistry</strong> (<code>src/polyglav/tools/registry.py</code>) - the single dispatch point. The model invokes tools via OpenAI function calling, slash commands are thin wrappers calling the same <code>execute()</code>. The loop never special-cases tool names - per-tool behavior comes from registration metadata. See <a href="../tools/">tools.md</a>.</p>
 </li>
 <li>
-<p><strong>Commands</strong> (<code>src/replio/commands/</code>) - user-facing affordances. A command either wraps a tool or performs a local action (<code>/model</code>, <code>/session</code>, <code>/sessions</code>).</p>
+<p><strong>Commands</strong> (<code>src/polyglav/commands/</code>) - user-facing affordances. A command either wraps a tool or performs a local action (<code>/model</code>, <code>/session</code>, <code>/sessions</code>).</p>
 </li>
 </ol>
-<p>Providers (<code>src/replio/providers/</code>) are OpenAI-compatible <code>/v1/chat/completions</code> backends implementing the event-generator <code>chat()</code> contract. See <a href="../providers/">providers.md</a>.</p>
+<p>Providers (<code>src/polyglav/providers/</code>) are OpenAI-compatible <code>/v1/chat/completions</code> backends implementing the event-generator <code>chat()</code> contract. See <a href="../providers/">providers.md</a>.</p>
 <h2 id="engine-and-turnresult">Engine and TurnResult<a class="headerlink" href="#engine-and-turnresult" title="Permanent link">&para;</a></h2>
-<p><code>Engine.chat(text) -&gt; TurnResult</code> is the front-end-agnostic entry point, called by the REPL (<code>ChatLoop</code>), the headless CLI (<code>replio run</code>), and the HTTP API (<code>replio serve</code>). A <code>TurnResult</code> carries:</p>
+<p><code>Engine.chat(text) -&gt; TurnResult</code> is the front-end-agnostic entry point, called by the REPL (<code>ChatLoop</code>), the headless CLI (<code>polyglav run</code>), and the HTTP API (<code>polyglav serve</code>). A <code>TurnResult</code> carries:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="n">content</span><span class="p">,</span> <span class="n">thinking</span><span class="p">,</span> <span class="n">tool_calls</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span>
  <span class="n">model</span><span class="p">,</span> <span class="n">provider</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">status</span><span class="p">}</span>
 </code></pre></div>
 <p><code>status</code> is <code>ok</code>, <code>error</code>, <code>empty</code>, <code>truncated</code>, or <code>cancelled</code>. Any front-end addresses sessions via <code>Engine.load_or_create_session(name)</code>. <code>Engine.chat_tool(name, args)</code> runs a <code>loop</code>-registered tool (e.g. <code>delegate</code>) as a persisted agent-loop turn: the tool call and result land in the session, then the model streams its final answer.</p>
 <h2 id="runs">Runs<a class="headerlink" href="#runs" title="Permanent link">&para;</a></h2>
-<p>Every engine instance is a run, tracked in a process-local <code>RunRegistry</code> (<code>src/replio/runs.py</code>) shared across the delegation tree. A run records a numeric <code>id</code>, the agent <code>role</code>, the <code>session</code>, the <code>session_id</code> (a durable six-character handle, empty for explicit names), the <code>parent</code> run id and its ordered <code>children</code>, a <code>status</code> (<code>running</code>, <code>done</code>, or <code>error</code>), the <code>task</code> brief, and timestamps. Delegated and team-stage engines register as children of the caller (<code>_new_sub_engine</code> passes the registry and parent id) and are finished when their <code>chat</code> returns, and the registry keeps the engine so a run can be re-entered. <code>RunRegistry.runs()</code> is the flat creation-order call log, and <code>children(id)</code> walks the tree. Every run also carries a plain-text <code>buffer</code> (capped by <code>run_buffer_max_lines</code>, default 2000, <code>0</code> = unlimited): a sub-engine's UI is a <code>BufferUI</code>, so its streamed output, tool lines, and footer land in the run instead of the terminal, while a focused run rebuilt for the REPL keeps the terminal UI. <code>/focus log [n]</code> prints the focused run's buffer. This is the data model the focus and handoff command surface builds on.</p>
+<p>Every engine instance is a run, tracked in a process-local <code>RunRegistry</code> (<code>src/polyglav/runs.py</code>) shared across the delegation tree. A run records a numeric <code>id</code>, the agent <code>role</code>, the <code>session</code>, the <code>session_id</code> (a durable six-character handle, empty for explicit names), the <code>parent</code> run id and its ordered <code>children</code>, a <code>status</code> (<code>running</code>, <code>done</code>, or <code>error</code>), the <code>task</code> brief, and timestamps. Delegated and team-stage engines register as children of the caller (<code>_new_sub_engine</code> passes the registry and parent id) and are finished when their <code>chat</code> returns, and the registry keeps the engine so a run can be re-entered. <code>RunRegistry.runs()</code> is the flat creation-order call log, and <code>children(id)</code> walks the tree. Every run also carries a plain-text <code>buffer</code> (capped by <code>run_buffer_max_lines</code>, default 2000, <code>0</code> = unlimited): a sub-engine's UI is a <code>BufferUI</code>, so its streamed output, tool lines, and footer land in the run instead of the terminal, while a focused run rebuilt for the REPL keeps the terminal UI. <code>/focus log [n]</code> prints the focused run's buffer. This is the data model the focus and handoff command surface builds on.</p>
 <h2 id="focus">Focus<a class="headerlink" href="#focus" title="Permanent link">&para;</a></h2>
-<p><code>FocusManager</code> (<code>src/replio/focus.py</code>) owns the REPL's focus stack, keyed by run id. <code>ChatLoop.active()</code> returns the engine for the focused run and <code>ChatLoop.run()</code> routes turns and slash commands to it, so the operator talks to whichever agent is in focus. Focus only navigates: a run with a retained engine is attached directly, and a past run is rebuilt by <code>Engine.run_engine</code>, which resumes the run's own session and role instead of minting a name. <code>FocusManager.back()</code> walks the stack back and <code>reset()</code> returns to the root run, repointing <code>ReplUI._loop</code> so rendering and confirms follow the active engine. The <code>prompt_role</code> config (default false) prefixes the prompt with the active role (e.g. <code>Assistant &gt;&gt;&gt;</code>). The <code>/focus</code> command surfaces the same model: no args prints the current run, the run tree (each run showing its id, session, and session id, with a <code>↔ Switch to &lt;role&gt;</code> marker), and the call log, and it attaches or moves by <code>#run</code>, <code>#session_id</code>, <code>session:</code>, <code>root</code>, <code>parent</code>, <code>child</code>, <code>sibling</code>, <code>next</code>, <code>prev</code>, or <code>back</code>. The <code>handoff</code> tool lets an agent do the same at run time: it marks its own run <code>paused</code> or <code>done</code>, resolves <code>parent</code>/<code>child</code>/<code>sibling</code>/<code>root</code>/<code>#run</code>/<code>#session_id</code>/session name against the registry, and records a pending handoff that <code>ChatLoop</code> applies after the turn, so focus follows the target run once the model stops. The <code>focus_on_delegate</code> config (<code>off</code>, <code>ask</code>, <code>on</code>, default <code>off</code>) does the same for an ordinary <code>delegate</code> call: when it fires, the <code>delegate</code> tool records a pending focus on the child run (<code>TurnResult.run_id</code>) and the turn still finishes, so the REPL follows the sub-agent while the caller's answer completes.</p>
+<p><code>FocusManager</code> (<code>src/polyglav/focus.py</code>) owns the REPL's focus stack, keyed by run id. <code>ChatLoop.active()</code> returns the engine for the focused run and <code>ChatLoop.run()</code> routes turns and slash commands to it, so the operator talks to whichever agent is in focus. Focus only navigates: a run with a retained engine is attached directly, and a past run is rebuilt by <code>Engine.run_engine</code>, which resumes the run's own session and role instead of minting a name. <code>FocusManager.back()</code> walks the stack back and <code>reset()</code> returns to the root run, repointing <code>ReplUI._loop</code> so rendering and confirms follow the active engine. The <code>prompt_role</code> config (default false) prefixes the prompt with the active role (e.g. <code>Assistant &gt;&gt;&gt;</code>). The <code>/focus</code> command surfaces the same model: no args prints the current run, the run tree (each run showing its id, session, and session id, with a <code>↔ Switch to &lt;role&gt;</code> marker), and the call log, and it attaches or moves by <code>#run</code>, <code>#session_id</code>, <code>session:</code>, <code>root</code>, <code>parent</code>, <code>child</code>, <code>sibling</code>, <code>next</code>, <code>prev</code>, or <code>back</code>. The <code>handoff</code> tool lets an agent do the same at run time: it marks its own run <code>paused</code> or <code>done</code>, resolves <code>parent</code>/<code>child</code>/<code>sibling</code>/<code>root</code>/<code>#run</code>/<code>#session_id</code>/session name against the registry, and records a pending handoff that <code>ChatLoop</code> applies after the turn, so focus follows the target run once the model stops. The <code>focus_on_delegate</code> config (<code>off</code>, <code>ask</code>, <code>on</code>, default <code>off</code>) does the same for an ordinary <code>delegate</code> call: when it fires, the <code>delegate</code> tool records a pending focus on the child run (<code>TurnResult.run_id</code>) and the turn still finishes, so the REPL follows the sub-agent while the caller's answer completes.</p>
 <h2 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h2>
-<p>A run's own session is the context within a run. Across runs, continuity is bounded memory owned by <code>src/replio/memory.py</code>, one compacted Markdown summary per scope under <code>.replio/memory/</code> (<code>roles/&lt;role&gt;.md</code>, <code>teams/&lt;name&gt;.md</code>, <code>jobs/&lt;name&gt;.md</code>). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. <code>memory</code>, <code>memory_scopes</code>, and <code>memory_max_chars</code> gate and cap it, and <code>/memorize</code> writes a scope on demand. See <a href="../memory/">memory.md</a>.</p>
+<p>A run's own session is the context within a run. Across runs, continuity is bounded memory owned by <code>src/polyglav/memory.py</code>, one compacted Markdown summary per scope under <code>.polyglav/memory/</code> (<code>roles/&lt;role&gt;.md</code>, <code>teams/&lt;name&gt;.md</code>, <code>jobs/&lt;name&gt;.md</code>). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. <code>memory</code>, <code>memory_scopes</code>, and <code>memory_max_chars</code> gate and cap it, and <code>/memorize</code> writes a scope on demand. See <a href="../memory/">memory.md</a>.</p>
 <h2 id="one-stream-one-round-trip">One stream, one round trip<a class="headerlink" href="#one-stream-one-round-trip" title="Permanent link">&para;</a></h2>
 <p>When no tools are used, a turn is a single streaming request, with no separate non-streaming decision round. <code>chat_nonstreaming()</code> is reserved for auxiliary decisions: query refinement, tool-result analysis, compaction. The <code>&lt;thinking&gt;</code> marker split lives in the engine so thinking stays separate from content in JSON results and session logs.</p>
 <h2 id="ui-sinks">UI sinks<a class="headerlink" href="#ui-sinks" title="Permanent link">&para;</a></h2>
@@ -1479,7 +1479,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>ReplUI</code>'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in <code>src/replio/ui.py</code>, gated by the <code>markdown_streaming</code> config.</p>
+<p><code>ReplUI</code>'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in <code>src/polyglav/ui.py</code>, gated by the <code>markdown_streaming</code> config.</p>
 <h2 id="front-ends">Front-ends<a class="headerlink" href="#front-ends" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1492,35 +1492,35 @@
 <tbody>
 <tr>
 <td>REPL</td>
-<td><code>replio</code></td>
+<td><code>polyglav</code></td>
 <td>Interactive shell with readline history, tab completion, slash commands</td>
 </tr>
 <tr>
 <td>CLI</td>
-<td><code>replio run</code></td>
+<td><code>polyglav run</code></td>
 <td>One-shot headless chat, JSON or text output, for scripting and CI/CD</td>
 </tr>
 <tr>
 <td>HTTP</td>
-<td><code>replio serve</code></td>
+<td><code>polyglav serve</code></td>
 <td>Stdlib <code>ThreadingHTTPServer</code> JSON API over the same engine</td>
 </tr>
 </tbody>
 </table>
-<p>Agents talk to each other over the same <code>POST /chat</code> API that <code>replio serve</code> exposes, which is how fleets and swarms compose. See <a href="../fleet/">fleet.md</a>, <a href="../swarm/">swarm.md</a>, <a href="../api/">api.md</a>.</p>
+<p>Agents talk to each other over the same <code>POST /chat</code> API that <code>polyglav serve</code> exposes, which is how fleets and swarms compose. See <a href="../fleet/">fleet.md</a>, <a href="../swarm/">swarm.md</a>, <a href="../api/">api.md</a>.</p>
 <h2 id="sessions">Sessions<a class="headerlink" href="#sessions" title="Permanent link">&para;</a></h2>
 <p>Every turn appends to a session, a complete append-only JSON log of messages, tool calls and results, reasoning, and errors. The provider payload is prepared from the log by <code>_provider_messages()</code>. See <a href="../session/">session.md</a>.</p>
 <h2 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h2>
 <p>Plugins extend the core with tools, providers, commands, and services without changing it. <code>PluginManager</code> discovers plugins in the bundled, global, and local roots, validates manifests, and hooks them into the live registries. The core stays stdlib-only, and plugin dependencies are imported lazily. See <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="source-layout">Source layout<a class="headerlink" href="#source-layout" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>src/replio/
-├── __main__.py          # python -m replio
+<div class="highlight"><pre><span></span><code>src/polyglav/
+├── __main__.py          # python -m polyglav
 ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 ├── cli.py               # headless entry points
 ├── commands/            # command registry + builtins
 ├── config.py            # JSON config (global + local merge)
 ├── engine.py            # headless agent core - Engine, TurnResult, chat_tool, run_subagent, run_team
-├── eval.py              # tool-use eval harness (replio eval)
+├── eval.py              # tool-use eval harness (polyglav eval)
 ├── fleet.py             # FleetController - supervised serve agents
 ├── jobs.py              # Job/JobRun model + registry
 ├── main.py              # CLI arg parsing + bootstrap (REPL, run, serve, ...)

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/fleet/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/fleet/">
       
       
         <link rel="prev" href="../eval/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Agent fleets - Replio</title>
+        <title>Agent fleets - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1299,13 +1299,13 @@
 
 
 <h1 id="agent-fleets">Agent fleets<a class="headerlink" href="#agent-fleets" title="Permanent link">&para;</a></h1>
-<p>Replio composes into fleets of single-purpose agents, each a full Replio process scoped to a directory. A documentation agent owns a folder of PDFs, a code agent stays inside one repository, and a web-research agent has no filesystem access. The zero-dependency core keeps each process small, so many can run on one machine, and thin process and permission boundaries keep them apart.</p>
+<p>Polyglav composes into fleets of single-purpose agents, each a full Polyglav process scoped to a directory. A documentation agent owns a folder of PDFs, a code agent stays inside one repository, and a web-research agent has no filesystem access. The zero-dependency core keeps each process small, so many can run on one machine, and thin process and permission boundaries keep them apart.</p>
 <h2 id="one-agent-one-process-one-folder">One agent = one process = one folder<a class="headerlink" href="#one-agent-one-process-one-folder" title="Permanent link">&para;</a></h2>
-<p>An agent is <code>replio serve</code> pointed at a project directory:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
-replio<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>src<span class="w"> </span>--port<span class="w"> </span><span class="m">8782</span><span class="w"> </span><span class="p">&amp;</span>
+<p>An agent is <code>polyglav serve</code> pointed at a project directory:</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
+polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>src<span class="w"> </span>--port<span class="w"> </span><span class="m">8782</span><span class="w"> </span><span class="p">&amp;</span>
 </code></pre></div>
-<p>Each process reads its own <code>.replio/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes its own sessions under <code>.replio/sessions/</code>. Nothing is shared at runtime, so a crash in one agent cannot take down the others and configuration drift stays isolated per agent.</p>
+<p>Each process reads its own <code>.polyglav/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes its own sessions under <code>.polyglav/sessions/</code>. Nothing is shared at runtime, so a crash in one agent cannot take down the others and configuration drift stays isolated per agent.</p>
 <h2 id="responsibilities-and-permissions">Responsibilities and permissions<a class="headerlink" href="#responsibilities-and-permissions" title="Permanent link">&para;</a></h2>
 <p>An agent's responsibility comes from its config, namely which tools are registered, and its permission is enforced by the worktree and tool policy, not convention.</p>
 <ul>
@@ -1353,55 +1353,55 @@ replio<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"
 </tr>
 </tbody>
 </table>
-<p>A minimal agent config (<code>.replio/config.json</code> in its own directory):</p>
+<p>A minimal agent config (<code>.polyglav/config.json</code> in its own directory):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ollama"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"llama3.2"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are the documentation agent. Convert PDFs to text, keep the index current, and answer questions from the stored docs."</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"tools.allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"glob"</span><span class="p">,</span><span class="w"> </span><span class="s2">"file_read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"file_write"</span><span class="p">,</span><span class="w"> </span><span class="s2">"run_command"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pdf2text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"watch_folder"</span><span class="p">,</span><span class="w"> </span><span class="s2">"search_index"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"read"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"bash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"replio-core-fs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"replio-core-exec"</span><span class="p">,</span><span class="w"> </span><span class="s2">"replio-core-doc-agent"</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"polyglav-core-fs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-exec"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-doc-agent"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Launch it, and peers talk to it over the same <code>POST /chat</code> API used everywhere:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>agents/docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>agents/docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
 curl<span class="w"> </span>localhost:8781/chat<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"prompt": "What does spec-42.pdf say?", "session": "docs-pool"}'</span>
 </code></pre></div>
 <h2 id="supervisor">Supervisor<a class="headerlink" href="#supervisor" title="Permanent link">&para;</a></h2>
-<p><code>replio fleet</code> supervises the agents from the terminal: port allocation, health checks, a restart policy, and per-agent config generation. It is the systemd/Compose-shaped layer for a single host, so Docker is not needed. A fleet root is a directory holding the agents, typically one folder each, with two files in its <code>.replio/</code>:</p>
+<p><code>polyglav fleet</code> supervises the agents from the terminal: port allocation, health checks, a restart policy, and per-agent config generation. It is the systemd/Compose-shaped layer for a single host, so Docker is not needed. A fleet root is a directory holding the agents, typically one folder each, with two files in its <code>.polyglav/</code>:</p>
 <ul>
-<li><code>.replio/fleet.json</code> - the declarative roster. One <code>AgentDef</code> per agent: <code>name</code>, <code>dir</code>, <code>enabled</code>, <code>prefer_port</code>, <code>max_restarts</code> (0 = unlimited), and an optional <code>command</code> override (the test seam, real agents use the default <code>replio serve</code> command)</li>
-<li><code>.replio/fleet.state.json</code> - runtime state only (pids, ports, status, restart counts, last error), a snapshot the supervisor writes, never edited by hand</li>
+<li><code>.polyglav/fleet.json</code> - the declarative roster. One <code>AgentDef</code> per agent: <code>name</code>, <code>dir</code>, <code>enabled</code>, <code>prefer_port</code>, <code>max_restarts</code> (0 = unlimited), and an optional <code>command</code> override (the test seam, real agents use the default <code>polyglav serve</code> command)</li>
+<li><code>.polyglav/fleet.state.json</code> - runtime state only (pids, ports, status, restart counts, last error), a snapshot the supervisor writes, never edited by hand</li>
 </ul>
 <p>Build and run a fleet:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>fleet<span class="w"> </span>init<span class="w">                    </span><span class="c1"># scan subdirectories holding .replio/config.json</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>config<span class="w"> </span>docs-agent<span class="w"> </span>--role<span class="w"> </span>research-agent<span class="w">    </span><span class="c1"># generate a config</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>add<span class="w"> </span>code-agent<span class="w"> </span>--dir<span class="w"> </span>../repo<span class="w"> </span>--port<span class="w"> </span><span class="m">8782</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>up<span class="w">                      </span><span class="c1"># foreground, Ctrl-C = graceful down</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>up<span class="w"> </span>--detach<span class="w">             </span><span class="c1"># background daemon (replio fleet down stops it)</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>status<span class="w">                  </span><span class="c1"># agent/enabled/port/pid/state/restarts/error table</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>restart<span class="w"> </span>code-agent<span class="w">      </span><span class="c1"># stop, reset backoff, relaunch on next sweep</span>
-replio<span class="w"> </span>fleet<span class="w"> </span>logs<span class="w"> </span>docs-agent<span class="w"> </span>-f<span class="w">      </span><span class="c1"># tail an agent's .replio/logs/&lt;name&gt;.log</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>fleet<span class="w"> </span>init<span class="w">                    </span><span class="c1"># scan subdirectories holding .polyglav/config.json</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>config<span class="w"> </span>docs-agent<span class="w"> </span>--role<span class="w"> </span>research-agent<span class="w">    </span><span class="c1"># generate a config</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>add<span class="w"> </span>code-agent<span class="w"> </span>--dir<span class="w"> </span>../repo<span class="w"> </span>--port<span class="w"> </span><span class="m">8782</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>up<span class="w">                      </span><span class="c1"># foreground, Ctrl-C = graceful down</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>up<span class="w"> </span>--detach<span class="w">             </span><span class="c1"># background daemon (polyglav fleet down stops it)</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>status<span class="w">                  </span><span class="c1"># agent/enabled/port/pid/state/restarts/error table</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>restart<span class="w"> </span>code-agent<span class="w">      </span><span class="c1"># stop, reset backoff, relaunch on next sweep</span>
+polyglav<span class="w"> </span>fleet<span class="w"> </span>logs<span class="w"> </span>docs-agent<span class="w"> </span>-f<span class="w">      </span><span class="c1"># tail an agent's .polyglav/logs/&lt;name&gt;.log</span>
 </code></pre></div>
 <p>While <code>up</code> runs, every sweep (default 2s) the supervisor does:</p>
 <ul>
 <li><strong>Port allocation</strong> - agents get a free port by bind probe, preferring <code>prefer_port</code>, scanning 8780-8890. Edited while running, <code>add</code>/<code>init</code> take effect on the next sweep</li>
 <li><strong>Health checks</strong> - a <code>GET /health</code> probe (2s timeout). A running agent that fails <code>unhealthy_threshold</code> checks (default 2) or whose process exits is treated as a failure</li>
-<li><strong>Restart policy</strong> - a failed agent is respawned after a backoff that starts at 5s and doubles to a 60s cap. Past <code>max_restarts</code> (default 10) the agent goes <code>crashed</code> and the supervisor stops touching it until <code>replio fleet restart &lt;name&gt;</code> (or <code>enable</code>, which resets the counter and re-arms it). Setting <code>enabled: false</code> in the manifest stops supervision and the agent</li>
-<li><strong>Graceful down</strong> - Ctrl-C, <code>replio fleet down</code>, or a <code>SIGTERM</code> to the detached daemon sends <code>SIGINT</code> to each child (the server's own graceful shutdown), then escalates to <code>SIGKILL</code> after a grace period</li>
+<li><strong>Restart policy</strong> - a failed agent is respawned after a backoff that starts at 5s and doubles to a 60s cap. Past <code>max_restarts</code> (default 10) the agent goes <code>crashed</code> and the supervisor stops touching it until <code>polyglav fleet restart &lt;name&gt;</code> (or <code>enable</code>, which resets the counter and re-arms it). Setting <code>enabled: false</code> in the manifest stops supervision and the agent</li>
+<li><strong>Graceful down</strong> - Ctrl-C, <code>polyglav fleet down</code>, or a <code>SIGTERM</code> to the detached daemon sends <code>SIGINT</code> to each child (the server's own graceful shutdown), then escalates to <code>SIGKILL</code> after a grace period</li>
 </ul>
 <h3 id="per-agent-config-generation">Per-agent config generation<a class="headerlink" href="#per-agent-config-generation" title="Permanent link">&para;</a></h3>
-<p><code>replio fleet config &lt;name&gt;</code> writes only the keys you pass into <code>&lt;dir&gt;/.replio/config.json</code>, leaving existing keys intact, so an agent gets its personality before its first launch:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>fleet<span class="w"> </span>config<span class="w"> </span>code-agent<span class="w"> </span><span class="se">\</span>
+<p><code>polyglav fleet config &lt;name&gt;</code> writes only the keys you pass into <code>&lt;dir&gt;/.polyglav/config.json</code>, leaving existing keys intact, so an agent gets its personality before its first launch:</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>fleet<span class="w"> </span>config<span class="w"> </span>code-agent<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--provider<span class="w"> </span>ollama<span class="w"> </span>--model<span class="w"> </span>llama3.2<span class="w"> </span>--mode<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--system-prompt<span class="w"> </span><span class="s2">"You implement code."</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tools-deny<span class="w"> </span>web_search<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tool-permission<span class="w"> </span><span class="s2">"bash=allow"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--role<span class="w"> </span>programmer
 </code></pre></div>
-<p><code>--role</code> resolves the role (bundled + global + local registry) and inlines its <code>system_prompt</code>, <code>model</code>, and <code>tool_permission</code> into the generated keys, so the running agent needs no roles registry of its own. An unknown role aborts the write. <code>--approve-model</code> pre-approves the model referenced by <code>--role</code> or <code>--model</code> in the global models registry, so the headless serve agent can use it without prompting. Agent config is operator-managed: <code>replio fleet config</code> is the only intended writer, and a <code>serve</code> process has no config-write CLI path today. An engine-level guard making served agents immutable is an open TODO (see TODO).</p>
+<p><code>--role</code> resolves the role (bundled + global + local registry) and inlines its <code>system_prompt</code>, <code>model</code>, and <code>tool_permission</code> into the generated keys, so the running agent needs no roles registry of its own. An unknown role aborts the write. <code>--approve-model</code> pre-approves the model referenced by <code>--role</code> or <code>--model</code> in the global models registry, so the headless serve agent can use it without prompting. Agent config is operator-managed: <code>polyglav fleet config</code> is the only intended writer, and a <code>serve</code> process has no config-write CLI path today. An engine-level guard making served agents immutable is an open TODO (see TODO).</p>
 <h3 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h3>
-<p>For a fleet you supervise each <code>replio serve</code> process with Docker Compose, scaling one service per agent from the repo's <code>docker-compose.yml.example</code>. Each service mounts the agent folder, publishes a host-local port, and carries <code>restart: unless-stopped</code>, so Compose restarts agents on failure and every agent exposes <code>GET /health</code> for monitoring. Full setup is in <a href="../deploy/">deploy.md</a>.</p>
+<p>For a fleet you supervise each <code>polyglav serve</code> process with Docker Compose, scaling one service per agent from the repo's <code>docker-compose.yml.example</code>. Each service mounts the agent folder, publishes a host-local port, and carries <code>restart: unless-stopped</code>, so Compose restarts agents on failure and every agent exposes <code>GET /health</code> for monitoring. Full setup is in <a href="../deploy/">deploy.md</a>.</p>
 
 
 

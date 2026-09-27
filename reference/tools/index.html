@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/tools/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/tools/">
       
       
         <link rel="prev" href="../testing/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Tools - Replio</title>
+        <title>Tools - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1431,7 +1431,7 @@
 
 
 <h1 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h1>
-<p>Tools are how the model acts. The <code>ToolRegistry</code> (<code>src/replio/tools/registry.py</code>) is the single dispatch point: the model invokes tools via OpenAI-compatible function calling, slash commands are thin wrappers over the same <code>execute()</code>, and the loop never special-cases tool names, because per-tool behavior comes from registration metadata.</p>
+<p>Tools are how the model acts. The <code>ToolRegistry</code> (<code>src/polyglav/tools/registry.py</code>) is the single dispatch point: the model invokes tools via OpenAI-compatible function calling, slash commands are thin wrappers over the same <code>execute()</code>, and the loop never special-cases tool names, because per-tool behavior comes from registration metadata.</p>
 <p>This page is the reference: what the registry supports, the bundled tools, and the policy that gates them. Tool definitions follow the OpenAI function calling JSON schema format. The model sees the schema (filtered by policy), requests a tool call, and the loop executes it and feeds the result back. For how to design, name, and describe a new tool so agents use it well, see <a href="../writing-tools/">writing-tools.md</a>.</p>
 <h2 id="bundled-tools">Bundled tools<a class="headerlink" href="#bundled-tools" title="Permanent link">&para;</a></h2>
 <p>The built-in web and machine tools ship as bundled plugins, loaded out of the box:</p>
@@ -1462,21 +1462,21 @@
 </tr>
 <tr>
 <td><code>code_format</code></td>
-<td>replio-core-dev</td>
+<td>polyglav-core-dev</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run the project formatter (<code>dev.format_cmd</code>, default <code>ruff format .</code>)</td>
 </tr>
 <tr>
 <td><code>code_lint</code></td>
-<td>replio-core-dev</td>
+<td>polyglav-core-dev</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run the project linter (<code>dev.lint_cmd</code>, default <code>ruff check .</code>)</td>
 </tr>
 <tr>
 <td><code>code_test</code></td>
-<td>replio-core-dev</td>
+<td>polyglav-core-dev</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run the project test suite (<code>dev.test_cmd</code>, default <code>python -m unittest discover</code>, resolved to the current interpreter)</td>
@@ -1490,49 +1490,49 @@
 </tr>
 <tr>
 <td><code>file_edit</code></td>
-<td>replio-core-edit</td>
+<td>polyglav-core-edit</td>
 <td><code>write</code></td>
 <td><code>edit</code></td>
 <td>Targeted search-and-replace in a file with a diff preview (<code>count</code> occurrences, <code>0</code> = all, alias <code>edit</code>)</td>
 </tr>
 <tr>
 <td><code>file_read</code></td>
-<td>replio-core-fs</td>
+<td>polyglav-core-fs</td>
 <td><code>read</code></td>
 <td><code>read</code></td>
 <td>Read a file with numbered lines (aliases <code>read_file</code>, <code>read</code>, <code>view</code>)</td>
 </tr>
 <tr>
 <td><code>file_write</code></td>
-<td>replio-core-fs</td>
+<td>polyglav-core-fs</td>
 <td><code>write</code></td>
 <td><code>edit</code></td>
 <td>Create/overwrite/append a file (aliases <code>write_file</code>, <code>write</code>)</td>
 </tr>
 <tr>
 <td><code>git</code></td>
-<td>replio-core-git</td>
+<td>polyglav-core-git</td>
 <td><code>read</code></td>
 <td><code>read</code></td>
 <td>Read-only git: status/diff/log/branch/show/rev_parse (aliases <code>git_status</code>, <code>git_diff</code>, <code>git_log</code>, ...)</td>
 </tr>
 <tr>
 <td><code>git_commit</code></td>
-<td>replio-core-git</td>
+<td>polyglav-core-git</td>
 <td><code>write</code></td>
 <td><code>vcs</code></td>
 <td>Stage/commit git changes, confirm-gated unless the <code>vcs</code> carve is <code>allow</code> (<code>all=true</code> always asks). Alias <code>commit</code></td>
 </tr>
 <tr>
 <td><code>glob</code></td>
-<td>replio-core-fs</td>
+<td>polyglav-core-fs</td>
 <td><code>search</code></td>
 <td><code>read</code></td>
 <td>Recursive pattern lookup</td>
 </tr>
 <tr>
 <td><code>grep</code></td>
-<td>replio-core-fs</td>
+<td>polyglav-core-fs</td>
 <td><code>search</code></td>
 <td><code>read</code></td>
 <td>Regex content search (<code>file:line:</code> results, alias <code>find</code>)</td>
@@ -1546,14 +1546,14 @@
 </tr>
 <tr>
 <td><code>list_dir</code></td>
-<td>replio-core-fs</td>
+<td>polyglav-core-fs</td>
 <td><code>read</code></td>
 <td><code>list</code></td>
 <td>List a directory (<code>depth</code> for trees, alias <code>ls</code>)</td>
 </tr>
 <tr>
 <td><code>run_command</code></td>
-<td>replio-core-exec</td>
+<td>polyglav-core-exec</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run a shell command with timeout (aliases <code>bash</code>, <code>exec</code>). Restricted by <code>tool_permission.bash_allow</code></td>
@@ -1567,14 +1567,14 @@
 </tr>
 <tr>
 <td><code>web_fetch</code></td>
-<td>replio-core-web</td>
+<td>polyglav-core-web</td>
 <td><code>read</code></td>
 <td><code>read</code></td>
 <td>Fetch a page by URL or by <code>web_search</code> result <code>id</code> (aliases <code>open</code>, <code>fetch_page</code>)</td>
 </tr>
 <tr>
 <td><code>web_search</code></td>
-<td>replio-core-web</td>
+<td>polyglav-core-web</td>
 <td><code>search</code></td>
 <td><code>web</code></td>
 <td>Web search (aliases <code>search</code>, <code>web</code>)</td>
@@ -1601,7 +1601,7 @@
 <li>Each result is appended as a <code>tool</code> message (with <code>tool_call_id</code> and the tool name), plus a one-line <code>analysis</code> when <code>tool_analysis</code> is enabled.</li>
 <li>The loop continues with the enriched context until the model answers.</li>
 </ol>
-<p>Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a <code>(cancelled)</code> note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (<code>n</code> still declines just that tool). Headless behavior mirrors this, and <code>replio run</code> exits non-zero on a cancelled turn.</p>
+<p>Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a <code>(cancelled)</code> note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (<code>n</code> still declines just that tool). Headless behavior mirrors this, and <code>polyglav run</code> exits non-zero on a cancelled turn.</p>
 <h2 id="running-a-tool-directly">Running a tool directly<a class="headerlink" href="#running-a-tool-directly" title="Permanent link">&para;</a></h2>
 <p><code>/tool &lt;name&gt; {"key": "value"}</code> runs any registered tool from the REPL, routed through the same policy. <code>/help &lt;tool&gt;</code> shows a tool's description, parameters, category, and permission.</p>
 <h2 id="registration-metadata">Registration metadata<a class="headerlink" href="#registration-metadata" title="Permanent link">&para;</a></h2>
@@ -1710,7 +1710,7 @@
 <li>A large file is read in windows via <code>offset</code> / <code>limit</code> arguments (<code>file_read(path, offset=1, limit=200)</code>, then <code>offset=201</code>, ...).</li>
 </ul>
 <h2 id="tool-policy">Tool policy<a class="headerlink" href="#tool-policy" title="Permanent link">&para;</a></h2>
-<p>Every tool call is gated by <code>ToolPolicy</code> (<code>src/replio/tools/policy.py</code>), the single permission resolution point. The loop and <code>/tool</code> both route through it, so never special-case tool names for permission logic.</p>
+<p>Every tool call is gated by <code>ToolPolicy</code> (<code>src/polyglav/tools/policy.py</code>), the single permission resolution point. The loop and <code>/tool</code> both route through it, so never special-case tool names for permission logic.</p>
 <p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm in the loop), or <code>deny</code> (tool filtered from the provider schema and refused on direct calls).</p>
 <p>Every resolution and its outcome (granted / declined / denied) is recorded to the session <code>permissions</code> array as an append-only audit trail. See <a href="../session/">session.md</a>.</p>
 <p>Resolution precedence:</p>
@@ -1720,9 +1720,9 @@
 <li><strong>Per-invocation resolver</strong> - a tool may declare a <code>permission_fn</code> that overrides a non-<code>deny</code> base action from its current arguments, and returning <code>None</code> defers to the category action. It is skipped when the base action is <code>deny</code> and when no arguments are available, so schema filtering (<code>allowed()</code>) keeps the tool visible for <code>ask</code>/<code>allow</code> categories. <code>delegate</code> resolves per role: a configured role uses its own <code>tool_permission</code> with <code>delegate</code> defaulting to <code>allow</code>, a role outside the registry is <code>deny</code>. <code>git_commit</code> defers to the <code>vcs</code> category except for <code>all=true</code>, which asks.</li>
 <li><strong>Worktree escalation</strong> - <code>read</code> / <code>list</code> / <code>write</code> tools pointing outside the project worktree escalate from <code>allow</code> to <code>ask</code>.</li>
 </ol>
-<p>Modes (<a href="../config/">config.md</a>) layer over the base policy: a mode's <code>tool_permission</code> merges over the base (mode wins per key), its <code>tools.deny</code> appends, and its <code>tools.allow</code> replaces when non-empty. The built-in <code>plan</code> mode denies the <code>edit</code> and <code>bash</code> categories, so write and exec tools are filtered from the schema and refused on direct calls. Switch with <code>/mode &lt;name&gt;</code> in the REPL or <code>--mode &lt;name&gt;</code> on <code>replio run</code> / <code>replio serve</code>.</p>
+<p>Modes (<a href="../config/">config.md</a>) layer over the base policy: a mode's <code>tool_permission</code> merges over the base (mode wins per key), its <code>tools.deny</code> appends, and its <code>tools.allow</code> replaces when non-empty. The built-in <code>plan</code> mode denies the <code>edit</code> and <code>bash</code> categories, so write and exec tools are filtered from the schema and refused on direct calls. Switch with <code>/mode &lt;name&gt;</code> in the REPL or <code>--mode &lt;name&gt;</code> on <code>polyglav run</code> / <code>polyglav serve</code>.</p>
 <h3 id="worktree">Worktree<a class="headerlink" href="#worktree" title="Permanent link">&para;</a></h3>
-<p>The worktree is the directory holding the local <code>.replio/</code>, which is the launch directory, or <code>--path</code>. Launching from <code>~</code> makes the whole home directory the worktree, so subdirectories (including other projects) do not escalate. Launch inside the project or pass <code>--path</code> for project-scoped prompting. <code>bash</code> defaults to <code>ask</code>, so every <code>run_command</code> confirms unless <code>tool_permission.bash = "allow"</code>.</p>
+<p>The worktree is the directory holding the local <code>.polyglav/</code>, which is the launch directory, or <code>--path</code>. Launching from <code>~</code> makes the whole home directory the worktree, so subdirectories (including other projects) do not escalate. Launch inside the project or pass <code>--path</code> for project-scoped prompting. <code>bash</code> defaults to <code>ask</code>, so every <code>run_command</code> confirms unless <code>tool_permission.bash = "allow"</code>.</p>
 <p>In headless mode (<code>run</code> / <code>serve</code>), <code>ask</code>-gated tools are denied outright (<code>--yes</code> / <code>--no</code> override), so an agent's reachable surface is exactly its <code>allow</code> tools on paths inside its worktree.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>Tool behavior is controlled by config keys (see <a href="../config/">config.md</a> for the full schema and defaults):</p>

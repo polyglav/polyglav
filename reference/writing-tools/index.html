@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/writing-tools/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/writing-tools/">
       
       
         <link rel="prev" href="../usage/workflow/">
@@ -25,7 +25,7 @@
     
     
       
-        <title>Writing tools for agents - Replio</title>
+        <title>Writing tools for agents - Polyglav</title>
       
     
     
@@ -92,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,13 +216,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -425,7 +425,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1351,7 +1351,7 @@
 
 
 <h1 id="writing-tools-for-agents">Writing tools for agents<a class="headerlink" href="#writing-tools-for-agents" title="Permanent link">&para;</a></h1>
-<p>Tools are how a Replio agent acts. The model plans, the <code>ToolRegistry</code> dispatches, and the agent loop feeds every tool result back into the conversation until the model answers. A tool is a contract between a deterministic system (your implementation) and a non-deterministic agent (the model). The model may call the right tool with the wrong parameters, call the wrong tool, call too few tools, or misread a result. This guide is about writing tools that hold up under that uncertainty across any OpenAI-compatible provider, weak backends included. Registry mechanics (registration metadata, policy, aliases, <code>clean_args</code>) are in <a href="../tools/">tools.md</a>. This page is the craft: which tools to build, how to name them, what to return, how to describe them. The principles adapt Anthropic's "Writing effective tools for agents" to Replio's single-loop, zero-dependency design.</p>
+<p>Tools are how a Polyglav agent acts. The model plans, the <code>ToolRegistry</code> dispatches, and the agent loop feeds every tool result back into the conversation until the model answers. A tool is a contract between a deterministic system (your implementation) and a non-deterministic agent (the model). The model may call the right tool with the wrong parameters, call the wrong tool, call too few tools, or misread a result. This guide is about writing tools that hold up under that uncertainty across any OpenAI-compatible provider, weak backends included. Registry mechanics (registration metadata, policy, aliases, <code>clean_args</code>) are in <a href="../tools/">tools.md</a>. This page is the craft: which tools to build, how to name them, what to return, how to describe them. The principles adapt Anthropic's "Writing effective tools for agents" to Polyglav's single-loop, zero-dependency design.</p>
 <h2 id="choosing-the-right-tools">Choosing the right tools<a class="headerlink" href="#choosing-the-right-tools" title="Permanent link">&para;</a></h2>
 <p>More tools does not mean a better agent. Every tool definition loads into the model's context on every turn, and overlapping tools mislead selection. Build a few thoughtful tools for high-impact workflows, and scale up only when a real gap shows up.</p>
 <ul>
@@ -1364,14 +1364,14 @@
 <p>Tool names are how the model selects behavior, so they should be distinct, purposeful, and grouped by domain.</p>
 <ul>
 <li>Give every tool a clear, distinct purpose and a name that states it. <code>web_search</code>, <code>web_fetch</code>, <code>file_read</code>, <code>list_dir</code>, <code>file_write</code>, <code>glob</code>, <code>grep</code>, <code>run_command</code> each read as one distinct action.</li>
-<li>Namespace by domain when a surface grows. Bundled plugins already do this by module (<code>replio-core-web</code> exposes <code>web_search</code>, <code>web_fetch</code>), and MCP tools use the <code>mcp_</code> prefix. Prefixing (<code>web_</code>, <code>file_</code>, <code>mcp_</code>) helps the model pick the right tool when many are loaded.</li>
+<li>Namespace by domain when a surface grows. Bundled plugins already do this by module (<code>polyglav-core-web</code> exposes <code>web_search</code>, <code>web_fetch</code>), and MCP tools use the <code>mcp_</code> prefix. Prefixing (<code>web_</code>, <code>file_</code>, <code>mcp_</code>) helps the model pick the right tool when many are loaded.</li>
 <li>Advertise canonical names only, absorb model dialect with <code>aliases</code>. The schema shows <code>run_command</code>, not <code>bash</code> or <code>exec</code>, and <code>web_fetch</code>, not <code>open</code> or <code>fetch_page</code>. Aliases resolve at call time, so a model that says <code>open</code>, <code>search</code>, or <code>find</code> still gets the real tool. Advertising both spellings doubles the tool list for no benefit.</li>
 <li>Name parameters unambiguously. Prefer <code>include</code> over <code>glob</code>, <code>pattern</code> over <code>query</code> in <code>grep</code>, concrete nouns over pronouns. A parameter named <code>path</code> with a description is clearer than a bare <code>file</code>.</li>
 </ul>
 <h2 id="returning-meaningful-context">Returning meaningful context<a class="headerlink" href="#returning-meaningful-context" title="Permanent link">&para;</a></h2>
 <p>Tool results feed back verbatim into the model's context. Return high-signal information that directly informs the next step, prefer interpretable language over technical identifiers.</p>
 <ul>
-<li>Resolve and report natural identifiers. <code>file_read</code> and <code>file_write</code> resolve absolute paths. <code>grep</code> returns <code>file:line: text</code> so the model can act on the location. No raw UUIDs or opaque handles appear in Replio's tools.</li>
+<li>Resolve and report natural identifiers. <code>file_read</code> and <code>file_write</code> resolve absolute paths. <code>grep</code> returns <code>file:line: text</code> so the model can act on the location. No raw UUIDs or opaque handles appear in Polyglav's tools.</li>
 <li>Report sizes and boundaries so the agent can decide. <code>file_read</code> puts total line and char counts in its header and marks partial windows with <code>(showing a-b)</code>. <code>web_fetch</code> reports <code>[offset N of M chars]</code> when content continues.</li>
 <li>Keep results deterministic and complete for the task. The same input produces the same output, independent of unrelated state.</li>
 </ul>
@@ -1436,18 +1436,18 @@
 <h2 id="errors-and-soft-results">Errors and soft results<a class="headerlink" href="#errors-and-soft-results" title="Permanent link">&para;</a></h2>
 <p>Error responses are guidance, not telemetry. When a call fails, tell the model what to do instead.</p>
 <ul>
-<li>Start with <code>Error:</code> and a one-line actionable message. Replio's filesystem tools set the pattern: <code>Error: X is a directory (use list_dir instead)</code>, <code>Error: X is not a directory (use file_read instead)</code>, <code>Error: file not found: X</code>. Each suggests the correct tool.</li>
+<li>Start with <code>Error:</code> and a one-line actionable message. Polyglav's filesystem tools set the pattern: <code>Error: X is a directory (use list_dir instead)</code>, <code>Error: X is not a directory (use file_read instead)</code>, <code>Error: file not found: X</code>. Each suggests the correct tool.</li>
 <li>Do not return tracebacks or opaque codes. The first line of an <code>Error:</code> result echoes dimmed in the REPL, so the model and the human see the same guidance.</li>
 <li>Use a <code>note</code> predicate for informational one-liners that are not failures. <code>(no matches for "x")</code>, <code>(empty file)</code>, <code>(end of content)</code>, and <code>No search results found.</code> are normal outcomes. A dimmed note beats a red error line.</li>
 </ul>
 <h2 id="evaluating-your-tools">Evaluating your tools<a class="headerlink" href="#evaluating-your-tools" title="Permanent link">&para;</a></h2>
-<p>Measure how well a model uses a tool before you trust it. Replio ships an agent-level tool-evaluation harness, <code>replio eval</code>, that runs task fixtures through the headless agent loop and reports tool-call accuracy, redundant calls, errors, and tokens, against a mock or a real provider (see <a href="../eval/">eval.md</a>). The <code>replio-core-eval</code> bundled plugin contributes a small fixture catalog. Author your own fixtures under <code>.replio/eval/*.json</code>.</p>
+<p>Measure how well a model uses a tool before you trust it. Polyglav ships an agent-level tool-evaluation harness, <code>polyglav eval</code>, that runs task fixtures through the headless agent loop and reports tool-call accuracy, redundant calls, errors, and tokens, against a mock or a real provider (see <a href="../eval/">eval.md</a>). The <code>polyglav-core-eval</code> bundled plugin contributes a small fixture catalog. Author your own fixtures under <code>.polyglav/eval/*.json</code>.</p>
 <ul>
 <li>Build a mock-provider loop test. The test suite runs the full agent loop against a stubbed <code>provider.chat</code> with no network and no API key. <code>tests/test_tool_calling.py</code>, <code>tests/test_agent_loop.py</code>, and the <code>make_chat</code> / <code>make_engine</code> helpers in <code>tests/</code> are the pattern. Drive the loop with a tool-call event and assert the model-visible result and session parts.</li>
-<li>Run <code>replio eval</code> against a real provider before and after a description change. A fixture whose <code>pass</code> flips (or whose accuracy moves) quantifies the effect.</li>
+<li>Run <code>polyglav eval</code> against a real provider before and after a description change. A fixture whose <code>pass</code> flips (or whose accuracy moves) quantifies the effect.</li>
 <li>Exercise a tool directly with <code>/tool &lt;name&gt; {"args": ...}</code> from the REPL. It routes through the same policy, <code>clean_args</code>, and display as a loop call, a fast sanity check for argument handling and result format.</li>
 <li>Read the session logs for misbehavior. Wrong-tool selection, repeated parameter errors, or the same search re-run means the description, naming, or schema is unclear. Models trained on tool-use data often reach for <code>open</code> to fetch a URL. The <code>open</code> alias absorbs that habit while the schema advertises <code>web_fetch</code>.</li>
-<li>Compare providers. Replio standardizes on OpenAI-compatible tool calling, but models differ sharply in how they parse schemas. Run the same task against Ollama and a hosted OpenAI-compatible endpoint and watch which tools each reaches for. Weak backends are where naming, caps, and description quality pay off.</li>
+<li>Compare providers. Polyglav standardizes on OpenAI-compatible tool calling, but models differ sharply in how they parse schemas. Run the same task against Ollama and a hosted OpenAI-compatible endpoint and watch which tools each reaches for. Weak backends are where naming, caps, and description quality pay off.</li>
 </ul>
 <p>Metrics worth watching: redundant tool calls (pagination or caps too tight), invalid-parameter errors (descriptions unclear or schema too loose), and context bloat (a tool returning more than the task needs).</p>
 <h2 id="checklist">Checklist<a class="headerlink" href="#checklist" title="Permanent link">&para;</a></h2>

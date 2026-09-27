@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/mcp/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/mcp/">
       
       
         <link rel="prev" href="../jobs/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>MCP (Model Context Protocol) - Replio</title>
+        <title>MCP (Model Context Protocol) - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -794,10 +794,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#stdio-replio-mcp" class="md-nav__link">
+  <a href="#stdio-polyglav-mcp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        stdio (replio mcp)
+        stdio (polyglav mcp)
       
     </span>
   </a>
@@ -805,10 +805,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#http-post-mcp-on-replio-serve" class="md-nav__link">
+  <a href="#http-post-mcp-on-polyglav-serve" class="md-nav__link">
     <span class="md-ellipsis">
       
-        HTTP (POST /mcp on replio serve)
+        HTTP (POST /mcp on polyglav serve)
       
     </span>
   </a>
@@ -1322,10 +1322,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#stdio-replio-mcp" class="md-nav__link">
+  <a href="#stdio-polyglav-mcp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        stdio (replio mcp)
+        stdio (polyglav mcp)
       
     </span>
   </a>
@@ -1333,10 +1333,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#http-post-mcp-on-replio-serve" class="md-nav__link">
+  <a href="#http-post-mcp-on-polyglav-serve" class="md-nav__link">
     <span class="md-ellipsis">
       
-        HTTP (POST /mcp on replio serve)
+        HTTP (POST /mcp on polyglav serve)
       
     </span>
   </a>
@@ -1399,10 +1399,10 @@
 
 
 <h1 id="mcp-model-context-protocol">MCP (Model Context Protocol)<a class="headerlink" href="#mcp-model-context-protocol" title="Permanent link">&para;</a></h1>
-<p>Replio speaks MCP in both directions through the bundled <code>replio-core-mcp</code> plugin. It is stdlib-only, with no third-party <code>mcp</code> library, and uses JSON-RPC 2.0 over newline-delimited stdio and SSE over urllib:</p>
+<p>Polyglav speaks MCP in both directions through the bundled <code>polyglav-core-mcp</code> plugin. It is stdlib-only, with no third-party <code>mcp</code> library, and uses JSON-RPC 2.0 over newline-delimited stdio and SSE over urllib:</p>
 <ul>
-<li><strong>Client</strong> - connect to external MCP servers (stdio or HTTP), import their tools into the <code>ToolRegistry</code>, and call them like any other Replio tool. Tool policy, <code>/tool</code>, <code>/help</code>, glyph activity lines, query refinement and session logging all apply.</li>
-<li><strong>Server</strong> - expose Replio's registered tools and sessions as an MCP server to external agents (Claude, opencode, and other MCP clients) over stdio (<code>replio mcp</code>) and HTTP (<code>POST /mcp</code> on <code>replio serve</code>).</li>
+<li><strong>Client</strong> - connect to external MCP servers (stdio or HTTP), import their tools into the <code>ToolRegistry</code>, and call them like any other Polyglav tool. Tool policy, <code>/tool</code>, <code>/help</code>, glyph activity lines, query refinement and session logging all apply.</li>
+<li><strong>Server</strong> - expose Polyglav's registered tools and sessions as an MCP server to external agents (Claude, opencode, and other MCP clients) over stdio (<code>polyglav mcp</code>) and HTTP (<code>POST /mcp</code> on <code>polyglav serve</code>).</li>
 </ul>
 <p>Both eras are supported and negotiated per connection: the modern stateless revision (<code>2026-07-28</code>, per-request <code>_meta</code>) and the legacy <code>initialize</code>-handshake revisions (<code>2025-11-25</code> and earlier). The client probes <code>server/discover</code> and falls back to <code>initialize</code>. The server serves either, based on how the client opens.</p>
 <h2 id="client">Client<a class="headerlink" href="#client" title="Permanent link">&para;</a></h2>
@@ -1523,17 +1523,17 @@
 <li>Tool results are logged to the session like any tool result.</li>
 </ul>
 <h2 id="server">Server<a class="headerlink" href="#server" title="Permanent link">&para;</a></h2>
-<p>The server exposes Replio's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows <code>ToolPolicy</code>. <code>ask</code> tools run directly (the external MCP client is the human-in-the-loop and shows its own confirmations) unless <code>mcp_server.allow_ask</code> is <code>false</code>, which refuses them.</p>
-<h3 id="stdio-replio-mcp">stdio (<code>replio mcp</code>)<a class="headerlink" href="#stdio-replio-mcp" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>mcp<span class="w">                </span><span class="c1"># read JSON-RPC from stdin, write to stdout</span>
+<p>The server exposes Polyglav's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows <code>ToolPolicy</code>. <code>ask</code> tools run directly (the external MCP client is the human-in-the-loop and shows its own confirmations) unless <code>mcp_server.allow_ask</code> is <code>false</code>, which refuses them.</p>
+<h3 id="stdio-polyglav-mcp">stdio (<code>polyglav mcp</code>)<a class="headerlink" href="#stdio-polyglav-mcp" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>mcp<span class="w">                </span><span class="c1"># read JSON-RPC from stdin, write to stdout</span>
 </code></pre></div>
 <p>An MCP client launches this as a subprocess (newline-delimited JSON), <code>initialize</code> or <code>server/discover</code>, then <code>tools/list</code> / <code>tools/call</code>.</p>
-<h3 id="http-post-mcp-on-replio-serve">HTTP (<code>POST /mcp</code> on <code>replio serve</code>)<a class="headerlink" href="#http-post-mcp-on-replio-serve" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>serve<span class="w"> </span>--port<span class="w"> </span><span class="m">8787</span><span class="w">  </span><span class="c1"># adds POST /mcp when the plugin is loaded</span>
+<h3 id="http-post-mcp-on-polyglav-serve">HTTP (<code>POST /mcp</code> on <code>polyglav serve</code>)<a class="headerlink" href="#http-post-mcp-on-polyglav-serve" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve<span class="w"> </span>--port<span class="w"> </span><span class="m">8787</span><span class="w">  </span><span class="c1"># adds POST /mcp when the plugin is loaded</span>
 </code></pre></div>
 <p>This implements the streamable HTTP transport: each JSON-RPC request is its own POST, answered with JSON (or SSE for streaming-capable requests).</p>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
-<p>Sessions are exposed as MCP resources under <code>replio://session/&lt;name&gt;</code> with <code>resources/list</code> and <code>resources/read</code> returning the session JSON.</p>
+<p>Sessions are exposed as MCP resources under <code>polyglav://session/&lt;name&gt;</code> with <code>resources/list</code> and <code>resources/read</code> returning the session JSON.</p>
 <h2 id="config_1">Config<a class="headerlink" href="#config_1" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

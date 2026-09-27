@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/memory/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/memory/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Memory - Replio</title>
+        <title>Memory - Polyglav</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -421,7 +421,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1126,7 +1126,7 @@
 <h1 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h1>
 <p>Continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per scope, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.</p>
 <h2 id="scopes-and-storage">Scopes and storage<a class="headerlink" href="#scopes-and-storage" title="Permanent link">&para;</a></h2>
-<p>Memory lives under <code>.replio/memory/</code> in the worktree, one file per name:</p>
+<p>Memory lives under <code>.polyglav/memory/</code> in the worktree, one file per name:</p>
 <table>
 <thead>
 <tr>
@@ -1139,25 +1139,25 @@
 <tbody>
 <tr>
 <td><code>role</code></td>
-<td><code>.replio/memory/roles/&lt;type&gt;.md</code></td>
+<td><code>.polyglav/memory/roles/&lt;type&gt;.md</code></td>
 <td>After a delegated agent run</td>
 <td>Into that role's sub-agent system prompt</td>
 </tr>
 <tr>
 <td><code>team</code></td>
-<td><code>.replio/memory/teams/&lt;name&gt;.md</code></td>
+<td><code>.polyglav/memory/teams/&lt;name&gt;.md</code></td>
 <td>After a team run</td>
 <td>Into every stage brief</td>
 </tr>
 <tr>
 <td><code>job</code></td>
-<td><code>.replio/memory/jobs/&lt;name&gt;.md</code></td>
+<td><code>.polyglav/memory/jobs/&lt;name&gt;.md</code></td>
 <td>After a job run</td>
 <td>Into the run's system prompt</td>
 </tr>
 </tbody>
 </table>
-<p>Files are plain Markdown and human-editable. Reads fall back to the older locations (<code>.replio/jobs/&lt;name&gt;.memory.md</code>, <code>.replio/teams/&lt;name&gt;/memory.md</code>) so existing memories keep working, and writes always go to the new path. Writes are atomic (a <code>.tmp</code> file replaces the target).</p>
+<p>Files are plain Markdown and human-editable. Reads fall back to the older locations (<code>.polyglav/jobs/&lt;name&gt;.memory.md</code>, <code>.polyglav/teams/&lt;name&gt;/memory.md</code>) so existing memories keep working, and writes always go to the new path. Writes are atomic (a <code>.tmp</code> file replaces the target).</p>
 <h2 id="automatic-and-manual">Automatic and manual<a class="headerlink" href="#automatic-and-manual" title="Permanent link">&para;</a></h2>
 <p>Each scope is refreshed by summarizing the run through the same compaction path as <code>/compact</code>, seeded with the previous memory so facts carry. A failed summarizer leaves the previous memory in place.</p>
 <ul>

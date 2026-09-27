@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/session/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/session/">
       
       
         <link rel="prev" href="../security/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Sessions - Replio</title>
+        <title>Sessions - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1431,10 +1431,10 @@
 
 
 <h1 id="sessions">Sessions<a class="headerlink" href="#sessions" title="Permanent link">&para;</a></h1>
-<p>Sessions are complete, append-only conversation logs. Every turn (the operator prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's <code>.replio/sessions/</code> directory. Entries are never removed. Compaction only trims the provider context, never the log.</p>
+<p>Sessions are complete, append-only conversation logs. Every turn (the operator prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's <code>.polyglav/sessions/</code> directory. Entries are never removed. Compaction only trims the provider context, never the log.</p>
 <h2 id="where-sessions-live">Where sessions live<a class="headerlink" href="#where-sessions-live" title="Permanent link">&para;</a></h2>
-<p>Each session is one JSON file: <code>.replio/sessions/&lt;name&gt;.json</code>, next to the local <code>.replio/config.json</code>.</p>
-<p>Names are explicit (<code>/session new &lt;name&gt;</code>, <code>/session load &lt;name&gt;</code>, <code>replio run --session-id &lt;name&gt;</code>) or auto-generated as <code>ses_&lt;timestamp&gt;_&lt;id&gt;</code>, e.g. <code>ses_20260817_120000_ab12cd</code>. The <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).</p>
+<p>Each session is one JSON file: <code>.polyglav/sessions/&lt;name&gt;.json</code>, next to the local <code>.polyglav/config.json</code>.</p>
+<p>Names are explicit (<code>/session new &lt;name&gt;</code>, <code>/session load &lt;name&gt;</code>, <code>polyglav run --session-id &lt;name&gt;</code>) or auto-generated as <code>ses_&lt;timestamp&gt;_&lt;id&gt;</code>, e.g. <code>ses_20260817_120000_ab12cd</code>. The <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).</p>
 <p>Session files carry a kind prefix so the kinds stay distinguishable at a glance:</p>
 <table>
 <thead>
@@ -1463,9 +1463,9 @@
 </tbody>
 </table>
 <p>The trailing <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The <code>session_id</code> is the stable run handle: each run mirrors it as <code>Run.session_id</code>, <code>/focus</code> and <code>/history</code> show it, and commands accept it as <code>#&lt;id&gt;</code> (<code>/focus #ab12cd</code>, <code>handoff</code> target <code>#ab12cd</code>, <code>/history --run #ab12cd</code>, <code>/print --run #ab12cd</code>). Resolution is a direct filename glob for <code>*_&lt;id&gt;.json</code>, so an id is found without reading every session. The <code>ses_</code>, <code>job_</code>, and <code>sub_</code> kinds carry an id. Explicit names carry no id and are referenced by <code>session:&lt;name&gt;</code>. Files written before the <code>session_name</code>/<code>session_id</code> fields were introduced no longer load (the file is left on disk and stays listed).</p>
-<p>Delegation writes each sub-agent's log as its own session: <code>sub_&lt;ts&gt;_&lt;id&gt;</code> (<code>sub_20260817_120100_cd34ef</code>), with the calling session recorded as <code>parent_id</code> rather than in the filename. Job runs use <code>job_&lt;ts&gt;_&lt;id&gt;</code>, with the job name still recorded in the job registry and each run's <code>JobRun.session</code>. A caller may resume a run or session explicitly with <code>delegate</code>/<code>team</code> <code>resume=...</code> and <code>context=continue|compact|new</code>, which appends to that run's own log instead of minting a new one. These live in the same <code>.replio/sessions/</code> directory and are regular sessions, listed by <code>/sessions</code> (annotated with their parent), exportable, and loadable, so lead and sub-agent logs stay separate and complete.</p>
+<p>Delegation writes each sub-agent's log as its own session: <code>sub_&lt;ts&gt;_&lt;id&gt;</code> (<code>sub_20260817_120100_cd34ef</code>), with the calling session recorded as <code>parent_id</code> rather than in the filename. Job runs use <code>job_&lt;ts&gt;_&lt;id&gt;</code>, with the job name still recorded in the job registry and each run's <code>JobRun.session</code>. A caller may resume a run or session explicitly with <code>delegate</code>/<code>team</code> <code>resume=...</code> and <code>context=continue|compact|new</code>, which appends to that run's own log instead of minting a new one. These live in the same <code>.polyglav/sessions/</code> directory and are regular sessions, listed by <code>/sessions</code> (annotated with their parent), exportable, and loadable, so lead and sub-agent logs stay separate and complete.</p>
 <p>Each session also records the agent <code>role</code> that owns it (the bound root role, the delegated role, the team-stage role, or the job role), stamped at creation. That makes a run reconstructable from its log even after the process exits. A plain root or a headless run with no <code>--role</code> leaves <code>role</code> empty.</p>
-<p>Each session also records the Replio <code>version</code> that created it, so a log says which build wrote it. The version is stamped once at creation and never changes. Files written before the field load with an empty <code>version</code> (no backfill).</p>
+<p>Each session also records the Polyglav <code>version</code> that created it, so a log says which build wrote it. The version is stamped once at creation and never changes. Files written before the field load with an empty <code>version</code> (no backfill).</p>
 <p>Session files written before the turn format (flat <code>messages</code>) and files written before the <code>session_name</code>/<code>session_id</code> rename do not load: <code>read()</code> returns nothing for them, the file is left untouched on disk, and <code>/sessions</code> still lists the name. The turn format is a full cutover, not a compatibility layer.</p>
 <h2 id="managing-sessions">Managing sessions<a class="headerlink" href="#managing-sessions" title="Permanent link">&para;</a></h2>
 <p>The active session is handled by <code>/session</code> (like <code>/model</code> for the model). The catalog of saved sessions lives under <code>/sessions</code> (like <code>/models</code>).</p>
@@ -1518,7 +1518,7 @@
 <td>Export a session to Markdown</td>
 </tr>
 <tr>
-<td><code>replio run --session-id &lt;name&gt;</code></td>
+<td><code>polyglav run --session-id &lt;name&gt;</code></td>
 <td>Load or create a session from headless mode</td>
 </tr>
 </tbody>
@@ -1528,9 +1528,9 @@
 <p><code>/print &lt;n&gt;</code> reprints the turn with that absolute index: the full turn metadata block (<code>#index</code>, status, duration, tool count, <code>started</code>/<code>ended</code>, model, provider, mode, reasoning, with empty values shown as <code>-</code>, so even a command turn is self-describing), then each part: the operator prompt, thinking (dim), every tool call with <code>input</code> JSON, <code>output</code>, <code>is_error</code>, and <code>analysis</code>, the answer, command records (a compaction summary included), and system notes. <code>/print &lt;n&gt;.&lt;m&gt;</code> prints only the m-th part of turn n. Each part's text is capped at <code>print_max_chars</code> characters (default 4000) with <code>... (N more chars, use --full)</code> appended, and <code>--full</code> (or <code>print_max_chars: 0</code>) removes the cap. <code>/print</code> takes the same <code>--run &lt;#id|#run|role|session:name|name&gt;</code> selector as <code>/history</code>, resolving through the same rules without switching focus or the current session.</p>
 <h2 id="exporting-to-markdown">Exporting to Markdown<a class="headerlink" href="#exporting-to-markdown" title="Permanent link">&para;</a></h2>
 <p><code>/sessions export &lt;name&gt;</code> renders any saved session as a Markdown transcript. It reads the persisted log directly (<code>read()</code>, not <code>load()</code>), so the current session is never switched and the source file is left untouched.</p>
-<p>Default output is <code>.replio/exports/&lt;name&gt;.md</code>, next to the <code>sessions/</code> directory. A second argument overrides the path (<code>/sessions export &lt;name&gt; out.md</code>). <code>-</code> prints the transcript to stdout instead of a file. The command tab-completes session names.</p>
+<p>Default output is <code>.polyglav/exports/&lt;name&gt;.md</code>, next to the <code>sessions/</code> directory. A second argument overrides the path (<code>/sessions export &lt;name&gt; out.md</code>). <code>-</code> prints the transcript to stdout instead of a file. The command tab-completes session names.</p>
 <p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, serialization-time transforms (<code>noise_tools</code> markers, <code>session_tool_max_chars</code> truncation) carry through as they appear in the file.</p>
-<p>The headless CLI <code>replio export &lt;name&gt; [--out &lt;file&gt;]</code> reuses the same renderer for scripts and CI. <code>--out -</code> prints to stdout, and the default matches the slash command (<code>.replio/exports/&lt;name&gt;.md</code>).</p>
+<p>The headless CLI <code>polyglav export &lt;name&gt; [--out &lt;file&gt;]</code> reuses the same renderer for scripts and CI. <code>--out -</code> prints to stdout, and the default matches the slash command (<code>.polyglav/exports/&lt;name&gt;.md</code>).</p>
 <h2 id="file-structure">File structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:00:00+00:00"</span><span class="p">,</span>
@@ -1608,7 +1608,7 @@
 <tr>
 <td><code>version</code></td>
 <td>string</td>
-<td>Replio version that created the session, stamped at creation (empty for files written before the field)</td>
+<td>Polyglav version that created the session, stamped at creation (empty for files written before the field)</td>
 </tr>
 </tbody>
 </table>
@@ -1730,7 +1730,7 @@
 <span class="w">   </span><span class="nt">"compact_from"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}]}</span>
 </code></pre></div>
 <p>A <code>command</code> part with a <code>summary</code> is a compaction record: <code>summary</code> holds the text and <code>compact_from</code> the turn <code>index</code> where the kept portion starts. The configured <code>system_prompt</code> and mode instruction are injected at request time, never stored in the log.</p>
-<p>Answering a parked ask (<code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>replio serve</code>) appends a <code>user</code> part <code>[answer to parked ask #&lt;id&gt;] &lt;answer&gt;</code> to the ask's origin session, so the next turn on that session resumes with the operator's decision in context. See <a href="../config/#unattended-mode">config.md</a>.</p>
+<p>Answering a parked ask (<code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>) appends a <code>user</code> part <code>[answer to parked ask #&lt;id&gt;] &lt;answer&gt;</code> to the ask's origin session, so the next turn on that session resumes with the operator's decision in context. See <a href="../config/#unattended-mode">config.md</a>.</p>
 <h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
 <p>Turn-level failures are appended to the <code>errors</code> array, separate from the turn log:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unauthorized"</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:40:00+00:00"</span><span class="p">}</span>

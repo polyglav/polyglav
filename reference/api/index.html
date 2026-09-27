@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/api/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/api/">
       
       
         <link rel="prev" href="../">
@@ -27,7 +27,7 @@
     
     
       
-        <title>API - Replio</title>
+        <title>API - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1287,9 +1287,9 @@
 
 
 <h1 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
-<p><code>replio serve</code> runs an HTTP JSON API on <code>127.0.0.1:8787</code> by default (override with <code>--host</code> / <code>--port</code>).</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>serve
-<span class="c1"># replio serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /asks, POST /asks/&lt;id&gt;/answer, GET /health, GET /version)</span>
+<p><code>polyglav serve</code> runs an HTTP JSON API on <code>127.0.0.1:8787</code> by default (override with <code>--host</code> / <code>--port</code>).</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve
+<span class="c1"># polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /asks, POST /asks/&lt;id&gt;/answer, GET /health, GET /version)</span>
 </code></pre></div>
 <p>All responses are JSON with <code>Content-Type: application/json</code>.</p>
 <h2 id="post-chat">POST /chat<a class="headerlink" href="#post-chat" title="Permanent link">&para;</a></h2>
@@ -1335,7 +1335,7 @@
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/asks/1/answer<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"answer": "use port 8080"}'</span>
 <span class="c1"># {"ask": {"id": 1, ..., "status": "answered", "answer": "use port 8080"},</span>
-<span class="c1">#  "session": "sub_20260910_...", "resume": "replio run --session-id sub_... \"continue\"",</span>
+<span class="c1">#  "session": "sub_20260910_...", "resume": "polyglav run --session-id sub_... \"continue\"",</span>
 <span class="c1">#  "injected": true}</span>
 </code></pre></div>
 <p>Errors: <code>400</code> for a missing/empty <code>answer</code> or invalid JSON body, <code>404</code> for an unknown ask id.</p>

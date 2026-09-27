@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/deploy/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/deploy/">
       
       
         <link rel="prev" href="../config/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Deployment - Replio</title>
+        <title>Deployment - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1255,14 +1255,14 @@
 
 
 <h1 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h1>
-<p>You can run <code>replio serve</code> directly, but a fleet of agents is best supervised by Docker: one container per agent, restarted on failure, with config and sessions on a mounted folder. Replio has two install paths:</p>
+<p>You can run <code>polyglav serve</code> directly, but a fleet of agents is best supervised by Docker: one container per agent, restarted on failure, with config and sessions on a mounted folder. Polyglav has two install paths:</p>
 <ul>
-<li><strong>Single interactive agent</strong> - install with pipx and run the REPL, <code>replio run</code>, or <code>replio serve</code> by hand. See the <a href="../README.md">README</a>.</li>
+<li><strong>Single interactive agent</strong> - install with pipx and run the REPL, <code>polyglav run</code>, or <code>polyglav serve</code> by hand. See <a href="../INSTALL.md">INSTALL.md</a>.</li>
 <li><strong>Supervised fleet or always-on server</strong> - this page. Build the image from the repo's <code>Dockerfile</code> and run one container per agent with <code>docker-compose.yml.example</code>.</li>
 </ul>
-<p>The Docker templates live at the repo root (<code>Dockerfile</code>, <code>replio-entrypoint.sh</code>, <code>docker-compose.yml.example</code>) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always <code>replio serve</code> pointed at a folder inside the container. The folder holds <code>.replio/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes sessions under <code>.replio/sessions/</code>. Mount that folder into the container and the agent keeps its state across restarts.</p>
+<p>The Docker templates live at the repo root (<code>Dockerfile</code>, <code>polyglav-entrypoint.sh</code>, <code>docker-compose.yml.example</code>) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always <code>polyglav serve</code> pointed at a folder inside the container. The folder holds <code>.polyglav/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes sessions under <code>.polyglav/sessions/</code>. Mount that folder into the container and the agent keeps its state across restarts.</p>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
-<p>The image runs <code>replio serve</code> and takes three environment variables:</p>
+<p>The image runs <code>polyglav serve</code> and takes three environment variables:</p>
 <table>
 <thead>
 <tr>
@@ -1273,42 +1273,42 @@
 </thead>
 <tbody>
 <tr>
-<td><code>REPLIO_HOST</code></td>
+<td><code>POLYGLAV_HOST</code></td>
 <td><code>0.0.0.0</code></td>
 <td>Bind address</td>
 </tr>
 <tr>
-<td><code>REPLIO_PORT</code></td>
+<td><code>POLYGLAV_PORT</code></td>
 <td><code>8787</code></td>
 <td>Bind port</td>
 </tr>
 <tr>
-<td><code>REPLIO_PATH</code></td>
+<td><code>POLYGLAV_PATH</code></td>
 <td>(unset)</td>
-<td>Project path the agent is scoped to. When set, the server uses <code>--path</code> and reads <code>.replio/config.json</code> from that directory</td>
+<td>Project path the agent is scoped to. When set, the server uses <code>--path</code> and reads <code>.polyglav/config.json</code> from that directory</td>
 </tr>
 </tbody>
 </table>
 <p>Build the image from the repo root:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>replio<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>polyglav<span class="w"> </span>.
 </code></pre></div>
 <h3 id="single-agent">Single agent<a class="headerlink" href="#single-agent" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>docs-agent<span class="w"> </span>-p<span class="w"> </span><span class="m">127</span>.0.0.1:8781:8781<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">REPLIO_PORT</span><span class="o">=</span><span class="m">8781</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">REPLIO_PATH</span><span class="o">=</span>/srv/docs<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">POLYGLAV_PORT</span><span class="o">=</span><span class="m">8781</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">POLYGLAV_PATH</span><span class="o">=</span>/srv/docs<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/agents/docs:/srv/docs"</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>replio
+<span class="w">  </span>polyglav
 </code></pre></div>
-<p>The mounted <code>agents/docs</code> directory holds the agent's <code>.replio/config.json</code> (model and permissions) and its sessions. The API key resolves from the global provider registry (<code>~/.config/replio/providers.json</code>), so mount that file into the container (or register the connection with <code>/connect</code> inside it) for keyed providers. The container runs as root, so agent-written session files are root-owned on the host. Add <code>--user "$(id -u):$(id -g)"</code> if you want them owned by your uid.</p>
+<p>The mounted <code>agents/docs</code> directory holds the agent's <code>.polyglav/config.json</code> (model and permissions) and its sessions. The API key resolves from the global provider registry (<code>~/.config/polyglav/providers.json</code>), so mount that file into the container (or register the connection with <code>/connect</code> inside it) for keyed providers. The container runs as root, so agent-written session files are root-owned on the host. Add <code>--user "$(id -u):$(id -g)"</code> if you want them owned by your uid.</p>
 <h3 id="fleet-with-docker-compose">Fleet with Docker Compose<a class="headerlink" href="#fleet-with-docker-compose" title="Permanent link">&para;</a></h3>
-<p>The repo root's <code>docker-compose.yml.example</code> defines one service per agent. Copy it to <code>docker-compose.yml</code> and adjust the services (name, <code>REPLIO_PATH</code>, port, and volume, since the API key and model come from the mounted <code>.replio/config.json</code>):</p>
+<p>The repo root's <code>docker-compose.yml.example</code> defines one service per agent. Copy it to <code>docker-compose.yml</code> and adjust the services (name, <code>POLYGLAV_PATH</code>, port, and volume, since the API key and model come from the mounted <code>.polyglav/config.json</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">docs-agent</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">REPLIO_PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8781</span>
-<span class="w">      </span><span class="nt">REPLIO_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/srv/docs</span>
+<span class="w">      </span><span class="nt">POLYGLAV_PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8781</span>
+<span class="w">      </span><span class="nt">POLYGLAV_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/srv/docs</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./agents/docs:/srv/docs</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>

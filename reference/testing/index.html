@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/testing/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/testing/">
       
       
         <link rel="prev" href="../teams/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Testing - Replio</title>
+        <title>Testing - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1284,7 +1284,7 @@
 </tr>
 <tr>
 <td><code>test_cli.py</code></td>
-<td><code>replio run</code>: JSON/text output, session-id persistence, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>replio export</code>: default/custom/stdout targets, unknown session. <code>replio models</code>: bare configured listing (grouped, active marker, key marker, empty) and <code>list [provider]</code> probe (default/<code>&lt;provider&gt;</code>, error/empty), <code>main</code> dispatch for both. <code>replio plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch</td>
+<td><code>polyglav run</code>: JSON/text output, session-id persistence, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>polyglav export</code>: default/custom/stdout targets, unknown session. <code>polyglav models</code>: bare configured listing (grouped, active marker, key marker, empty) and <code>list [provider]</code> probe (default/<code>&lt;provider&gt;</code>, error/empty), <code>main</code> dispatch for both. <code>polyglav plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch</td>
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
@@ -1296,7 +1296,7 @@
 </tr>
 <tr>
 <td><code>test_config.py</code></td>
-<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>replio config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration</td>
+<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration</td>
 </tr>
 <tr>
 <td><code>test_delegate.py</code></td>
@@ -1316,7 +1316,7 @@
 </tr>
 <tr>
 <td><code>test_fleet.py</code></td>
-<td>Fleet supervisor: port allocation (preferred/bind-probe fallback/in-use skip/exhaustion), <code>/health</code> probe ok + failure, manifest/state round-trip + corrupt tolerance, spawn &gt; health &gt; crash &gt; restart &gt; down via <code>sys.executable -c</code> mock servers, <code>max_restarts</code> give-up, unhealthy-threshold restart, disabled gate, log files, env seams (<code>REPLIO_FLEET_PORT</code>), <code>replio fleet</code> CLI (init/add/remove/status/restart/config incl. role inline + unknown-role error), detached-daemon end-to-end (up --detach, status, down)</td>
+<td>Fleet supervisor: port allocation (preferred/bind-probe fallback/in-use skip/exhaustion), <code>/health</code> probe ok + failure, manifest/state round-trip + corrupt tolerance, spawn &gt; health &gt; crash &gt; restart &gt; down via <code>sys.executable -c</code> mock servers, <code>max_restarts</code> give-up, unhealthy-threshold restart, disabled gate, log files, env seams (<code>POLYGLAV_FLEET_PORT</code>), <code>polyglav fleet</code> CLI (init/add/remove/status/restart/config incl. role inline + unknown-role error), detached-daemon end-to-end (up --detach, status, down)</td>
 </tr>
 <tr>
 <td><code>test_focus.py</code></td>
@@ -1340,11 +1340,11 @@
 </tr>
 <tr>
 <td><code>test_jobs.py</code></td>
-<td>Job model + registry (round-trip incl. <code>require_approval</code>/<code>task_file</code>/<code>approve_model</code>/<code>created_at</code>, runnable + ready-to-run gates, corrupt file tolerance), cron parser (steps/ranges/lists/dom/dow/the restrictive day rule, leap day), <code>next_run</code>/<code>compute_next_run</code>/<code>parse_dt</code>, scheduler run/tick under a mocked engine (verified/failed, retries with backoff, per-attempt history, unknown role, one-shot <code>at</code>, approval gates, per-run <code>require_approval</code> park/re-arm, run memory write + injection, per-run session naming + collision dedupe + <code>--session</code> stability, run content capture), <code>_build_engine</code> role-skill injection (present/missing), task file template/linkage/missing-file failure, status/list/show rendering (incl. the <code>last run:</code> summary line), <code>replio jobs</code> CLI (add/approve/list, <code>--file</code>, edit, status output, stop, auto-approval, bad cron, duplicates, run exit codes + content printing), report-back dispatch (verified/failed/build-failure events, payload fields, injected service, no-service no-op, service-exception tolerance)</td>
+<td>Job model + registry (round-trip incl. <code>require_approval</code>/<code>task_file</code>/<code>approve_model</code>/<code>created_at</code>, runnable + ready-to-run gates, corrupt file tolerance), cron parser (steps/ranges/lists/dom/dow/the restrictive day rule, leap day), <code>next_run</code>/<code>compute_next_run</code>/<code>parse_dt</code>, scheduler run/tick under a mocked engine (verified/failed, retries with backoff, per-attempt history, unknown role, one-shot <code>at</code>, approval gates, per-run <code>require_approval</code> park/re-arm, run memory write + injection, per-run session naming + collision dedupe + <code>--session</code> stability, run content capture), <code>_build_engine</code> role-skill injection (present/missing), task file template/linkage/missing-file failure, status/list/show rendering (incl. the <code>last run:</code> summary line), <code>polyglav jobs</code> CLI (add/approve/list, <code>--file</code>, edit, status output, stop, auto-approval, bad cron, duplicates, run exit codes + content printing), report-back dispatch (verified/failed/build-failure events, payload fields, injected service, no-service no-op, service-exception tolerance)</td>
 </tr>
 <tr>
 <td><code>test_memory.py</code></td>
-<td>Shared <code>memory</code> module: path under <code>.replio/memory/&lt;scope&gt;/</code>, read/write round-trip, missing-empty, legacy job/team fallback reads, <code>memory_enabled</code> global + per-scope, <code>cap_memory</code> truncation. Engine role memory: injection into the sub-agent system prompt, scope-disabled skip, write after <code>run_subagent</code>, disabled skip, <code>Engine.memorize</code> + <code>/memorize</code> command, team memory on the shared path</td>
+<td>Shared <code>memory</code> module: path under <code>.polyglav/memory/&lt;scope&gt;/</code>, read/write round-trip, missing-empty, legacy job/team fallback reads, <code>memory_enabled</code> global + per-scope, <code>cap_memory</code> truncation. Engine role memory: injection into the sub-agent system prompt, scope-disabled skip, write after <code>run_subagent</code>, disabled skip, <code>Engine.memorize</code> + <code>/memorize</code> command, team memory on the shared path</td>
 </tr>
 <tr>
 <td><code>test_models.py</code></td>
@@ -1356,11 +1356,11 @@
 </tr>
 <tr>
 <td><code>test_ollama_provider.py</code></td>
-<td>Streaming provider: fragmented tool-call reassembly, thinking events (<code>reasoning_content</code> and <code>reasoning</code> keys), payload construction. Lives in the <code>replio-core-ollama</code> plugin suite (see the bundled-plugin suites note below)</td>
+<td>Streaming provider: fragmented tool-call reassembly, thinking events (<code>reasoning_content</code> and <code>reasoning</code> keys), payload construction. Lives in the <code>polyglav-core-ollama</code> plugin suite (see the bundled-plugin suites note below)</td>
 </tr>
 <tr>
 <td><code>test_plugins.py</code></td>
-<td>Plugin manager: manifest compat ranges, discovery precedence, registration hooks (tools/providers/commands/services/roles/teams/skills + hook-failure status), <code>_bundled_dir</code> fallback (source layout + forced import failure), install/update/uninstall, <code>replio plugins test</code> (+ <code>load_plugin_test_suite</code>)</td>
+<td>Plugin manager: manifest compat ranges, discovery precedence, registration hooks (tools/providers/commands/services/roles/teams/skills + hook-failure status), <code>_bundled_dir</code> fallback (source layout + forced import failure), install/update/uninstall, <code>polyglav plugins test</code> (+ <code>load_plugin_test_suite</code>)</td>
 </tr>
 <tr>
 <td><code>test_print.py</code></td>
@@ -1372,7 +1372,7 @@
 </tr>
 <tr>
 <td><code>test_providers.py</code></td>
-<td>Core provider substrate: <code>OpenAICompatibleProvider</code> defaults/headers/endpoints, POST-preserving redirects, <code>check_connection</code> probe (success/empty/model note/HTTP/network), <code>list_models</code> silent-on-error, base reasoning payload, host-pattern <code>detect_provider</code> (known hosts, longest-pattern precedence, empty/unknown fallback), core <code>PROVIDERS</code> registry (generic fallback only) and <code>merged_providers</code> (bundled providers included). Vendor provider defaults/endpoints/reasoning/headers live in the per-plugin suites (<code>replio-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>)</td>
+<td>Core provider substrate: <code>OpenAICompatibleProvider</code> defaults/headers/endpoints, POST-preserving redirects, <code>check_connection</code> probe (success/empty/model note/HTTP/network), <code>list_models</code> silent-on-error, base reasoning payload, host-pattern <code>detect_provider</code> (known hosts, longest-pattern precedence, empty/unknown fallback), core <code>PROVIDERS</code> registry (generic fallback only) and <code>merged_providers</code> (bundled providers included). Vendor provider defaults/endpoints/reasoning/headers live in the per-plugin suites (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>)</td>
 </tr>
 <tr>
 <td><code>test_providers_registry.py</code></td>
@@ -1396,7 +1396,7 @@
 </tr>
 <tr>
 <td><code>test_server.py</code></td>
-<td><code>replio serve</code> HTTP API: <code>/chat</code>, <code>/sessions</code>, <code>/health</code>, <code>/version</code></td>
+<td><code>polyglav serve</code> HTTP API: <code>/chat</code>, <code>/sessions</code>, <code>/health</code>, <code>/version</code></td>
 </tr>
 <tr>
 <td><code>test_session_id.py</code></td>
@@ -1444,7 +1444,7 @@
 </tr>
 <tr>
 <td><code>test_turns.py</code></td>
-<td>Turn model (<code>src/replio/sessions/turns.py</code>): turn/part shape and builders for the six part types, <code>finish_turn</code>/<code>finish_tool</code>, <code>tool</code> co-location, provider reconstruction (a turn's text plus consecutive tool parts grouped into one assistant <code>tool_calls</code> message followed by its tool results, thinking attached to the answer or tool round, reasoning-only turns, command parts dropped, system passthrough, deterministic tool-call ids, JSON-serialized arguments), and <code>compaction</code>/<code>provider_messages</code> (summary plus turn-index boundary)</td>
+<td>Turn model (<code>src/polyglav/sessions/turns.py</code>): turn/part shape and builders for the six part types, <code>finish_turn</code>/<code>finish_tool</code>, <code>tool</code> co-location, provider reconstruction (a turn's text plus consecutive tool parts grouped into one assistant <code>tool_calls</code> message followed by its tool results, thinking attached to the answer or tool round, reasoning-only turns, command parts dropped, system passthrough, deterministic tool-call ids, JSON-serialized arguments), and <code>compaction</code>/<code>provider_messages</code> (summary plus turn-index boundary)</td>
 </tr>
 <tr>
 <td><code>test_unattended.py</code></td>
@@ -1462,10 +1462,10 @@
 </table>
 <p><code>tests/helpers.py</code> provides <code>make_chat(config_data)</code>, a <code>ChatLoop</code> with a mocked provider, used by most tests to drive the engine without a model.</p>
 <h2 id="plugin-test-suites">Plugin test suites<a class="headerlink" href="#plugin-test-suites" title="Permanent link">&para;</a></h2>
-<p>Each bundled plugin ships its unit tests in its own directory (<code>plugins/&lt;name&gt;/tests/</code>), covering the plugin's tools and helpers without touching the core. The core suite discovers them through <code>tests/test_plugin_suites.py</code> (registered via <code>load_tests</code>), so <code>python -m unittest discover tests</code> runs everything. A single plugin's suite runs standalone with <code>python plugins/&lt;name&gt;/tests/&lt;file&gt;.py</code>, and headless via <code>replio plugins test &lt;name&gt;</code> (or <code>replio plugins test</code> for every plugin with a suite).</p>
+<p>Each bundled plugin ships its unit tests in its own directory (<code>plugins/&lt;name&gt;/tests/</code>), covering the plugin's tools and helpers without touching the core. The core suite discovers them through <code>tests/test_plugin_suites.py</code> (registered via <code>load_tests</code>), so <code>python -m unittest discover tests</code> runs everything. A single plugin's suite runs standalone with <code>python plugins/&lt;name&gt;/tests/&lt;file&gt;.py</code>, and headless via <code>polyglav plugins test &lt;name&gt;</code> (or <code>polyglav plugins test</code> for every plugin with a suite).</p>
 <h2 id="live-testing">Live testing<a class="headerlink" href="#live-testing" title="Permanent link">&para;</a></h2>
 <p>Manual live tests against a real provider API are done ad-hoc, not automated. Use a local model (Ollama) or a disposable API key, and verify a turn end-to-end: streaming output, a tool call round trip, and session persistence.</p>
-<p>The overnight autonomous run is verified live with a real model: <code>replio jobs add-supervisor night --interval 86400 --task "..."</code>, run it (<code>replio jobs run night</code> or the daemon), watch <code>/asks</code> for a parked question, answer it, and confirm the run completes and (with <code>report.webhook</code> set) the report arrives. See the <a href="../jobs/#supervisor-overnight-run">Supervisor overnight run</a> section in <code>docs/jobs.md</code>.</p>
+<p>The overnight autonomous run is verified live with a real model: <code>polyglav jobs add-supervisor night --interval 86400 --task "..."</code>, run it (<code>polyglav jobs run night</code> or the daemon), watch <code>/asks</code> for a parked question, answer it, and confirm the run completes and (with <code>report.webhook</code> set) the report arrives. See the <a href="../jobs/#supervisor-overnight-run">Supervisor overnight run</a> section in <code>docs/jobs.md</code>.</p>
 
 
 

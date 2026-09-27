@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/eval/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/eval/">
       
       
         <link rel="prev" href="../deploy/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Tool-use evaluation harness - Replio</title>
+        <title>Tool-use evaluation harness - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1265,16 +1265,16 @@
 
 
 <h1 id="tool-use-evaluation-harness">Tool-use evaluation harness<a class="headerlink" href="#tool-use-evaluation-harness" title="Permanent link">&para;</a></h1>
-<p><code>replio eval</code> measures how well a model uses the registered tools. It runs task fixtures through the same headless agent loop as <code>replio run</code> and reports metrics per fixture and across the suite, so tool descriptions and schemas can be tuned against measured behavior, and providers compared side by side.</p>
+<p><code>polyglav eval</code> measures how well a model uses the registered tools. It runs task fixtures through the same headless agent loop as <code>polyglav run</code> and reports metrics per fixture and across the suite, so tool descriptions and schemas can be tuned against measured behavior, and providers compared side by side.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>list<span class="w">        </span><span class="c1"># list discovered fixtures</span>
-replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w">         </span><span class="c1"># run the suite, print the metrics table</span>
-replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--fixture<span class="w"> </span>grep-symbol
-replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--provider<span class="w"> </span>openai<span class="w"> </span>--model<span class="w"> </span>gpt-4o<span class="w"> </span>--output<span class="w"> </span>json
-replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--compare<span class="w"> </span>ollama,openai
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>list<span class="w">        </span><span class="c1"># list discovered fixtures</span>
+polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w">         </span><span class="c1"># run the suite, print the metrics table</span>
+polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--fixture<span class="w"> </span>grep-symbol
+polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--provider<span class="w"> </span>openai<span class="w"> </span>--model<span class="w"> </span>gpt-4o<span class="w"> </span>--output<span class="w"> </span>json
+polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--compare<span class="w"> </span>ollama,openai
 </code></pre></div>
 <p>The <code>--path</code> flag sits on the <code>eval</code> command before the subcommand, like <code>jobs</code> and <code>fleet</code>.</p>
-<p>Each fixture runs in its own isolated temp worktree. Its <code>files</code> are written there, a throwaway <code>.replio/config.json</code> carries the connection and permission settings, and the process changes into the worktree for the turn so relative tool paths resolve. Sessions are throwaway and deleted with the worktree. The engine uses <code>HeadlessUI(auto='allow')</code>, so ask-gated tools run without prompting.</p>
+<p>Each fixture runs in its own isolated temp worktree. Its <code>files</code> are written there, a throwaway <code>.polyglav/config.json</code> carries the connection and permission settings, and the process changes into the worktree for the turn so relative tool paths resolve. Sessions are throwaway and deleted with the worktree. The engine uses <code>HeadlessUI(auto='allow')</code>, so ask-gated tools run without prompting.</p>
 <p>Tool permissions default to <code>read</code>/<code>list</code>/<code>web</code> allowed and <code>edit</code>/<code>bash</code>/<code>mcp</code> denied. A fixture may override with its own <code>tool_permission</code> and <code>tools_deny</code>.</p>
 <h2 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link">&para;</a></h2>
 <p>Per fixture:</p>
@@ -1291,7 +1291,7 @@ replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </spa
 </ul>
 <p>The suite summary averages accuracy and pass rate and totals calls, redundant calls, errors, and tokens. <code>--compare P1,P2</code> runs the same suite once per provider and prints a side-by-side summary.</p>
 <h2 id="fixtures">Fixtures<a class="headerlink" href="#fixtures" title="Permanent link">&para;</a></h2>
-<p>A fixture is a JSON file describing a task, optional worktree files, the expected tool trace, and a declarative verifier. Fixtures are discovered from three sources, merged by <code>id</code> with local winning: the bundled <code>replio-core-eval</code> plugin, <code>~/.config/replio/eval/*.json</code> (global), and <code>.replio/eval/*.json</code> (local).</p>
+<p>A fixture is a JSON file describing a task, optional worktree files, the expected tool trace, and a declarative verifier. Fixtures are discovered from three sources, merged by <code>id</code> with local winning: the bundled <code>polyglav-core-eval</code> plugin, <code>~/.config/polyglav/eval/*.json</code> (global), and <code>.polyglav/eval/*.json</code> (local).</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read-file-lines"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Read a file and report its line count"</span><span class="p">,</span>
@@ -1322,7 +1322,7 @@ replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </spa
 <li><code>tool_permission</code> merges over the eval defaults (<code>category: action</code>), and <code>tools_deny</code> appends name-level denials.</li>
 </ul>
 <h2 id="bundled-fixtures">Bundled fixtures<a class="headerlink" href="#bundled-fixtures" title="Permanent link">&para;</a></h2>
-<p>The <code>replio-core-eval</code> bundled plugin contributes a small catalog that exercises the fs tools against provisioned worktrees:</p>
+<p>The <code>polyglav-core-eval</code> bundled plugin contributes a small catalog that exercises the fs tools against provisioned worktrees:</p>
 <ul>
 <li><code>read-file-lines</code> - read a file, report its line count.</li>
 <li><code>find-then-read</code> - locate a file by <code>glob</code>, then read it.</li>
@@ -1332,7 +1332,7 @@ replio<span class="w"> </span><span class="nb">eval</span><span class="w"> </spa
 </ul>
 <p>The catalog is contributed through the <code>register_fixtures(fixtures)</code> plugin entry hook, which takes a dict of fixture id to fixture data. Any plugin can ship its own fixtures the same way, and local files override plugin fixtures by <code>id</code>.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<p><code>tests/test_eval.py</code> covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The <code>replio eval</code> CLI is covered in <code>tests/test_cli.py</code>, and the <code>register_fixtures</code> hook in <code>tests/test_plugins.py</code>.</p>
+<p><code>tests/test_eval.py</code> covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The <code>polyglav eval</code> CLI is covered in <code>tests/test_cli.py</code>, and the <code>register_fixtures</code> hook in <code>tests/test_plugins.py</code>.</p>
 
 
 

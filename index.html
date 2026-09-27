@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>Replio</title>
+        <title>Polyglav</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#replio" class="md-skip">
+        <a href="#polyglav" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -216,13 +216,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -547,7 +547,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1304,22 +1304,22 @@
 
 
 
-<h1 id="replio">Replio<a class="headerlink" href="#replio" title="Permanent link">&para;</a></h1>
-<p><strong>A lightweight, zero-dependency agentic core for fleets of single-purpose agents.</strong></p>
-<p>Current version: <strong>v0.33.0</strong> (Python &gt;= 3.10, MIT, zero external dependencies)</p>
-<p>An agent is a model plus a harness. Replio is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers types, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.</p>
+<h1 id="polyglav">Polyglav<a class="headerlink" href="#polyglav" title="Permanent link">&para;</a></h1>
+<p><strong>One agent, many heads</strong></p>
+<p>Current version: <strong>v0.37.0</strong> (Python &gt;= 3.10, MIT, zero external dependencies)</p>
+<p>An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers types, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.</p>
 <h2 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h2>
 <p><strong>One runtime, many agents</strong></p>
-<p>Replio assembles five replaceable layers around a thin core: access, orchestration, capability, model, and storage. The direction is everything is a plugin: models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI become replaceable plugins, and the REPL itself moves to a plugin. The operator sees one window: the <code>assistant</code> agent greets you, answers small tasks inline, delegates bigger work to sub-agents or teams, runs recurring work in the background, watches your agents for health, and reports back.</p>
+<p>Polyglav assembles five replaceable layers around a thin core: access, orchestration, capability, model, and storage. The direction is everything is a plugin: models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI become replaceable plugins, and the REPL itself moves to a plugin. The operator sees one window: the <code>assistant</code> agent greets you, answers small tasks inline, delegates bigger work to sub-agents or teams, runs recurring work in the background, watches your agents for health, and reports back.</p>
 <p>For bigger work the flow is ask, compose, run, hand off, remember, report. The assistant composes a team, runs it stage by stage, and hands control between agents as phases change, while you watch, stay out, or jump into any run. See <a href="reference/usage/workflow/">Workflows and usage</a>.</p>
 <p>Read the full vision, decisions, and context economics in <a href="vision/">Vision</a>.</p>
 <h2 id="current-state">Current state<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Core</strong> - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, plan/build modes, complete append-only session logs, plugins, <code>replio run</code> + <code>replio serve</code></li>
+<li><strong>Core</strong> - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, plan/build modes, complete append-only session logs, plugins, <code>polyglav run</code> + <code>polyglav serve</code></li>
 <li><strong>Orchestration</strong> - swarm (types, skills, named teams, the <code>team</code> tool, the review loop, the <code>assistant</code> root and <code>composer</code>), jobs (cron/interval/one-shot, retries, approvals, run memory, supervisor recipe), fleet (supervisor with ports, health, restart), MCP client and server</li>
 <li><strong>Sessions</strong> - turn/part logs, <code>/history</code> and <code>/print</code>, stable per-session ids, <code>/compact</code>, Markdown export</li>
 <li><strong>Latest</strong> - v0.33: the session turn cutover, <code>/history</code> and <code>/print</code>, stable session ids and coded session names, <code>/focus</code> and <code>handoff</code>, <code>focus_on_delegate</code>. See <a href="changelog/">Changelog</a></li>
-<li><strong>Tooling</strong> - bundled plugins for web search, filesystem, shell, edit, git, and dev wrappers (test/lint/format), all with path-scoped policies. <code>replio eval</code> runs fixtures through the headless loop and reports tool-use metrics</li>
+<li><strong>Tooling</strong> - bundled plugins for web search, filesystem, shell, edit, git, and dev wrappers (test/lint/format), all with path-scoped policies. <code>polyglav eval</code> runs fixtures through the headless loop and reports tool-use metrics</li>
 </ul>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1337,12 +1337,12 @@
 <h2 id="reference-docs">Reference docs<a class="headerlink" href="#reference-docs" title="Permanent link">&para;</a></h2>
 <p>The detailed reference is organized in the <a href="reference/">Reference index</a>, covering architecture, commands, configuration, providers, tools, security, sessions, jobs, fleet, swarm, plugins, and more.</p>
 <h2 id="getting-started">Getting started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>replio
-replio
+<div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>polyglav
+polyglav
 </code></pre></div>
-<p>Or from source: <code>git clone https://github.com/emyasnikov/replio.git &amp;&amp; cd replio</code>, then <code>python3 -m venv .venv &amp;&amp; .venv/bin/pip install -e . &amp;&amp; .venv/bin/replio</code>. First-time setup with <code>/connect</code>, then type any message.</p>
+<p>Or from source: <code>git clone https://github.com/polyglav/polyglav.git &amp;&amp; cd polyglav</code>, then <code>python3 -m venv .venv &amp;&amp; .venv/bin/pip install -e . &amp;&amp; .venv/bin/polyglav</code>. First-time setup with <code>/connect</code>, then type any message.</p>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
-<p>Replio is MIT licensed (see the LICENSE file in the repository).</p>
+<p>Polyglav is MIT licensed (see the LICENSE file in the repository).</p>
 
 
 

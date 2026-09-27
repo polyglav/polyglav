@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/jobs/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/jobs/">
       
       
         <link rel="prev" href="../fleet/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Scheduled and durable jobs - Replio</title>
+        <title>Scheduled and durable jobs - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1441,9 +1441,9 @@
 
 
 <h1 id="scheduled-and-durable-jobs">Scheduled and durable jobs<a class="headerlink" href="#scheduled-and-durable-jobs" title="Permanent link">&para;</a></h1>
-<p><code>replio jobs</code> turns the one-shot agent loop into a durable workflow engine. <code>replio run</code> is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a human-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.</p>
+<p><code>polyglav jobs</code> turns the one-shot agent loop into a durable workflow engine. <code>polyglav run</code> is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a human-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.</p>
 <h2 id="job-store">Job store<a class="headerlink" href="#job-store" title="Permanent link">&para;</a></h2>
-<p>Jobs live in <code>.replio/jobs.json</code> next to the sessions, one register per worktree (same rule as roles). The file is plain JSON and the last writer wins, so run one scheduler per <code>.replio</code>. Removing a job removes only its definition, while its sessions stay as the append-only log of every run. The register keeps the most recent 100 runs. The full transcript stays in the session file.</p>
+<p>Jobs live in <code>.polyglav/jobs.json</code> next to the sessions, one register per worktree (same rule as roles). The file is plain JSON and the last writer wins, so run one scheduler per <code>.polyglav</code>. Removing a job removes only its definition, while its sessions stay as the append-only log of every run. The register keeps the most recent 100 runs. The full transcript stays in the session file.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"jobs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -1488,40 +1488,40 @@
 </ul>
 <h2 id="job-task-file">Job task file<a class="headerlink" href="#job-task-file" title="Permanent link">&para;</a></h2>
 <p>A job is defined by its task, not a one-line prompt. Use <code>--file</code> to link a Markdown task file describing what has to be done:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>nightly<span class="w"> </span>--file<span class="w"> </span>jobs/nightly-report.md<span class="w"> </span>--cron<span class="w"> </span><span class="s2">"0 2 * * *"</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>nightly<span class="w"> </span>--file<span class="w"> </span>jobs/nightly-report.md<span class="w"> </span>--cron<span class="w"> </span><span class="s2">"0 2 * * *"</span>
 </code></pre></div>
 <ul>
 <li><strong><code>--prompt</code> becomes optional</strong> - <code>--file</code> alone is enough (at least one of <code>--prompt</code> / <code>--file</code> is required). Given both, <code>--prompt</code> is the short per-run trigger on top of the task file.</li>
-<li>When <code>--file</code> is omitted, the default path is <code>.replio/jobs/&lt;name&gt;.md</code>. A file missing at <code>add</code> time is <strong>created from a template</strong> (<code># &lt;name&gt;</code> / <code>## Task</code> / <code>## Done when</code> / <code>## Notes</code>) to fill in.</li>
+<li>When <code>--file</code> is omitted, the default path is <code>.polyglav/jobs/&lt;name&gt;.md</code>. A file missing at <code>add</code> time is <strong>created from a template</strong> (<code># &lt;name&gt;</code> / <code>## Task</code> / <code>## Done when</code> / <code>## Notes</code>) to fill in.</li>
 <li>The job stores the path and <strong>stays linked</strong>: the file is re-read at the start of every run, so editing the <code>.md</code> changes the job, with no re-adding and no restart.</li>
-<li><strong><code>replio jobs edit &lt;name&gt;</code></strong> (also <code>/jobs edit &lt;name&gt;</code>) opens the task file in <code>$EDITOR</code> (creating the template first if needed). <code>replio jobs show &lt;name&gt;</code> prints the stored path.</li>
+<li><strong><code>polyglav jobs edit &lt;name&gt;</code></strong> (also <code>/jobs edit &lt;name&gt;</code>) opens the task file in <code>$EDITOR</code> (creating the template first if needed). <code>polyglav jobs show &lt;name&gt;</code> prints the stored path.</li>
 <li>Paths under the worktree are stored relative to it. Absolute paths stay absolute. A task file missing at run time fails that run with a clear <code>task file not found</code> reason, so a broken link is never silently ignored.</li>
 </ul>
 <p>At run time the system prompt is composed of <code>role.system_prompt</code> (if a role is set), the task file contents (<code>## Job task</code>), <code>--system-prompt</code>, and the run memory (<code>## Run memory</code>, below). The engine's mode instruction is appended last. With none of them set, a generic recurring-job prompt is used.</p>
 <h2 id="run-memory">Run memory<a class="headerlink" href="#run-memory" title="Permanent link">&para;</a></h2>
 <p>Every run is summarized into the job's rolling memory, so the next run knows what happened before without a growing session file:</p>
 <ul>
-<li>After each run (successful or failed) the scheduler summarizes it through the same compaction path as <code>/compact</code> (seeded with the previous memory so context carries) and writes the result to <strong><code>.replio/memory/jobs/&lt;name&gt;.md</code></strong> atomically. If the summarize call fails, a short fallback of <code>Run &lt;ts&gt;: verified|failed</code> plus the first part of the output or error is stored instead.</li>
+<li>After each run (successful or failed) the scheduler summarizes it through the same compaction path as <code>/compact</code> (seeded with the previous memory so context carries) and writes the result to <strong><code>.polyglav/memory/jobs/&lt;name&gt;.md</code></strong> atomically. If the summarize call fails, a short fallback of <code>Run &lt;ts&gt;: verified|failed</code> plus the first part of the output or error is stored instead.</li>
 <li>The memory file is <strong>injected into the next run</strong> as the <code>## Run memory</code> system prompt block. A compact, bounded record, never the whole history.</li>
-<li><code>replio jobs show &lt;name&gt;</code> prints the memory file path and a preview. Read or hand-edit the <code>.md</code> like the task file (the next run uses whatever is there). A memory file that stops being summarized stays stale, but it never breaks a run.</li>
+<li><code>polyglav jobs show &lt;name&gt;</code> prints the memory file path and a preview. Read or hand-edit the <code>.md</code> like the task file (the next run uses whatever is there). A memory file that stops being summarized stays stale, but it never breaks a run.</li>
 </ul>
 <h2 id="cli-reference">CLI reference<a class="headerlink" href="#cli-reference" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w">                                </span><span class="c1"># table of jobs and next runs</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>status<span class="w">                              </span><span class="c1"># runtime summary (fired count, last error, uptime)</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>show<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># definition + full run history</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--cron<span class="w"> </span><span class="s2">"0 2 * * *"</span><span class="w"> </span>--prompt<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--interval<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--file<span class="w"> </span>jobs/&lt;name&gt;.md<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--at<span class="w"> </span><span class="m">2026</span>-08-27T02:00:00Z<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>approve<span class="w"> </span>&lt;name&gt;<span class="w">                      </span><span class="c1"># proposed -&gt; approved (or arm the next run)</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>reject<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># proposed, disabled</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;name&gt;<span class="w"> </span>/<span class="w"> </span>disable<span class="w"> </span>&lt;name&gt;<span class="w">      </span><span class="c1"># toggle the enabled gate</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>stop<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># same as disable - stop it now</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>edit<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># open/ create the task file in $EDITOR</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>remove<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># definition only. Sessions stay</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="o">[</span>--no-retry<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span><span class="w"> </span><span class="c1"># run now, apply retries, print result</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w"> </span><span class="o">[</span>--tick<span class="w"> </span><span class="m">15</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--quiet<span class="o">]</span><span class="w">        </span><span class="c1"># scheduler loop, Ctrl-C to stop</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>list<span class="w">                                </span><span class="c1"># table of jobs and next runs</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>status<span class="w">                              </span><span class="c1"># runtime summary (fired count, last error, uptime)</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>show<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># definition + full run history</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--cron<span class="w"> </span><span class="s2">"0 2 * * *"</span><span class="w"> </span>--prompt<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--interval<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--file<span class="w"> </span>jobs/&lt;name&gt;.md<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--at<span class="w"> </span><span class="m">2026</span>-08-27T02:00:00Z<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>approve<span class="w"> </span>&lt;name&gt;<span class="w">                      </span><span class="c1"># proposed -&gt; approved (or arm the next run)</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>reject<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># proposed, disabled</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;name&gt;<span class="w"> </span>/<span class="w"> </span>disable<span class="w"> </span>&lt;name&gt;<span class="w">      </span><span class="c1"># toggle the enabled gate</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>stop<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># same as disable - stop it now</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>edit<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># open/ create the task file in $EDITOR</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>remove<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># definition only. Sessions stay</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="o">[</span>--no-retry<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span><span class="w"> </span><span class="c1"># run now, apply retries, print result</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w"> </span><span class="o">[</span>--tick<span class="w"> </span><span class="m">15</span><span class="o">]</span><span class="w"> </span><span class="o">[</span>--quiet<span class="o">]</span><span class="w">        </span><span class="c1"># scheduler loop, Ctrl-C to stop</span>
 </code></pre></div>
-<p><code>replio jobs status</code> is the journalctl-style runtime view: per job it shows state, times fired (ok/failed), last error, next run, uptime since creation, and for <code>require_approval</code> jobs whether the next run is approved or waiting. The same surface is available in the REPL as <code>/jobs</code> (add, approve, disable, enable, list, reject, remove, run, show, status, stop).</p>
+<p><code>polyglav jobs status</code> is the journalctl-style runtime view: per job it shows state, times fired (ok/failed), last error, next run, uptime since creation, and for <code>require_approval</code> jobs whether the next run is approved or waiting. The same surface is available in the REPL as <code>/jobs</code> (add, approve, disable, enable, list, reject, remove, run, show, status, stop).</p>
 <p><code>add</code> options:</p>
 <table>
 <thead>
@@ -1537,7 +1537,7 @@ replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </spa
 </tr>
 <tr>
 <td><code>--file</code></td>
-<td>Markdown task file describing the job (default <code>.replio/jobs/&lt;name&gt;.md</code>, template-created if missing). Linked, so edits apply on the next run</td>
+<td>Markdown task file describing the job (default <code>.polyglav/jobs/&lt;name&gt;.md</code>, template-created if missing). Linked, so edits apply on the next run</td>
 </tr>
 <tr>
 <td><code>--cron</code> / <code>--interval</code> / <code>--at</code></td>
@@ -1601,33 +1601,33 @@ replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </spa
 <p>There are three distinct gates, from coarsest to finest:</p>
 <ol>
 <li><strong>Arm / disarm (before any run)</strong> - <code>add</code> starts <code>proposed</code>. <code>approve</code> arms it once, <code>stop</code>/<code>disable</code> disarms it. This is the baseline gate everyone uses.</li>
-<li><strong>Per-run approval (<code>--require-approval</code>)</strong> - for when "something has to be decided" about <em>this</em> run, not arm-or-disarm for all time. Each run parks in <code>waiting_approval</code>: the daemon will not fire it, <code>replio jobs status</code> shows <code>WAITING for approve</code>, and <code>replio jobs approve &lt;name&gt;</code> (or <code>/jobs approve</code>) arms exactly the next run. It parks again after the run. <code>reject</code> clears the grant. <code>run</code> still overrides and executes now.</li>
+<li><strong>Per-run approval (<code>--require-approval</code>)</strong> - for when "something has to be decided" about <em>this</em> run, not arm-or-disarm for all time. Each run parks in <code>waiting_approval</code>: the daemon will not fire it, <code>polyglav jobs status</code> shows <code>WAITING for approve</code>, and <code>polyglav jobs approve &lt;name&gt;</code> (or <code>/jobs approve</code>) arms exactly the next run. It parks again after the run. <code>reject</code> clears the grant. <code>run</code> still overrides and executes now.</li>
 <li><strong>Mid-run blocking approval (tool-level, planned)</strong> - an <code>ask</code> tool inside a running job pauses the run in place and waits for a human reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in <a href="../../TODO.md">TODO.md</a>: it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same operator API).</li>
 </ol>
-<p>A job runs with <code>HeadlessUI(auto='deny')</code> on an unattended engine, the same posture as <code>replio serve</code>, plus parking. So until mid-run blocking is implemented, an <code>ask target='human'</code> inside a run is not paused and does not hang: it parks as a pending request in <code>.replio/asks.json</code> (returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code>), the run continues or finishes, and the operator answers later with <code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>replio serve</code>, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list) and it will not need mid-run interruption. A sub-agent inside a job can still use <code>ask target='lead'</code> for a decision from the job's model mid-run. <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>replio jobs show &lt;name&gt;</code> before a manual retry.</p>
+<p>A job runs with <code>HeadlessUI(auto='deny')</code> on an unattended engine, the same posture as <code>polyglav serve</code>, plus parking. So until mid-run blocking is implemented, an <code>ask target='human'</code> inside a run is not paused and does not hang: it parks as a pending request in <code>.polyglav/asks.json</code> (returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code>), the run continues or finishes, and the operator answers later with <code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list) and it will not need mid-run interruption. A sub-agent inside a job can still use <code>ask target='lead'</code> for a decision from the job's model mid-run. <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>polyglav jobs show &lt;name&gt;</code> before a manual retry.</p>
 <h2 id="report-back">Report-back<a class="headerlink" href="#report-back" title="Permanent link">&para;</a></h2>
 <p>A finished or failed run is surfaced in-band and, optionally, out-of-band, so an unattended supervisor does not have to be watched:</p>
 <ul>
-<li><strong><code>replio jobs status</code> / <code>/jobs status</code></strong> prints a <code>last run:</code> line per job (status, duration, reason, session) under the run counts.</li>
-<li><strong><code>replio jobs run</code> / <code>/jobs run</code></strong> print the run's result plus a <code>summary:</code> line from the run memory written after the run.</li>
+<li><strong><code>polyglav jobs status</code> / <code>/jobs status</code></strong> prints a <code>last run:</code> line per job (status, duration, reason, session) under the run counts.</li>
+<li><strong><code>polyglav jobs run</code> / <code>/jobs run</code></strong> print the run's result plus a <code>summary:</code> line from the run memory written after the run.</li>
 <li><strong>Delegated and team runs</strong> show their outcome in the REPL sub-footer (<code>status session</code> after the duration/token footer, when <code>delegate_echo</code> is on).</li>
-<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>replio-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty <code>report.webhook</code> is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
+<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty <code>report.webhook</code> is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
 </ul>
 <h2 id="supervisor-overnight-run">Supervisor overnight run<a class="headerlink" href="#supervisor-overnight-run" title="Permanent link">&para;</a></h2>
 <p>A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park human questions as asks, and report back. One command scaffolds it:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add-supervisor<span class="w"> </span>night<span class="w"> </span>--interval<span class="w"> </span><span class="m">86400</span><span class="w"> </span>--task<span class="w"> </span><span class="s2">"Lead the work."</span>
-<span class="c1"># creates .replio/jobs/night.md from a supervisor template, role=leader, approved</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w">            </span><span class="c1"># runs it on schedule</span>
-replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>night<span class="w">         </span><span class="c1"># or run it once now</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add-supervisor<span class="w"> </span>night<span class="w"> </span>--interval<span class="w"> </span><span class="m">86400</span><span class="w"> </span>--task<span class="w"> </span><span class="s2">"Lead the work."</span>
+<span class="c1"># creates .polyglav/jobs/night.md from a supervisor template, role=leader, approved</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w">            </span><span class="c1"># runs it on schedule</span>
+polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>night<span class="w">         </span><span class="c1"># or run it once now</span>
 </code></pre></div>
-<p>The job role is <code>leader</code>, whose <code>grant_permission</code> lets it delegate categories it denies itself (bash, web) to team stages, and whose <code>ask_policy</code> routes decisions to the operator (parking them under unattended mode). The task file (<code>.replio/jobs/&lt;name&gt;.md</code>) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (<code>/model</code>, or <code>--approve-model</code> when a role or team references a model).</p>
+<p>The job role is <code>leader</code>, whose <code>grant_permission</code> lets it delegate categories it denies itself (bash, web) to team stages, and whose <code>ask_policy</code> routes decisions to the operator (parking them under unattended mode). The task file (<code>.polyglav/jobs/&lt;name&gt;.md</code>) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (<code>/model</code>, or <code>--approve-model</code> when a role or team references a model).</p>
 <p>While it runs:</p>
 <ul>
-<li><code>/asks</code> (or <code>GET /asks</code> on <code>replio serve</code>) lists parked asks. <code>/asks answer &lt;id&gt; &lt;text&gt;</code> (or <code>POST /asks/&lt;id&gt;/answer</code>) marks one answered and injects the answer into its origin session.</li>
-<li><code>replio jobs status</code> shows the last run plus any parked asks. <code>replio jobs run</code>/<code>/jobs run</code> print the run summary and parked asks.</li>
+<li><code>/asks</code> (or <code>GET /asks</code> on <code>polyglav serve</code>) lists parked asks. <code>/asks answer &lt;id&gt; &lt;text&gt;</code> (or <code>POST /asks/&lt;id&gt;/answer</code>) marks one answered and injects the answer into its origin session.</li>
+<li><code>polyglav jobs status</code> shows the last run plus any parked asks. <code>polyglav jobs run</code>/<code>/jobs run</code> print the run summary and parked asks.</li>
 <li>With <code>report.webhook</code> set, each completed run is POSTed out-of-band, so a finished or failed night is reported without the terminal being watched.</li>
 </ul>
-<p>Resuming a parked ask: the ask lives in the run's sub-session. Answer it, then continue that session with <code>replio run --session-id &lt;origin&gt; "continue"</code> (or <code>/session load &lt;origin&gt;</code> in the REPL).</p>
+<p>Resuming a parked ask: the ask lives in the run's sub-session. Answer it, then continue that session with <code>polyglav run --session-id &lt;origin&gt; "continue"</code> (or <code>/session load &lt;origin&gt;</code> in the REPL).</p>
 <h2 id="session-files-per-run">Session files per run<a class="headerlink" href="#session-files-per-run" title="Permanent link">&para;</a></h2>
 <p>The <strong>compact memory</strong> is the run-memory file (<a href="#run-memory">Run memory</a>): a rolling summary injected into every run to keep the model oriented across runs. Session files are the per-run audit:</p>
 <ul>
@@ -1636,11 +1636,11 @@ replio<span class="w"> </span><span class="nb">jobs</span><span class="w"> </spa
 <li>The job register keeps the most recent 100 runs, each recording its session file.</li>
 </ul>
 <h2 id="how-a-run-executes">How a run executes<a class="headerlink" href="#how-a-run-executes" title="Permanent link">&para;</a></h2>
-<p>Each attempt builds a fresh headless <code>Engine</code> from the job's overrides, uses the run's session file (fresh <code>job_&lt;ts&gt;_&lt;id&gt;</code>, or the <code>--session</code> override), and calls <code>chat()</code> once. After the run it is summarized into the memory file for the next run, so continuity lives there rather than in a growing session. A retry continues from the failed attempt's trail (same run's session file) with a "Previous attempt failed. Retry this job" header. <code>replio jobs run --verbose</code> streams the live turn (tokens to stdout, tool activity to stderr) before the summary. <code>replio jobs run</code> prints the final answer headlessly.</p>
+<p>Each attempt builds a fresh headless <code>Engine</code> from the job's overrides, uses the run's session file (fresh <code>job_&lt;ts&gt;_&lt;id&gt;</code>, or the <code>--session</code> override), and calls <code>chat()</code> once. After the run it is summarized into the memory file for the next run, so continuity lives there rather than in a growing session. A retry continues from the failed attempt's trail (same run's session file) with a "Previous attempt failed. Retry this job" header. <code>polyglav jobs run --verbose</code> streams the live turn (tokens to stdout, tool activity to stderr) before the summary. <code>polyglav jobs run</code> prints the final answer headlessly.</p>
 <h2 id="scheduling-semantics">Scheduling semantics<a class="headerlink" href="#scheduling-semantics" title="Permanent link">&para;</a></h2>
-<p>The daemon (<code>replio jobs daemon</code>) wakes on the <code>--tick</code> interval (default 15s), runs every due, runnable job sequentially, then sleeps. Jobs are single-threaded: one at a time, in name order. Concurrent execution is future work. <code>next_run_at</code> is the single source of truth, computed when a job is added and after each run, and a <code>next_run_at</code> in the past makes a job due immediately. A missed window is not backlogged: after any run the next run is recomputed strictly after the current time (or the run's finish for interval schedules), so a scheduler stopped overnight runs the current schedule on wake instead of replaying old ones.</p>
+<p>The daemon (<code>polyglav jobs daemon</code>) wakes on the <code>--tick</code> interval (default 15s), runs every due, runnable job sequentially, then sleeps. Jobs are single-threaded: one at a time, in name order. Concurrent execution is future work. <code>next_run_at</code> is the single source of truth, computed when a job is added and after each run, and a <code>next_run_at</code> in the past makes a job due immediately. A missed window is not backlogged: after any run the next run is recomputed strictly after the current time (or the run's finish for interval schedules), so a scheduler stopped overnight runs the current schedule on wake instead of replaying old ones.</p>
 <h2 id="session-logs">Session logs<a class="headerlink" href="#session-logs" title="Permanent link">&para;</a></h2>
-<p>Each run writes a complete append-only log at <code>.replio/sessions/job_&lt;ts&gt;_&lt;id&gt;.json</code> (or the <code>--session</code> override): user prompts, assistant answers, tool calls and results, thinking, errors, and the <code>permissions</code> audit array. That is the durable record a <code>verified</code> or <code>failed</code> status points to. <code>replio jobs show &lt;name&gt;</code> prints the run history, each run's session file, and the last output. <code>/sessions export job_&lt;ts&gt;_&lt;id&gt;</code> renders one run's transcript to Markdown.</p>
+<p>Each run writes a complete append-only log at <code>.polyglav/sessions/job_&lt;ts&gt;_&lt;id&gt;.json</code> (or the <code>--session</code> override): user prompts, assistant answers, tool calls and results, thinking, errors, and the <code>permissions</code> audit array. That is the durable record a <code>verified</code> or <code>failed</code> status points to. <code>polyglav jobs show &lt;name&gt;</code> prints the run history, each run's session file, and the last output. <code>/sessions export job_&lt;ts&gt;_&lt;id&gt;</code> renders one run's transcript to Markdown.</p>
 
 
 

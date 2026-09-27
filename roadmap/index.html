@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/roadmap/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/roadmap/">
       
       
         <link rel="prev" href="../vision/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Roadmap - Replio</title>
+        <title>Roadmap - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href=".." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href=".." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -725,7 +725,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1772,7 +1772,7 @@
 </thead>
 <tbody>
 <tr>
-<td>Role instruction files - <code>.replio/roles/&lt;name&gt;.md</code> referenced from the JSON entry and appended verbatim</td>
+<td>Role instruction files - <code>.polyglav/roles/&lt;name&gt;.md</code> referenced from the JSON entry and appended verbatim</td>
 <td>M</td>
 <td>full-length role instructions</td>
 </tr>
@@ -1816,12 +1816,12 @@
 <td>enforced role boundaries</td>
 </tr>
 <tr>
-<td><code>.replio</code> directory layout - reserved subfolders and file names, documented</td>
+<td><code>.polyglav</code> directory layout - reserved subfolders and file names, documented</td>
 <td>S-M</td>
 <td>a predictable state layout</td>
 </tr>
 <tr>
-<td>Skill definition and catalog review - tool, language, or framework skills, with a <code>python</code> skill and a <code>replio</code> skill, project description moved to <code>AGENTS.md</code></td>
+<td>Skill definition and catalog review - tool, language, or framework skills, with a <code>python</code> skill and a <code>polyglav</code> skill, project description moved to <code>AGENTS.md</code></td>
 <td>M</td>
 <td>reusable skills</td>
 </tr>
@@ -1953,7 +1953,7 @@
 <td>alert when an agent is down</td>
 </tr>
 <tr>
-<td><code>/spawn</code> command - launch a scoped <code>replio serve</code> agent from the REPL (home -&gt; project path), supervise (health/list/stop) and delegate to it</td>
+<td><code>/spawn</code> command - launch a scoped <code>polyglav serve</code> agent from the REPL (home -&gt; project path), supervise (health/list/stop) and delegate to it</td>
 <td>S-M</td>
 <td>fleet agents from the terminal</td>
 </tr>
@@ -2001,7 +2001,7 @@
 <td>per-site instructions</td>
 </tr>
 <tr>
-<td>Role directory scan for export/import - read <code>.replio/roles/*.md</code> (front-matter roles) to import and export roles to Markdown</td>
+<td>Role directory scan for export/import - read <code>.polyglav/roles/*.md</code> (front-matter roles) to import and export roles to Markdown</td>
 <td>S-M</td>
 <td>portable role definitions</td>
 </tr>
@@ -2034,7 +2034,7 @@
 <td>recurring team pipelines</td>
 </tr>
 <tr>
-<td>Jobs operator API - <code>GET /jobs</code> and <code>POST /jobs/&lt;name&gt;/approve|reject|run|disable</code> on <code>replio serve</code></td>
+<td>Jobs operator API - <code>GET /jobs</code> and <code>POST /jobs/&lt;name&gt;/approve|reject|run|disable</code> on <code>polyglav serve</code></td>
 <td>M</td>
 <td>any client can see/act per agent</td>
 </tr>
@@ -2044,12 +2044,12 @@
 <td>notification source</td>
 </tr>
 <tr>
-<td>Job connectors - bundled <code>replio-core-webhook</code> (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API</td>
+<td>Job connectors - bundled <code>polyglav-core-webhook</code> (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API</td>
 <td>M-L</td>
 <td>operators react in time</td>
 </tr>
 <tr>
-<td>Fleet jobs overview - <code>replio jobs list --root &lt;dir&gt;</code> combined agent/job table (agent, job, status, next run, task), then a web Control UI on top</td>
+<td>Fleet jobs overview - <code>polyglav jobs list --root &lt;dir&gt;</code> combined agent/job table (agent, job, status, next run, task), then a web Control UI on top</td>
 <td>M</td>
 <td>one view of what runs next</td>
 </tr>
@@ -2095,12 +2095,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Immutable agent config - <code>replio serve</code> agents cannot change their own configuration, permissions, or tool list</td>
+<td>Immutable agent config - <code>polyglav serve</code> agents cannot change their own configuration, permissions, or tool list</td>
 <td>S-M</td>
 <td>control-plane rule</td>
 </tr>
 <tr>
-<td>Minimal web Control UI - stdlib <code>http.server</code> page over the existing <code>replio serve</code> JSON API</td>
+<td>Minimal web Control UI - stdlib <code>http.server</code> page over the existing <code>polyglav serve</code> JSON API</td>
 <td>M</td>
 <td>dashboard over the JSON API</td>
 </tr>
@@ -2158,7 +2158,7 @@
 <td>versioned bundled plugins</td>
 </tr>
 <tr>
-<td>Plugin test harness - external plugins ship a test suite, <code>replio plugins test &lt;name&gt;</code> runs it</td>
+<td>Plugin test harness - external plugins ship a test suite, <code>polyglav plugins test &lt;name&gt;</code> runs it</td>
 <td>S-M</td>
 <td>tested plugins</td>
 </tr>
@@ -2404,7 +2404,7 @@
 </thead>
 <tbody>
 <tr>
-<td><code>replio update</code></td>
+<td><code>polyglav update</code></td>
 <td>M</td>
 <td>self-update</td>
 </tr>
@@ -2423,17 +2423,12 @@
 <td>S</td>
 <td>community presence</td>
 </tr>
-<tr>
-<td>Naming/positioning + competitor research</td>
-<td>S</td>
-<td>validated USP and name decision</td>
-</tr>
 </tbody>
 </table>
 <h2 id="how-the-layers-compose">How the layers compose<a class="headerlink" href="#how-the-layers-compose" title="Permanent link">&para;</a></h2>
 <p>One round hands off in three steps:</p>
 <ol>
-<li><strong>Start</strong> - the operator starts a task: <code>replio jobs add</code>/<code>run</code> for scheduled work, or a REPL prompt or <code>/tool delegate</code> for ad-hoc work. The jobs operator API adds a remote start (<code>POST /jobs/&lt;name&gt;/approve</code>) later</li>
+<li><strong>Start</strong> - the operator starts a task: <code>polyglav jobs add</code>/<code>run</code> for scheduled work, or a REPL prompt or <code>/tool delegate</code> for ad-hoc work. The jobs operator API adds a remote start (<code>POST /jobs/&lt;name&gt;/approve</code>) later</li>
 <li><strong>Distribute + review</strong> - the assistant splits the task into subtasks and delegates them: sequentially by type or team stage today (<code>delegate</code>, <code>Engine.run_team</code>), routed to fleet agents over <code>POST /chat</code> once cross-process delegation lands, with auditor agents reviewing the output (generate &gt; check &gt; correct)</li>
 <li><strong>Return</strong> - results come back to the operator: the delegate result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose</li>
 </ol>

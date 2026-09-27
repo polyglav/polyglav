@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/plugins/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/plugins/">
       
       
         <link rel="prev" href="../mcp/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Plugins - Replio</title>
+        <title>Plugins - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1531,7 +1531,7 @@
 
 
 <h1 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h1>
-<p>Plugins extend Replio with <strong>tools</strong>, <strong>providers</strong>, <strong>slash commands</strong>, and <strong>services</strong> without changing the core. The core stays stdlib-only. Third-party dependencies live inside the plugin and are imported lazily, so they only matter when you install and use that plugin.</p>
+<p>Plugins extend Polyglav with <strong>tools</strong>, <strong>providers</strong>, <strong>slash commands</strong>, and <strong>services</strong> without changing the core. The core stays stdlib-only. Third-party dependencies live inside the plugin and are imported lazily, so they only matter when you install and use that plugin.</p>
 <h2 id="installation-locations">Installation locations<a class="headerlink" href="#installation-locations" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1543,45 +1543,45 @@
 </thead>
 <tbody>
 <tr>
-<td><code>replio.plugins.bundled</code></td>
-<td><strong>bundled</strong> with replio (shipped in the package)</td>
+<td><code>polyglav.plugins.bundled</code></td>
+<td><strong>bundled</strong> with polyglav (shipped in the package)</td>
 <td>lowest</td>
 </tr>
 <tr>
-<td><code>~/.config/replio/plugins/</code></td>
+<td><code>~/.config/polyglav/plugins/</code></td>
 <td>global, all projects</td>
 <td>middle</td>
 </tr>
 <tr>
-<td><code>.replio/plugins/</code></td>
+<td><code>.polyglav/plugins/</code></td>
 <td>local to a project</td>
 <td>highest (wins on name collision)</td>
 </tr>
 </tbody>
 </table>
-<p>First-party plugins ship with replio and are listed in the default <code>plugins</code> config, so they are active out of the box. <code>replio-core-web</code> provides <code>web_search</code> and <code>web_fetch</code>. <code>replio-core-webhook</code> provides the job report-back connector (<code>report.webhook</code>). <code>replio-core-fs</code> provides <code>file_read</code>, <code>list_dir</code>, <code>file_write</code>, <code>glob</code>, and <code>grep</code>. <code>replio-core-exec</code> provides <code>run_command</code>. <code>replio-core-mcp</code> provides the MCP client (<code>mcp_connect</code>/<code>mcp_list</code>/<code>mcp_disconnect</code>) and server (<code>replio mcp</code> and <code>POST /mcp</code>). See <a href="../mcp/">mcp.md</a>. <code>replio-core-eval</code> provides the eval fixture catalog for <code>replio eval</code>. See <a href="../eval/">eval.md</a>. <code>replio-core-edit</code> provides <code>file_edit</code>, <code>replio-core-git</code> provides <code>git</code>/<code>git_commit</code>, and <code>replio-core-dev</code> provides <code>code_test</code>/<code>code_lint</code>/<code>code_format</code>. The vendor providers ship as bundled plugins too (<code>replio-core-ollama</code>, <code>replio-core-openai</code>, <code>replio-core-groq</code>, <code>replio-core-anthropic</code>, <code>replio-core-opencode</code>). See <a href="../providers/">providers.md</a>. They behave like any other plugin but cannot be uninstalled or updated, since they version with replio. Remove a name from <code>plugins</code> (or <code>/plugins disable</code>) to stop one loading. A global or local plugin with the same name overrides the bundled one.</p>
+<p>First-party plugins ship with polyglav and are listed in the default <code>plugins</code> config, so they are active out of the box. <code>polyglav-core-web</code> provides <code>web_search</code> and <code>web_fetch</code>. <code>polyglav-core-webhook</code> provides the job report-back connector (<code>report.webhook</code>). <code>polyglav-core-fs</code> provides <code>file_read</code>, <code>list_dir</code>, <code>file_write</code>, <code>glob</code>, and <code>grep</code>. <code>polyglav-core-exec</code> provides <code>run_command</code>. <code>polyglav-core-mcp</code> provides the MCP client (<code>mcp_connect</code>/<code>mcp_list</code>/<code>mcp_disconnect</code>) and server (<code>polyglav mcp</code> and <code>POST /mcp</code>). See <a href="../mcp/">mcp.md</a>. <code>polyglav-core-eval</code> provides the eval fixture catalog for <code>polyglav eval</code>. See <a href="../eval/">eval.md</a>. <code>polyglav-core-edit</code> provides <code>file_edit</code>, <code>polyglav-core-git</code> provides <code>git</code>/<code>git_commit</code>, and <code>polyglav-core-dev</code> provides <code>code_test</code>/<code>code_lint</code>/<code>code_format</code>. The vendor providers ship as bundled plugins too (<code>polyglav-core-ollama</code>, <code>polyglav-core-openai</code>, <code>polyglav-core-groq</code>, <code>polyglav-core-anthropic</code>, <code>polyglav-core-opencode</code>). See <a href="../providers/">providers.md</a>. They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from <code>plugins</code> (or <code>/plugins disable</code>) to stop one loading. A global or local plugin with the same name overrides the bundled one.</p>
 <h2 id="plugin-layout">Plugin layout<a class="headerlink" href="#plugin-layout" title="Permanent link">&para;</a></h2>
 <p>A plugin is a directory with a <code>manifest.json</code>, an entry module, and an optional unit-test suite. Source modules live under <code>src/</code>, tests under <code>tests/</code> (a bare <code>.py</code> file at the root is also accepted, where name = filename and defaults apply):</p>
-<div class="highlight"><pre><span></span><code>~/.config/replio/plugins/web-scraper/
+<div class="highlight"><pre><span></span><code>~/.config/polyglav/plugins/web-scraper/
   manifest.json
   src/
     plugin.py          # entry module (manifest "entry" points here)
     helpers.py         # sibling modules, importable by the entry
   tests/
-    test_plugins.py    # optional - run by `replio plugins test` and the core suite
+    test_plugins.py    # optional - run by `polyglav plugins test` and the core suite
 </code></pre></div>
 <p>The entry module may sit anywhere under the plugin directory. The <code>manifest.json</code> <code>"entry"</code> key is a path relative to the plugin root (default <code>plugin.py</code>). Sibling imports resolve from the entry module's directory, so a <code>src/</code> layout works like a flat one.</p>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"replio-web-scraper"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"polyglav-web-scraper"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.3.1"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Full-page scraping with links and structure"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"replio_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=0.12.0,&lt;1.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"polyglav_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=0.12.0,&lt;1.0"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"python"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=3.10"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"entry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plugin.py"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"requires"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"beautifulsoup4"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lxml"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"provides"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"scrape_page"</span><span class="p">],</span><span class="w"> </span><span class="nt">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">"commands"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"/scrape"</span><span class="p">]},</span>
-<span class="w">  </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/example/replio-web-scraper"</span>
+<span class="w">  </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/example/polyglav-web-scraper"</span>
 <span class="p">}</span>
 </code></pre></div>
 <table>
@@ -1606,10 +1606,10 @@
 <tr>
 <td><code>description</code></td>
 <td><code>""</code></td>
-<td>Shown in <code>/plugins</code> and <code>replio plugins list</code></td>
+<td>Shown in <code>/plugins</code> and <code>polyglav plugins list</code></td>
 </tr>
 <tr>
-<td><code>replio_version</code></td>
+<td><code>polyglav_version</code></td>
 <td><code>""</code></td>
 <td>Semver range the plugin is compatible with (<code>&gt;=0.12.0,&lt;1.0</code>). Incompatible plugins are skipped at load</td>
 </tr>
@@ -1653,13 +1653,13 @@
 </code></pre></div>
 <p>Plugin tools automatically inherit the tool permission policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>noise_tools</code>, and session logging. The loop never special-cases plugin names. A tool handler may declare a <code>_config</code> keyword argument to receive the engine's <code>Config</code> (e.g. to read a config key like <code>tool_max_result_chars</code>). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See <a href="../tools/">tools.md</a>.</p>
 <h3 id="providers">Providers<a class="headerlink" href="#providers" title="Permanent link">&para;</a></h3>
-<p><code>register_providers</code> contributes to the same provider set as the core <code>PROVIDERS</code> dict: the plugin provider appears in the <code>/connect</code> picker, and passing its <code>DEFAULT_BASE_URL</code> as a <code>/connect &lt;url&gt;</code> argument selects it automatically (see <a href="../providers/">providers.md</a>). A plugin provider's <code>DEFAULT_BASE_URL</code> also makes it a model-ref target (<code>&lt;name&gt;/&lt;model&gt;</code>). A provider class may declare <code>HOST_PATTERNS</code> (a tuple of URL substrings) so <code>/connect &lt;url&gt;</code> auto-detects it from the host (see <a href="../providers/#auto-detection">Auto-detection</a>). The core <code>detect_provider()</code> scans the merged set and prefers the longest matching pattern. The bundled vendor providers (<code>replio-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>replio-core-opencode</code>) are plugins themselves, so an external plugin registering a provider with the same name as a bundled one does not override it, because the core <code>PROVIDERS</code> registry wins on name conflicts.</p>
+<p><code>register_providers</code> contributes to the same provider set as the core <code>PROVIDERS</code> dict: the plugin provider appears in the <code>/connect</code> picker, and passing its <code>DEFAULT_BASE_URL</code> as a <code>/connect &lt;url&gt;</code> argument selects it automatically (see <a href="../providers/">providers.md</a>). A plugin provider's <code>DEFAULT_BASE_URL</code> also makes it a model-ref target (<code>&lt;name&gt;/&lt;model&gt;</code>). A provider class may declare <code>HOST_PATTERNS</code> (a tuple of URL substrings) so <code>/connect &lt;url&gt;</code> auto-detects it from the host (see <a href="../providers/#auto-detection">Auto-detection</a>). The core <code>detect_provider()</code> scans the merged set and prefers the longest matching pattern. The bundled vendor providers (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>polyglav-core-opencode</code>) are plugins themselves, so an external plugin registering a provider with the same name as a bundled one does not override it, because the core <code>PROVIDERS</code> registry wins on name conflicts.</p>
 <h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h3>
-<p><code>register_services</code> lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled <code>replio-core-web</code> registers <code>services['search']</code> with <code>search(query, num)</code>, <code>display(query, results)</code>, and <code>context(query, results)</code> methods (without it, that mode reports the service is unavailable instead of erroring). The bundled <code>replio-core-webhook</code> registers <code>services['report']</code> with a <code>report(payload, config)</code> method: the scheduler calls it once per completed job run with a <code>job.run.completed</code> payload and its <code>Config</code>, so the connector reads its own keys (e.g. <code>report.webhook</code>) and posts the report. Any plugin can register a <code>report</code> service the same way to deliver run summaries elsewhere (email, chat, a local log). See <a href="../jobs/#report-back">jobs.md</a>.</p>
+<p><code>register_services</code> lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled <code>polyglav-core-web</code> registers <code>services['search']</code> with <code>search(query, num)</code>, <code>display(query, results)</code>, and <code>context(query, results)</code> methods (without it, that mode reports the service is unavailable instead of erroring). The bundled <code>polyglav-core-webhook</code> registers <code>services['report']</code> with a <code>report(payload, config)</code> method: the scheduler calls it once per completed job run with a <code>job.run.completed</code> payload and its <code>Config</code>, so the connector reads its own keys (e.g. <code>report.webhook</code>) and posts the report. Any plugin can register a <code>report</code> service the same way to deliver run summaries elsewhere (email, chat, a local log). See <a href="../jobs/#report-back">jobs.md</a>.</p>
 <h3 id="roles-teams-and-skills">Roles, teams, and skills<a class="headerlink" href="#roles-teams-and-skills" title="Permanent link">&para;</a></h3>
 <p><code>register_roles(registry)</code> contributes roles to the <code>RoleRegistry</code> via <code>registry.add_plugin(entry)</code> (same entry shape as <code>roles.json</code>). Plugin roles form an in-memory layer between bundled and global, so precedence is <code>bundled &lt; plugin &lt; global &lt; local</code>, and a <code>roles.json</code> entry can always override or replace a plugin-provided role. <code>register_teams(teams)</code> and <code>register_skills(skills)</code> register into the team and skills registries the same way (<code>teams.add_plugin(...)</code> / <code>skills.add_plugin(...)</code>, entry shapes in <a href="../teams/">teams.md</a> and <a href="../skills/">skills.md</a>). The <code>/roles</code> list marks plugin roles <code>(plugin)</code>. After <code>/plugins install</code>/<code>update</code>/<code>uninstall</code> the running REPL re-applies all three hooks immediately. Tools and commands still activate on the next start.</p>
 <h3 id="eval-fixtures">Eval fixtures<a class="headerlink" href="#eval-fixtures" title="Permanent link">&para;</a></h3>
-<p><code>register_fixtures(fixtures)</code> contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture <code>id</code> to fixture data (same shape as the JSON fixtures under <code>.replio/eval/</code>, see <a href="../eval/">eval.md</a>). Local and global fixture files override plugin fixtures by <code>id</code>. The bundled <code>replio-core-eval</code> plugin ships the default catalog this way.</p>
+<p><code>register_fixtures(fixtures)</code> contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture <code>id</code> to fixture data (same shape as the JSON fixtures under <code>.polyglav/eval/</code>, see <a href="../eval/">eval.md</a>). Local and global fixture files override plugin fixtures by <code>id</code>. The bundled <code>polyglav-core-eval</code> plugin ships the default catalog this way.</p>
 <h3 id="lazy-dependencies">Lazy dependencies<a class="headerlink" href="#lazy-dependencies" title="Permanent link">&para;</a></h3>
 <p>Keep third-party imports <strong>inside</strong> the tool function, not at module top level. A missing dependency then surfaces as a normal tool result with install guidance. Plugin packages are only imported in the process running your configured plugins, and only when their tools are actually called:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">register_tools</span><span class="p">(</span><span class="n">registry</span><span class="p">):</span>
@@ -1676,7 +1676,7 @@
 <h2 id="managing-plugins">Managing plugins<a class="headerlink" href="#managing-plugins" title="Permanent link">&para;</a></h2>
 <h3 id="config-activation">Config activation<a class="headerlink" href="#config-activation" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"replio-core-web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"replio-core-fs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"replio-core-exec"</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"polyglav-core-web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-fs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-exec"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 <ul>
@@ -1694,25 +1694,25 @@
 /plugins uninstall &lt;name&gt;
 </code></pre></div>
 <h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h3>
-<p>The same operations are available headless (e.g. before a CI <code>replio run</code>):</p>
-<div class="highlight"><pre><span></span><code>replio plugins list
-replio plugins install &lt;git-url|path&gt; --deps
-replio plugins update &lt;name&gt;
-replio plugins uninstall &lt;name&gt;
-replio plugins test [name]
+<p>The same operations are available headless (e.g. before a CI <code>polyglav run</code>):</p>
+<div class="highlight"><pre><span></span><code>polyglav plugins list
+polyglav plugins install &lt;git-url|path&gt; --deps
+polyglav plugins update &lt;name&gt;
+polyglav plugins uninstall &lt;name&gt;
+polyglav plugins test [name]
 </code></pre></div>
 <ul>
-<li><code>install</code> clones a git URL or copies a local directory into <code>.replio/plugins/</code> (or <code>~/.config/replio/plugins/</code> with <code>--global</code>), records <code>source</code>, and with <code>--deps</code> runs <code>pip install</code> on the declared <code>requires</code>.</li>
+<li><code>install</code> clones a git URL or copies a local directory into <code>.polyglav/plugins/</code> (or <code>~/.config/polyglav/plugins/</code> with <code>--global</code>), records <code>source</code>, and with <code>--deps</code> runs <code>pip install</code> on the declared <code>requires</code>.</li>
 <li><code>update</code> runs <code>git pull</code> for remote sources or re-copies a local path.</li>
 <li><code>test</code> runs a plugin's <code>tests/</code> unit suite (<code>--verbose</code> for per-test output). Without a name it runs every plugin that has one. The core test suite also runs these through <code>tests/test_plugin_suites.py</code>.</li>
 <li>Bundled plugins report an error for <code>update</code> and <code>uninstall</code>. Disable them instead.</li>
 </ul>
 <h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
-<p><code>/plugins</code> (and <code>replio plugins list</code>) shows each plugin's name, version, <strong>origin</strong> (<code>bundled</code> / <code>global</code> / <code>local</code>), load status, and unmet <code>requires</code>:</p>
+<p><code>/plugins</code> (and <code>polyglav plugins list</code>) shows each plugin's name, version, <strong>origin</strong> (<code>bundled</code> / <code>global</code> / <code>local</code>), load status, and unmet <code>requires</code>:</p>
 <ul>
 <li><code>loaded</code> - active</li>
 <li><code>disabled</code> - not in the <code>plugins</code> list (when it is non-empty)</li>
-<li><code>incompatible</code> - <code>replio_version</code> or <code>python</code> range not satisfied (reason shown)</li>
+<li><code>incompatible</code> - <code>polyglav_version</code> or <code>python</code> range not satisfied (reason shown)</li>
 <li><code>error</code> - invalid manifest, missing entry module, or the entry module raised while loading</li>
 </ul>
 <h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
@@ -1721,7 +1721,7 @@ replio plugins test [name]
 <ul>
 <li><strong>Dependency isolation</strong>: today plugin deps install into the same Python environment (lazy imports keep the core clean). Shared-plugin and per-plugin virtualenvs are planned for stronger separation.</li>
 <li><strong>PyPI source</strong>: the same hooks will be discoverable through <code>importlib.metadata</code> entry points, so plugins can be distributed as regular packages.</li>
-<li><strong>Externalizing bundled plugins</strong>: the bundled <code>replio-core-*</code> plugins are the migration path for optional features. Web and machine tools now ship through them, and they can be forked or superseded by global/local plugins of the same name.</li>
+<li><strong>Externalizing bundled plugins</strong>: the bundled <code>polyglav-core-*</code> plugins are the migration path for optional features. Web and machine tools now ship through them, and they can be forked or superseded by global/local plugins of the same name.</li>
 </ul>
 
 

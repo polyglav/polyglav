@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/config/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/config/">
       
       
         <link rel="prev" href="../commands/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Configuration - Replio</title>
+        <title>Configuration - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1401,10 +1401,10 @@
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
 <p>Config is a single JSON object read from two files and merged per key, with project-local values winning:</p>
 <ol>
-<li><strong>Global</strong> - <code>~/.config/replio/config.json</code> (user-wide defaults, credentials).</li>
-<li><strong>Local</strong> - <code>.replio/config.json</code> in the project path (project overrides).</li>
+<li><strong>Global</strong> - <code>~/.config/polyglav/config.json</code> (user-wide defaults, credentials).</li>
+<li><strong>Local</strong> - <code>.polyglav/config.json</code> in the project path (project overrides).</li>
 </ol>
-<p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/replio/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
+<p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (origin: default/global/local)</span>
 /config
 <span class="c1"># set a value (project-local, Git-like default)</span>
@@ -1420,13 +1420,13 @@
 <span class="c1"># reload from disk</span>
 /config<span class="w"> </span>reload
 </code></pre></div>
-<p>The <code>replio config</code> CLI does the same headlessly and is fully scriptable:</p>
-<div class="highlight"><pre><span></span><code>replio<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>max_tokens<span class="w"> </span>--show-origin<span class="w">     </span><span class="c1"># one or more values + where they come from</span>
-replio<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>max_tokens<span class="w"> </span><span class="m">0</span><span class="w">                 </span><span class="c1"># project-local</span>
-replio<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>max_tokens<span class="w"> </span><span class="m">0</span><span class="w"> </span>--global<span class="w">        </span><span class="c1"># global file</span>
-replio<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>max_tokens<span class="w">                 </span><span class="c1"># remove from project-local</span>
+<p>The <code>polyglav config</code> CLI does the same headlessly and is fully scriptable:</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>config<span class="w"> </span>get<span class="w"> </span>max_tokens<span class="w"> </span>--show-origin<span class="w">     </span><span class="c1"># one or more values + where they come from</span>
+polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>max_tokens<span class="w"> </span><span class="m">0</span><span class="w">                 </span><span class="c1"># project-local</span>
+polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>max_tokens<span class="w"> </span><span class="m">0</span><span class="w"> </span>--global<span class="w">        </span><span class="c1"># global file</span>
+polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>max_tokens<span class="w">                 </span><span class="c1"># remove from project-local</span>
 </code></pre></div>
-<p>Deleting a project's <code>.replio/config.json</code> reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with <code>--global</code> (accepted by both the REPL <code>/config</code> and the CLI), e.g. <code>/config --global provider ollama</code>, <code>/config --global model &lt;model&gt;</code>.</p>
+<p>Deleting a project's <code>.polyglav/config.json</code> reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with <code>--global</code> (accepted by both the REPL <code>/config</code> and the CLI), e.g. <code>/config --global provider ollama</code>, <code>/config --global model &lt;model&gt;</code>.</p>
 <h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1555,7 +1555,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <tr>
 <td><code>memory</code></td>
 <td><code>true</code></td>
-<td>Enable bounded memory summaries under <code>.replio/memory/</code>: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. <code>false</code> disables every scope</td>
+<td>Enable bounded memory summaries under <code>.polyglav/memory/</code>: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. <code>false</code> disables every scope</td>
 </tr>
 <tr>
 <td><code>memory_max_chars</code></td>
@@ -1589,7 +1589,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 </tr>
 <tr>
 <td><code>output_log_dir</code></td>
-<td><code>".replio/output"</code></td>
+<td><code>".polyglav/output"</code></td>
 <td>Directory for the output log, relative to the worktree (or absolute). One file per session, named after it</td>
 </tr>
 <tr>
@@ -1615,7 +1615,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <tr>
 <td><code>provider</code></td>
 <td><code>"ollama"</code></td>
-<td>Provider name. Bundled provider plugins (<code>replio-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>) register <code>ollama</code>, <code>openai</code>, <code>groq</code>, <code>anthropic</code>, <code>opencode</code>, <code>opencode-go</code>. <code>openai-compatible</code> is the generic fallback. External plugins can register more</td>
+<td>Provider name. Bundled provider plugins (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>) register <code>ollama</code>, <code>openai</code>, <code>groq</code>, <code>anthropic</code>, <code>opencode</code>, <code>opencode-go</code>. <code>openai-compatible</code> is the generic fallback. External plugins can register more</td>
 </tr>
 <tr>
 <td><code>query_refine</code></td>
@@ -1640,7 +1640,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <tr>
 <td><code>report.webhook</code></td>
 <td><code>""</code></td>
-<td>URL the bundled <code>replio-core-webhook</code> report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See <a href="../jobs/#report-back">jobs.md</a></td>
+<td>URL the bundled <code>polyglav-core-webhook</code> report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See <a href="../jobs/#report-back">jobs.md</a></td>
 </tr>
 <tr>
 <td><code>run_buffer_max_lines</code></td>
@@ -1755,7 +1755,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <tr>
 <td><code>unattended</code></td>
 <td><code>false</code></td>
-<td>Unattended mode: no stdin is read at any depth. Confirms auto-deny and <code>ask target='human'</code> parks as a pending request (<code>.replio/asks.json</code>) instead of prompting. See <a href="#unattended-mode">Unattended mode</a></td>
+<td>Unattended mode: no stdin is read at any depth. Confirms auto-deny and <code>ask target='human'</code> parks as a pending request (<code>.polyglav/asks.json</code>) instead of prompting. See <a href="#unattended-mode">Unattended mode</a></td>
 </tr>
 <tr>
 <td><code>web_search</code></td>
@@ -1782,7 +1782,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Each mode may define <code>system_prompt</code> (instructions), <code>tool_permission</code> (category actions merged over the base, mode wins per key), <code>tools.deny</code> (appended to the base deny list), and <code>tools.allow</code> (replaces the base allowlist when non-empty). An unknown <code>mode</code> falls back to <code>build</code>. Switch live with <code>/mode &lt;name&gt;</code> or <code>--mode &lt;name&gt;</code> on <code>replio run</code> / <code>replio serve</code>. The mode instruction and <code>system_prompt</code> are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.</p>
+<p>Each mode may define <code>system_prompt</code> (instructions), <code>tool_permission</code> (category actions merged over the base, mode wins per key), <code>tools.deny</code> (appended to the base deny list), and <code>tools.allow</code> (replaces the base allowlist when non-empty). An unknown <code>mode</code> falls back to <code>build</code>. Switch live with <code>/mode &lt;name&gt;</code> or <code>--mode &lt;name&gt;</code> on <code>polyglav run</code> / <code>polyglav serve</code>. The mode instruction and <code>system_prompt</code> are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.</p>
 <h3 id="tool_permission"><code>tool_permission</code><a class="headerlink" href="#tool_permission" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"ask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
@@ -1800,7 +1800,7 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <span class="w">  </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>delegate</code> category gates the <code>delegate</code> tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own <code>tool_permission</code> overrides (category <code>delegate</code> defaulting to <code>allow</code>), while a role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>team</code> category gates the <code>team</code> tool (default <code>allow</code>), separate from <code>delegate</code> so a role can be a delegation target yet be barred from running pipelines. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the human or the lead agent, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.replio/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>handoff</code> category gates the <code>handoff</code> tool (default <code>allow</code>). It only moves the REPL's focus between runs (see <a href="../tools/#handing-off-control">tools.md</a>). The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
+<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>delegate</code> category gates the <code>delegate</code> tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own <code>tool_permission</code> overrides (category <code>delegate</code> defaulting to <code>allow</code>), while a role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>team</code> category gates the <code>team</code> tool (default <code>allow</code>), separate from <code>delegate</code> so a role can be a delegation target yet be barred from running pipelines. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the human or the lead agent, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>handoff</code> category gates the <code>handoff</code> tool (default <code>allow</code>). It only moves the REPL's focus between runs (see <a href="../tools/#handing-off-control">tools.md</a>). The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
 <h3 id="ask_policy"><code>ask_policy</code><a class="headerlink" href="#ask_policy" title="Permanent link">&para;</a></h3>
 <p>Routes the <code>ask</code> tool by kind:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1827,10 +1827,10 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <p><code>unattended: true</code> guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:</p>
 <ul>
 <li><strong>Confirms auto-deny.</strong> A tool whose policy action is <code>ask</code> (e.g. <code>run_command</code> with <code>bash: ask</code>) returns <code>[cancelled] User declined the &lt;name&gt; call</code> instead of prompting.</li>
-<li><strong><code>ask target='human'</code> parks instead of prompting.</strong> The root engine drops its terminal UI (<code>_ask_ui</code> is not propagated down the tree), and any human-routed ask becomes a pending request persisted in <code>.replio/asks.json</code>, returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code> so it continues or finishes. A sub-agent's human ask parks rather than falling back to its lead, so the operator decides. Permission asks routed <code>human</code> park the same way. Routed <code>auto</code> still go to the lead (a one-shot grant).</li>
+<li><strong><code>ask target='human'</code> parks instead of prompting.</strong> The root engine drops its terminal UI (<code>_ask_ui</code> is not propagated down the tree), and any human-routed ask becomes a pending request persisted in <code>.polyglav/asks.json</code>, returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code> so it continues or finishes. A sub-agent's human ask parks rather than falling back to its lead, so the operator decides. Permission asks routed <code>human</code> park the same way. Routed <code>auto</code> still go to the lead (a one-shot grant).</li>
 <li><strong>Model approval is not prompted.</strong> An unapproved role/team model is denied (the run reports the error) unless the headless <code>approve_models</code> flag was passed. Launch with <code>--approve-model</code> if the run needs to approve one itself.</li>
 </ul>
-<p>Enable it per run with <code>replio --unattended</code> (not persisted), in config with <code>unattended: true</code>, or live with <code>/unattended</code>. Parked asks are listed and answered with <code>/asks</code> or the serve API (<code>GET /asks</code>, <code>POST /asks/&lt;id&gt;/answer</code>). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the operator's decision in context. Scheduled/durable job engines run unattended, so a job parks its human asks the same way. <code>confirm_timeout</code> (seconds, default <code>0</code> = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.</p>
+<p>Enable it per run with <code>polyglav --unattended</code> (not persisted), in config with <code>unattended: true</code>, or live with <code>/unattended</code>. Parked asks are listed and answered with <code>/asks</code> or the serve API (<code>GET /asks</code>, <code>POST /asks/&lt;id&gt;/answer</code>). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the operator's decision in context. Scheduled/durable job engines run unattended, so a job parks its human asks the same way. <code>confirm_timeout</code> (seconds, default <code>0</code> = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.</p>
 <h3 id="bash_allow-command-allowlist-for-run_command"><code>bash_allow</code> - command allowlist for <code>run_command</code><a class="headerlink" href="#bash_allow-command-allowlist-for-run_command" title="Permanent link">&para;</a></h3>
 <p><code>tool_permission.bash_allow</code> (list, default <code>[]</code>) restricts <code>run_command</code> to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the <code>bash</code> action applies to every command). When set:</p>
 <ul>
@@ -1840,9 +1840,9 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 </ul>
 <p>The check runs through the per-invocation policy resolver, so it composes with modes, name-level <code>tools.deny</code>/<code>tools.allow</code>, and the worktree escalation. <code>bash_allow</code> gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.</p>
 <h2 id="model-registry-not-config">Model registry (not config)<a class="headerlink" href="#model-registry-not-config" title="Permanent link">&para;</a></h2>
-<p>Two global files live separately from config in <code>~/.config/replio/</code>. Neither is part of the config merge: <code>/config</code> never lists or writes them, and neither has a local scope.</p>
+<p>Two global files live separately from config in <code>~/.config/polyglav/</code>. Neither is part of the config merge: <code>/config</code> never lists or writes them, and neither has a local scope.</p>
 <h3 id="provider-registry-providersjson">Provider registry (<code>providers.json</code>)<a class="headerlink" href="#provider-registry-providersjson" title="Permanent link">&para;</a></h3>
-<p><code>~/.config/replio/providers.json</code> (written <code>0600</code> when it holds keys) stores the active connections, keyed by provider name:</p>
+<p><code>~/.config/polyglav/providers.json</code> (written <code>0600</code> when it holds keys) stores the active connections, keyed by provider name:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"ollama"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">"base_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://custom.example/v1"</span><span class="p">,</span>
@@ -1856,10 +1856,10 @@ replio<span class="w"> </span>config<span class="w"> </span><span class="nb">uns
 <li><code>api_key</code> lives here, one per provider, and is the only place API keys live.</li>
 <li><code>base_url</code> is the effective base URL of the connection: the preset provider default (e.g. <code>/connect ollama</code>) or a custom URL (<code>/connect &lt;url&gt;</code>). The engine falls back to it when the config leaves <code>base_url</code> empty.</li>
 <li>Managed through <code>/connect</code> (writes the key and any custom base URL). Re-running it re-enters a missing or stale key.</li>
-<li>The engine resolves the active provider's API key from this file (matching entry or <code>""</code>), falling back to a stored custom <code>base_url</code> when the config has none. There is no <code>api_key</code> config key anymore, and <code>replio config set api_key</code> would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.</li>
+<li>The engine resolves the active provider's API key from this file (matching entry or <code>""</code>), falling back to a stored custom <code>base_url</code> when the config has none. There is no <code>api_key</code> config key anymore, and <code>polyglav config set api_key</code> would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.</li>
 </ul>
 <h3 id="model-registry-modelsjson">Model registry (<code>models.json</code>)<a class="headerlink" href="#model-registry-modelsjson" title="Permanent link">&para;</a></h3>
-<p><code>~/.config/replio/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>
+<p><code>~/.config/polyglav/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>
 <ul>
 <li><code>/connect</code> records the model for the connection it just saved.</li>
 <li><code>/models</code> shows approved models grouped by provider, the active one marked <code>&gt;</code>, plus <code>(key)</code> when that provider has a stored key.</li>

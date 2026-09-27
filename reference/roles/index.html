@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/roles/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/roles/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Roles - Replio</title>
+        <title>Roles - Polyglav</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -421,7 +421,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1320,10 +1320,10 @@
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>Roles come from four layers, merged exactly like config: bundled, then plugin, then global, then local, local winning per field. Precedence mirrors bundled plugins (<code>bundled &lt; plugin &lt; global &lt; local</code>):</p>
 <ul>
-<li><strong>Bundled</strong> - the read-only default catalog shipped in the package (<code>src/replio/bundled_roles.json</code>). Always present, never writable, overridable by any other layer.</li>
+<li><strong>Bundled</strong> - the read-only default catalog shipped in the package (<code>src/polyglav/bundled_roles.json</code>). Always present, never writable, overridable by any other layer.</li>
 <li><strong>Plugin</strong> - roles contributed by plugins via the <code>register_roles</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to any <code>roles.json</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
-<li><strong>Global</strong> - <code>~/.config/replio/roles.json</code>.</li>
-<li><strong>Local</strong> - <code>.replio/roles.json</code>.</li>
+<li><strong>Global</strong> - <code>~/.config/polyglav/roles.json</code>.</li>
+<li><strong>Local</strong> - <code>.polyglav/roles.json</code>.</li>
 </ul>
 <p>Merging is field-by-field for the same <code>name</code>: an entry overrides only the fields it sets, so an unset field (e.g. no <code>model</code>) inherits from the layer below.</p>
 <p>Schema (per entry):</p>
@@ -1370,7 +1370,7 @@
 <ul>
 <li><code>/agent</code> is the planned interactive way to pick a role and run with it. Today a role runs directly through the <code>delegate</code> tool (the lead model proposes it, or <code>/tool delegate {"role": ..., "task": ...}</code>), which builds the in-process sub-engine from this catalog.</li>
 <li>Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.</li>
-<li>A role runs either in-process as a sub-engine (the default for delegation) or as a scoped <code>replio serve</code> process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and <code>tool_permission</code> (see <a href="../fleet/">fleet.md</a>).</li>
+<li>A role runs either in-process as a sub-engine (the default for delegation) or as a scoped <code>polyglav serve</code> process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and <code>tool_permission</code> (see <a href="../fleet/">fleet.md</a>).</li>
 </ul>
 
 

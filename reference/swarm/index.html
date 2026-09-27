@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/swarm/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/swarm/">
       
       
         <link rel="prev" href="../skills/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Agent swarms - Replio</title>
+        <title>Agent swarms - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1260,7 +1260,7 @@
 </tr>
 <tr>
 <td>Unit</td>
-<td><code>replio serve</code> process scoped to a folder</td>
+<td><code>polyglav serve</code> process scoped to a folder</td>
 <td>Agent with a role, either a fleet process or an in-process engine</td>
 </tr>
 <tr>
@@ -1292,7 +1292,7 @@
 <h2 id="roles-and-delegation">Roles and delegation<a class="headerlink" href="#roles-and-delegation" title="Permanent link">&para;</a></h2>
 <p>Roles are named agent definitions (a system prompt, optional model override, and optional per-agent tool permissions) stored in a single JSON catalog with bundled, global, and local layers (schema, permission rule, and bundled default roster in <a href="../roles/">roles.md</a>). <code>delegate(role, task)</code> spawns a sub-agent that runs the task with the role's prompt, session, and model, and returns the result. Delegation resolves its permission from the selected type: a configured role uses its own <code>tool_permission</code> overrides (category <code>delegate</code> defaults to <code>allow</code>, so delegation runs without a prompt unless a role sets <code>ask</code>), while a temporary role created only for parallel work defaults to <code>deny</code> until opted in. The bundled catalog ships two pre-carved teams ready to delegate to out of the box: <code>researcher</code>/<code>writer</code>/<code>referencer</code>/<code>editor</code> for documents and <code>planner</code>/<code>programmer</code>/<code>tester</code>/<code>code-reviewer</code> for programming.</p>
 <p>In-process sub-engines run with a quiet <code>NullUI</code>, so they never interleave with the caller's REPL, execute synchronously (one sub-agent at a time), and keep their own session (<code>sub_&lt;ts&gt;_&lt;id&gt;</code> in the shared <code>sessions/</code> dir, the calling session recorded as <code>parent_id</code>, saved as a complete log). A caller may resume an existing run or session with <code>delegate(role, task, resume=..., context=...)</code>, so the same agent keeps its prior context while per-run skills extend it (see <a href="../teams/#resuming-a-member-run">teams.md</a>). There is no standing warm-session name, because a session belongs to the run that started it. A sub-engine inherits the caller's provider, plugin manager, and worktree. The role's <code>system_prompt</code> becomes the sub-agent's system prompt, its <code>model</code> overrides the caller's when set, and its <code>tool_permission</code> carve narrows the caller's categories. The role's standing skills are injected, and a caller may layer per-run skills through <code>delegate</code>/<code>team</code> or a team stage, so a reusable agent keeps its identity while each task adds its own instructions. The carve is capped by the caller's <code>grant_permission</code> ceiling (default: the caller's own carve), so a sub-agent can never gain a permission the caller was not authorized to delegate. A role that sets <code>grant_permission</code> may hand down categories it does not use itself (a supervisor that denies <code>edit</code>/<code>bash</code> can still delegate them). Sub-agents run in <code>build</code> mode regardless of the caller's mode, so the role carve alone decides edit/bash. Ask-gated tools are auto-denied (no interactive confirm), so a sub-agent's effective permissions are exactly the categories its carve allows. The <code>delegate</code> tool surfaces which role and task are running, returns the sub-agent's final answer as its result, and, with <code>delegate_echo</code> on (default), renders the answer plus a sub footer (duration + completion tokens) in the REPL. A sub-agent or team stage that needs a decision or permission mid-run calls the core <code>ask</code> tool: <code>target='human'</code> routes to the operator at the terminal (prefixed with the asking session), <code>target='lead'</code> routes to the calling engine's model via a bounded consultation, and the answer feeds back into the asking agent so it can continue instead of returning an open question. A <code>kind='permission'</code> ask is routed by <code>ask_policy.permission</code> and, when approved within the ceiling, adds a one-shot grant on the asking sub-agent (the operator may grant <code>always</code> for the rest of that run). Live in-REPL progress of a running sub-agent is a deferred enhancement, because <code>Engine.chat()</code> is a single blocking call with no progress channel yet. An interactive "jump into the active sub-agent" view is also future work. The <code>focus_on_delegate</code> config (<code>off</code>/<code>ask</code>/<code>on</code>, default <code>off</code>) is the first step toward that view: after a synchronous <code>delegate</code> completes, the REPL can move its focus to the child run (asking first with <code>ask</code>) while the caller's turn still finishes.</p>
-<p>A document pipeline is a typical use: a lead agent asks a <code>researcher</code> for findings, hands them to a <code>writer</code>, has a <code>referencer</code> collect citations into a <code>.bib</code> file, and runs an <code>editor</code> to check the result against the original prompt. This is team orchestration built on roles and delegation. Named pipelines are stored as teams: ordered role chains with per-stage task hints and handoff notes, in a four-layer registry (bundled <code>writing</code>/<code>programming</code> rosters, plugin contributions, global/local <code>teams.json</code>, see <a href="../teams/">teams.md</a>). <code>Engine.run_team</code> executes a team sequentially, with per-run briefs built from the task, prior stage results, the shared team memory (<code>.replio/memory/teams/&lt;name&gt;.md</code>), and stage handoffs, and a rolling memory write after the run. A lead agent runs one with the core <code>team(name, task)</code> tool, and the operator with <code>/teams run &lt;name&gt; &lt;task&gt;</code>.</p>
+<p>A document pipeline is a typical use: a lead agent asks a <code>researcher</code> for findings, hands them to a <code>writer</code>, has a <code>referencer</code> collect citations into a <code>.bib</code> file, and runs an <code>editor</code> to check the result against the original prompt. This is team orchestration built on roles and delegation. Named pipelines are stored as teams: ordered role chains with per-stage task hints and handoff notes, in a four-layer registry (bundled <code>writing</code>/<code>programming</code> rosters, plugin contributions, global/local <code>teams.json</code>, see <a href="../teams/">teams.md</a>). <code>Engine.run_team</code> executes a team sequentially, with per-run briefs built from the task, prior stage results, the shared team memory (<code>.polyglav/memory/teams/&lt;name&gt;.md</code>), and stage handoffs, and a rolling memory write after the run. A lead agent runs one with the core <code>team(name, task)</code> tool, and the operator with <code>/teams run &lt;name&gt; &lt;task&gt;</code>.</p>
 <h2 id="in-process-vs-cross-process">In-process vs. cross-process<a class="headerlink" href="#in-process-vs-cross-process" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1306,7 +1306,7 @@
 <tr>
 <td>Unit</td>
 <td>Sub-<code>Engine</code> in the same process</td>
-<td>Another <code>replio serve</code> agent</td>
+<td>Another <code>polyglav serve</code> agent</td>
 </tr>
 <tr>
 <td>Setup</td>

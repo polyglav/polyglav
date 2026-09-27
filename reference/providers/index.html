@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/providers/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/providers/">
       
       
         <link rel="prev" href="../plugins/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Providers - Replio</title>
+        <title>Providers - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1397,7 +1397,7 @@
 
 
 <h1 id="providers">Providers<a class="headerlink" href="#providers" title="Permanent link">&para;</a></h1>
-<p>Providers are the model backends. Replio speaks OpenAI-compatible <code>/v1/chat/completions</code> to every provider. They differ only in base URL, default model, and occasionally auth or payload details. Each implements the event-generator <code>chat()</code> contract the agent loop consumes.</p>
+<p>Providers are the model backends. Polyglav speaks OpenAI-compatible <code>/v1/chat/completions</code> to every provider. They differ only in base URL, default model, and occasionally auth or payload details. Each implements the event-generator <code>chat()</code> contract the agent loop consumes.</p>
 <h2 id="bundled-provider-plugins">Bundled provider plugins<a class="headerlink" href="#bundled-provider-plugins" title="Permanent link">&para;</a></h2>
 <p>The vendor providers ship as bundled plugins. The core keeps the base classes (<code>BaseProvider</code>, <code>OpenAICompatibleProvider</code>), the generic <code>openai-compatible</code> fallback, and the detection/registry mechanisms, so any external plugin can add providers through the same <code>register_providers</code> hook. The bundled plugins are in the default <code>plugins</code> config and load like any other plugin, so a disabled or removed one drops that provider.</p>
 <table>
@@ -1411,37 +1411,37 @@
 </thead>
 <tbody>
 <tr>
-<td><code>replio-core-anthropic</code></td>
+<td><code>polyglav-core-anthropic</code></td>
 <td><code>anthropic</code></td>
 <td><code>https://api.anthropic.com/v1</code></td>
 <td><code>claude-sonnet-4-20250514</code></td>
 </tr>
 <tr>
-<td><code>replio-core-groq</code></td>
+<td><code>polyglav-core-groq</code></td>
 <td><code>groq</code></td>
 <td><code>https://api.groq.com/openai/v1</code></td>
 <td><code>llama-3.3-70b-versatile</code></td>
 </tr>
 <tr>
-<td><code>replio-core-ollama</code></td>
+<td><code>polyglav-core-ollama</code></td>
 <td><code>ollama</code></td>
 <td><code>https://api.ollama.com</code></td>
 <td><code>llama3.2</code></td>
 </tr>
 <tr>
-<td><code>replio-core-openai</code></td>
+<td><code>polyglav-core-openai</code></td>
 <td><code>openai</code></td>
 <td><code>https://api.openai.com/v1</code></td>
 <td><code>gpt-4o-mini</code></td>
 </tr>
 <tr>
-<td><code>replio-core-opencode</code></td>
+<td><code>polyglav-core-opencode</code></td>
 <td><code>opencode</code></td>
 <td><code>https://opencode.ai/zen/v1</code></td>
 <td><code>kimi-k3</code></td>
 </tr>
 <tr>
-<td><code>replio-core-opencode</code></td>
+<td><code>polyglav-core-opencode</code></td>
 <td><code>opencode-go</code></td>
 <td><code>https://opencode.ai/zen/go/v1</code></td>
 <td><code>deepseek-v4-flash</code></td>
@@ -1449,9 +1449,9 @@
 </tbody>
 </table>
 <p><code>openai-compatible</code> is the generic fallback in the core for any other OpenAI-compatible endpoint, for local models, gateways, or self-hosted servers.</p>
-<p><code>opencode</code> (Zen) and <code>opencode-go</code> (Go) are the two hosted catalogs at <code>opencode.ai</code>. Both share one OpenCode API key, stored with <code>/connect</code> in the provider registry like any other provider (no environment variable is consulted). Zen is the curated multi-model gateway. Go is the low-cost subscription for open coding models. Model refs accept the <code>opencode/&lt;model-id&gt;</code> and <code>opencode-go/&lt;model-id&gt;</code> conventions as well as bare model ids, and the prefix is stripped before the request. A successful model listing is an inventory, not an entitlement check: inference still requires the matching subscription. Fetch the current lineup from <code>https://opencode.ai/zen/v1/models</code> and <code>https://opencode.ai/zen/go/v1/models</code>. These endpoints sit behind Cloudflare bot protection, which rejects urllib's default <code>Python-urllib/&lt;ver&gt;</code> user agent with <code>HTTP 403: error code: 1010</code>. Provider requests send an identifying <code>replio/&lt;version&gt;</code> <code>User-Agent</code> and an <code>x-opencode-session</code> header bound to the run's own session id (OpenCode uses it for routing and prompt caching, and Go rejects requests without it), so <code>/connect</code>, <code>/models list</code>, and chat work, and a resumed run reuses its provider-side session.</p>
+<p><code>opencode</code> (Zen) and <code>opencode-go</code> (Go) are the two hosted catalogs at <code>opencode.ai</code>. Both share one OpenCode API key, stored with <code>/connect</code> in the provider registry like any other provider (no environment variable is consulted). Zen is the curated multi-model gateway. Go is the low-cost subscription for open coding models. Model refs accept the <code>opencode/&lt;model-id&gt;</code> and <code>opencode-go/&lt;model-id&gt;</code> conventions as well as bare model ids, and the prefix is stripped before the request. A successful model listing is an inventory, not an entitlement check: inference still requires the matching subscription. Fetch the current lineup from <code>https://opencode.ai/zen/v1/models</code> and <code>https://opencode.ai/zen/go/v1/models</code>. These endpoints sit behind Cloudflare bot protection, which rejects urllib's default <code>Python-urllib/&lt;ver&gt;</code> user agent with <code>HTTP 403: error code: 1010</code>. Provider requests send an identifying <code>polyglav/&lt;version&gt;</code> <code>User-Agent</code> and an <code>x-opencode-session</code> header bound to the run's own session id (OpenCode uses it for routing and prompt caching, and Go rejects requests without it), so <code>/connect</code>, <code>/models list</code>, and chat work, and a resumed run reuses its provider-side session.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p><code>provider</code>, <code>base_url</code>, <code>model</code>, <code>temperature</code>, and <code>max_tokens</code> are configured in the global or local config (see <a href="../config/">config.md</a>). The API key is <strong>not</strong> a config value. It lives in the global provider registry (<code>~/.config/replio/providers.json</code>, one key per provider) and is managed through <code>/connect</code>:</p>
+<p><code>provider</code>, <code>base_url</code>, <code>model</code>, <code>temperature</code>, and <code>max_tokens</code> are configured in the global or local config (see <a href="../config/">config.md</a>). The API key is <strong>not</strong> a config value. It lives in the global provider registry (<code>~/.config/polyglav/providers.json</code>, one key per provider) and is managed through <code>/connect</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openai"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"base_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.openai.com/v1"</span><span class="p">,</span>
@@ -1459,12 +1459,12 @@
 <span class="w">  </span><span class="nt">"temperature"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The engine resolves the API key for the active provider from the provider registry (a <code>(key)</code> entry from <code>/connect</code>), falling back to <code>""</code>, and no environment variable is consulted. A custom <code>base_url</code> stored there is used when the config leaves it empty. The approved-model history (<code>~/.config/replio/models.json</code>) records every model used for <code>/models</code>.</p>
+<p>The engine resolves the API key for the active provider from the provider registry (a <code>(key)</code> entry from <code>/connect</code>), falling back to <code>""</code>, and no environment variable is consulted. A custom <code>base_url</code> stored there is used when the config leaves it empty. The approved-model history (<code>~/.config/polyglav/models.json</code>) records every model used for <code>/models</code>.</p>
 <h2 id="model-refs-and-approval">Model refs and approval<a class="headerlink" href="#model-refs-and-approval" title="Permanent link">&para;</a></h2>
 <p>A <strong>model ref</strong> <code>provider/model</code> (e.g. <code>opencode-go/deepseek-v4-flash</code>, <code>ollama/gpt-oss:20b-cloud</code>) unfolds to the provider, its default base URL, and the bare model. It is accepted wherever a model is set (<code>/model &lt;ref&gt;</code>, <code>--model &lt;ref&gt;</code>, a config <code>model</code>, and a role's <code>model</code> field), so a type or team can pin provider and model together. Only a known provider (core or plugin) with a default base URL unfolds. Anything else is treated as a bare model id. Using an unfolded model is <strong>gated on approval</strong>: the model must appear in <code>models.json</code>, otherwise the engine prompts to approve it. The surfaces:</p>
 <ul>
 <li><strong>Interactive</strong> - the REPL asks on load for an unapproved configured ref, <code>/model &lt;ref&gt;</code> asks before switching, and <code>/teams run</code> pre-checks the stages' type models and asks once for unapproved ones.</li>
-<li><strong>Headless</strong> - an explicit <code>--model</code> auto-approves (records into <code>models.json</code>). A model referenced by a role or team is denied unless <code>--approve-model</code> is passed (<code>replio run --approve-model</code>, <code>replio jobs add --approve-model</code>, <code>replio fleet config --approve-model</code>). A denied run stops with a clear "model not approved" error.</li>
+<li><strong>Headless</strong> - an explicit <code>--model</code> auto-approves (records into <code>models.json</code>). A model referenced by a role or team is denied unless <code>--approve-model</code> is passed (<code>polyglav run --approve-model</code>, <code>polyglav jobs add --approve-model</code>, <code>polyglav fleet config --approve-model</code>). A denied run stops with a clear "model not approved" error.</li>
 </ul>
 <p>A ref naming a provider with no stored key still switches to it but prints <code>run /connect &lt;provider&gt;</code> (the request then surfaces the auth error until you connect).</p>
 <h2 id="auto-detection">Auto-detection<a class="headerlink" href="#auto-detection" title="Permanent link">&para;</a></h2>
@@ -1477,7 +1477,7 @@
 <li><code>/connect &lt;url&gt;</code> - connect by URL. A known host (or a plugin provider's default URL) selects that provider with the URL as its base URL. Anything else creates a named custom provider, with the name derived from the host (e.g. <code>https://llm.acme.example/v1</code> -&gt; <code>acme-example</code>).</li>
 <li><code>/connect &lt;url&gt; &lt;name&gt;</code> - custom provider with an explicit name instead of the derived one.</li>
 </ul>
-<p>All forms <strong>test the connection</strong> (a <code>GET &lt;base_url&gt;/v1/models</code> probe) before saving: broken values are rejected unless you confirm <code>Save anyway?</code>. A successful connect prints <code>Connected to &lt;provider&gt; (&lt;base_url&gt;)</code>, records the entry in <code>providers.json</code>, writes <code>provider</code>/<code>base_url</code> into the config, and points you at <code>/models list &lt;provider&gt;</code> to pick a model. Related surfaces: <code>/model &lt;name&gt;</code> shows or switches the active model (a <code>provider/model</code> ref switches provider and model together, approving the model), <code>/models</code> lists the configured/approved models, <code>/models list [provider]</code> probes a provider's advertised models, <code>/provider &lt;name&gt;</code> shows or switches the active provider, and <code>replio run --provider ... --model ... --base-url ...</code> provides headless overrides. Connection probing is gated by the <code>connect_check</code> config (default <code>true</code>). Set it to <code>false</code> to skip the probes (e.g. offline or flaky networks). <code>OpenAICompatibleProvider.check_connection()</code> returns <code>(ok, message)</code> by reusing <code>_fetch_models()</code>, the shared <code>GET /v1/models</code> helper that <code>list_models()</code> also uses.</p>
+<p>All forms <strong>test the connection</strong> (a <code>GET &lt;base_url&gt;/v1/models</code> probe) before saving: broken values are rejected unless you confirm <code>Save anyway?</code>. A successful connect prints <code>Connected to &lt;provider&gt; (&lt;base_url&gt;)</code>, records the entry in <code>providers.json</code>, writes <code>provider</code>/<code>base_url</code> into the config, and points you at <code>/models list &lt;provider&gt;</code> to pick a model. Related surfaces: <code>/model &lt;name&gt;</code> shows or switches the active model (a <code>provider/model</code> ref switches provider and model together, approving the model), <code>/models</code> lists the configured/approved models, <code>/models list [provider]</code> probes a provider's advertised models, <code>/provider &lt;name&gt;</code> shows or switches the active provider, and <code>polyglav run --provider ... --model ... --base-url ...</code> provides headless overrides. Connection probing is gated by the <code>connect_check</code> config (default <code>true</code>). Set it to <code>false</code> to skip the probes (e.g. offline or flaky networks). <code>OpenAICompatibleProvider.check_connection()</code> returns <code>(ok, message)</code> by reusing <code>_fetch_models()</code>, the shared <code>GET /v1/models</code> helper that <code>list_models()</code> also uses.</p>
 <h2 id="the-chat-contract">The <code>chat()</code> contract<a class="headerlink" href="#the-chat-contract" title="Permanent link">&para;</a></h2>
 <p><code>BaseProvider.chat(messages, stream=True, tools=None)</code> is a generator yielding events that the agent loop reacts to:</p>
 <table>
@@ -1518,7 +1518,7 @@
 </table>
 <p>The loop runs one SSE stream per turn. Content-only output is a single round trip. <code>tool_calls</code> events append messages, execute the calls, and continue the loop until the model answers. The <code>&lt;thinking&gt;</code> marker split for reasoning embedded in content lives in the engine, so thinking stays separate from content. <code>chat_nonstreaming(messages, tools=None)</code> is the non-streaming companion, used only for auxiliary decisions (query refinement, tool-result analysis, and compaction), never the main path.</p>
 <h2 id="how-the-provider-works">How the provider works<a class="headerlink" href="#how-the-provider-works" title="Permanent link">&para;</a></h2>
-<p><code>OpenAICompatibleProvider</code> (<code>src/replio/providers/base.py</code>) builds an OpenAI-format payload (<code>model</code>, <code>messages</code>, <code>temperature</code>, optional <code>max_tokens</code>, optional <code>tools</code>, <code>stream</code>), POSTs it to <code>&lt;base_url&gt;/v1/chat/completions</code>, and streams the SSE response line by line. Deltas accumulate: <code>reasoning_content</code> (or <code>reasoning</code> on endpoints such as ollama.com) becomes <code>thinking</code> events, <code>content</code> becomes <code>token</code> events, and fragmented <code>tool_calls</code> deltas are reassembled by index into complete function-call objects. HTTP and network errors are returned as <code>error</code> events. <code>max_tokens</code> defaults to <code>8192</code> (sent to the provider, overriding low provider-side defaults like Ollama's 2048 cap). Set it to <code>0</code> to omit it from the payload, so the provider's own default applies. Hitting the limit prints a warning and logs a session <code>errors</code> entry, and the warning text distinguishes a configured cap from the provider's default.</p>
+<p><code>OpenAICompatibleProvider</code> (<code>src/polyglav/providers/base.py</code>) builds an OpenAI-format payload (<code>model</code>, <code>messages</code>, <code>temperature</code>, optional <code>max_tokens</code>, optional <code>tools</code>, <code>stream</code>), POSTs it to <code>&lt;base_url&gt;/v1/chat/completions</code>, and streams the SSE response line by line. Deltas accumulate: <code>reasoning_content</code> (or <code>reasoning</code> on endpoints such as ollama.com) becomes <code>thinking</code> events, <code>content</code> becomes <code>token</code> events, and fragmented <code>tool_calls</code> deltas are reassembled by index into complete function-call objects. HTTP and network errors are returned as <code>error</code> events. <code>max_tokens</code> defaults to <code>8192</code> (sent to the provider, overriding low provider-side defaults like Ollama's 2048 cap). Set it to <code>0</code> to omit it from the payload, so the provider's own default applies. Hitting the limit prints a warning and logs a session <code>errors</code> entry, and the warning text distinguishes a configured cap from the provider's default.</p>
 <h2 id="session-binding">Session binding<a class="headerlink" href="#session-binding" title="Permanent link">&para;</a></h2>
 <p>A provider carries a <code>session_id</code> bound to the run's own session. The engine sets it when it builds its own provider (the root, or a sub-agent whose type pins a model) and rebinds it whenever <code>load_or_create_session</code> switches sessions, so a resumed or focused run reuses the same provider-side session. Shared providers (a sub-agent without its own model reuses the caller's) keep the caller's binding. Vendors that support server-side sessions read the attribute (for example the OpenCode providers send it as <code>x-opencode-session</code>), and a provider that mints its own id uses it unless one is passed in.</p>
 <h2 id="requesting-reasoning">Requesting reasoning<a class="headerlink" href="#requesting-reasoning" title="Permanent link">&para;</a></h2>
@@ -1561,7 +1561,7 @@
 </table>
 <p>The <code>opencode</code> and <code>opencode-go</code> providers echo captured reasoning back to the API: the assistant <code>thinking</code> from an earlier turn is sent as <code>reasoning_content</code>, which Console Go requires in thinking mode when a turn continues after tool calls. Every other provider drops the internal <code>thinking</code> field, since some OpenAI-compatible endpoints (the official DeepSeek reasoner among them) reject <code>reasoning_content</code> in the input. The behavior is a provider class attribute (<code>ECHO_REASONING</code>, default <code>false</code>), so a new provider can opt in the same way.</p>
 <h2 id="adding-a-provider">Adding a provider<a class="headerlink" href="#adding-a-provider" title="Permanent link">&para;</a></h2>
-<p>The core substrate (<code>BaseProvider</code>, <code>OpenAICompatibleProvider</code>, the <code>PROVIDERS</code> registry, and <code>detect_provider</code>) stays in <code>src/replio/providers/</code>. Vendor providers ship as bundled plugins under <code>plugins/</code>, and any external plugin can register providers too:</p>
+<p>The core substrate (<code>BaseProvider</code>, <code>OpenAICompatibleProvider</code>, the <code>PROVIDERS</code> registry, and <code>detect_provider</code>) stays in <code>src/polyglav/providers/</code>. Vendor providers ship as bundled plugins under <code>plugins/</code>, and any external plugin can register providers too:</p>
 <ol>
 <li>Subclass <code>OpenAICompatibleProvider</code> and set <code>DEFAULT_BASE_URL</code> / <code>DEFAULT_MODEL</code>. Override <code>_headers()</code> / <code>_payload()</code> only for non-standard auth or request bodies.</li>
 <li>Declare <code>HOST_PATTERNS</code>, the URL substrings that identify the provider, so <code>/connect &lt;url&gt;</code> auto-selects it. Make patterns specific enough to disambiguate providers sharing a host (e.g. <code>opencode.ai/zen</code> vs <code>opencode.ai/zen/go</code>).</li>
@@ -1570,7 +1570,7 @@
 </ol>
 <p>An external plugin registering a provider with the same name as a bundled one does not override it, because the core <code>PROVIDERS</code> registry wins on name conflicts. Plugins that want a different default can use their own provider name. Full plugin layout and manifest fields in <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="streaming-contract">Streaming contract<a class="headerlink" href="#streaming-contract" title="Permanent link">&para;</a></h2>
-<p>The underlying SSE utility (<code>src/replio/utils/http.py</code>) reads the stream line by line with byte-buffered decoding, so multi-byte UTF-8 split across read chunks is handled correctly. Keep-alive and mid-stream errors surface as <code>error</code> events. A stream that ends without a completion event and with no streamed content is re-requested up to <code>1 + stream_retries</code> times (default 3 total attempts) with <code>stream_retry_delay</code> seconds between attempts before the "Stream ended before a completion event" error is reported. When tool calls have already run in the turn, the warning notes that the tool results are saved and the answer can be retried with a follow-up message.</p>
+<p>The underlying SSE utility (<code>src/polyglav/utils/http.py</code>) reads the stream line by line with byte-buffered decoding, so multi-byte UTF-8 split across read chunks is handled correctly. Keep-alive and mid-stream errors surface as <code>error</code> events. A stream that ends without a completion event and with no streamed content is re-requested up to <code>1 + stream_retries</code> times (default 3 total attempts) with <code>stream_retry_delay</code> seconds between attempts before the "Stream ended before a completion event" error is reported. When tool calls have already run in the turn, the warning notes that the tool results are saved and the answer can be retried with a follow-up message.</p>
 
 
 

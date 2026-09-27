@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/skills/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/skills/">
       
       
         <link rel="prev" href="../session/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Skills - Replio</title>
+        <title>Skills - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1269,9 +1269,9 @@
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>Skills come from three layers, merged like roles and teams: plugin contributions first, then global, then local, with local winning per field:</p>
 <ul>
-<li><strong>Plugin</strong> - skills contributed by plugins via the <code>register_skills</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to <code>.replio/skills/</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
-<li><strong>Global</strong> - <code>~/.config/replio/skills/&lt;name&gt;.md</code>.</li>
-<li><strong>Local</strong> - <code>.replio/skills/&lt;name&gt;.md</code>.</li>
+<li><strong>Plugin</strong> - skills contributed by plugins via the <code>register_skills</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to <code>.polyglav/skills/</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
+<li><strong>Global</strong> - <code>~/.config/polyglav/skills/&lt;name&gt;.md</code>.</li>
+<li><strong>Local</strong> - <code>.polyglav/skills/&lt;name&gt;.md</code>.</li>
 </ul>
 <p>Each skill is one flat Markdown file: the filename stem is the skill name, the body is the instructions.</p>
 <h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
@@ -1307,7 +1307,7 @@ the source URL, and a one-line reliability assessment.
 
 Find sources and evaluate them. ...
 </code></pre></div>
-<p>Missing or empty skills are skipped silently, and a role without skills gets an unchanged prompt. Jobs with <code>--role</code> inject the same section (from the global/local file layers, since plugin contributions do not reach the scheduler's preparse, the same rule as plugin roles there). The format is built by <code>skills_section(registry, names)</code> in <code>replio.skills</code>.</p>
+<p>Missing or empty skills are skipped silently, and a role without skills gets an unchanged prompt. Jobs with <code>--role</code> inject the same section (from the global/local file layers, since plugin contributions do not reach the scheduler's preparse, the same rule as plugin roles there). The format is built by <code>skills_section(registry, names)</code> in <code>polyglav.skills</code>.</p>
 <h2 id="managing-skills">Managing skills<a class="headerlink" href="#managing-skills" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>/skills</code> - list skills (name, first-line description, origin), with origins shown as <code>(local)</code> / <code>(global)</code> / <code>(plugin)</code> / <code>(merged)</code>.</li>

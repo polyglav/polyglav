@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://emyasnikov.github.io/replio/reference/teams/">
+        <link rel="canonical" href="https://polyglav.github.io/polyglav/reference/teams/">
       
       
         <link rel="prev" href="../swarm/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Teams - Replio</title>
+        <title>Teams - Polyglav</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Replio" class="md-header__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-header__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Replio
+            Polyglav
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Replio" class="md-nav__button md-logo" aria-label="Replio" data-md-component="logo">
+    <a href="../.." title="Polyglav" class="md-nav__button md-logo" aria-label="Polyglav" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Replio
+    Polyglav
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -427,7 +427,7 @@
   <span class="md-ellipsis">
     
   
-    Replio Documentation
+    Polyglav Documentation
   
 
     
@@ -1313,10 +1313,10 @@
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>Teams come from four layers, merged exactly like roles: bundled, then plugin, then global, then local, local winning per field. Precedence is <code>bundled &lt; plugin &lt; global &lt; local</code>:</p>
 <ul>
-<li><strong>Bundled</strong> - the read-only default roster shipped in the package (<code>src/replio/bundled_teams.json</code>, the <code>writing</code> and <code>programming</code> pipelines above).</li>
+<li><strong>Bundled</strong> - the read-only default roster shipped in the package (<code>src/polyglav/bundled_teams.json</code>, the <code>writing</code> and <code>programming</code> pipelines above).</li>
 <li><strong>Plugin</strong> - teams contributed by plugins via the <code>register_teams</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to any <code>teams.json</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
-<li><strong>Global</strong> - <code>~/.config/replio/teams.json</code>.</li>
-<li><strong>Local</strong> - <code>.replio/teams.json</code>.</li>
+<li><strong>Global</strong> - <code>~/.config/polyglav/teams.json</code>.</li>
+<li><strong>Local</strong> - <code>.polyglav/teams.json</code>.</li>
 </ul>
 <p>Merging is field-by-field for the same <code>name</code>: an entry overrides only the fields it sets, and <code>stages</code> is replaced wholesale.</p>
 <h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
@@ -1375,7 +1375,7 @@
 <li>the shared team memory block, when present,</li>
 <li>the stage's <code>task_hint</code> (or a generic "Complete this stage of the task." line).</li>
 </ul>
-<p>After the run, the whole team run is summarized (seeded with the previous team memory) and written to <strong><code>.replio/memory/teams/&lt;name&gt;.md</code></strong> (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.</p>
+<p>After the run, the whole team run is summarized (seeded with the previous team memory) and written to <strong><code>.polyglav/memory/teams/&lt;name&gt;.md</code></strong> (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.</p>
 <p><code>/teams run &lt;name&gt; &lt;task&gt;</code> executes a team from the REPL and prints one line per stage (<code>&lt;n&gt;. &lt;role&gt; &lt;status&gt; &lt;duration&gt;s</code>), the final member's result, and the memory file path.</p>
 <h2 id="resuming-a-member-run">Resuming a member run<a class="headerlink" href="#resuming-a-member-run" title="Permanent link">&para;</a></h2>
 <p>Every stage starts a fresh run with its own session by default. To continue a previous thread, pass <code>resume</code> to the <code>team</code> tool:</p>
