@@ -2,13 +2,13 @@
 
 A **low-code** tool gives you a visual canvas for building AI or automation flows, and lets you drop into code for the parts that need it. You assemble nodes, connect them, and the platform runs the result, often exposing it as an API. It is the middle ground between a framework (all code) and a no-code product (no code).
 
-## Replio is code-first, with a path to visual
+## Polyglav is code-first, with a path to visual
 
-Replio takes the code-first route and makes it a strength. Every configuration, from models and providers to tools, roles, teams, and skills, is text you can read, diff, review, and keep in version control alongside your project. That means reproducible setups, clean reviews, and no hidden state in a database.
+Polyglav takes the code-first route and makes it a strength. Every configuration, from models and providers to tools, roles, teams, and skills, is text you can read, diff, review, and keep in version control alongside your project. That means reproducible setups, clean reviews, and no hidden state in a database.
 
 The composition model is the registries: define types with their own prompts and permission carves, compose teams with per-stage skills and a review loop, and run them from a prompt, a slash command, or the CLI. This covers the same ground as a canvas while staying scriptable.
 
-Replio also meets the visual tools halfway. A planned PlantUML plugin draws a configuration or a run as a node diagram, so you get the readability of a canvas without moving the runtime into one. The agents, teams, and workflows stay text, and the picture is generated from them.
+Polyglav also meets the visual tools halfway. A planned PlantUML plugin draws a configuration or a run as a node diagram, so you get the readability of a canvas without moving the runtime into one. The agents, teams, and workflows stay text, and the picture is generated from them.
 
 ## Representatives
 
@@ -18,7 +18,7 @@ Replio also meets the visual tools halfway. A planned PlantUML plugin draws a co
 | Flowise | TypeScript | Open source | Drag-and-drop canvas | LLM apps and chatflows |
 | Langflow | Python | MIT | Visual flow canvas | Agent, RAG, and MCP app builder |
 | n8n | TypeScript | Fair-code | Node-based workflow editor | Workflow automation with AI agent nodes |
-| Replio | Python (stdlib only) | MIT | Code and configuration | Runnable agent harness with orchestration |
+| Polyglav | Python (stdlib only) | MIT | Code and configuration | Runnable agent harness with orchestration |
 
 ## Profiles
 
@@ -34,7 +34,7 @@ A visual builder for agents, RAG apps, and MCP servers that generates Python und
 ### n8n
 A fair-code workflow automation platform with a node editor and a deep integration catalog. It is strongest at wiring business systems together with AI agent nodes.
 
-## Why teams choose Replio
+## Why teams choose Polyglav
 
 - Configuration as versioned text: reviewable, reproducible, and friendly to git-based workflows.
 - Scriptable and automatable: drive the same agent from a prompt, a slash command, the CLI, or the HTTP API.
@@ -48,8 +48,8 @@ A fair-code workflow automation platform with a node editor and a deep integrati
 |----------|------|-----|
 | A visual flow a mixed team can read and edit | Langflow, n8n, Dify, Flowise | Canvas, prebuilt components, flow-as-API |
 | Broad integration with business apps and triggers | n8n | Deep integration catalog and templates |
-| Configuration you version and review with the project | Replio | Text registries, session logs, git-friendly setup |
-| Running many scoped agents on modest hardware | Replio | Minimal footprint and a fleet supervisor |
+| Configuration you version and review with the project | Polyglav | Text registries, session logs, git-friendly setup |
+| Running many scoped agents on modest hardware | Polyglav | Minimal footprint and a fleet supervisor |
 
 ## References
 
@@ -57,4 +57,4 @@ A fair-code workflow automation platform with a node editor and a deep integrati
 - https://docs.flowiseai.com
 - https://docs.langflow.org
 - https://docs.n8n.io
-- https://github.com/emyasnikov/replio
+- https://github.com/polyglav/polyglav

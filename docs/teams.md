@@ -6,10 +6,10 @@ A team is a named, ordered chain of delegated stages, where each runs under a ro
 
 Teams come from four layers, merged exactly like roles: bundled, then plugin, then global, then local, local winning per field. Precedence is `bundled < plugin < global < local`:
 
-- **Bundled** - the read-only default roster shipped in the package (`src/replio/bundled_teams.json`, the `writing` and `programming` pipelines above).
+- **Bundled** - the read-only default roster shipped in the package (`src/polyglav/bundled_teams.json`, the `writing` and `programming` pipelines above).
 - **Plugin** - teams contributed by plugins via the `register_teams` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to any `teams.json`, refreshed on `/plugins install`/`update`/`uninstall`.
-- **Global** - `~/.config/replio/teams.json`.
-- **Local** - `.replio/teams.json`.
+- **Global** - `~/.config/polyglav/teams.json`.
+- **Local** - `.polyglav/teams.json`.
 
 Merging is field-by-field for the same `name`: an entry overrides only the fields it sets, and `stages` is replaced wholesale.
 
@@ -75,7 +75,7 @@ The brief handed to each member is built per run from:
 - the shared team memory block, when present,
 - the stage's `task_hint` (or a generic "Complete this stage of the task." line).
 
-After the run, the whole team run is summarized (seeded with the previous team memory) and written to **`.replio/memory/teams/<name>.md`** (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.
+After the run, the whole team run is summarized (seeded with the previous team memory) and written to **`.polyglav/memory/teams/<name>.md`** (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.
 
 `/teams run <name> <task>` executes a team from the REPL and prints one line per stage (`<n>. <role> <status> <duration>s`), the final member's result, and the memory file path.
 

@@ -2,10 +2,10 @@
 
 Config is a single JSON object read from two files and merged per key, with project-local values winning:
 
-1. **Global** - `~/.config/replio/config.json` (user-wide defaults, credentials).
-2. **Local** - `.replio/config.json` in the project path (project overrides).
+1. **Global** - `~/.config/polyglav/config.json` (user-wide defaults, credentials).
+2. **Local** - `.polyglav/config.json` in the project path (project overrides).
 
-Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the **local** file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (`~/.config/replio/providers.json`), managed through `/connect` (see [Models](#model-registry-not-config)).
+Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the **local** file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (`~/.config/polyglav/providers.json`), managed through `/connect` (see [Models](#model-registry-not-config)).
 
 ```bash
 # inspect in the REPL (origin: default/global/local)
@@ -24,16 +24,16 @@ Every process merges them in memory. The merge descends into nested objects, so 
 /config reload
 ```
 
-The `replio config` CLI does the same headlessly and is fully scriptable:
+The `polyglav config` CLI does the same headlessly and is fully scriptable:
 
 ```bash
-replio config get max_tokens --show-origin     # one or more values + where they come from
-replio config set max_tokens 0                 # project-local
-replio config set max_tokens 0 --global        # global file
-replio config unset max_tokens                 # remove from project-local
+polyglav config get max_tokens --show-origin     # one or more values + where they come from
+polyglav config set max_tokens 0                 # project-local
+polyglav config set max_tokens 0 --global        # global file
+polyglav config unset max_tokens                 # remove from project-local
 ```
 
-Deleting a project's `.replio/config.json` reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with `--global` (accepted by both the REPL `/config` and the CLI), e.g. `/config --global provider ollama`, `/config --global model <model>`.
+Deleting a project's `.polyglav/config.json` reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with `--global` (accepted by both the REPL `/config` and the CLI), e.g. `/config --global provider ollama`, `/config --global model <model>`.
 
 ## Schema
 
@@ -62,24 +62,24 @@ Deleting a project's `.replio/config.json` reverts it to the global and built-in
 | `max_team_depth`            | `2`                    | Maximum nested team runs (a `team` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
 | `mcp.servers`               | `[]`                   | MCP client server definitions (see [mcp.md](mcp.md) for the schema)     |
 | `mcp_server.allow_ask`      | `true`                 | When serving MCP, run `ask`-policy tools (deferred to the client) vs refuse them |
-| `memory`                    | `true`                 | Enable bounded memory summaries under `.replio/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
+| `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
 | `memory_max_chars`          | `2000`                 | Cap characters of a memory summary injected into a prompt or brief (`... (truncated)` appended). `0` = unlimited |
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
 | `mode`                      | `"build"`              | Active agent mode (`build`, `plan`, or a custom mode from `modes`) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `noise_tools`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, ANSI colors included, so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default |
-| `output_log_dir`            | `".replio/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
+| `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
 | `prompt_role`               | `false`                | Prefix the REPL prompt with the active role when focus is not the root (e.g. `Assistant >>>`). `false` keeps the plain `>>>` |
-| `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`replio-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
+| `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
 | `query_refine`              | `false`                | Auto-refine short web-search queries via a lightweight model call      |
 | `query_refine_context`      | `4`                    | Recent-message context to inject into refinement                       |
 | `query_refine_min_words`    | `3`                    | Minimum query length before refinement applies                         |
 | `reasoning`                 | `"auto"`               | Request reasoning and control its token budget: `false`/`"off"` = none, `true`/`"on"`/`"auto"` = provider default, `"low"`/`"medium"`/`"high"` = explicit budget hint. Mapping is provider-specific (OpenAI `reasoning_effort`, Claude `thinking.budget_tokens`, Qwen `enable_thinking`) |
-| `report.webhook`            | `""`                   | URL the bundled `replio-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
+| `report.webhook`            | `""`                   | URL the bundled `polyglav-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
 | `run_buffer_max_lines`      | `2000`                 | Cap lines kept in a run's per-run output buffer (`BufferUI`). Oldest lines are trimmed past the cap. `0` = unlimited. Read back with `/focus log` |
 | `search_results`            | `5`                    | Number of search results to fetch                                      |
 | `session_tool_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
@@ -102,7 +102,7 @@ Deleting a project's `.replio/config.json` reverts it to the global and built-in
 | `tool_status_visible`       | `true`                 | Show dimmed tool status in the REPL                                    |
 | `tools.allow`               | `[]`                   | Name-level allowlist. Empty means no restriction                       |
 | `tools.deny`                | `[]`                   | Name-level deny list (takes precedence over allow)                     |
-| `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='human'` parks as a pending request (`.replio/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
+| `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='human'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
 | `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 
@@ -123,7 +123,7 @@ Modes are named postures combining an instruction block with tool-policy overrid
 }
 ```
 
-Each mode may define `system_prompt` (instructions), `tool_permission` (category actions merged over the base, mode wins per key), `tools.deny` (appended to the base deny list), and `tools.allow` (replaces the base allowlist when non-empty). An unknown `mode` falls back to `build`. Switch live with `/mode <name>` or `--mode <name>` on `replio run` / `replio serve`. The mode instruction and `system_prompt` are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.
+Each mode may define `system_prompt` (instructions), `tool_permission` (category actions merged over the base, mode wins per key), `tools.deny` (appended to the base deny list), and `tools.allow` (replaces the base allowlist when non-empty). An unknown `mode` falls back to `build`. Switch live with `/mode <name>` or `--mode <name>` on `polyglav run` / `polyglav serve`. The mode instruction and `system_prompt` are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.
 
 ### `tool_permission`
 
@@ -145,7 +145,7 @@ Each mode may define `system_prompt` (instructions), `tool_permission` (category
 }
 ```
 
-Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `delegate` category gates the `delegate` tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own `tool_permission` overrides (category `delegate` defaulting to `allow`), while a role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `team` category gates the `team` tool (default `allow`), separate from `delegate` so a role can be a delegation target yet be barred from running pipelines. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the human or the lead agent, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.replio/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `handoff` category gates the `handoff` tool (default `allow`). It only moves the REPL's focus between runs (see [tools.md](tools.md#handing-off-control)). The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
+Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `delegate` category gates the `delegate` tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own `tool_permission` overrides (category `delegate` defaulting to `allow`), while a role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `team` category gates the `team` tool (default `allow`), separate from `delegate` so a role can be a delegation target yet be barred from running pipelines. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the human or the lead agent, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `handoff` category gates the `handoff` tool (default `allow`). It only moves the REPL's focus between runs (see [tools.md](tools.md#handing-off-control)). The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
 
 ### `ask_policy`
 
@@ -181,10 +181,10 @@ An approved permission request creates a one-shot grant on the asking sub-agent 
 `unattended: true` guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:
 
 - **Confirms auto-deny.** A tool whose policy action is `ask` (e.g. `run_command` with `bash: ask`) returns `[cancelled] User declined the <name> call` instead of prompting.
-- **`ask target='human'` parks instead of prompting.** The root engine drops its terminal UI (`_ask_ui` is not propagated down the tree), and any human-routed ask becomes a pending request persisted in `.replio/asks.json`, returned to the agent as `[parked] Ask #<id> ...` so it continues or finishes. A sub-agent's human ask parks rather than falling back to its lead, so the operator decides. Permission asks routed `human` park the same way. Routed `auto` still go to the lead (a one-shot grant).
+- **`ask target='human'` parks instead of prompting.** The root engine drops its terminal UI (`_ask_ui` is not propagated down the tree), and any human-routed ask becomes a pending request persisted in `.polyglav/asks.json`, returned to the agent as `[parked] Ask #<id> ...` so it continues or finishes. A sub-agent's human ask parks rather than falling back to its lead, so the operator decides. Permission asks routed `human` park the same way. Routed `auto` still go to the lead (a one-shot grant).
 - **Model approval is not prompted.** An unapproved role/team model is denied (the run reports the error) unless the headless `approve_models` flag was passed. Launch with `--approve-model` if the run needs to approve one itself.
 
-Enable it per run with `replio --unattended` (not persisted), in config with `unattended: true`, or live with `/unattended`. Parked asks are listed and answered with `/asks` or the serve API (`GET /asks`, `POST /asks/<id>/answer`). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the operator's decision in context. Scheduled/durable job engines run unattended, so a job parks its human asks the same way. `confirm_timeout` (seconds, default `0` = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.
+Enable it per run with `polyglav --unattended` (not persisted), in config with `unattended: true`, or live with `/unattended`. Parked asks are listed and answered with `/asks` or the serve API (`GET /asks`, `POST /asks/<id>/answer`). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the operator's decision in context. Scheduled/durable job engines run unattended, so a job parks its human asks the same way. `confirm_timeout` (seconds, default `0` = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.
 
 ### `bash_allow` - command allowlist for `run_command`
 
@@ -198,11 +198,11 @@ The check runs through the per-invocation policy resolver, so it composes with m
 
 ## Model registry (not config)
 
-Two global files live separately from config in `~/.config/replio/`. Neither is part of the config merge: `/config` never lists or writes them, and neither has a local scope.
+Two global files live separately from config in `~/.config/polyglav/`. Neither is part of the config merge: `/config` never lists or writes them, and neither has a local scope.
 
 ### Provider registry (`providers.json`)
 
-`~/.config/replio/providers.json` (written `0600` when it holds keys) stores the active connections, keyed by provider name:
+`~/.config/polyglav/providers.json` (written `0600` when it holds keys) stores the active connections, keyed by provider name:
 
 ```json
 {
@@ -218,11 +218,11 @@ Two global files live separately from config in `~/.config/replio/`. Neither is 
 - `api_key` lives here, one per provider, and is the only place API keys live.
 - `base_url` is the effective base URL of the connection: the preset provider default (e.g. `/connect ollama`) or a custom URL (`/connect <url>`). The engine falls back to it when the config leaves `base_url` empty.
 - Managed through `/connect` (writes the key and any custom base URL). Re-running it re-enters a missing or stale key.
-- The engine resolves the active provider's API key from this file (matching entry or `""`), falling back to a stored custom `base_url` when the config has none. There is no `api_key` config key anymore, and `replio config set api_key` would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.
+- The engine resolves the active provider's API key from this file (matching entry or `""`), falling back to a stored custom `base_url` when the config has none. There is no `api_key` config key anymore, and `polyglav config set api_key` would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.
 
 ### Model registry (`models.json`)
 
-`~/.config/replio/models.json` is the history of approved models. Entries are `{provider, model, added_at, last_used}` with no API keys (those live in `providers.json`). It records every model you connect or switch to, so `/models` shows what has been used per provider with `>` marking the active one. The active model still comes from `config.model`.
+`~/.config/polyglav/models.json` is the history of approved models. Entries are `{provider, model, added_at, last_used}` with no API keys (those live in `providers.json`). It records every model you connect or switch to, so `/models` shows what has been used per provider with `>` marking the active one. The active model still comes from `config.model`.
 
 - `/connect` records the model for the connection it just saved.
 - `/models` shows approved models grouped by provider, the active one marked `>`, plus `(key)` when that provider has a stored key.

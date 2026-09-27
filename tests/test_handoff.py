@@ -175,8 +175,8 @@ class TestHandoffApply(unittest.TestCase):
             ]},
         ]
         with patch('sys.stdout', new=io.StringIO()):
-            with patch('replio.chat.input', side_effect=['hi', EOFError]):
-                with patch('replio.chat.readline'):
+            with patch('polyglav.chat.input', side_effect=['hi', EOFError]):
+                with patch('polyglav.chat.readline'):
                     self.chat.run()
         self.assertIs(self.chat.active(), self.chat)
 

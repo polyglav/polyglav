@@ -13,14 +13,14 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from replio.config import Config
-from replio.fleet import (AgentDef, AgentState, FleetController, FleetManifest, FleetState, find_free_port, probe_health)
-from replio.cli import cmd_fleet
+from polyglav.config import Config
+from polyglav.fleet import (AgentDef, AgentState, FleetController, FleetManifest, FleetState, find_free_port, probe_health)
+from polyglav.cli import cmd_fleet
 
 MOCK_HEALTHY = r'''
 import os, signal, sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-port = int(os.environ['REPLIO_FLEET_PORT'])
+port = int(os.environ['POLYGLAV_FLEET_PORT'])
 class H(BaseHTTPRequestHandler):
     def do_GET(self):
         ok = self.path == '/health'
@@ -39,7 +39,7 @@ HTTPServer(('127.0.0.1', port), H).serve_forever()
 MOCK_DOWN = r'''
 import os, signal, sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-port = int(os.environ['REPLIO_FLEET_PORT'])
+port = int(os.environ['POLYGLAV_FLEET_PORT'])
 class H(BaseHTTPRequestHandler):
     def do_GET(self):
         b = b'{"status":"down"}'
@@ -154,8 +154,8 @@ class TestManifestAndState(unittest.TestCase):
         self.assertEqual(FleetManifest(self.root).names(), [])
 
     def test_manifest_corrupt_tolerated(self):
-        (self.root / '.replio').mkdir(parents=True)
-        (self.root / '.replio' / 'fleet.json').write_text('{not json')
+        (self.root / '.polyglav').mkdir(parents=True)
+        (self.root / '.polyglav' / 'fleet.json').write_text('{not json')
         m = FleetManifest(self.root)
         self.assertEqual(m.names(), [])
 
@@ -308,7 +308,7 @@ class TestControllerLifecycle(unittest.TestCase):
     def test_spawn_env_seams(self):
         ctrl = self._ctrl()
         script = ('import os, signal, sys, time\n'
-                  'print(os.environ["REPLIO_FLEET_PORT"], flush=True)\n'
+                  'print(os.environ["POLYGLAV_FLEET_PORT"], flush=True)\n'
                   'signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))\n'
                   'signal.signal(signal.SIGINT, lambda s, f: sys.exit(0))\n'
                   'time.sleep(60)\n')
@@ -358,8 +358,8 @@ class TestFleetCli(unittest.TestCase):
 
     def test_init_discovers_config_dirs(self):
         for name in ('alpha', 'beta'):
-            (self.root / name / '.replio').mkdir(parents=True)
-            (self.root / name / '.replio' / 'config.json').write_text('{}')
+            (self.root / name / '.polyglav').mkdir(parents=True)
+            (self.root / name / '.polyglav' / 'config.json').write_text('{}')
         (self.root / 'plain').mkdir()
         rc, out, _ = self._capture(self._args(action='init'))
         self.assertEqual(rc, 0)
@@ -387,7 +387,7 @@ class TestFleetCli(unittest.TestCase):
             system_prompt='hello', mode='plan', tools_deny=['run_command'],
             tool_permission=['bash=deny', 'web=allow'], role=''))
         self.assertEqual(rc, 0)
-        target = self.root / 'alpha' / '.replio' / 'config.json'
+        target = self.root / 'alpha' / '.polyglav' / 'config.json'
         data = json.loads(target.read_text())
         self.assertEqual(data['provider'], 'ollama')
         self.assertEqual(data['model'], 'm1')
@@ -401,7 +401,7 @@ class TestFleetCli(unittest.TestCase):
     def test_config_type_inlined(self):
         ctrl = self._ctrl()
         ctrl.manifest.add(AgentDef(name='alpha', dir=str(self.root / 'alpha')))
-        lp = self.root / 'alpha' / '.replio' / 'roles.json'
+        lp = self.root / 'alpha' / '.polyglav' / 'roles.json'
         lp.parent.mkdir(parents=True)
         lp.write_text(json.dumps({
             'archivist': {
@@ -414,7 +414,7 @@ class TestFleetCli(unittest.TestCase):
             system_prompt='', mode='', tools_deny=[], tool_permission=[],
             role='archivist'))
         self.assertEqual(rc, 0)
-        data = json.loads((self.root / 'alpha' / '.replio' / 'config.json').read_text())
+        data = json.loads((self.root / 'alpha' / '.polyglav' / 'config.json').read_text())
         self.assertEqual(data['system_prompt'], 'You organise notes.')
         self.assertEqual(data['model'], 'tiny-model')
         self.assertEqual(data['tool_permission']['bash'], 'deny')
@@ -463,7 +463,7 @@ class TestDetachedSupervisor(unittest.TestCase):
     def tearDown(self):
         try:
             subprocess.run(
-                [sys.executable, '-m', 'replio', 'fleet', '--path',
+                [sys.executable, '-m', 'polyglav', 'fleet', '--path',
                  str(self.root), 'down'],
                 capture_output=True, timeout=30)
         except subprocess.SubprocessError:
@@ -472,12 +472,12 @@ class TestDetachedSupervisor(unittest.TestCase):
 
     def _run(self, *args):
         return subprocess.run(
-            [sys.executable, '-m', 'replio', 'fleet', '--path', str(self.root),
+            [sys.executable, '-m', 'polyglav', 'fleet', '--path', str(self.root),
              *args],
             capture_output=True, text=True, timeout=40)
 
     def _state(self) -> dict:
-        return json.loads((self.root / '.replio' / 'fleet.state.json').read_text())
+        return json.loads((self.root / '.polyglav' / 'fleet.state.json').read_text())
 
     def test_detach_daemon_status_down(self):
         r = self._run('up', '--detach')
@@ -485,7 +485,7 @@ class TestDetachedSupervisor(unittest.TestCase):
         state = {}
         for _ in range(20):
             time.sleep(0.5)
-            if (self.root / '.replio' / 'fleet.state.json').exists():
+            if (self.root / '.polyglav' / 'fleet.state.json').exists():
                 state = self._state()
                 if state['agents']['beta']['status'] == 'healthy':
                     break

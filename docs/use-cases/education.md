@@ -15,7 +15,7 @@ The small, local, permission-scoped design maps well onto teaching. Learners get
 - **Course and lesson preparation**. Draft syllabi, lecture outlines, exercises, and rubrics from source material with `file_write`, then iterate under review.
 - **Assessment drafting**. Generate question banks and sample solutions from course notes, keeping provenance in the session log for quality control.
 - **Code and lab courses**. A repo-scoped agent that reads the assignment tree, explains errors from compiler output, and proposes fixes the student reviews before `file_write`. See the developer guide for the pattern in [developer.md](developer.md).
-- **Institutional reporting**. Headless `replio run` summarizes class dashboards and documentation for administrators.
+- **Institutional reporting**. Headless `polyglav run` summarizes class dashboards and documentation for administrators.
 
 ## Gaps and planned
 
@@ -23,7 +23,7 @@ Sandboxed execution (namespace or container isolation for `run_command`) is plan
 
 ## Get started
 
-1. Install with `pip install replio` on each machine, then run `replio serve --path <course-folder>` for a per-course agent.
+1. Install with `pip install polyglav` on each machine, then run `polyglav serve --path <course-folder>` for a per-course agent.
 2. `/connect` to a provider. Local models keep everything on the student's machine.
 3. Configure the guardrails: `tool_permission.bash: ask`, and `tools.deny: [file_write]` on read-only tutor agents.
-4. Run the class through the REPL or the API. Every session lands in `.replio/sessions/` for review and follow-up.
+4. Run the class through the REPL or the API. Every session lands in `.polyglav/sessions/` for review and follow-up.

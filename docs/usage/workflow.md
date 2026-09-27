@@ -1,6 +1,6 @@
 # Workflows and usage
 
-This page is the big picture: how work moves through Replio from a request to a delivered result, and the patterns people build on top. It stays at the level of ideas. For exact commands, see the linked reference pages.
+This page is the big picture: how work moves through Polyglav from a request to a delivered result, and the patterns people build on top. It stays at the level of ideas. For exact commands, see the linked reference pages.
 
 ## The shape of a run
 

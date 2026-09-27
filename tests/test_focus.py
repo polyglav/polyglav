@@ -2,8 +2,8 @@ import io
 import unittest
 from unittest.mock import MagicMock, patch
 
-from replio.chat import MAIN_PROMPT
-from replio.focus import FocusManager
+from polyglav.chat import MAIN_PROMPT
+from polyglav.focus import FocusManager
 
 from tests.helpers import make_chat
 
@@ -101,8 +101,8 @@ class TestFocusRouting(unittest.TestCase):
     def _run(self, lines):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=lines):
-                with patch('replio.chat.readline'):
+            with patch('polyglav.chat.input', side_effect=lines):
+                with patch('polyglav.chat.readline'):
                     self.chat.run()
         return out.getvalue()
 
@@ -243,7 +243,7 @@ class TestFocusCommand(unittest.TestCase):
         self.assertIn('not found', out)
 
     def test_focus_absent_manager(self):
-        from replio.commands.builtins import _focus_manager
+        from polyglav.commands.builtins import _focus_manager
         self.assertIsNone(_focus_manager(object()))
 
 

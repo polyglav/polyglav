@@ -1,6 +1,6 @@
 import unittest
 
-from replio.runs import RunRegistry
+from polyglav.runs import RunRegistry
 
 from tests.helpers import make_chat
 

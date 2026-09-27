@@ -319,7 +319,7 @@ class TestAgentLoop(unittest.TestCase):
     def test_clear_screen_on_repl_start_default(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=EOFError):
+            with patch('polyglav.chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn('\033[3J\033[2J\033[H', out.getvalue())
 
@@ -327,25 +327,25 @@ class TestAgentLoop(unittest.TestCase):
         self.chat.config.data['clear_screen'] = False
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=EOFError):
+            with patch('polyglav.chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertNotIn('\033[3J\033[2J\033[H', out.getvalue())
-        self.assertIn('Replio', out.getvalue())
+        self.assertIn('Polyglav', out.getvalue())
 
     def test_banner_shows_version_by_default(self):
-        from replio import get_version
+        from polyglav import get_version
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=EOFError):
+            with patch('polyglav.chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn(f'v{get_version()}', out.getvalue())
 
     def test_banner_version_omitted_when_disabled(self):
-        from replio import get_version
+        from polyglav import get_version
         self.chat.config.data['show_version'] = False
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=EOFError):
+            with patch('polyglav.chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertNotIn(f'v{get_version()}', out.getvalue())
 

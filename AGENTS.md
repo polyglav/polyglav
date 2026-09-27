@@ -1,4 +1,4 @@
-# Replio - Agent Guide
+# Polyglav - Agent Guide
 
 ## Project
 
@@ -24,7 +24,7 @@ The agentic core has three layers:
    - `error` - record + print and bail
    - `done` - persist the assistant message (timestamp/duration/model) and stop
 
-   One stream, one round trip when no tools are used. `chat_nonstreaming()` is reserved for query refinement, not the main path. The loop is front-end agnostic: `ChatLoop` (REPL), `replio run` (CLI), and `replio serve` (HTTP) all call `Engine.chat(text) -> TurnResult`. The `<thinking>` marker split lives in the engine so thinking stays separate from content.
+   One stream, one round trip when no tools are used. `chat_nonstreaming()` is reserved for query refinement, not the main path. The loop is front-end agnostic: `ChatLoop` (REPL), `polyglav run` (CLI), and `polyglav serve` (HTTP) all call `Engine.chat(text) -> TurnResult`. The `<thinking>` marker split lives in the engine so thinking stays separate from content.
 
 2. **ToolRegistry** (`tools/registry.py`) - the **single dispatch point**. The model invokes tools via OpenAI function calling, slash commands are thin wrappers that call the same `execute()`. The loop never special-cases tool names - per-tool behavior comes from registration metadata (`refine`, `permission_fn`, `note`, later `confirm`). The `delegate` tool (`tools/delegate.py`) is a core tool that runs a task under a role by spawning an in-process sub-`Engine` (`Engine.run_subagent`) - the same agent loop, its own `sub_<ts>_<id>` session, a quiet `NullUI`. Its permission is a per-invocation `permission_fn` resolved per role. The `team` tool (`tools/team.py`) runs a named team pipeline (`Engine.run_team`) with the same per-stage permission resolution plus cycle and `max_team_depth` guards.
 
@@ -35,7 +35,7 @@ Providers (`providers/`) keep the base classes and registry in the core (`BasePr
 ### Project Structure
 
 ```
-Replio/
+Polyglav/
 ├── pyproject.toml
 ├── AGENTS.md
 ├── README.md
@@ -43,11 +43,11 @@ Replio/
 ├── CHANGELOG.md
 ├── tests/
 │   └── test_tool_calling.py   # Mock tests (no network/API key needed)
-├── src/replio/
+├── src/polyglav/
 │   ├── __init__.py
-│   ├── __main__.py          # python -m replio
+│   ├── __main__.py          # python -m polyglav
 │   ├── main.py              # CLI arg parsing + bootstrap (default REPL, run, serve)
-│   ├── cli.py               # `replio run` / `replio serve` / `replio eval` headless entry points
+│   ├── cli.py               # `polyglav run` / `polyglav serve` / `polyglav eval` headless entry points
 │   ├── config.py            # JSON config (global + local merge)
 │   ├── models.py            # global model registry - models.json (connections + keys)
 │   ├── roles.py             # RoleRegistry - bundled/global/local roles.json merge + tags
@@ -55,11 +55,11 @@ Replio/
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 │   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser
-│   ├── memory.py            # Bounded role/team/job memory under .replio/memory/
+│   ├── memory.py            # Bounded role/team/job memory under .polyglav/memory/
 │   ├── scheduler.py         # JobScheduler - durable job daemon (retries, approvals, auto-compact)
 │   ├── fleet.py             # Fleet supervisor - AgentDef manifest, FleetController (ports, health, restart)
 │   ├── ui.py                # UISink - ReplUI / HeadlessUI / BufferUI / NullUI renderers
-│   ├── eval.py              # Tool-use eval harness - fixtures, runner, metrics (replio eval)
+│   ├── eval.py              # Tool-use eval harness - fixtures, runner, metrics (polyglav eval)
 │   ├── server.py            # stdlib HTTP JSON API (POST /chat, GET /sessions, GET /health, GET /version)
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers
@@ -87,20 +87,20 @@ Replio/
 │   └── utils/
 │       ├── __init__.py
 │       └── http.py          # urllib-based SSE streaming
-└── plugins/                 # bundled plugins (shipped as replio.plugins.bundled), each is {src/, tests/}
-├── replio-core-edit/        # file_edit
-    ├── replio-core-anthropic/   # AnthropicProvider
-    ├── replio-core-dev/         # code_test, code_lint, code_format
-    ├── replio-core-eval/        # eval fixture catalog for replio eval
-    ├── replio-core-exec/        # run_command
-    ├── replio-core-fs/          # file_read, list_dir, file_write, glob, grep
-    ├── replio-core-git/         # git, git_commit
-    ├── replio-core-groq/        # GroqProvider
-    ├── replio-core-ollama/      # OllamaProvider
-    ├── replio-core-openai/      # OpenAIProvider
-    ├── replio-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
-    ├── replio-core-web/         # web_search, web_fetch + search service
-    └── replio-core-webhook/     # report-back connector (job run reports)
+└── plugins/                 # bundled plugins (shipped as polyglav.plugins.bundled), each is {src/, tests/}
+├── polyglav-core-edit/        # file_edit
+    ├── polyglav-core-anthropic/   # AnthropicProvider
+    ├── polyglav-core-dev/         # code_test, code_lint, code_format
+    ├── polyglav-core-eval/        # eval fixture catalog for polyglav eval
+    ├── polyglav-core-exec/        # run_command
+    ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
+    ├── polyglav-core-git/         # git, git_commit
+    ├── polyglav-core-groq/        # GroqProvider
+    ├── polyglav-core-ollama/      # OllamaProvider
+    ├── polyglav-core-openai/      # OpenAIProvider
+    ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
+    ├── polyglav-core-web/         # web_search, web_fetch + search service
+    └── polyglav-core-webhook/     # report-back connector (job run reports)
 ```
 
 ## Conventions
@@ -120,8 +120,8 @@ Replio/
 - No tool-name special-casing in the loop. Use registration metadata instead
 - `BaseProvider.chat()` is a generator yielding events: `thinking`, `token`, `tool_calls`, `error`, `done`
 - `BaseProvider` uses OpenAI-compatible `/v1/chat/completions` format
-- Config: global (`~/.config/replio/config.json`) > local (`.replio/config.json`) merge, local wins
-- Sessions stored as `.replio/sessions/<name>.json`
+- Config: global (`~/.config/polyglav/config.json`) > local (`.polyglav/config.json`) merge, local wins
+- Sessions stored as `.polyglav/sessions/<name>.json`
 - Slash commands registered via `@registry.register()` decorator
 - Tools registered via `@tool_registry.register()` decorator (OpenAI function calling format)
 
@@ -162,7 +162,7 @@ Replio/
 - `ToolPolicy` (`tools/policy.py`) is the single permission resolution point. The loop and `/tool` both route through it, so never special-case tool names for permission logic
 - Actions: `allow` (no prompt), `ask` (y/N confirm in the loop via `_confirm_tool`), `deny` (tool filtered from the provider schema and refused on direct calls)
 - Precedence: a name-level `deny`, the `tools.allow` allowlist, and a category `deny` win outright and skip the resolver. Otherwise the category action from `tool_permission` applies (default `ask`), and the per-invocation resolver (`permission_fn`, resolved from the tool's current arguments, e.g. `delegate` per role or `git_commit` except for `all=true`) may override a non-`deny` category action or return `None` to keep it. Worktree escalation turns an `allow` into `ask` for read/write/list outside the worktree
-- The worktree is the directory holding the local `.replio/`, i.e. the launch directory, or `--path`. Launching from `~` makes the whole home directory the worktree, so subdirectories (including other projects) do **not** escalate. Launch inside the project or pass `--path` for project-scoped prompting
+- The worktree is the directory holding the local `.polyglav/`, i.e. the launch directory, or `--path`. Launching from `~` makes the whole home directory the worktree, so subdirectories (including other projects) do **not** escalate. Launch inside the project or pass `--path` for project-scoped prompting
 - `bash: ask` by default, so every `run_command` confirms. Set `tool_permission.bash = "allow"` to disable prompting. `delegate` defaults to `allow` (runs without a prompt), refined per role: a configured role uses its own `tool_permission` (set `delegate: "ask"` on a role to confirm), a role outside the registry is denied. `git_commit` is gated by `vcs` (default `ask`): a role whose carve sets `vcs: allow` commits without a prompt while every other role confirms, and `all=true` always asks
 - Delegation (`run_subagent`) builds an in-process sub-`Engine` with the role's prompt, model override, and merged `tool_permission`, forces mode `build`, shares the caller's provider/plugin manager/worktree, and runs with `NullUI`, where ask-gated tools auto-deny, so a sub-agent's effective permissions are exactly its carve. Sub-agent results echo via `delegate_echo` (default on). Each sub-agent persists its own `sub_<ts>_<id>` session. The `ask` tool (core) is the explicit human-in-the-loop channel: `target='human'` routes to the operator at the terminal (via the root `ReplUI`, inherited by sub-engines as `_ask_ui`), `target='lead'` routes to the delegating engine's model (bounded `chat_nonstreaming` consultation via the sub-engine's `_lead` reference), and headless roots with neither return an error result without blocking
 - Confirm prompts and tool status are ephemeral REPL UI, never persisted to session files. The permission decision itself (granted / declined / denied) is recorded in the session `permissions` audit array
@@ -170,7 +170,7 @@ Replio/
 - Sandboxed exec (namespace/container isolation) is planned future work (see TODO). Per-agent permission profiles landed with roles (`tool_permission` on each role)
 
 ### Adding a Provider
-1. Subclass `OpenAICompatibleProvider` (core, in `src/replio/providers/base.py`) and set `DEFAULT_BASE_URL` / `DEFAULT_MODEL` (override `_headers()`/`_payload()` only for non-standard auth or bodies)
+1. Subclass `OpenAICompatibleProvider` (core, in `src/polyglav/providers/base.py`) and set `DEFAULT_BASE_URL` / `DEFAULT_MODEL` (override `_headers()`/`_payload()` only for non-standard auth or bodies)
 2. Declare `HOST_PATTERNS` (URL substrings that identify the provider) so `/connect <url>` auto-detects it (longest pattern wins for shared hosts, e.g. `opencode.ai/zen` vs `opencode.ai/zen/go`)
 3. Register it via a plugin's `register_providers(providers)` hook (`providers[name] = ProviderClass`) and list the name in the manifest's `provides.providers`. Vendor providers ship as bundled plugins in `plugins/`. The core `PROVIDERS` registry stays `openai-compatible` only and wins on name conflicts with plugin registrations
 
@@ -184,12 +184,12 @@ The chat() event contract and full provider reference are in `docs/providers.md`
 
 ### Adding a Plugin
 Plugins are external repositories, so never modify the core to add optional functionality:
-1. Create a plugin directory with a `manifest.json` (`name`, `version`, `replio_version` semver range, `python` range, `entry` default `plugin.py` (may point into `src/`), `requires` third-party deps, `provides`), an entry module under `src/`, and an optional `tests/` unit suite (stdlib `unittest`, found by `replio plugins test` and the core suite)
+1. Create a plugin directory with a `manifest.json` (`name`, `version`, `polyglav_version` semver range, `python` range, `entry` default `plugin.py` (may point into `src/`), `requires` third-party deps, `provides`), an entry module under `src/`, and an optional `tests/` unit suite (stdlib `unittest`, found by `polyglav plugins test` and the core suite)
 2. The entry module may define `register_tools(registry)`, `register_providers(providers: dict)`, `register_commands(commands)`, `register_services(services)`, `register_roles`/`register_teams`/`register_skills`, and `register_fixtures(fixtures)` (eval fixture catalog, see `docs/eval.md`), using the same decorators as core builtins
 3. Import third-party deps lazily **inside** tool functions, the core never imports them
-4. Install via `/plugins install <git-url|path>` or `replio plugins install`. Activation is the `plugins` config list (empty = all), and `install`/`uninstall`/`enable`/`disable` maintain it automatically
+4. Install via `/plugins install <git-url|path>` or `polyglav plugins install`. Activation is the `plugins` config list (empty = all), and `install`/`uninstall`/`enable`/`disable` maintain it automatically
 5. See `docs/plugins.md` for the full manifest schema, compatibility contract, and management commands
-6. Bundled plugins live in the repo `plugins/` dir (shipped as `replio.plugins.bundled`), so add a new bundled plugin there + to the `plugins` config default, never to the core
+6. Bundled plugins live in the repo `plugins/` dir (shipped as `polyglav.plugins.bundled`), so add a new bundled plugin there + to the `plugins` config default, never to the core
 
 ### Future: Plugin sources
 Plugins currently install from git URLs or local paths into the plugin roots. Shared/per-plugin virtualenv dependency isolation and a PyPI entry-point source are planned future work (see TODO).
@@ -199,13 +199,13 @@ Plugins currently install from git URLs or local paths into the plugin roots. Sh
 Full schema and defaults are in `docs/config.md`. Notable edge cases:
 
 - `max_tokens` defaults to `8192`, the cap sent to the provider, which overrides low provider-side defaults (e.g. Ollama's 2048). Set it to `0` to omit it from the provider payload, so the provider's own default applies. Hitting the limit prints a warning (distinguishing a configured cap from the provider's default) and logs a session `errors` entry.
-- `unattended: true` (or `replio --unattended` / `/unattended`) guarantees no stdin is read at any depth: confirms auto-deny, and `ask target='human'` parks as a pending request in `.replio/asks.json` (returned as `[parked] Ask #<id>`, answered via `/asks` or the serve API. The answer injects into the origin session). `confirm_timeout` (seconds, default `0` = forever) makes attended confirm/ask prompts self-deny after a timeout instead of hanging.
-- `report.webhook` (default `""`) is the URL the bundled `replio-core-webhook` connector POSTs a completed job run to (the scheduler dispatches one `job.run.completed` event per run to the registered `report` service). Empty disables out-of-band reporting.
+- `unattended: true` (or `polyglav --unattended` / `/unattended`) guarantees no stdin is read at any depth: confirms auto-deny, and `ask target='human'` parks as a pending request in `.polyglav/asks.json` (returned as `[parked] Ask #<id>`, answered via `/asks` or the serve API. The answer injects into the origin session). `confirm_timeout` (seconds, default `0` = forever) makes attended confirm/ask prompts self-deny after a timeout instead of hanging.
+- `report.webhook` (default `""`) is the URL the bundled `polyglav-core-webhook` connector POSTs a completed job run to (the scheduler dispatches one `job.run.completed` event per run to the registered `report` service). Empty disables out-of-band reporting.
 - `plugins` lists the plugins to load, and the bundled plugins are in the default. An empty list loads all discovered plugins. `plugins.enabled`/`plugins.deny` from earlier versions are migrated automatically.
 
 ## Testing
 
-Run tests before committing changes to verify core logic isn't broken. The suite is stdlib `unittest` with mock providers (no network, no API key). The canonical setup installs the package (`pip install -e .`). On a source checkout without installing, point `PYTHONPATH` at the absolute `src` path, since a bare `python -m unittest` raises `ModuleNotFoundError: No module named 'replio'`:
+Run tests before committing changes to verify core logic isn't broken. The suite is stdlib `unittest` with mock providers (no network, no API key). The canonical setup installs the package (`pip install -e .`). On a source checkout without installing, point `PYTHONPATH` at the absolute `src` path, since a bare `python -m unittest` raises `ModuleNotFoundError: No module named 'polyglav'`:
 
 ```bash
 PYTHONPATH=$PWD/src python -m unittest discover tests

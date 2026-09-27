@@ -4,8 +4,8 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from replio.asks import AskStore, inject_answer
-from replio.roles import Role
+from polyglav.asks import AskStore, inject_answer
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 from tests.test_engine import make_engine
@@ -68,7 +68,7 @@ class TestAskStore(unittest.TestCase):
         self.assertIsNone(store.answer(1, '   '))
 
     def test_inject_answer_adds_user_message(self):
-        from replio.sessions.manager import SessionManager
+        from polyglav.sessions.manager import SessionManager
         from pathlib import Path
         store = AskStore(self.path)
         sessions_dir = self.path.parent / 'sessions'
@@ -265,7 +265,7 @@ class TestAsksCommand(unittest.TestCase):
 class TestAsksServer(unittest.TestCase):
 
     def setUp(self):
-        from replio.server import HeadlessServer, ChatHandler
+        from polyglav.server import HeadlessServer, ChatHandler
         self.engine = make_engine()
         self.engine.provider.chat.return_value = [
             {'type': 'token', 'content': 'ok'},

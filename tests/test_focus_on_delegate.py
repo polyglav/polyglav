@@ -3,7 +3,7 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from replio.engine import TurnResult
+from polyglav.engine import TurnResult
 
 from tests.helpers import make_chat
 

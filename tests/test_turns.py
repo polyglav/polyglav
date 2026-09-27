@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from replio.sessions import turns
+from polyglav.sessions import turns
 
 
 class TestTurnBuilders(unittest.TestCase):

@@ -1,6 +1,6 @@
-site_name: Replio
+site_name: Polyglav
 site_description: A lightweight, zero-dependency agentic core for fleets of single-purpose agents
-site_url: https://emyasnikov.github.io/replio/
+site_url: https://polyglav.github.io/polyglav/
 docs_dir: build
 theme:
   name: material

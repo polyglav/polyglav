@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from replio import teams as teams_mod
-from replio.teams import Team, TeamRegistry, TeamStage
-from replio.config import Config
+from polyglav import teams as teams_mod
+from polyglav.teams import Team, TeamRegistry, TeamStage
+from polyglav.config import Config
 
 from tests.helpers import make_chat
 
@@ -28,7 +28,7 @@ class TestTeamRegistry(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.base = Path(self.tmp.name)
-        self.local = self.base / 'proj' / '.replio' / 'teams.json'
+        self.local = self.base / 'proj' / '.polyglav' / 'teams.json'
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -48,7 +48,7 @@ class TestTeamRegistry(unittest.TestCase):
     def test_paths(self):
         reg = self.reg()
         self.assertEqual(reg.global_path,
-                         self.base / '.config' / 'replio' / 'teams.json')
+                         self.base / '.config' / 'polyglav' / 'teams.json')
         self.assertEqual(reg.local_path, self.local)
 
     def test_empty(self):
@@ -146,7 +146,7 @@ class TestTeamRegistry(unittest.TestCase):
         try:
             reg = TeamRegistry(local_path=self.local)
             self.assertEqual(reg.global_path,
-                             self.base / '.config' / 'replio' / 'teams.json')
+                             self.base / '.config' / 'polyglav' / 'teams.json')
         finally:
             Config.GLOBAL_DIR = prev
 
@@ -307,7 +307,7 @@ class TestTeamCommand(unittest.TestCase):
 
     def test_remove_bundled_rejected(self):
         out = self._team('remove writing')
-        self.assertIn('bundled with replio', out)
+        self.assertIn('bundled with polyglav', out)
 
     def test_override_bundled_then_remove(self):
         self._team('new writing local variant')

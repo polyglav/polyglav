@@ -3,8 +3,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from replio.roles import Role
-from replio.ui import BufferUI
+from polyglav.roles import Role
+from polyglav.ui import BufferUI
 
 from tests.helpers import make_chat
 
@@ -50,8 +50,8 @@ class TestSubAgentEngine(unittest.TestCase):
                          self.chat.current_session.session_name)
 
     def test_sub_session_name_embeds_id(self):
-        from replio.engine import _sub_session_name
-        from replio.sessions.manager import session_id_from_name
+        from polyglav.engine import _sub_session_name
+        from polyglav.sessions.manager import session_id_from_name
         name = _sub_session_name('ses_20260825_110000_ab12cd',
                                  self.sessions_dir)
         self.assertTrue(name.startswith('sub_'))
@@ -60,7 +60,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertTrue(name.endswith(f'_{code}'))
 
     def test_sub_session_name_is_unique(self):
-        from replio.engine import _sub_session_name
+        from polyglav.engine import _sub_session_name
         names = {_sub_session_name('parent', self.sessions_dir)
                  for _ in range(10)}
         self.assertEqual(len(names), 10)
@@ -76,7 +76,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(tp['web'], 'deny')
 
     def test_subagent_injects_type_skills(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='researcher', system_prompt='You are the researcher.',
                     skills=['finders', 'filters']),
@@ -94,7 +94,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertIn('### filters', prompt)
 
     def test_subagent_skips_missing_skills(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='x', system_prompt='prompt',
                     skills=['present', 'deleted']),
@@ -114,7 +114,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(sub.config.get('system_prompt'), 'plain prompt')
 
     def test_subagent_skills_only_prompt(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='solo', system_prompt='', skills=['one']),
             scope='local')
@@ -124,7 +124,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(prompt, '## Skills\n\n### one\n\nSkill only body.')
 
     def test_subagent_merges_invocation_skills(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='You are a developer.',
                       skills=['base']),
@@ -140,7 +140,7 @@ class TestSubAgentEngine(unittest.TestCase):
                         prompt.index('Use Django.'))
 
     def test_subagent_invocation_skills_dedupe(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='p', skills=['base']),
             scope='local')
@@ -150,7 +150,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(prompt.count('### base'), 1)
 
     def test_subagent_invocation_skills_ignores_empty_names(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='p'), scope='local')
         self.chat.skills.put(Skill(name='extra', content='Extra skill body.'))
@@ -158,7 +158,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertIn('Extra skill body.', sub.config.get('system_prompt'))
 
     def test_run_subagent_passes_invocation_skills(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.roles.put(
             Role(name='plain2', system_prompt='plain prompt'),
             scope='local')
@@ -202,7 +202,7 @@ class TestSubAgentEngine(unittest.TestCase):
         result = self.chat.run_subagent('writer', 'write the doc')
         self.assertEqual(result.content, 'Draft ready.')
         self.assertTrue(result.session.startswith('sub_'))
-        from replio.sessions.manager import session_id_from_name
+        from polyglav.sessions.manager import session_id_from_name
         self.assertEqual(len(session_id_from_name(result.session)), 6)
         data = self._delegate_log('writer')
         parts = [p for t in data['turns'] for p in t.get('parts') or []]

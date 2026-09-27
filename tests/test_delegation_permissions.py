@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from replio.modes import merge_policy
-from replio.tools.policy import ToolPolicy
-from replio.roles import (Role, clamp_action, resolve_grant_ceiling,
+from polyglav.modes import merge_policy
+from polyglav.tools.policy import ToolPolicy
+from polyglav.roles import (Role, clamp_action, resolve_grant_ceiling,
                           resolve_permissions)
 
 from tests.helpers import make_chat

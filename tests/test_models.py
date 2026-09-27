@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from replio.models import ModelRegistry
-from replio.config import Config
+from polyglav.models import ModelRegistry
+from polyglav.config import Config
 
 
 class TestModelRegistry(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestModelRegistry(unittest.TestCase):
 
     def test_path_under_global_dir(self):
         self.assertEqual(self._reg().path,
-                         self.base / '.config' / 'replio' / 'models.json')
+                         self.base / '.config' / 'polyglav' / 'models.json')
 
     def test_put_and_find(self):
         reg = self._reg()
@@ -85,8 +85,8 @@ class TestModelRegistry(unittest.TestCase):
     def test_corrupt_file_tolerated(self):
         reg = self._reg()
         reg.put('ollama', 'm')
-        self.base.joinpath('.config', 'replio').mkdir(parents=True, exist_ok=True)
-        self.base.joinpath('.config', 'replio', 'models.json').write_text('{oops')
+        self.base.joinpath('.config', 'polyglav').mkdir(parents=True, exist_ok=True)
+        self.base.joinpath('.config', 'polyglav', 'models.json').write_text('{oops')
         reg2 = ModelRegistry(global_dir=self.base)
         self.assertEqual(reg2.all(), [])
 
@@ -95,7 +95,7 @@ class TestModelRegistry(unittest.TestCase):
             {'provider': 'ollama', 'base_url': 'https://api.ollama.com',
              'model': 'm1', 'api_key': 'secret', 'added_at': 't', 'last_used': 't'},
         ]
-        path = self.base / '.config' / 'replio' / 'models.json'
+        path = self.base / '.config' / 'polyglav' / 'models.json'
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(old))
         reg = ModelRegistry(global_dir=self.base)
@@ -111,7 +111,7 @@ class TestModelRegistry(unittest.TestCase):
         try:
             reg = ModelRegistry()
             self.assertEqual(reg.path,
-                             self.base / '.config' / 'replio' / 'models.json')
+                             self.base / '.config' / 'polyglav' / 'models.json')
         finally:
             Config.GLOBAL_DIR = prev
 

@@ -1,6 +1,6 @@
 # Tools
 
-Tools are how the model acts. The `ToolRegistry` (`src/replio/tools/registry.py`) is the single dispatch point: the model invokes tools via OpenAI-compatible function calling, slash commands are thin wrappers over the same `execute()`, and the loop never special-cases tool names, because per-tool behavior comes from registration metadata.
+Tools are how the model acts. The `ToolRegistry` (`src/polyglav/tools/registry.py`) is the single dispatch point: the model invokes tools via OpenAI-compatible function calling, slash commands are thin wrappers over the same `execute()`, and the loop never special-cases tool names, because per-tool behavior comes from registration metadata.
 
 This page is the reference: what the registry supports, the bundled tools, and the policy that gates them. Tool definitions follow the OpenAI function calling JSON schema format. The model sees the schema (filtered by policy), requests a tool call, and the loop executes it and feeds the result back. For how to design, name, and describe a new tool so agents use it well, see [writing-tools.md](writing-tools.md).
 
@@ -12,23 +12,23 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 |------|--------|----------|------------|---------|
 | `ask` | core | `ask` | `ask` | Ask the human or the lead agent for a decision, pausing until answered |
 | `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/remove, plus reload |
-| `code_format` | replio-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
-| `code_lint` | replio-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
-| `code_test` | replio-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
+| `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
+| `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
+| `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
 | `delegate` | core | `delegate` | `delegate` | Run a task under a role as a sub-agent |
-| `file_edit` | replio-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
-| `file_read` | replio-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
-| `file_write` | replio-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |
-| `git` | replio-core-git | `read` | `read` | Read-only git: status/diff/log/branch/show/rev_parse (aliases `git_status`, `git_diff`, `git_log`, ...) |
-| `git_commit` | replio-core-git | `write` | `vcs` | Stage/commit git changes, confirm-gated unless the `vcs` carve is `allow` (`all=true` always asks). Alias `commit` |
-| `glob` | replio-core-fs | `search` | `read` | Recursive pattern lookup |
-| `grep` | replio-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
+| `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
+| `file_read` | polyglav-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
+| `file_write` | polyglav-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |
+| `git` | polyglav-core-git | `read` | `read` | Read-only git: status/diff/log/branch/show/rev_parse (aliases `git_status`, `git_diff`, `git_log`, ...) |
+| `git_commit` | polyglav-core-git | `write` | `vcs` | Stage/commit git changes, confirm-gated unless the `vcs` carve is `allow` (`all=true` always asks). Alias `commit` |
+| `glob` | polyglav-core-fs | `search` | `read` | Recursive pattern lookup |
+| `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
 | `handoff` | core | `handoff` | `handoff` | Pause or finish this run and hand control to a parent/sibling/child/root/run id |
-| `list_dir` | replio-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
-| `run_command` | replio-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
+| `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
+| `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
 | `team` | core | `delegate` | `team` | Run a named team (an ordered chain of agent-type stages) and return the final stage's answer |
-| `web_fetch` | replio-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
-| `web_search` | replio-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
+| `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
+| `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
 Plugins register additional tools the same way and automatically inherit tool policy, `/tool`, `/help`, query refinement, `noise_tools`, and session logging. See [plugins.md](plugins.md).
 
@@ -55,7 +55,7 @@ The `handoff` tool (core) pauses or finishes the current run and hands control t
 4. Each result is appended as a `tool` message (with `tool_call_id` and the tool name), plus a one-line `analysis` when `tool_analysis` is enabled.
 5. The loop continues with the enriched context until the model answers.
 
-Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a `(cancelled)` note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (`n` still declines just that tool). Headless behavior mirrors this, and `replio run` exits non-zero on a cancelled turn.
+Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a `(cancelled)` note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (`n` still declines just that tool). Headless behavior mirrors this, and `polyglav run` exits non-zero on a cancelled turn.
 
 ## Running a tool directly
 
@@ -125,7 +125,7 @@ Tool results are sent to the model verbatim, up to the `tool_max_result_chars` c
 
 ## Tool policy
 
-Every tool call is gated by `ToolPolicy` (`src/replio/tools/policy.py`), the single permission resolution point. The loop and `/tool` both route through it, so never special-case tool names for permission logic.
+Every tool call is gated by `ToolPolicy` (`src/polyglav/tools/policy.py`), the single permission resolution point. The loop and `/tool` both route through it, so never special-case tool names for permission logic.
 
 Actions are `allow` (no prompt), `ask` (Y/n confirm in the loop), or `deny` (tool filtered from the provider schema and refused on direct calls).
 
@@ -138,11 +138,11 @@ Resolution precedence:
 3. **Per-invocation resolver** - a tool may declare a `permission_fn` that overrides a non-`deny` base action from its current arguments, and returning `None` defers to the category action. It is skipped when the base action is `deny` and when no arguments are available, so schema filtering (`allowed()`) keeps the tool visible for `ask`/`allow` categories. `delegate` resolves per role: a configured role uses its own `tool_permission` with `delegate` defaulting to `allow`, a role outside the registry is `deny`. `git_commit` defers to the `vcs` category except for `all=true`, which asks.
 4. **Worktree escalation** - `read` / `list` / `write` tools pointing outside the project worktree escalate from `allow` to `ask`.
 
-Modes ([config.md](config.md)) layer over the base policy: a mode's `tool_permission` merges over the base (mode wins per key), its `tools.deny` appends, and its `tools.allow` replaces when non-empty. The built-in `plan` mode denies the `edit` and `bash` categories, so write and exec tools are filtered from the schema and refused on direct calls. Switch with `/mode <name>` in the REPL or `--mode <name>` on `replio run` / `replio serve`.
+Modes ([config.md](config.md)) layer over the base policy: a mode's `tool_permission` merges over the base (mode wins per key), its `tools.deny` appends, and its `tools.allow` replaces when non-empty. The built-in `plan` mode denies the `edit` and `bash` categories, so write and exec tools are filtered from the schema and refused on direct calls. Switch with `/mode <name>` in the REPL or `--mode <name>` on `polyglav run` / `polyglav serve`.
 
 ### Worktree
 
-The worktree is the directory holding the local `.replio/`, which is the launch directory, or `--path`. Launching from `~` makes the whole home directory the worktree, so subdirectories (including other projects) do not escalate. Launch inside the project or pass `--path` for project-scoped prompting. `bash` defaults to `ask`, so every `run_command` confirms unless `tool_permission.bash = "allow"`.
+The worktree is the directory holding the local `.polyglav/`, which is the launch directory, or `--path`. Launching from `~` makes the whole home directory the worktree, so subdirectories (including other projects) do not escalate. Launch inside the project or pass `--path` for project-scoped prompting. `bash` defaults to `ask`, so every `run_command` confirms unless `tool_permission.bash = "allow"`.
 
 In headless mode (`run` / `serve`), `ask`-gated tools are denied outright (`--yes` / `--no` override), so an agent's reachable surface is exactly its `allow` tools on paths inside its worktree.
 

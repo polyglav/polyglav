@@ -1,13 +1,13 @@
 # Contributing
 
-Thanks for contributing to Replio.
+Thanks for contributing to Polyglav.
 
 ## Getting started
 
 ```bash
-git clone https://github.com/emyasnikov/replio.git && cd replio
+git clone https://github.com/polyglav/polyglav.git && cd polyglav
 python3 -m venv .venv && .venv/bin/pip install -e .
-.venv/bin/replio
+.venv/bin/polyglav
 ```
 
 The project targets Python >=3.10 and uses only the standard library, with no external dependencies.

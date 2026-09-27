@@ -1,7 +1,7 @@
 __pycache__/
 .agents/
 .opencode/
-.replio/
+.polyglav/
 .venv/
 *.egg-info/
 *.pyc

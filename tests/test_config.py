@@ -6,9 +6,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from replio.config import Config, DEFAULT_CONFIG
-from replio.cli import cmd_config
-from replio.tools.policy import ToolPolicy
+from polyglav.config import Config, DEFAULT_CONFIG
+from polyglav.cli import cmd_config
+from polyglav.tools.policy import ToolPolicy
 
 
 class _IsolatedConfigBase(unittest.TestCase):
@@ -20,7 +20,7 @@ class _IsolatedConfigBase(unittest.TestCase):
         self._prev_global_dir = Config.GLOBAL_DIR
         Config.GLOBAL_DIR = self.home
         self.project = Path(self.tmp.name) / 'project'
-        (self.project / '.replio').mkdir(parents=True)
+        (self.project / '.polyglav').mkdir(parents=True)
 
     def tearDown(self):
         Config.GLOBAL_DIR = self._prev_global_dir
@@ -28,11 +28,11 @@ class _IsolatedConfigBase(unittest.TestCase):
 
     @property
     def local_path(self):
-        return self.project / '.replio' / 'config.json'
+        return self.project / '.polyglav' / 'config.json'
 
     @property
     def global_path(self):
-        return self.home / '.config' / 'replio' / 'config.json'
+        return self.home / '.config' / 'polyglav' / 'config.json'
 
     def local(self):
         if not self.local_path.exists():
@@ -316,12 +316,12 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(c.get('grant_permission')['bash'], ['git'])
 
     def test_local_plugins_list_replaces_default(self):
-        self.write_local({'plugins': ['replio-core-web']})
+        self.write_local({'plugins': ['polyglav-core-web']})
         c = Config(path=str(self.project))
         plugins = c.get('plugins')
-        self.assertNotIn('replio-core-fs', plugins)
-        self.assertNotIn('replio-core-git', plugins)
-        self.assertIn('replio-core-web', plugins)
+        self.assertNotIn('polyglav-core-fs', plugins)
+        self.assertNotIn('polyglav-core-git', plugins)
+        self.assertIn('polyglav-core-web', plugins)
 
     def test_non_dict_values_replace_objects(self):
         self.write_local({'ask_policy': 'off', 'model': {'name': 'x'}})

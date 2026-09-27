@@ -1,0 +1,20 @@
+{
+  "name": "polyglav-core-eval",
+  "version": "0.1.0",
+  "description": "Tool-use evaluation fixtures for the polyglav eval harness",
+  "polyglav_version": ">=0.22.0,<1.0",
+  "python": ">=3.10",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [],
+    "providers": [],
+    "commands": [],
+    "fixtures": [
+      "read-file-lines",
+      "find-then-read",
+      "list-directory",
+      "grep-symbol",
+      "page-large-file"
+    ]
+  }
+}

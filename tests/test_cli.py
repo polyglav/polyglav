@@ -6,11 +6,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from replio.cli import cmd_run, cmd_export, cmd_models, cmd_plugins
-from replio.main import main
-from replio import get_version
-from replio.config import Config
-from replio.sessions.manager import Session
+from polyglav.cli import cmd_run, cmd_export, cmd_models, cmd_plugins
+from polyglav.main import main
+from polyglav import get_version
+from polyglav.config import Config
+from polyglav.sessions.manager import Session
 
 
 def _factory(rounds):
@@ -39,7 +39,7 @@ class TestCliRun(unittest.TestCase):
         return SimpleNamespace(**base)
 
     def _run(self, rounds, **kw):
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory(rounds)}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = cmd_run(self._args(**kw))
@@ -54,14 +54,14 @@ class TestCliRun(unittest.TestCase):
         self.assertEqual(data['status'], 'ok')
 
     def _global_dir(self):
-        from replio.config import Config
+        from polyglav.config import Config
         prev = Config.GLOBAL_DIR
         Config.GLOBAL_DIR = Path(self.tmp.name) / 'global-home'
         return prev
 
     def test_run_explicit_model_auto_approves(self):
-        from replio.cli import _engine_from_args
-        from replio.config import Config
+        from polyglav.cli import _engine_from_args
+        from polyglav.config import Config
         prev = self._global_dir()
         try:
             args = self._args(model='opencode-go/deepseek-v4-flash')
@@ -69,15 +69,15 @@ class TestCliRun(unittest.TestCase):
             self.assertTrue(engine.approve_models)
             self.assertEqual(engine.config.get('model'), 'deepseek-v4-flash')
             self.assertEqual(engine.config.get('provider'), 'opencode-go')
-            from replio.models import ModelRegistry
+            from polyglav.models import ModelRegistry
             reg = ModelRegistry()
             self.assertIsNotNone(reg.find('opencode-go', 'deepseek-v4-flash'))
         finally:
             Config.GLOBAL_DIR = prev
 
     def test_run_approve_model_flag_grants(self):
-        from replio.cli import _engine_from_args
-        from replio.config import Config
+        from polyglav.cli import _engine_from_args
+        from polyglav.config import Config
         prev = self._global_dir()
         try:
             engine = _engine_from_args(self._args(approve_model=True))
@@ -86,8 +86,8 @@ class TestCliRun(unittest.TestCase):
             Config.GLOBAL_DIR = prev
 
     def test_run_default_does_not_auto_approve(self):
-        from replio.cli import _engine_from_args
-        from replio.config import Config
+        from polyglav.cli import _engine_from_args
+        from polyglav.config import Config
         prev = self._global_dir()
         try:
             engine = _engine_from_args(self._args())
@@ -110,7 +110,7 @@ class TestCliRun(unittest.TestCase):
     def test_run_session_id_persists(self):
         self._run([[{'type': 'token', 'content': 'answer'},
                     {'type': 'done', 'reason': 'stop'}]], session_id='persist')
-        sess = Path(self.tmp.name) / '.replio' / 'sessions' / 'persist.json'
+        sess = Path(self.tmp.name) / '.polyglav' / 'sessions' / 'persist.json'
         self.assertTrue(sess.exists())
 
     def test_run_error_exit_code(self):
@@ -122,7 +122,7 @@ class TestCliRun(unittest.TestCase):
                     {'type': 'done', 'reason': 'stop'}]],
                   provider='ollama', model='override-model',
                   base_url='https://override.example')
-        cfg = Path(self.tmp.name) / '.replio' / 'config.json'
+        cfg = Path(self.tmp.name) / '.polyglav' / 'config.json'
         self.assertFalse(cfg.exists())
 
     def test_run_overrides_apply(self):
@@ -136,7 +136,7 @@ class TestCliRun(unittest.TestCase):
             return p
         _factory_rec.DEFAULT_BASE_URL = 'https://fake.api.com'
         _factory_rec.DEFAULT_MODEL = 'fake-model'
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory_rec}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory_rec}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 cmd_run(self._args(provider='ollama', model='my-model',
@@ -183,7 +183,7 @@ class TestCliRun(unittest.TestCase):
             return _f
         rounds = [[{'type': 'token', 'content': 'plan answer'},
                    {'type': 'done', 'reason': 'stop'}]]
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = cmd_run(self._args(mode='plan'))
@@ -212,7 +212,7 @@ class TestCliRun(unittest.TestCase):
             return _f
         rounds = [[{'type': 'token', 'content': 'x'},
                    {'type': 'done', 'reason': 'stop'}]]
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 cmd_run(self._args())
@@ -247,7 +247,7 @@ class TestCliPlugins(unittest.TestCase):
     def test_plugins_list_shows_bundled(self):
         rc, out, _ = self._capture(self._args())
         self.assertEqual(rc, 0)
-        self.assertIn('replio-core-web', out)
+        self.assertIn('polyglav-core-web', out)
         self.assertIn('bundled', out)
 
     def test_plugins_install_list_uninstall(self):
@@ -268,7 +268,7 @@ class TestCliPlugins(unittest.TestCase):
 
         rc, _, _ = self._capture(self._args(action='uninstall', name='hello'))
         self.assertEqual(rc, 0)
-        self.assertFalse((Path(self.path) / '.replio' / 'plugins' / 'hello').exists())
+        self.assertFalse((Path(self.path) / '.polyglav' / 'plugins' / 'hello').exists())
 
     def test_plugins_install_missing_source_errors(self):
         rc, _, err = self._capture(self._args(action='install',
@@ -313,7 +313,7 @@ class TestCliExport(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = self.tmp.name
-        sessions = Path(self.path) / '.replio' / 'sessions'
+        sessions = Path(self.path) / '.polyglav' / 'sessions'
         sessions.mkdir(parents=True, exist_ok=True)
         s = Session('alpha')
         s.add_user('hello')
@@ -340,7 +340,7 @@ class TestCliExport(unittest.TestCase):
     def test_export_writes_default_file(self):
         rc, out, _ = self._capture(self._args())
         self.assertEqual(rc, 0)
-        path = (Path(self.path) / '.replio' / 'exports' / 'alpha.md').resolve()
+        path = (Path(self.path) / '.polyglav' / 'exports' / 'alpha.md').resolve()
         self.assertTrue(path.exists())
         self.assertIn('# Session: alpha', path.read_text())
         self.assertIn(f'Exported session: alpha -> {path}', out)
@@ -397,7 +397,7 @@ class TestCliModels(unittest.TestCase):
         return engine
 
     def _capture(self, args, engine):
-        with patch('replio.cli.Engine', return_value=engine):
+        with patch('polyglav.cli.Engine', return_value=engine):
             out = io.StringIO()
             err = io.StringIO()
             with patch('sys.stdout', new=out), patch('sys.stderr', new=err):
@@ -464,7 +464,7 @@ class TestCliModels(unittest.TestCase):
     def test_models_main_dispatch(self):
         e = SimpleNamespace(provider='ollama', model='llama3.2')
         engine = self._engine(models=[e], grouped=[('ollama', [e])])
-        with patch('replio.cli.Engine', return_value=engine):
+        with patch('polyglav.cli.Engine', return_value=engine):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = main(['models', '--path', self.path])
@@ -473,7 +473,7 @@ class TestCliModels(unittest.TestCase):
 
     def test_models_list_main_dispatch(self):
         engine = self._engine(list_result=(['m1'], None))
-        with patch('replio.cli.Engine', return_value=engine):
+        with patch('polyglav.cli.Engine', return_value=engine):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = main(['models', '--path', self.path, 'list'])
@@ -487,18 +487,18 @@ class TestCliEval(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = self.tmp.name
         self._prev = None
-        from replio.config import Config
+        from polyglav.config import Config
         self._prev = Config.GLOBAL_DIR
         Config.GLOBAL_DIR = Path(self.path) / 'home'
 
     def tearDown(self):
-        from replio.config import Config
+        from polyglav.config import Config
         Config.GLOBAL_DIR = self._prev
         import shutil
         shutil.rmtree(self.path, ignore_errors=True)
 
     def _fixture(self, **data):
-        eval_dir = Path(self.path) / '.replio' / 'eval'
+        eval_dir = Path(self.path) / '.polyglav' / 'eval'
         eval_dir.mkdir(parents=True, exist_ok=True)
         (eval_dir / 't.json').write_text(json.dumps(data))
 
@@ -523,7 +523,7 @@ class TestCliEval(unittest.TestCase):
              {'type': 'done', 'reason': 'stop',
               'usage': {'prompt_tokens': 4, 'completion_tokens': 1}}],
         ]
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory(rounds)}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = main(['eval', '--path', self.path, 'run', '--fixture', 't'])
@@ -542,7 +542,7 @@ class TestCliEval(unittest.TestCase):
             [{'type': 'token', 'content': 'ok'},
              {'type': 'done', 'reason': 'stop'}],
         ]
-        with patch('replio.providers.PROVIDERS', {'ollama': _factory(rounds)}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': _factory(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
                 rc = main(['eval', '--path', self.path, 'run', '--fixture', 't',

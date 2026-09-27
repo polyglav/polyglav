@@ -2,7 +2,7 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from replio.tools.policy import ToolPolicy
+from polyglav.tools.policy import ToolPolicy
 
 
 class TestToolPolicy(unittest.TestCase):

@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from replio.config import Config, DEFAULT_CONFIG
-from replio.engine import Engine
-from replio.ui import ReplUI
+from polyglav.config import Config, DEFAULT_CONFIG
+from polyglav.engine import Engine
+from polyglav.ui import ReplUI
 
 from tests.helpers import make_chat
 from tests.test_engine import make_engine
@@ -26,7 +26,7 @@ def _real_engine(config_data: dict) -> Engine:
         'max_tokens': 2048,
     }
     data.update(config_data)
-    config_dir = Path(temp_dir.name) / '.replio'
+    config_dir = Path(temp_dir.name) / '.polyglav'
     config_dir.mkdir(parents=True, exist_ok=True)
     (config_dir / 'config.json').write_text(json.dumps(data))
     config = Config(path=temp_dir.name)
@@ -88,7 +88,7 @@ class TestUnattendedAskUi(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_subagent_inherits_unattended_and_no_ask_ui(self):
-        from replio.roles import Role
+        from polyglav.roles import Role
         chat = make_chat({'unattended': True})
         try:
             chat.roles.put(Role(name='w', system_prompt='Writer'),
@@ -129,7 +129,7 @@ class TestUnattendedNonBlocking(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_subagent_human_ask_parks_when_unattended(self):
-        from replio.roles import Role
+        from polyglav.roles import Role
         chat = make_chat({'unattended': True})
         try:
             chat.roles.put(Role(name='w', system_prompt='Writer'),
@@ -225,7 +225,7 @@ class TestConfirmTimeout(unittest.TestCase):
 
     def test_confirm_denies_on_timeout(self):
         ui = self._ui(2)
-        with patch('replio.ui.select.select', return_value=([], [], [])):
+        with patch('polyglav.ui.select.select', return_value=([], [], [])):
             with patch('builtins.input', side_effect=AssertionError(
                     'input must not be called on timeout')):
                 with patch('sys.stdout', new=io.StringIO()) as buf:
@@ -234,7 +234,7 @@ class TestConfirmTimeout(unittest.TestCase):
 
     def test_confirm_returns_answer_when_ready(self):
         ui = self._ui(2)
-        with patch('replio.ui.select.select',
+        with patch('polyglav.ui.select.select',
                    return_value=([sys.stdin], [], [])):
             with patch('builtins.input', return_value='y'):
                 self.assertTrue(ui.confirm('run_command', 'run_command ls'))
@@ -246,14 +246,14 @@ class TestConfirmTimeout(unittest.TestCase):
 
     def test_ask_returns_none_on_timeout(self):
         ui = self._ui(2)
-        with patch('replio.ui.select.select', return_value=([], [], [])):
+        with patch('polyglav.ui.select.select', return_value=([], [], [])):
             with patch('sys.stdout', new=io.StringIO()):
                 self.assertIsNone(ui.ask('which?',
                                          origin=self.chat.current_session.session_name))
 
     def test_ask_returns_answer_when_ready(self):
         ui = self._ui(2)
-        with patch('replio.ui.select.select',
+        with patch('polyglav.ui.select.select',
                    return_value=([sys.stdin], [], [])):
             with patch('builtins.input', return_value='use 8080'):
                 self.assertEqual(

@@ -2,9 +2,9 @@ import unittest
 from pathlib import Path
 import tempfile
 
-from replio.engine import _review_passed
-from replio.teams import Team, TeamRegistry, TeamStage
-from replio.roles import Role
+from polyglav.engine import _review_passed
+from polyglav.teams import Team, TeamRegistry, TeamStage
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 
@@ -144,7 +144,7 @@ class TestTeamLoop(unittest.TestCase):
             def registry():
                 return TeamRegistry(
                     global_dir=Path(tmp.name),
-                    local_path=Path(tmp.name) / '.replio' / 'teams.json',
+                    local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
                     bundled_path=Path(tmp.name) / 'none.json')
             registry().put(Team(name='x', loop={'from': 'writer',
                                                 'until': 'reviewer',

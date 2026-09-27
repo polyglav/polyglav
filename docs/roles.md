@@ -37,10 +37,10 @@ The bundled catalog ships two pre-carved teams plus an `assistant`, a `composer`
 
 Roles come from four layers, merged exactly like config: bundled, then plugin, then global, then local, local winning per field. Precedence mirrors bundled plugins (`bundled < plugin < global < local`):
 
-- **Bundled** - the read-only default catalog shipped in the package (`src/replio/bundled_roles.json`). Always present, never writable, overridable by any other layer.
+- **Bundled** - the read-only default catalog shipped in the package (`src/polyglav/bundled_roles.json`). Always present, never writable, overridable by any other layer.
 - **Plugin** - roles contributed by plugins via the `register_roles` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to any `roles.json`, refreshed on `/plugins install`/`update`/`uninstall`.
-- **Global** - `~/.config/replio/roles.json`.
-- **Local** - `.replio/roles.json`.
+- **Global** - `~/.config/polyglav/roles.json`.
+- **Local** - `.polyglav/roles.json`.
 
 Merging is field-by-field for the same `name`: an entry overrides only the fields it sets, so an unset field (e.g. no `model`) inherits from the layer below.
 
@@ -94,4 +94,4 @@ Sub-agent permissions are bounded by the caller: the effective carve is the call
 
 - `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `delegate` tool (the lead model proposes it, or `/tool delegate {"role": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
 - Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.
-- A role runs either in-process as a sub-engine (the default for delegation) or as a scoped `replio serve` process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and `tool_permission` (see [fleet.md](fleet.md)).
+- A role runs either in-process as a sub-engine (the default for delegation) or as a scoped `polyglav serve` process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and `tool_permission` (see [fleet.md](fleet.md)).

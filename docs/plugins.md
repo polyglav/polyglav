@@ -1,29 +1,29 @@
 # Plugins
 
-Plugins extend Replio with **tools**, **providers**, **slash commands**, and **services** without changing the core. The core stays stdlib-only. Third-party dependencies live inside the plugin and are imported lazily, so they only matter when you install and use that plugin.
+Plugins extend Polyglav with **tools**, **providers**, **slash commands**, and **services** without changing the core. The core stays stdlib-only. Third-party dependencies live inside the plugin and are imported lazily, so they only matter when you install and use that plugin.
 
 ## Installation locations
 
 | Root | Scope | Precedence |
 |------|-------|------------|
-| `replio.plugins.bundled` | **bundled** with replio (shipped in the package) | lowest |
-| `~/.config/replio/plugins/` | global, all projects | middle |
-| `.replio/plugins/` | local to a project | highest (wins on name collision) |
+| `polyglav.plugins.bundled` | **bundled** with polyglav (shipped in the package) | lowest |
+| `~/.config/polyglav/plugins/` | global, all projects | middle |
+| `.polyglav/plugins/` | local to a project | highest (wins on name collision) |
 
-First-party plugins ship with replio and are listed in the default `plugins` config, so they are active out of the box. `replio-core-web` provides `web_search` and `web_fetch`. `replio-core-webhook` provides the job report-back connector (`report.webhook`). `replio-core-fs` provides `file_read`, `list_dir`, `file_write`, `glob`, and `grep`. `replio-core-exec` provides `run_command`. `replio-core-mcp` provides the MCP client (`mcp_connect`/`mcp_list`/`mcp_disconnect`) and server (`replio mcp` and `POST /mcp`). See [mcp.md](mcp.md). `replio-core-eval` provides the eval fixture catalog for `replio eval`. See [eval.md](eval.md). `replio-core-edit` provides `file_edit`, `replio-core-git` provides `git`/`git_commit`, and `replio-core-dev` provides `code_test`/`code_lint`/`code_format`. The vendor providers ship as bundled plugins too (`replio-core-ollama`, `replio-core-openai`, `replio-core-groq`, `replio-core-anthropic`, `replio-core-opencode`). See [providers.md](providers.md). They behave like any other plugin but cannot be uninstalled or updated, since they version with replio. Remove a name from `plugins` (or `/plugins disable`) to stop one loading. A global or local plugin with the same name overrides the bundled one.
+First-party plugins ship with polyglav and are listed in the default `plugins` config, so they are active out of the box. `polyglav-core-web` provides `web_search` and `web_fetch`. `polyglav-core-webhook` provides the job report-back connector (`report.webhook`). `polyglav-core-fs` provides `file_read`, `list_dir`, `file_write`, `glob`, and `grep`. `polyglav-core-exec` provides `run_command`. `polyglav-core-mcp` provides the MCP client (`mcp_connect`/`mcp_list`/`mcp_disconnect`) and server (`polyglav mcp` and `POST /mcp`). See [mcp.md](mcp.md). `polyglav-core-eval` provides the eval fixture catalog for `polyglav eval`. See [eval.md](eval.md). `polyglav-core-edit` provides `file_edit`, `polyglav-core-git` provides `git`/`git_commit`, and `polyglav-core-dev` provides `code_test`/`code_lint`/`code_format`. The vendor providers ship as bundled plugins too (`polyglav-core-ollama`, `polyglav-core-openai`, `polyglav-core-groq`, `polyglav-core-anthropic`, `polyglav-core-opencode`). See [providers.md](providers.md). They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from `plugins` (or `/plugins disable`) to stop one loading. A global or local plugin with the same name overrides the bundled one.
 
 ## Plugin layout
 
 A plugin is a directory with a `manifest.json`, an entry module, and an optional unit-test suite. Source modules live under `src/`, tests under `tests/` (a bare `.py` file at the root is also accepted, where name = filename and defaults apply):
 
 ```
-~/.config/replio/plugins/web-scraper/
+~/.config/polyglav/plugins/web-scraper/
   manifest.json
   src/
     plugin.py          # entry module (manifest "entry" points here)
     helpers.py         # sibling modules, importable by the entry
   tests/
-    test_plugins.py    # optional - run by `replio plugins test` and the core suite
+    test_plugins.py    # optional - run by `polyglav plugins test` and the core suite
 ```
 
 The entry module may sit anywhere under the plugin directory. The `manifest.json` `"entry"` key is a path relative to the plugin root (default `plugin.py`). Sibling imports resolve from the entry module's directory, so a `src/` layout works like a flat one.
@@ -32,15 +32,15 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 
 ```json
 {
-  "name": "replio-web-scraper",
+  "name": "polyglav-web-scraper",
   "version": "0.3.1",
   "description": "Full-page scraping with links and structure",
-  "replio_version": ">=0.12.0,<1.0",
+  "polyglav_version": ">=0.12.0,<1.0",
   "python": ">=3.10",
   "entry": "plugin.py",
   "requires": ["beautifulsoup4", "lxml"],
   "provides": {"tools": ["scrape_page"], "providers": [], "commands": ["/scrape"]},
-  "source": "https://github.com/example/replio-web-scraper"
+  "source": "https://github.com/example/polyglav-web-scraper"
 }
 ```
 
@@ -48,8 +48,8 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 |------------------|---------------|-------------|
 | `name`           | *(required)*  | Plugin name, also the install directory name |
 | `version`        | `"0.0.0"`     | Plugin version |
-| `description`    | `""`          | Shown in `/plugins` and `replio plugins list` |
-| `replio_version` | `""`          | Semver range the plugin is compatible with (`>=0.12.0,<1.0`). Incompatible plugins are skipped at load |
+| `description`    | `""`          | Shown in `/plugins` and `polyglav plugins list` |
+| `polyglav_version` | `""`          | Semver range the plugin is compatible with (`>=0.12.0,<1.0`). Incompatible plugins are skipped at load |
 | `python`         | `""`          | Minimum/maximum Python, same range syntax (`>=3.10`) |
 | `entry`          | `"plugin.py"` | Module to load, relative to the plugin directory (may point into `src/`) |
 | `requires`       | `[]`          | Third-party packages, metadata for status and `--deps` install, never imported by the core |
@@ -75,11 +75,11 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Providers
 
-`register_providers` contributes to the same provider set as the core `PROVIDERS` dict: the plugin provider appears in the `/connect` picker, and passing its `DEFAULT_BASE_URL` as a `/connect <url>` argument selects it automatically (see [providers.md](providers.md)). A plugin provider's `DEFAULT_BASE_URL` also makes it a model-ref target (`<name>/<model>`). A provider class may declare `HOST_PATTERNS` (a tuple of URL substrings) so `/connect <url>` auto-detects it from the host (see [Auto-detection](providers.md#auto-detection)). The core `detect_provider()` scans the merged set and prefers the longest matching pattern. The bundled vendor providers (`replio-core-ollama`, `-openai`, `-groq`, `-anthropic`, `replio-core-opencode`) are plugins themselves, so an external plugin registering a provider with the same name as a bundled one does not override it, because the core `PROVIDERS` registry wins on name conflicts.
+`register_providers` contributes to the same provider set as the core `PROVIDERS` dict: the plugin provider appears in the `/connect` picker, and passing its `DEFAULT_BASE_URL` as a `/connect <url>` argument selects it automatically (see [providers.md](providers.md)). A plugin provider's `DEFAULT_BASE_URL` also makes it a model-ref target (`<name>/<model>`). A provider class may declare `HOST_PATTERNS` (a tuple of URL substrings) so `/connect <url>` auto-detects it from the host (see [Auto-detection](providers.md#auto-detection)). The core `detect_provider()` scans the merged set and prefers the longest matching pattern. The bundled vendor providers (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `polyglav-core-opencode`) are plugins themselves, so an external plugin registering a provider with the same name as a bundled one does not override it, because the core `PROVIDERS` registry wins on name conflicts.
 
 ### Services
 
-`register_services` lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled `replio-core-web` registers `services['search']` with `search(query, num)`, `display(query, results)`, and `context(query, results)` methods (without it, that mode reports the service is unavailable instead of erroring). The bundled `replio-core-webhook` registers `services['report']` with a `report(payload, config)` method: the scheduler calls it once per completed job run with a `job.run.completed` payload and its `Config`, so the connector reads its own keys (e.g. `report.webhook`) and posts the report. Any plugin can register a `report` service the same way to deliver run summaries elsewhere (email, chat, a local log). See [jobs.md](jobs.md#report-back).
+`register_services` lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled `polyglav-core-web` registers `services['search']` with `search(query, num)`, `display(query, results)`, and `context(query, results)` methods (without it, that mode reports the service is unavailable instead of erroring). The bundled `polyglav-core-webhook` registers `services['report']` with a `report(payload, config)` method: the scheduler calls it once per completed job run with a `job.run.completed` payload and its `Config`, so the connector reads its own keys (e.g. `report.webhook`) and posts the report. Any plugin can register a `report` service the same way to deliver run summaries elsewhere (email, chat, a local log). See [jobs.md](jobs.md#report-back).
 
 ### Roles, teams, and skills
 
@@ -87,7 +87,7 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Eval fixtures
 
-`register_fixtures(fixtures)` contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture `id` to fixture data (same shape as the JSON fixtures under `.replio/eval/`, see [eval.md](eval.md)). Local and global fixture files override plugin fixtures by `id`. The bundled `replio-core-eval` plugin ships the default catalog this way.
+`register_fixtures(fixtures)` contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture `id` to fixture data (same shape as the JSON fixtures under `.polyglav/eval/`, see [eval.md](eval.md)). Local and global fixture files override plugin fixtures by `id`. The bundled `polyglav-core-eval` plugin ships the default catalog this way.
 
 ### Lazy dependencies
 
@@ -112,7 +112,7 @@ def register_tools(registry):
 
 ```json
 {
-  "plugins": ["replio-core-web", "replio-core-fs", "replio-core-exec"]
+  "plugins": ["polyglav-core-web", "polyglav-core-fs", "polyglav-core-exec"]
 }
 ```
 
@@ -134,28 +134,28 @@ def register_tools(registry):
 
 ### CLI
 
-The same operations are available headless (e.g. before a CI `replio run`):
+The same operations are available headless (e.g. before a CI `polyglav run`):
 
 ```
-replio plugins list
-replio plugins install <git-url|path> --deps
-replio plugins update <name>
-replio plugins uninstall <name>
-replio plugins test [name]
+polyglav plugins list
+polyglav plugins install <git-url|path> --deps
+polyglav plugins update <name>
+polyglav plugins uninstall <name>
+polyglav plugins test [name]
 ```
 
-- `install` clones a git URL or copies a local directory into `.replio/plugins/` (or `~/.config/replio/plugins/` with `--global`), records `source`, and with `--deps` runs `pip install` on the declared `requires`.
+- `install` clones a git URL or copies a local directory into `.polyglav/plugins/` (or `~/.config/polyglav/plugins/` with `--global`), records `source`, and with `--deps` runs `pip install` on the declared `requires`.
 - `update` runs `git pull` for remote sources or re-copies a local path.
 - `test` runs a plugin's `tests/` unit suite (`--verbose` for per-test output). Without a name it runs every plugin that has one. The core test suite also runs these through `tests/test_plugin_suites.py`.
 - Bundled plugins report an error for `update` and `uninstall`. Disable them instead.
 
 ## Status
 
-`/plugins` (and `replio plugins list`) shows each plugin's name, version, **origin** (`bundled` / `global` / `local`), load status, and unmet `requires`:
+`/plugins` (and `polyglav plugins list`) shows each plugin's name, version, **origin** (`bundled` / `global` / `local`), load status, and unmet `requires`:
 
 - `loaded` - active
 - `disabled` - not in the `plugins` list (when it is non-empty)
-- `incompatible` - `replio_version` or `python` range not satisfied (reason shown)
+- `incompatible` - `polyglav_version` or `python` range not satisfied (reason shown)
 - `error` - invalid manifest, missing entry module, or the entry module raised while loading
 
 ## Security
@@ -166,4 +166,4 @@ Plugins are arbitrary Python code that run with your user's privileges. Install 
 
 - **Dependency isolation**: today plugin deps install into the same Python environment (lazy imports keep the core clean). Shared-plugin and per-plugin virtualenvs are planned for stronger separation.
 - **PyPI source**: the same hooks will be discoverable through `importlib.metadata` entry points, so plugins can be distributed as regular packages.
-- **Externalizing bundled plugins**: the bundled `replio-core-*` plugins are the migration path for optional features. Web and machine tools now ship through them, and they can be forked or superseded by global/local plugins of the same name.
+- **Externalizing bundled plugins**: the bundled `polyglav-core-*` plugins are the migration path for optional features. Web and machine tools now ship through them, and they can be forked or superseded by global/local plugins of the same name.

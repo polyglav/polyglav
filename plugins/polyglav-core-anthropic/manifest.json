@@ -1,0 +1,13 @@
+{
+  "name": "polyglav-core-anthropic",
+  "version": "0.1.0",
+  "description": "Anthropic provider - bundled with polyglav",
+  "polyglav_version": ">=0.28.0,<1.0",
+  "python": ">=3.10",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [],
+    "providers": ["anthropic"],
+    "commands": []
+  }
+}

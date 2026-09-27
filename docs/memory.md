@@ -4,15 +4,15 @@ Continuity has two scales. Within a run, the run's own session is the context, s
 
 ## Scopes and storage
 
-Memory lives under `.replio/memory/` in the worktree, one file per name:
+Memory lives under `.polyglav/memory/` in the worktree, one file per name:
 
 | Scope | Path | Refreshed | Injected |
 |-------|------|-----------|----------|
-| `role` | `.replio/memory/roles/<type>.md` | After a delegated agent run | Into that role's sub-agent system prompt |
-| `team` | `.replio/memory/teams/<name>.md` | After a team run | Into every stage brief |
-| `job` | `.replio/memory/jobs/<name>.md` | After a job run | Into the run's system prompt |
+| `role` | `.polyglav/memory/roles/<type>.md` | After a delegated agent run | Into that role's sub-agent system prompt |
+| `team` | `.polyglav/memory/teams/<name>.md` | After a team run | Into every stage brief |
+| `job` | `.polyglav/memory/jobs/<name>.md` | After a job run | Into the run's system prompt |
 
-Files are plain Markdown and human-editable. Reads fall back to the older locations (`.replio/jobs/<name>.memory.md`, `.replio/teams/<name>/memory.md`) so existing memories keep working, and writes always go to the new path. Writes are atomic (a `.tmp` file replaces the target).
+Files are plain Markdown and human-editable. Reads fall back to the older locations (`.polyglav/jobs/<name>.memory.md`, `.polyglav/teams/<name>/memory.md`) so existing memories keep working, and writes always go to the new path. Writes are atomic (a `.tmp` file replaces the target).
 
 ## Automatic and manual
 

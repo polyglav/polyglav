@@ -7,10 +7,10 @@ import threading
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from replio.config import Config
-from replio.chat import ChatLoop
-from replio.plugins.manager import PluginManager
-from replio.providers import (
+from polyglav.config import Config
+from polyglav.chat import ChatLoop
+from polyglav.plugins.manager import PluginManager
+from polyglav.providers import (
     PROVIDERS, detect_provider, merged_providers, OpenAICompatibleProvider,
 )
 
@@ -133,7 +133,7 @@ class TestProviderSwitching(unittest.TestCase):
 
     def _make_chat(self, data):
         tmp = tempfile.TemporaryDirectory()
-        config_dir = Path(tmp.name) / '.replio'
+        config_dir = Path(tmp.name) / '.polyglav'
         config_dir.mkdir(parents=True)
         with open(config_dir / 'config.json', 'w') as f:
             json.dump(data, f)
@@ -153,7 +153,7 @@ class TestProviderSwitching(unittest.TestCase):
             'model': 'llama3.2',
         })
         chat._reinit_provider()
-        from replio.providers.base import OpenAICompatibleProvider
+        from polyglav.providers.base import OpenAICompatibleProvider
         factory = chat._plugin_manager.provider_classes()['ollama']
         self.assertEqual(type(chat.provider), factory)
         chat.config.set('provider', 'openai')

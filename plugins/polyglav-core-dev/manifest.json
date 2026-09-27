@@ -1,0 +1,17 @@
+{
+  "name": "polyglav-core-dev",
+  "version": "0.1.0",
+  "description": "Developer workflow wrappers: code_test, code_lint, code_format - bundled with polyglav",
+  "polyglav_version": ">=0.13.0,<1.0",
+  "python": ">=3.10",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [
+      "code_test",
+      "code_lint",
+      "code_format"
+    ],
+    "providers": [],
+    "commands": []
+  }
+}

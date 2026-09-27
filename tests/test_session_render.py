@@ -4,9 +4,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-from replio.sessions import turns
-from replio.sessions.manager import Session
-from replio.sessions.render import render_session, render_turn, turn_summary
+from polyglav.sessions import turns
+from polyglav.sessions.manager import Session
+from polyglav.sessions.render import render_session, render_turn, turn_summary
 from tests.helpers import make_chat
 
 

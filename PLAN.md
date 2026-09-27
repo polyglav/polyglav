@@ -47,7 +47,7 @@ The leader remembers the operator's instructions across runs, long role instruct
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Role instruction files - `.replio/roles/<name>.md` referenced from the JSON entry and appended verbatim | M | full-length role instructions |
+| Role instruction files - `.polyglav/roles/<name>.md` referenced from the JSON entry and appended verbatim | M | full-length role instructions |
 | Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
 | Root role memory - inject role memory in `bind_root_agent` through a shared compose helper | S | the leader remembers across runs |
 | `memorize` as a tool - memory writes through a tool an agent calls | S-M | memory the agent maintains |
@@ -62,8 +62,8 @@ A role's file and folder access is a config rule, not a prompt, and a skill is t
 | Task | Effort | Provides |
 |------|--------|----------|
 | Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy | M | enforced role boundaries |
-| `.replio` directory layout - reserved subfolders and file names, documented | S-M | a predictable state layout |
-| Skill definition and catalog review - tool, language, or framework skills, with a `python` skill and a `replio` skill, project description moved to `AGENTS.md` | M | reusable skills |
+| `.polyglav` directory layout - reserved subfolders and file names, documented | S-M | a predictable state layout |
+| Skill definition and catalog review - tool, language, or framework skills, with a `python` skill and a `polyglav` skill, project description moved to `AGENTS.md` | M | reusable skills |
 | Hidden files and allowed roots - hide secrets and config from tools by default, restrict visible paths | M | no accidental exposure |
 
 ## Output log and status legibility
@@ -107,7 +107,7 @@ The assistant is the operator's single window to the machine: served agents are 
 | Onboarding - first run: the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users | M | a supported first step |
 | One-window status - `/status` lists sessions, running agents, and configured jobs on the machine, with logs reachable from the same surface | M | see everything from one place |
 | Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding | S-M | alert when an agent is down |
-| `/spawn` command - launch a scoped `replio serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it | S-M | fleet agents from the terminal |
+| `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it | S-M | fleet agents from the terminal |
 
 ## Delegation & swarm
 
@@ -121,7 +121,7 @@ Agents cooperate through types, delegation, and team stages. Sub-agents use the 
 | Auditor agents + generate > check > correct orchestration - run a main agent, an auditor, and a fix pass in a loop until passing | M-L | review-and-fix loops (later phase, listed in VISION.md out-of-scope) |
 | PM/dev/tester team orchestration as a user-facing pattern | M | team pattern on top of the teams registry |
 | Custom system prompts per session | S-M | per-site instructions |
-| Role directory scan for export/import - read `.replio/roles/*.md` (front-matter roles) to import and export roles to Markdown | S-M | portable role definitions |
+| Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown | S-M | portable role definitions |
 | Swarm orchestration umbrella (TODO item) | - | decomposed by this package |
 
 ## Jobs operations + report-back
@@ -132,10 +132,10 @@ React to and see jobs from outside the box. Run teams on schedule.
 |------|--------|----------|
 | Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time | S-M | encoded recurring behavior |
 | `jobs add --team` - scheduled team runs, per-run team summary session, member sessions as team stages | M | recurring team pipelines |
-| Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `replio serve` | M | any client can see/act per agent |
+| Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve` | M | any client can see/act per agent |
 | Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`, channel-agnostic core | M | notification source |
-| Job connectors - bundled `replio-core-webhook` (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API | M-L | operators react in time |
-| Fleet jobs overview - `replio jobs list --root <dir>` combined agent/job table (agent, job, status, next run, task), then a web Control UI on top | M | one view of what runs next |
+| Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API | M-L | operators react in time |
+| Fleet jobs overview - `polyglav jobs list --root <dir>` combined agent/job table (agent, job, status, next run, task), then a web Control UI on top | M | one view of what runs next |
 | Mid-run blocking job approval - an `ask` inside a running job pauses in place (per-tool-call `waiting_approval`), notifies via a connector, and resumes the same session on reply. Needs resumable mid-run state, a wait loop inside the run, and the connectors above | L | decide during the task |
 
 ## Tool engineering for agents
@@ -153,8 +153,8 @@ Run many scoped agents under a supervisor with a control surface.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Immutable agent config - `replio serve` agents cannot change their own configuration, permissions, or tool list | S-M | control-plane rule |
-| Minimal web Control UI - stdlib `http.server` page over the existing `replio serve` JSON API | M | dashboard over the JSON API |
+| Immutable agent config - `polyglav serve` agents cannot change their own configuration, permissions, or tool list | S-M | control-plane rule |
+| Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API | M | dashboard over the JSON API |
 | Multiuser API + queue / rate limits | M | concurrent feeds without blocking the loop |
 | Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin | S-M | fast API without core deps |
 | Observability + telemetry decision - latency/cost/error metrics, Pi-style contracts | M | measured operations |
@@ -170,7 +170,7 @@ Capabilities install as discoverable, isolated packages.
 | Shared plugin virtualenv - one venv for all plugin dependencies | M | isolated deps, one venv |
 | Per-plugin virtualenv isolation - per-plugin `.venv`, site-packages injected at import | M | strongest dependency separation |
 | Externalize bundled plugins - versioned repos, bundled copies stay the default | M | versioned bundled plugins |
-| Plugin test harness - external plugins ship a test suite, `replio plugins test <name>` runs it | S-M | tested plugins |
+| Plugin test harness - external plugins ship a test suite, `polyglav plugins test <name>` runs it | S-M | tested plugins |
 | Cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler | M | context-aware dispatch |
 | Web scraper + PDF-to-text plugins | S-M | non-text content types |
 | Agent folder watcher - process new files on arrival | S-M | arrival-driven work |
@@ -250,17 +250,16 @@ Distribution and outward-facing presence.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| `replio update` | M | self-update |
+| `polyglav update` | M | self-update |
 | Standalone binary build | M | single executable |
 | Docs site (ReadTheDocs) | S-M | ReadTheDocs reference docs |
 | Community channels - Discord/X slots in README | S | community presence |
-| Naming/positioning + competitor research | S | validated USP and name decision |
 
 ## How the layers compose
 
 One round hands off in three steps:
 
-1. **Start** - the operator starts a task: `replio jobs add`/`run` for scheduled work, or a REPL prompt or `/tool delegate` for ad-hoc work. The jobs operator API adds a remote start (`POST /jobs/<name>/approve`) later
+1. **Start** - the operator starts a task: `polyglav jobs add`/`run` for scheduled work, or a REPL prompt or `/tool delegate` for ad-hoc work. The jobs operator API adds a remote start (`POST /jobs/<name>/approve`) later
 2. **Distribute + review** - the assistant splits the task into subtasks and delegates them: sequentially by type or team stage today (`delegate`, `Engine.run_team`), routed to fleet agents over `POST /chat` once cross-process delegation lands, with auditor agents reviewing the output (generate > check > correct)
 3. **Return** - results come back to the operator: the delegate result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose
 

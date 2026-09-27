@@ -3,15 +3,15 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from replio.config import Config
-from replio.chat import ChatLoop
-from replio.sessions.manager import SessionManager
-from replio.runs import RunRegistry
-from replio.focus import FocusManager
-from replio.commands.registry import CommandRegistry
-from replio.commands.builtins import register_builtins
-from replio.plugins.manager import PluginManager
-from replio.ui import ReplUI
+from polyglav.config import Config
+from polyglav.chat import ChatLoop
+from polyglav.sessions.manager import SessionManager
+from polyglav.runs import RunRegistry
+from polyglav.focus import FocusManager
+from polyglav.commands.registry import CommandRegistry
+from polyglav.commands.builtins import register_builtins
+from polyglav.plugins.manager import PluginManager
+from polyglav.ui import ReplUI
 
 
 def make_chat(config_data: dict | None = None) -> ChatLoop:
@@ -30,7 +30,7 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     if config_data:
         data.update(config_data)
 
-    config_dir = Path(temp_dir.name) / '.replio'
+    config_dir = Path(temp_dir.name) / '.polyglav'
     config_dir.mkdir(parents=True, exist_ok=True)
     with open(config_dir / 'config.json', 'w') as f:
         json.dump(data, f)

@@ -2,7 +2,7 @@ import io
 import unittest
 from unittest.mock import MagicMock, patch
 
-from replio.chat import _open_delim, _strip_framing
+from polyglav.chat import _open_delim, _strip_framing
 from tests.helpers import make_chat
 
 
@@ -71,8 +71,8 @@ class TestReplInput(unittest.TestCase):
     def _run(self, lines):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=lines):
-                with patch('replio.chat.readline'):
+            with patch('polyglav.chat.input', side_effect=lines):
+                with patch('polyglav.chat.readline'):
                     self.chat.run()
         return out.getvalue()
 
@@ -140,20 +140,20 @@ class TestOutputLog(unittest.TestCase):
         self.chat.chat = MagicMock()
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('replio.chat.input', side_effect=list(lines)):
-                with patch('replio.chat.readline'):
+            with patch('polyglav.chat.input', side_effect=list(lines)):
+                with patch('polyglav.chat.readline'):
                     self.chat.run()
         return self.chat.config.local_path.parent.parent
 
     def test_output_log_written_when_enabled(self):
         worktree = self._run({'output_log': True})
-        logs = list((worktree / '.replio' / 'output').glob('*.txt'))
+        logs = list((worktree / '.polyglav' / 'output').glob('*.txt'))
         self.assertEqual(len(logs), 1)
-        self.assertIn('Replio', logs[0].read_text())
+        self.assertIn('Polyglav', logs[0].read_text())
 
     def test_no_output_log_when_disabled(self):
         worktree = self._run({})
-        self.assertFalse((worktree / '.replio' / 'output').exists())
+        self.assertFalse((worktree / '.polyglav' / 'output').exists())
 
 
 if __name__ == '__main__':

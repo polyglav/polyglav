@@ -2,7 +2,7 @@
 
 ## Slash commands
 
-Run `replio` and type `/` to tab-complete commands. Use `/help` or `/help <cmd>` for details.
+Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd>` for details.
 
 | Command                 | Aliases        | Description                                                    |
 |-------------------------|----------------|----------------------------------------------------------------|
@@ -15,7 +15,7 @@ Run `replio` and type `/` to tab-complete commands. Use `/help` or `/help <cmd>`
 | `/help`                 | `/h`           | Show available commands and tools (`/help <cmd|tool>` for detail) |
 | `/history`              |                | List the active session's turns as a numbered index: `/history [n|all] [--thoughts [all]] [--run <target>]`. Default last 10, `--thoughts` adds a dim thinking excerpt (`all` prints it in full), and `--run` reads another run's session without switching focus. See [session.md](session.md) |
 | `/jobs`                 |                | Manage scheduled and durable jobs: `list`, `status`, `show`, `add`, `add-supervisor`, `approve`, `reject`, `enable`, `disable`, `stop`, `remove`, `run`. See [jobs.md](jobs.md) |
-| `/memorize`             |                | Summarize the active run into bounded memory: `/memorize` (active role), or `/memorize <role\|team\|job> <name>`. Writes `.replio/memory/<scopes>/<name>.md`. See [config.md](config.md) |
+| `/memorize`             |                | Summarize the active run into bounded memory: `/memorize` (active role), or `/memorize <role\|team\|job> <name>`. Writes `.polyglav/memory/<scopes>/<name>.md`. See [config.md](config.md) |
 | `/mode`                 |                | Show or switch the agent mode (`/mode plan` = read-only, `/mode build`, or a custom mode) |
 | `/model`                 |                | Show or switch the active model. `/model <name>` sets it on the current provider. `/model <provider>/<model>` switches provider and model together, approving the model on confirm |
 | `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key). `/models list [provider]` probes a provider's advertised models live (default: current provider) |
@@ -31,7 +31,7 @@ Run `replio` and type `/` to tab-complete commands. Use `/help` or `/help <cmd>`
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `show <name>`, `new <name> [prompt]`, `remove <name>`. See [roles.md](roles.md) |
 | `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, human asks route to the lead or return without pausing. See [config.md](config.md#unattended-mode) |
-| `/version`              | `/v`           | Show the Replio version                                       |
+| `/version`              | `/v`           | Show the Polyglav version                                       |
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so plan mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions.
 
@@ -40,7 +40,7 @@ Delegation is a normal tool: the lead agent proposes it, or you run it directly,
 ## CLI
 
 ```
-usage: replio [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
+usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
 ```
 
 Global:
@@ -50,7 +50,7 @@ Global:
 | `--path`      | Project path (default: current directory)        |
 | `--version`, `-v` | Print the installed version and exit         |
 
-### `replio run`
+### `polyglav run`
 
 One-shot headless chat.
 
@@ -69,37 +69,37 @@ One-shot headless chat.
 | `--no`               | Auto-deny tools that require confirmation (default)          |
 | `--path`             | Project path                                                 |
 
-### `replio export`
+### `polyglav export`
 
 Export a saved session to Markdown (see [session.md](session.md)).
 
 | Flag             | Default                      | Description                       |
 |------------------|------------------------------|-----------------------------------|
 | `name`           | **Required**                 | Session name to export            |
-| `--out`          | `.replio/exports/<name>.md`  | Output file, `-` for stdout       |
+| `--out`          | `.polyglav/exports/<name>.md`  | Output file, `-` for stdout       |
 | `--path`         |                              | Project path                      |
 
-### `replio models`
+### `polyglav models`
 
 List configured models, or probe a provider's available models (mirrors `/models`).
 
 ```bash
-replio models                          # approved-model history grouped by provider, `>` marks the active model, `(key)` a stored key
-replio models list [provider]          # probe a provider's advertised models (default: current), exit 1 on failure
+polyglav models                          # approved-model history grouped by provider, `>` marks the active model, `(key)` a stored key
+polyglav models list [provider]          # probe a provider's advertised models (default: current), exit 1 on failure
 ```
 
 | Flag             | Default                      | Description                       |
 |------------------|------------------------------|-----------------------------------|
 | `--path`         |                              | Project path                      |
 
-### `replio eval`
+### `polyglav eval`
 
 Tool-use evaluation harness: run task fixtures through the agent loop and report metrics. See [eval.md](eval.md).
 
 ```bash
-replio eval --path <project> list              # list discovered fixtures
-replio eval --path <project> run [--fixture <id>] [--provider P] [--model M]
-replio eval --path <project> run --compare ollama,openai --output json
+polyglav eval --path <project> list              # list discovered fixtures
+polyglav eval --path <project> run [--fixture <id>] [--provider P] [--model M]
+polyglav eval --path <project> run --compare ollama,openai --output json
 ```
 
 | Flag             | Default                      | Description                       |
@@ -111,27 +111,27 @@ replio eval --path <project> run --compare ollama,openai --output json
 | `--compare`      |                              | Comma-separated providers to compare |
 | `--output`       | `table`                      | `table` or `json`                 |
 
-### `replio config`
+### `polyglav config`
 
 Scoped, scriptable config management, with the same layers as `/config` (see [config.md](config.md)).
 
 ```bash
-replio config get [key ...] [--show-origin]   # effective values, default all keys
-replio config set <key> <value> [--global]    # JSON-parseable value, default local
-replio config unset <key> [--global]          # drop a value from the selected scope
-replio config reload                          # re-read the config files from disk
+polyglav config get [key ...] [--show-origin]   # effective values, default all keys
+polyglav config set <key> <value> [--global]    # JSON-parseable value, default local
+polyglav config unset <key> [--global]          # drop a value from the selected scope
+polyglav config reload                          # re-read the config files from disk
 ```
 
 | Flag             | Default                      | Description                       |
 |------------------|------------------------------|-----------------------------------|
-| `--global`       |                              | Operate on `~/.config/replio/config.json` |
-| `--local`        | (default)                    | Operate on the project `.replio/config.json` |
+| `--global`       |                              | Operate on `~/.config/polyglav/config.json` |
+| `--local`        | (default)                    | Operate on the project `.polyglav/config.json` |
 | `--path`         |                              | Project path                      |
 | `--show-origin`  |                              | `get` only - append default/global/local |
 
-### `replio serve`
+### `polyglav serve`
 
-HTTP JSON API server. See [api.md](api.md). Also serves `POST /mcp` (MCP server) when the `replio-core-mcp` plugin is loaded.
+HTTP JSON API server. See [api.md](api.md). Also serves `POST /mcp` (MCP server) when the `polyglav-core-mcp` plugin is loaded.
 
 | Flag          | Default      | Description                  |
 |---------------|--------------|------------------------------|
@@ -140,22 +140,22 @@ HTTP JSON API server. See [api.md](api.md). Also serves `POST /mcp` (MCP server)
 | `--path`      |              | Project path                 |
 | `--mode`      |              | Agent mode override (`plan`, `build`, or a custom mode) |
 
-### `replio mcp`
+### `polyglav mcp`
 
-Run replio as an MCP server over stdio (newline-delimited JSON-RPC). See [mcp.md](mcp.md). Requires the `replio-core-mcp` plugin.
+Run polyglav as an MCP server over stdio (newline-delimited JSON-RPC). See [mcp.md](mcp.md). Requires the `polyglav-core-mcp` plugin.
 
 | Flag          | Default      | Description                  |
 |---------------|--------------|------------------------------|
 | `--path`      |              | Project path                 |
 
-### `replio jobs`
+### `polyglav jobs`
 
 Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, a human-in-the-loop approval gate, and recorded run history. See [jobs.md](jobs.md).
 
 | Subcommand    | Description                                                              |
 |---------------|--------------------------------------------------------------------------|
-| `add`         | `replio jobs add <name> --file jobs/<name>.md --cron "0 2 * * *"` (or `--interval N` / `--at ISO`, with `--prompt` optional when `--file` given), plus `--mode`, `--provider`/`--model`, `--role`, `--system-prompt`, `--tools-deny`, `--tool-permission`, `--retries`, `--backoff`, `--timeout`, `--require-approval`, `--approve-model`, `--approval auto` |
-| `add-supervisor` | `replio jobs add-supervisor <name> [--interval N | --at ISO | --cron "expr"] [--task "text" | --file path]` - scaffold an approved `leader`-typed supervisor job from the supervisor task template |
+| `add`         | `polyglav jobs add <name> --file jobs/<name>.md --cron "0 2 * * *"` (or `--interval N` / `--at ISO`, with `--prompt` optional when `--file` given), plus `--mode`, `--provider`/`--model`, `--role`, `--system-prompt`, `--tools-deny`, `--tool-permission`, `--retries`, `--backoff`, `--timeout`, `--require-approval`, `--approve-model`, `--approval auto` |
+| `add-supervisor` | `polyglav jobs add-supervisor <name> [--interval N | --at ISO | --cron "expr"] [--task "text" | --file path]` - scaffold an approved `leader`-typed supervisor job from the supervisor task template |
 | `approve`     | `approve <name>` - activate a job (or arm the next run for `--require-approval` jobs) |
 | `daemon`      | `daemon [--tick 15] [--quiet]` - scheduler loop, Ctrl-C to stop           |
 | `edit`        | `edit <name>` - open the job's linked task file in `$EDITOR` (creates the template first) |
@@ -164,38 +164,38 @@ Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, 
 | `reject`      | `reject <name>` - send back to proposed and disable                       |
 | `remove`      | `remove <name>` - drop the definition (sessions are kept)                 |
 | `run`         | `run <name> [--no-retry] [--verbose]` - run now, apply retries, print the answer. `--verbose` streams the live turn. Exit `0` verified / `1` failed |
-| `show`        | `replio jobs show <name>` - definition plus full run history + last output|
+| `show`        | `polyglav jobs show <name>` - definition plus full run history + last output|
 | `status`      | Runtime summary per job: fired count, last error, uptime, approval state |
 
-### `replio fleet`
+### `polyglav fleet`
 
-Supervise a fleet of scoped `replio serve` agents: ports, health checks, restart policy, config generation. See [fleet.md](fleet.md).
+Supervise a fleet of scoped `polyglav serve` agents: ports, health checks, restart policy, config generation. See [fleet.md](fleet.md).
 
 | Subcommand    | Description                                                                     |
 |---------------|---------------------------------------------------------------------------------|
 | `add`         | `add <name> [--dir] [--port N] [--max-restarts N]` - add an agent                |
-| `config`      | `config <name> --provider/--model/--role/--system-prompt/--mode/--tools-deny/--tool-permission` - write only those keys into `<dir>/.replio/config.json` |
+| `config`      | `config <name> --provider/--model/--role/--system-prompt/--mode/--tools-deny/--tool-permission` - write only those keys into `<dir>/.polyglav/config.json` |
 | `down`        | Stop the supervised agents and the daemon if running                             |
-| `init`        | Scan immediate subdirectories holding `.replio/config.json` into the manifest    |
-| `logs`        | `logs <name> [n] [--follow]` - tail an agent's `.replio/logs/<name>.log`         |
+| `init`        | Scan immediate subdirectories holding `.polyglav/config.json` into the manifest    |
+| `logs`        | `logs <name> [n] [--follow]` - tail an agent's `.polyglav/logs/<name>.log`         |
 | `remove`      | `remove <name>` - remove an agent (stops it if running)                          |
 | `restart`     | `restart [name|all]` - stop, reset restart backoff, relaunch (default: all)     |
 | `status`      | Live table: agent, enabled, port, pid, state, restarts, last error               |
 | `up`          | `up [--detach]` - start agents. Ctrl-C = graceful down, `--detach` = background daemon |
 
-`--path` may be given before the subcommand (`replio --path X fleet status`) or after it (`replio fleet --path X status`).
+`--path` may be given before the subcommand (`polyglav --path X fleet status`) or after it (`polyglav fleet --path X status`).
 
-### `replio plugins`
+### `polyglav plugins`
 
 Manage plugins headlessly. See [plugins.md](plugins.md).
 
 | Subcommand    | Description                                                     |
 |---------------|-----------------------------------------------------------------|
-| `disable`     | `replio plugins disable <name>` - remove a plugin from the plugins list (applies on next start) |
-| `enable`      | `replio plugins enable <name>` - add a plugin to the plugins list (applies on next start) |
-| `install`     | `replio plugins install <git-url\|path> [--global] [--deps]` - install a plugin |
+| `disable`     | `polyglav plugins disable <name>` - remove a plugin from the plugins list (applies on next start) |
+| `enable`      | `polyglav plugins enable <name>` - add a plugin to the plugins list (applies on next start) |
+| `install`     | `polyglav plugins install <git-url\|path> [--global] [--deps]` - install a plugin |
 | `list`        | List installed plugins and their load status                    |
-| `uninstall`   | `replio plugins uninstall <name>` - remove a plugin             |
-| `update`      | `replio plugins update <name>` - re-fetch from the recorded source |
+| `uninstall`   | `polyglav plugins uninstall <name>` - remove a plugin             |
+| `update`      | `polyglav plugins update <name>` - re-fetch from the recorded source |
 
-`--path` may be given before the subcommand (`replio --path X plugins list`) or after it (`replio plugins --path X list`).
+`--path` may be given before the subcommand (`polyglav --path X plugins list`) or after it (`polyglav plugins --path X list`).

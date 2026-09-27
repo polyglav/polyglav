@@ -1,18 +1,18 @@
-# Replio Documentation
+# Polyglav Documentation
 
-Detailed reference for Replio. For the overview, features, and quick start, see the [README](../README.md).
+Detailed reference for Polyglav. For the overview and features see the [README](../README.md), and for installation and usage see [INSTALL.md](../INSTALL.md).
 
 - [Agent fleets](fleet.md) - single-purpose agent fleets, one scoped process per agent, deployment
 - [Agent swarms](swarm.md) - swarm orchestration, delegation, types, auditor and team patterns
 - [Roles](roles.md) - role catalog, storage, delegation and permission rule
-- [API endpoints](api.md) - HTTP JSON API for `replio serve`
+- [API endpoints](api.md) - HTTP JSON API for `polyglav serve`
 - [Architecture](architecture.md) - agent core: the loop, engine, UI sinks, front-ends, extension points
 - [Commands & CLI](commands.md) - slash commands and headless CLI flags
 - [Compare](compare/) - category-driven comparisons: harness, framework, low-code, no-code
 - [Configuration](config.md) - config schema and keys
 - [Deployment](deploy.md) - Docker deployment (image + Compose fleet)
-- [Eval harness](eval.md) - tool-use evaluation (`replio eval`), task fixtures, metrics
-- [Jobs](jobs.md) - scheduled and durable jobs (`replio jobs`), cron scheduling, approvals
+- [Eval harness](eval.md) - tool-use evaluation (`polyglav eval`), task fixtures, metrics
+- [Jobs](jobs.md) - scheduled and durable jobs (`polyglav jobs`), cron scheduling, approvals
 - [Memory](memory.md) - bounded role, team, and job memory, automatic and manual
 - [Model Context Protocol](mcp.md) - MCP client and server
 - [Plugins](plugins.md) - bundled, layout, manifest, management

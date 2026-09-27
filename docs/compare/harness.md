@@ -1,12 +1,12 @@
 # Harness
 
-An **agent harness** is the runtime that turns a language model into an agent that can act: the execution loop, tool dispatch, context management, state and memory, permissions, and observability. You bring a model and instructions, and the harness runs the loop. This is the category Replio belongs to.
+An **agent harness** is the runtime that turns a language model into an agent that can act: the execution loop, tool dispatch, context management, state and memory, permissions, and observability. You bring a model and instructions, and the harness runs the loop. This is the category Polyglav belongs to.
 
-## Replio is a complete harness
+## Polyglav is a complete harness
 
-Replio covers the whole harness in one small, self-contained package. It has the loop, a rich tool set, path-scoped permissions, complete session logs, delegation, teams, scheduled jobs, and a fleet supervisor, all in the Python standard library. There is nothing to compile and nothing to install beyond Python itself, so Replio runs anywhere Python runs, from a workstation to a small edge device.
+Polyglav covers the whole harness in one small, self-contained package. It has the loop, a rich tool set, path-scoped permissions, complete session logs, delegation, teams, scheduled jobs, and a fleet supervisor, all in the Python standard library. There is nothing to compile and nothing to install beyond Python itself, so Polyglav runs anywhere Python runs, from a workstation to a small edge device.
 
-Replio is also extensively configurable without code changes. Models, tools, providers, roles, teams, skills, and eval fixtures are all data, registered through files and plugins. You can reshape the agent, its tools, its permissions, and its orchestration from configuration, and keep every change in version control.
+Polyglav is also extensively configurable without code changes. Models, tools, providers, roles, teams, skills, and eval fixtures are all data, registered through files and plugins. You can reshape the agent, its tools, its permissions, and its orchestration from configuration, and keep every change in version control.
 
 ## Representatives
 
@@ -21,7 +21,7 @@ Replio is also extensively configurable without code changes. Models, tools, pro
 | OpenCode | TypeScript + Bun | Open source | File, bash, glob/grep, MCP | Child sessions | No | Terminal, desktop, IDE |
 | OpenHands | Python | MIT | Rich tool set, apply_patch | Parallel conversation trees | No | Web UI, CLI |
 | Pi | TypeScript + Bun | MIT | read, write, edit, bash | Extensions | No | Terminal |
-| Replio | Python (stdlib only) | MIT | Web, file, edit, git, shell, dev wrappers | Types, delegate, teams, fleet | Jobs (cron/interval/one-shot) | Terminal, CLI, HTTP API, MCP |
+| Polyglav | Python (stdlib only) | MIT | Web, file, edit, git, shell, dev wrappers | Types, delegate, teams, fleet | Jobs (cron/interval/one-shot) | Terminal, CLI, HTTP API, MCP |
 
 ## Profiles
 
@@ -52,7 +52,7 @@ A Python software-engineering agent with container sandboxing, a web UI, and par
 ### Pi
 A minimal, self-extensible TypeScript harness with a unified LLM API, a terminal UI, telemetry, and standalone binaries. It starts small and grows into exactly what you need.
 
-## Why teams choose Replio
+## Why teams choose Polyglav
 
 - Zero external dependencies and a standard-library core, so the entire runtime is easy to audit and there is no supply chain to track.
 - One loop behind a REPL, a CLI, and an HTTP API, so the same agent is interactive, scriptable, and deployable as a service.
@@ -64,8 +64,8 @@ A minimal, self-extensible TypeScript harness with a unified LLM API, a terminal
 
 | Scenario | Pick | Why |
 |----------|------|-----|
-| A small, auditable core you own and embed | Replio | Stdlib-only Python, REPL, CLI, and HTTP API from one loop |
-| Many scoped agents under one supervisor, with scheduling | Replio | Fleet supervisor, jobs, and teams built in |
+| A small, auditable core you own and embed | Polyglav | Stdlib-only Python, REPL, CLI, and HTTP API from one loop |
+| Many scoped agents under one supervisor, with scheduling | Polyglav | Fleet supervisor, jobs, and teams built in |
 | A polished coding agent across IDE, desktop, and web | Claude Code, OpenCode, Cline | Rich surfaces and editor integration |
 | An always-on assistant reachable from messaging apps | OpenClaw, Hermes | Multi-channel gateways and companion apps |
 | A memory and skill learning loop that improves over time | Hermes | Persistent memory, skills, and a user profile |
@@ -79,7 +79,7 @@ A minimal, self-extensible TypeScript harness with a unified LLM API, a terminal
 - https://github.com/anthropics/claude-code
 - https://github.com/cline/cline
 - https://github.com/earendil-works/pi
-- https://github.com/emyasnikov/replio
+- https://github.com/polyglav/polyglav
 - https://github.com/All-Hands-AI/OpenHands
 - https://github.com/NousResearch/hermes-agent
 - https://github.com/openai/codex

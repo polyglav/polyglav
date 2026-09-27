@@ -5,12 +5,12 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from replio.config import Config
-from replio.plugins.manager import PluginManager, PluginError, version_matches
-from replio.tools.registry import ToolRegistry
-from replio.tools.policy import ToolPolicy
-from replio.commands.registry import CommandRegistry
-from replio.ui import NullUI
+from polyglav.config import Config
+from polyglav.plugins.manager import PluginManager, PluginError, version_matches
+from polyglav.tools.registry import ToolRegistry
+from polyglav.tools.policy import ToolPolicy
+from polyglav.commands.registry import CommandRegistry
+from polyglav.ui import NullUI
 
 
 SIMPLE_TOOL_PLUGIN = '''
@@ -25,7 +25,7 @@ def register_tools(registry):
 '''
 
 PROVIDER_PLUGIN = '''
-from replio.providers.base import OpenAICompatibleProvider
+from polyglav.providers.base import OpenAICompatibleProvider
 
 
 class MyProvider(OpenAICompatibleProvider):
@@ -53,9 +53,9 @@ def register_tools(registry):
     )
     def uses_dep():
         try:
-            import replio_definitely_missing_pkg
+            import polyglav_definitely_missing_pkg
         except ImportError:
-            return 'Error: uses_dep requires "replio_definitely_missing_pkg" - pip install replio_definitely_missing_pkg'
+            return 'Error: uses_dep requires "polyglav_definitely_missing_pkg" - pip install polyglav_definitely_missing_pkg'
         return 'ok'
 '''
 
@@ -155,9 +155,9 @@ class PluginTestBase(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
-        self.plugins_dir = self.root / '.replio' / 'plugins'
+        self.plugins_dir = self.root / '.polyglav' / 'plugins'
         self.plugins_dir.mkdir(parents=True, exist_ok=True)
-        with open(self.root / '.replio' / 'config.json', 'w') as f:
+        with open(self.root / '.polyglav' / 'config.json', 'w') as f:
             json.dump({'plugins': []}, f)
         self.config = Config(path=self.root)
         self.pm = PluginManager(self.config)
@@ -169,7 +169,7 @@ class PluginTestBase(unittest.TestCase):
         data = {'plugins': []}
         if config_data:
             data.update(config_data)
-        with open(self.root / '.replio' / 'config.json', 'w') as f:
+        with open(self.root / '.polyglav' / 'config.json', 'w') as f:
             json.dump(data, f)
         self.config = Config(path=self.root)
         return PluginManager(self.config)
@@ -178,16 +178,16 @@ class PluginTestBase(unittest.TestCase):
 class TestDiscovery(PluginTestBase):
 
     def test_bundled_dir_resolves(self):
-        from replio.plugins.manager import PluginManager
+        from polyglav.plugins.manager import PluginManager
         d = PluginManager._bundled_dir()
         self.assertTrue(d.is_dir())
-        self.assertTrue((d / 'replio-core-fs').is_dir())
+        self.assertTrue((d / 'polyglav-core-fs').is_dir())
 
     def test_bundled_dir_import_failure_falls_back(self):
         import sys as _sys
-        from replio import plugins as pkg
-        from replio.plugins.manager import PluginManager
-        key = 'replio.plugins.bundled'
+        from polyglav import plugins as pkg
+        from polyglav.plugins.manager import PluginManager
+        key = 'polyglav.plugins.bundled'
         saved_module = _sys.modules.get(key)
         saved_attr = getattr(pkg, 'bundled', None)
         saved_path = list(pkg.__path__)
@@ -200,7 +200,7 @@ class TestDiscovery(PluginTestBase):
             pkg.__path__[:] = []
             d = PluginManager._bundled_dir()
             self.assertTrue(d.is_dir())
-            self.assertTrue((d / 'replio-core-fs').is_dir())
+            self.assertTrue((d / 'polyglav-core-fs').is_dir())
         finally:
             pkg.__path__[:] = saved_path
             if saved_attr is not None:
@@ -279,9 +279,9 @@ class TestDiscovery(PluginTestBase):
 
 class TestCompatibility(PluginTestBase):
 
-    def test_replio_version_skip(self):
+    def test_polyglav_version_skip(self):
         write_plugin(self.plugins_dir, 'old', 'def register_tools(registry):\n    pass\n',
-                     {'name': 'old', 'replio_version': '>=99.0.0'})
+                     {'name': 'old', 'polyglav_version': '>=99.0.0'})
         self.pm.load()
         info = self.pm.get('old')
         self.assertEqual(info.status, 'incompatible')
@@ -290,9 +290,9 @@ class TestCompatibility(PluginTestBase):
         self.pm.register_tools(reg)
         self.assertNotIn('old', reg.names())
 
-    def test_replio_version_ok(self):
+    def test_polyglav_version_ok(self):
         write_plugin(self.plugins_dir, 'cur', 'def register_tools(registry):\n    pass\n',
-                     {'name': 'cur', 'replio_version': '>=0.1.0,<99.0.0'})
+                     {'name': 'cur', 'polyglav_version': '>=0.1.0,<99.0.0'})
         self.pm.load()
         self.assertEqual(self.pm.get('cur').status, 'loaded')
 
@@ -380,10 +380,10 @@ class TestRegistration(PluginTestBase):
         self.assertIn('frobnicate', reg.commands)
 
     def _type_registry(self):
-        from replio.roles import RoleRegistry
+        from polyglav.roles import RoleRegistry
         return RoleRegistry(
             global_dir=self.root,
-            local_path=self.root / '.replio' / 'roles.json',
+            local_path=self.root / '.polyglav' / 'roles.json',
             bundled_path=self.root / 'nobundled' / 'roles.json')
 
     def test_register_roles_hook(self):
@@ -408,9 +408,9 @@ class TestRegistration(PluginTestBase):
     def test_register_teams_hook(self):
         write_plugin(self.plugins_dir, 'team', TEAM_PLUGIN, {'name': 'team'})
         self.pm.load()
-        from replio.teams import TeamRegistry
+        from polyglav.teams import TeamRegistry
         reg = TeamRegistry(global_dir=self.root,
-                           local_path=self.root / '.replio' / 'teams.json',
+                           local_path=self.root / '.polyglav' / 'teams.json',
                            bundled_path=self.root / 'nobundled' / 'teams.json')
         self.pm.register_teams(reg)
         t = reg.find('sme')
@@ -423,9 +423,9 @@ class TestRegistration(PluginTestBase):
     def test_register_skills_hook(self):
         write_plugin(self.plugins_dir, 'skill', SKILL_PLUGIN, {'name': 'skill'})
         self.pm.load()
-        from replio.skills import SkillRegistry
+        from polyglav.skills import SkillRegistry
         reg = SkillRegistry(global_dir=self.root,
-                            local_dir=self.root / '.replio' / 'skills')
+                            local_dir=self.root / '.polyglav' / 'skills')
         self.pm.register_skills(reg)
         s = reg.find('writers')
         self.assertIsNotNone(s)
@@ -450,7 +450,7 @@ class TestRegistration(PluginTestBase):
     def test_register_fixtures_hook(self):
         write_plugin(self.plugins_dir, 'eval', FIXTURE_PLUGIN, {'name': 'eval'})
         self.pm.load()
-        from replio.eval import discover_fixtures
+        from polyglav.eval import discover_fixtures
         fixtures = discover_fixtures(plugin_manager=self.pm)
         self.assertIn('read-foo', fixtures)
         self.assertEqual(fixtures['read-foo'].expected, ['file_read'])
@@ -472,14 +472,14 @@ class TestRegistration(PluginTestBase):
         reg = ToolRegistry()
         self.pm.register_tools(reg)
         out = reg.execute('uses_dep', {})
-        self.assertIn('pip install replio_definitely_missing_pkg', out)
+        self.assertIn('pip install polyglav_definitely_missing_pkg', out)
 
     def test_dep_status_reports_missing(self):
         write_plugin(self.plugins_dir, 'hello', SIMPLE_TOOL_PLUGIN,
-                     {'name': 'hello', 'requires': ['replio_definitely_missing_pkg']})
+                     {'name': 'hello', 'requires': ['polyglav_definitely_missing_pkg']})
         self.pm.load()
         status = self.pm.dep_status(self.pm.get('hello'))
-        self.assertEqual(status, [('replio_definitely_missing_pkg', False)])
+        self.assertEqual(status, [('polyglav_definitely_missing_pkg', False)])
 
     def test_plugin_tool_respects_tool_policy(self):
         write_plugin(self.plugins_dir, 'sec', POLICY_PLUGIN, {'name': 'sec'})
@@ -545,20 +545,20 @@ class TestEngineIntegration(PluginTestBase):
 
     def test_engine_loads_plugin_tools(self):
         write_plugin(self.plugins_dir, 'hello', SIMPLE_TOOL_PLUGIN, SIMPLE_MANIFEST)
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         engine._init_tooling()
         self.assertIn('hello', engine._tool_registry.names())
 
     def test_engine_registers_plugin_commands(self):
         write_plugin(self.plugins_dir, 'cmd', COMMAND_PLUGIN, {'name': 'cmd'})
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         self.assertIn('frobnicate', engine.registry.commands)
 
     def test_plugins_slash_command_lists(self):
         write_plugin(self.plugins_dir, 'hello', SIMPLE_TOOL_PLUGIN, SIMPLE_MANIFEST)
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -567,7 +567,7 @@ class TestEngineIntegration(PluginTestBase):
 
     def test_engine_types_include_plugin_contributions(self):
         write_plugin(self.plugins_dir, 'pers', TYPE_PLUGIN, {'name': 'pers'})
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         p = engine.roles.find('helper')
         self.assertIsNotNone(p)
@@ -576,7 +576,7 @@ class TestEngineIntegration(PluginTestBase):
 
     def test_engine_teams_include_plugin_contributions(self):
         write_plugin(self.plugins_dir, 'team', TEAM_PLUGIN, {'name': 'team'})
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         t = engine.teams.find('sme')
         self.assertIsNotNone(t)
@@ -586,7 +586,7 @@ class TestEngineIntegration(PluginTestBase):
 
     def test_engine_skills_include_plugin_contributions(self):
         write_plugin(self.plugins_dir, 'skill', SKILL_PLUGIN, {'name': 'skill'})
-        from replio.engine import Engine
+        from polyglav.engine import Engine
         engine = Engine(self.config, ui=NullUI())
         s = engine.skills.find('writers')
         self.assertIsNotNone(s)
@@ -611,7 +611,7 @@ class TestPluginsTestCommand(PluginTestBase):
         import io
         from contextlib import redirect_stderr, redirect_stdout
         from types import SimpleNamespace
-        from replio.cli import cmd_plugins
+        from polyglav.cli import cmd_plugins
         args = dict(action='test', path=str(self.root), verbose=False)
         args.update(kw)
         out, err = io.StringIO(), io.StringIO()
@@ -619,7 +619,7 @@ class TestPluginsTestCommand(PluginTestBase):
             return cmd_plugins(SimpleNamespace(**args))
 
     def test_load_plugin_test_suite(self):
-        from replio.plugins.manager import load_plugin_test_suite
+        from polyglav.plugins.manager import load_plugin_test_suite
         self._write_test_plugin()
         suite = load_plugin_test_suite(self.plugins_dir / 'hello')
         self.assertEqual(suite.countTestCases(), 1)

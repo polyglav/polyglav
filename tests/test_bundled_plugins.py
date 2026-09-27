@@ -2,25 +2,25 @@ import json
 import tempfile
 import unittest
 
-from replio.config import Config
-from replio.plugins.manager import PluginManager, PluginError
-from replio.tools.registry import ToolRegistry
+from polyglav.config import Config
+from polyglav.plugins.manager import PluginManager, PluginError
+from polyglav.tools.registry import ToolRegistry
 
 BUNDLED = {
-    'replio-core-anthropic',
-    'replio-core-dev',
-    'replio-core-edit',
-    'replio-core-eval',
-    'replio-core-exec',
-    'replio-core-fs',
-    'replio-core-git',
-    'replio-core-groq',
-    'replio-core-mcp',
-    'replio-core-ollama',
-    'replio-core-openai',
-    'replio-core-opencode',
-    'replio-core-web',
-    'replio-core-webhook',
+    'polyglav-core-anthropic',
+    'polyglav-core-dev',
+    'polyglav-core-edit',
+    'polyglav-core-eval',
+    'polyglav-core-exec',
+    'polyglav-core-fs',
+    'polyglav-core-git',
+    'polyglav-core-groq',
+    'polyglav-core-mcp',
+    'polyglav-core-ollama',
+    'polyglav-core-openai',
+    'polyglav-core-opencode',
+    'polyglav-core-web',
+    'polyglav-core-webhook',
 }
 
 
@@ -80,34 +80,34 @@ class TestBundledPlugins(unittest.TestCase):
     def test_bundled_cannot_uninstall(self):
         self.pm.load()
         with self.assertRaises(PluginError):
-            self.pm.uninstall('replio-core-fs')
+            self.pm.uninstall('polyglav-core-fs')
 
     def test_bundled_cannot_update(self):
         self.pm.load()
         with self.assertRaises(PluginError):
-            self.pm.update('replio-core-fs')
+            self.pm.update('polyglav-core-fs')
 
     def test_bundled_override_by_local(self):
-        local = self.config.local_path.parent / 'plugins' / 'replio-core-fs'
+        local = self.config.local_path.parent / 'plugins' / 'polyglav-core-fs'
         local.mkdir(parents=True, exist_ok=True)
         with open(local / 'manifest.json', 'w') as f:
-            json.dump({'name': 'replio-core-fs', 'version': '9.0.0'}, f)
+            json.dump({'name': 'polyglav-core-fs', 'version': '9.0.0'}, f)
         with open(local / 'plugin.py', 'w') as f:
             f.write('def register_tools(registry):\n    pass\n')
         self.pm.load()
-        info = self.pm.get('replio-core-fs')
+        info = self.pm.get('polyglav-core-fs')
         self.assertEqual(info.version, '9.0.0')
         self.assertEqual(info.origin, 'local')
 
     def test_bundled_disabled_via_plugins_config(self):
-        self.config.set('plugins', ['replio-core-web', 'replio-core-fs'])
+        self.config.set('plugins', ['polyglav-core-web', 'polyglav-core-fs'])
         self.pm.load()
-        self.assertEqual(self.pm.get('replio-core-web').status, 'loaded')
-        self.assertEqual(self.pm.get('replio-core-fs').status, 'loaded')
-        self.assertEqual(self.pm.get('replio-core-exec').status, 'disabled')
+        self.assertEqual(self.pm.get('polyglav-core-web').status, 'loaded')
+        self.assertEqual(self.pm.get('polyglav-core-fs').status, 'loaded')
+        self.assertEqual(self.pm.get('polyglav-core-exec').status, 'disabled')
 
     def test_bundled_in_default_config(self):
-        from replio.config import DEFAULT_CONFIG
+        from polyglav.config import DEFAULT_CONFIG
         for name in BUNDLED:
             self.assertIn(name, DEFAULT_CONFIG['plugins'])
 

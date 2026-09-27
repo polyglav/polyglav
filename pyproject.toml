@@ -3,8 +3,8 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "replio"
-version = "0.36.0"
+name = "polyglav"
+version = "0.37.0"
 description = "A lightweight agentic tooling core with API, CLI and REPL interfaces"
 requires-python = ">=3.10"
 authors = [{name = "Evgenij Myasnikov"}]
@@ -14,26 +14,26 @@ license-files = ["LICENSE"]
 keywords = ["ai", "ai-agents", "api", "assistant", "cli", "cloud", "local", "python", "repl"]
 
 [project.scripts]
-replio = "replio.main:main"
+polyglav = "polyglav.main:main"
 
 [project.urls]
-Repository = "https://github.com/emyasnikov/replio"
-Issues = "https://github.com/emyasnikov/replio/issues"
-Changelog = "https://github.com/emyasnikov/replio/blob/main/CHANGELOG.md"
+Repository = "https://github.com/polyglav/polyglav"
+Issues = "https://github.com/polyglav/polyglav/issues"
+Changelog = "https://github.com/polyglav/polyglav/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
-package-dir = {"" = "src", "replio.plugins.bundled" = "plugins"}
+package-dir = {"" = "src", "polyglav.plugins.bundled" = "plugins"}
 packages = [
-  "replio",
-  "replio.providers",
-  "replio.sessions",
-  "replio.commands",
-  "replio.tools",
-  "replio.plugins",
-  "replio.plugins.bundled",
-  "replio.utils",
+  "polyglav",
+  "polyglav.providers",
+  "polyglav.sessions",
+  "polyglav.commands",
+  "polyglav.tools",
+  "polyglav.plugins",
+  "polyglav.plugins.bundled",
+  "polyglav.utils",
 ]
 
 [tool.setuptools.package-data]
-"replio" = ["*.json"]
-"replio.plugins.bundled" = ["*/*.json", "*/src/*.py", "*/tests/*.py"]
+"polyglav" = ["*.json"]
+"polyglav.plugins.bundled" = ["*/*.json", "*/src/*.py", "*/tests/*.py"]

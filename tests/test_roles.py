@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from replio import roles as roles_mod
-from replio.roles import Role, RoleRegistry
-from replio.config import Config
+from polyglav import roles as roles_mod
+from polyglav.roles import Role, RoleRegistry
+from polyglav.config import Config
 
 from tests.helpers import make_chat
 
@@ -28,7 +28,7 @@ class TestRoleRegistry(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.base = Path(self.tmp.name)
-        self.local = self.base / 'proj' / '.replio' / 'roles.json'
+        self.local = self.base / 'proj' / '.polyglav' / 'roles.json'
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -48,7 +48,7 @@ class TestRoleRegistry(unittest.TestCase):
     def test_paths(self):
         reg = self.reg()
         self.assertEqual(reg.global_path,
-                         self.base / '.config' / 'replio' / 'roles.json')
+                         self.base / '.config' / 'polyglav' / 'roles.json')
         self.assertEqual(reg.local_path, self.local)
 
     def test_empty(self):
@@ -117,7 +117,7 @@ class TestRoleRegistry(unittest.TestCase):
         try:
             reg = RoleRegistry(local_path=self.local)
             self.assertEqual(reg.global_path,
-                             self.base / '.config' / 'replio' / 'roles.json')
+                             self.base / '.config' / 'polyglav' / 'roles.json')
         finally:
             Config.GLOBAL_DIR = prev
 
@@ -346,7 +346,7 @@ class TestTypeCommand(unittest.TestCase):
 
     def test_remove_bundled_rejected(self):
         out = self._type('remove researcher')
-        self.assertIn('bundled with replio', out)
+        self.assertIn('bundled with polyglav', out)
 
     def test_override_bundled_then_remove(self):
         self._type('new researcher local text')

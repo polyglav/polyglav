@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from replio.providers.registry import ProviderRegistry, resolve_model_ref
-from replio.config import Config
+from polyglav.providers.registry import ProviderRegistry, resolve_model_ref
+from polyglav.config import Config
 
 
 class TestResolveModelRef(unittest.TestCase):
@@ -13,8 +13,8 @@ class TestResolveModelRef(unittest.TestCase):
     def _providers(self):
         if TestResolveModelRef._providers_cache is None:
             import tempfile
-            from replio.config import Config
-            from replio.providers import merged_providers
+            from polyglav.config import Config
+            from polyglav.providers import merged_providers
             tmp = tempfile.TemporaryDirectory()
             TestResolveModelRef._providers_cache = merged_providers(
                 Config(path=tmp.name))
@@ -45,7 +45,7 @@ class TestResolveModelRef(unittest.TestCase):
         self.assertIsNone(resolve_model_ref('openai/', self._providers()))
 
     def test_plugin_providers_resolve(self):
-        from replio.providers.registry import resolve_model_ref
+        from polyglav.providers.registry import resolve_model_ref
         class Fake:
             DEFAULT_BASE_URL = 'https://fake.example/v1'
         self.assertEqual(
@@ -67,7 +67,7 @@ class TestProviderRegistry(unittest.TestCase):
 
     def test_path_under_global_dir(self):
         self.assertEqual(self._reg().path,
-                         self.base / '.config' / 'replio' / 'providers.json')
+                         self.base / '.config' / 'polyglav' / 'providers.json')
 
     def test_put_and_find(self):
         reg = self._reg()
@@ -137,8 +137,8 @@ class TestProviderRegistry(unittest.TestCase):
     def test_corrupt_file_tolerated(self):
         reg = self._reg()
         reg.put('ollama', 'u', 'k')
-        self.base.joinpath('.config', 'replio').mkdir(parents=True, exist_ok=True)
-        self.base.joinpath('.config', 'replio', 'providers.json').write_text('{oops')
+        self.base.joinpath('.config', 'polyglav').mkdir(parents=True, exist_ok=True)
+        self.base.joinpath('.config', 'polyglav', 'providers.json').write_text('{oops')
         reg2 = ProviderRegistry(global_dir=self.base)
         self.assertEqual(reg2.all(), [])
 
@@ -155,7 +155,7 @@ class TestProviderRegistry(unittest.TestCase):
         try:
             reg = ProviderRegistry()
             self.assertEqual(reg.path,
-                             self.base / '.config' / 'replio' / 'providers.json')
+                             self.base / '.config' / 'polyglav' / 'providers.json')
         finally:
             Config.GLOBAL_DIR = prev
 

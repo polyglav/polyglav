@@ -4,7 +4,7 @@ import unittest
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from replio.server import HeadlessServer, ChatHandler
+from polyglav.server import HeadlessServer, ChatHandler
 from tests.test_engine import make_engine
 
 
@@ -51,7 +51,7 @@ class TestServer(unittest.TestCase):
             self.assertEqual(json.loads(resp.read()), {'status': 'ok'})
 
     def test_version(self):
-        from replio import get_version
+        from polyglav import get_version
         with urlopen(f'http://127.0.0.1:{self.port}/version') as resp:
             self.assertEqual(resp.status, 200)
             self.assertEqual(json.loads(resp.read()), {'version': get_version()})

@@ -1,6 +1,6 @@
 import unittest
 
-from replio.tools.registry import ToolRegistry
+from polyglav.tools.registry import ToolRegistry
 
 
 class TestToolRegistry(unittest.TestCase):

@@ -4,8 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from replio.skills import Skill, SkillRegistry
-from replio.config import Config
+from polyglav.skills import Skill, SkillRegistry
+from polyglav.config import Config
 
 from tests.helpers import make_chat
 
@@ -24,7 +24,7 @@ class TestSkillRegistry(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.base = Path(self.tmp.name)
-        self.local = self.base / 'proj' / '.replio' / 'skills'
+        self.local = self.base / 'proj' / '.polyglav' / 'skills'
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -36,7 +36,7 @@ class TestSkillRegistry(unittest.TestCase):
     def test_paths(self):
         reg = self.reg()
         self.assertEqual(reg.global_dir,
-                         self.base / '.config' / 'replio' / 'skills')
+                         self.base / '.config' / 'polyglav' / 'skills')
         self.assertEqual(reg.local_dir, self.local)
 
     def test_empty(self):
@@ -65,7 +65,7 @@ class TestSkillRegistry(unittest.TestCase):
     def test_put_global_creates_global_file(self):
         reg = self.reg()
         reg.put(Skill(name='x', content='global'), scope='global')
-        self.assertTrue((self.base / '.config' / 'replio' / 'skills'
+        self.assertTrue((self.base / '.config' / 'polyglav' / 'skills'
                          / 'x.md').exists())
         self.assertFalse((self.local / 'x.md').exists())
 
@@ -104,7 +104,7 @@ class TestSkillRegistry(unittest.TestCase):
         try:
             reg = SkillRegistry(local_dir=self.local)
             self.assertEqual(reg.global_dir,
-                             self.base / '.config' / 'replio' / 'skills')
+                             self.base / '.config' / 'polyglav' / 'skills')
         finally:
             Config.GLOBAL_DIR = prev
 
@@ -130,7 +130,7 @@ class TestSkillRegistry(unittest.TestCase):
         reg = self.reg()
         reg.add_plugin({'name': 'plug', 'content': 'x'})
         self.assertFalse(self.local.exists())
-        self.assertFalse((self.base / '.config' / 'replio' / 'skills').exists())
+        self.assertFalse((self.base / '.config' / 'polyglav' / 'skills').exists())
 
     def test_global_overrides_plugin(self):
         reg = self.reg()
@@ -175,7 +175,7 @@ class TestSkillRegistry(unittest.TestCase):
 class TestSkillsSection(unittest.TestCase):
 
     def test_empty_when_no_names(self):
-        from replio.skills import skills_section
+        from polyglav.skills import skills_section
         tmp = Path(tempfile.mkdtemp())
         reg = SkillRegistry(global_dir=tmp, local_dir=tmp / 'skills')
         self.assertEqual(skills_section(reg, []), '')
@@ -183,11 +183,11 @@ class TestSkillsSection(unittest.TestCase):
     def test_returns_empty_for_missing_skills(self):
         reg = SkillRegistry(global_dir=Path(tempfile.mkdtemp()),
                             local_dir=Path(tempfile.mkdtemp()))
-        from replio.skills import skills_section
+        from polyglav.skills import skills_section
         self.assertEqual(skills_section(reg, ['nope']), '')
 
     def test_composes_section(self):
-        from replio.skills import skills_section
+        from polyglav.skills import skills_section
         tmp = Path(tempfile.mkdtemp())
         reg = SkillRegistry(global_dir=tmp, local_dir=tmp / 'skills')
         reg.put(Skill(name='writers', content='Produce clean prose.'))

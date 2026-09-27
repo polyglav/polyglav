@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from replio.teams import Team, TeamRegistry, TeamStage, team_memory_path
-from replio.roles import Role
+from polyglav.teams import Team, TeamRegistry, TeamStage, team_memory_path
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 
@@ -105,7 +105,7 @@ class TestTeamRun(unittest.TestCase):
         self.assertEqual(modes, ['build', 'plan'])
 
     def test_run_team_stage_and_task_skills(self):
-        from replio.skills import Skill
+        from polyglav.skills import Skill
         self.chat.skills.put(Skill(name='stage-skill', content='Stage skill body.'))
         self.chat.skills.put(Skill(name='task-skill', content='Task skill body.'))
         self.chat.skills.put(Skill(name='base-skill', content='Base skill body.'))
@@ -167,7 +167,7 @@ class TestTeamRun(unittest.TestCase):
         self.assertEqual(memory_path.read_text().strip(), 'team memory summary')
 
     def test_memory_seeded_from_prior(self):
-        from replio.teams import write_team_memory
+        from polyglav.teams import write_team_memory
         write_team_memory(self.worktree, 'doc', 'prior notes')
         seen = []
         self.chat.provider.chat.side_effect = [self._result('again done')]

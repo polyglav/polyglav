@@ -1,6 +1,6 @@
 import unittest
 
-from replio.plugins.manager import PluginManager, load_plugin_test_suite
+from polyglav.plugins.manager import PluginManager, load_plugin_test_suite
 
 
 def load_tests(loader, standard_tests, pattern):

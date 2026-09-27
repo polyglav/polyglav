@@ -1,6 +1,6 @@
 # Writing tools for agents
 
-Tools are how a Replio agent acts. The model plans, the `ToolRegistry` dispatches, and the agent loop feeds every tool result back into the conversation until the model answers. A tool is a contract between a deterministic system (your implementation) and a non-deterministic agent (the model). The model may call the right tool with the wrong parameters, call the wrong tool, call too few tools, or misread a result. This guide is about writing tools that hold up under that uncertainty across any OpenAI-compatible provider, weak backends included. Registry mechanics (registration metadata, policy, aliases, `clean_args`) are in [tools.md](tools.md). This page is the craft: which tools to build, how to name them, what to return, how to describe them. The principles adapt Anthropic's "Writing effective tools for agents" to Replio's single-loop, zero-dependency design.
+Tools are how a Polyglav agent acts. The model plans, the `ToolRegistry` dispatches, and the agent loop feeds every tool result back into the conversation until the model answers. A tool is a contract between a deterministic system (your implementation) and a non-deterministic agent (the model). The model may call the right tool with the wrong parameters, call the wrong tool, call too few tools, or misread a result. This guide is about writing tools that hold up under that uncertainty across any OpenAI-compatible provider, weak backends included. Registry mechanics (registration metadata, policy, aliases, `clean_args`) are in [tools.md](tools.md). This page is the craft: which tools to build, how to name them, what to return, how to describe them. The principles adapt Anthropic's "Writing effective tools for agents" to Polyglav's single-loop, zero-dependency design.
 
 ## Choosing the right tools
 
@@ -16,7 +16,7 @@ More tools does not mean a better agent. Every tool definition loads into the mo
 Tool names are how the model selects behavior, so they should be distinct, purposeful, and grouped by domain.
 
 - Give every tool a clear, distinct purpose and a name that states it. `web_search`, `web_fetch`, `file_read`, `list_dir`, `file_write`, `glob`, `grep`, `run_command` each read as one distinct action.
-- Namespace by domain when a surface grows. Bundled plugins already do this by module (`replio-core-web` exposes `web_search`, `web_fetch`), and MCP tools use the `mcp_` prefix. Prefixing (`web_`, `file_`, `mcp_`) helps the model pick the right tool when many are loaded.
+- Namespace by domain when a surface grows. Bundled plugins already do this by module (`polyglav-core-web` exposes `web_search`, `web_fetch`), and MCP tools use the `mcp_` prefix. Prefixing (`web_`, `file_`, `mcp_`) helps the model pick the right tool when many are loaded.
 - Advertise canonical names only, absorb model dialect with `aliases`. The schema shows `run_command`, not `bash` or `exec`, and `web_fetch`, not `open` or `fetch_page`. Aliases resolve at call time, so a model that says `open`, `search`, or `find` still gets the real tool. Advertising both spellings doubles the tool list for no benefit.
 - Name parameters unambiguously. Prefer `include` over `glob`, `pattern` over `query` in `grep`, concrete nouns over pronouns. A parameter named `path` with a description is clearer than a bare `file`.
 
@@ -24,7 +24,7 @@ Tool names are how the model selects behavior, so they should be distinct, purpo
 
 Tool results feed back verbatim into the model's context. Return high-signal information that directly informs the next step, prefer interpretable language over technical identifiers.
 
-- Resolve and report natural identifiers. `file_read` and `file_write` resolve absolute paths. `grep` returns `file:line: text` so the model can act on the location. No raw UUIDs or opaque handles appear in Replio's tools.
+- Resolve and report natural identifiers. `file_read` and `file_write` resolve absolute paths. `grep` returns `file:line: text` so the model can act on the location. No raw UUIDs or opaque handles appear in Polyglav's tools.
 - Report sizes and boundaries so the agent can decide. `file_read` puts total line and char counts in its header and marks partial windows with `(showing a-b)`. `web_fetch` reports `[offset N of M chars]` when content continues.
 - Keep results deterministic and complete for the task. The same input produces the same output, independent of unrelated state.
 
@@ -67,19 +67,19 @@ Full reference in [tools.md](tools.md). The policy and worktree rules that gate 
 
 Error responses are guidance, not telemetry. When a call fails, tell the model what to do instead.
 
-- Start with `Error:` and a one-line actionable message. Replio's filesystem tools set the pattern: `Error: X is a directory (use list_dir instead)`, `Error: X is not a directory (use file_read instead)`, `Error: file not found: X`. Each suggests the correct tool.
+- Start with `Error:` and a one-line actionable message. Polyglav's filesystem tools set the pattern: `Error: X is a directory (use list_dir instead)`, `Error: X is not a directory (use file_read instead)`, `Error: file not found: X`. Each suggests the correct tool.
 - Do not return tracebacks or opaque codes. The first line of an `Error:` result echoes dimmed in the REPL, so the model and the human see the same guidance.
 - Use a `note` predicate for informational one-liners that are not failures. `(no matches for "x")`, `(empty file)`, `(end of content)`, and `No search results found.` are normal outcomes. A dimmed note beats a red error line.
 
 ## Evaluating your tools
 
-Measure how well a model uses a tool before you trust it. Replio ships an agent-level tool-evaluation harness, `replio eval`, that runs task fixtures through the headless agent loop and reports tool-call accuracy, redundant calls, errors, and tokens, against a mock or a real provider (see [eval.md](eval.md)). The `replio-core-eval` bundled plugin contributes a small fixture catalog. Author your own fixtures under `.replio/eval/*.json`.
+Measure how well a model uses a tool before you trust it. Polyglav ships an agent-level tool-evaluation harness, `polyglav eval`, that runs task fixtures through the headless agent loop and reports tool-call accuracy, redundant calls, errors, and tokens, against a mock or a real provider (see [eval.md](eval.md)). The `polyglav-core-eval` bundled plugin contributes a small fixture catalog. Author your own fixtures under `.polyglav/eval/*.json`.
 
 - Build a mock-provider loop test. The test suite runs the full agent loop against a stubbed `provider.chat` with no network and no API key. `tests/test_tool_calling.py`, `tests/test_agent_loop.py`, and the `make_chat` / `make_engine` helpers in `tests/` are the pattern. Drive the loop with a tool-call event and assert the model-visible result and session parts.
-- Run `replio eval` against a real provider before and after a description change. A fixture whose `pass` flips (or whose accuracy moves) quantifies the effect.
+- Run `polyglav eval` against a real provider before and after a description change. A fixture whose `pass` flips (or whose accuracy moves) quantifies the effect.
 - Exercise a tool directly with `/tool <name> {"args": ...}` from the REPL. It routes through the same policy, `clean_args`, and display as a loop call, a fast sanity check for argument handling and result format.
 - Read the session logs for misbehavior. Wrong-tool selection, repeated parameter errors, or the same search re-run means the description, naming, or schema is unclear. Models trained on tool-use data often reach for `open` to fetch a URL. The `open` alias absorbs that habit while the schema advertises `web_fetch`.
-- Compare providers. Replio standardizes on OpenAI-compatible tool calling, but models differ sharply in how they parse schemas. Run the same task against Ollama and a hosted OpenAI-compatible endpoint and watch which tools each reaches for. Weak backends are where naming, caps, and description quality pay off.
+- Compare providers. Polyglav standardizes on OpenAI-compatible tool calling, but models differ sharply in how they parse schemas. Run the same task against Ollama and a hosted OpenAI-compatible endpoint and watch which tools each reaches for. Weak backends are where naming, caps, and description quality pay off.
 
 Metrics worth watching: redundant tool calls (pagination or caps too tight), invalid-parameter errors (descriptions unclear or schema too loose), and context bloat (a tool returning more than the task needs).
 

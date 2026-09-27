@@ -1,12 +1,12 @@
 # Vision
 
-**One runtime, many agents**
+**One agent, many heads**
 
-Replio is an agent harness: the runtime that turns a language model into an agent that can act. The model plans, the harness executes, and one streaming loop drives an interactive REPL, a headless CLI, and an HTTP API. Replio is deliberately small, zero-dependency, and auditable, so the whole runtime fits in one review.
+Polyglav is an agent harness: the runtime that turns a language model into an agent that can act. The model plans, the harness executes, and one streaming loop drives an interactive REPL, a headless CLI, and an HTTP API. Polyglav is deliberately small, zero-dependency, and auditable, so the whole runtime fits in one review.
 
 The main agent, **assistant**, is the point of contact: it greets you on first run and asks what you want to do, answers small tasks inline in the current run, delegates bigger tasks to sub-agents or whole teams instead of blocking, runs recurring work in the background, watches your other agents for health, and reports back. Everything you need to see is reachable from one place: sessions, running agents, and configured jobs on the machine. Users never see the machinery. They feel supported and do less work.
 
-## What Replio is
+## What Polyglav is
 
 An agent is a model plus a harness:
 
@@ -20,7 +20,7 @@ An agent is a model plus a harness:
 
 ## The runtime
 
-Replio assembles five replaceable layers. Each can be swapped without touching the others:
+Polyglav assembles five replaceable layers. Each can be swapped without touching the others:
 
 | Layer | What it holds |
 |-------|---------------|
@@ -32,7 +32,7 @@ Replio assembles five replaceable layers. Each can be swapped without touching t
 
 The direction is **everything is a plugin**. Models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI become replaceable plugins around a thin core. The REPL itself moves to a plugin, so the same runtime can be driven by a terminal, a web UI, or another agent. The core keeps the loop and the registry contracts, and nothing customer-specific.
 
-Interop is part of the same idea. MCP connects tools and sessions today. ACP, inward and outward, is the direction: Replio hosts other harnesses and can be hosted by them.
+Interop is part of the same idea. MCP connects tools and sessions today. ACP, inward and outward, is the direction: Polyglav hosts other harnesses and can be hosted by them.
 
 ## How the assistant works
 
@@ -59,7 +59,7 @@ The end-to-end shape of a bigger task:
 
 ## Usage
 
-A few ways people use Replio:
+A few ways people use Polyglav:
 
 - **One terminal, whole teams** - ask the assistant for an outcome (a document, a feature, a review), and let it compose and run a team. You stay at one prompt.
 - **A recurring maintainer** - schedule a job that carries its own role and skills, for example "keep the docs in sync with AGENTS.md", and let the scheduler run it unattended.
@@ -82,7 +82,7 @@ This is the operator-facing half of the runtime, and it is what the phases turn 
 ## Context economics (why this costs what it costs)
 
 - Sub-engines are separate `Engine`s, with no in-memory context sharing. The persistence channels are session logs and memory files.
-- Cold starts cost: file re-reads by multiple members and brief duplication. Mitigations are facts-in-briefs (not just paths), research stages summarizing into team memory (`.replio/memory/teams/<name>.md`), and bounded role/team/job memory, so recurring work never replays a whole session.
+- Cold starts cost: file re-reads by multiple members and brief duplication. Mitigations are facts-in-briefs (not just paths), research stages summarizing into team memory (`.polyglav/memory/teams/<name>.md`), and bounded role/team/job memory, so recurring work never replays a whole session.
 - Honest limit: per-run redundancy will not go to zero. Sequential wall-clock is accepted until concurrent runs land.
 
 ## Phases

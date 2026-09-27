@@ -3,9 +3,9 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from replio.teams import Team, TeamStage
-from replio.tools.team import _clamped_stages, _team_action
-from replio.roles import Role
+from polyglav.teams import Team, TeamStage
+from polyglav.tools.team import _clamped_stages, _team_action
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 

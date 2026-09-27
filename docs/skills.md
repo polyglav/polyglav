@@ -6,9 +6,9 @@ A skill is a named set of markdown instructions a role can attach: `Role.skills`
 
 Skills come from three layers, merged like roles and teams: plugin contributions first, then global, then local, with local winning per field:
 
-- **Plugin** - skills contributed by plugins via the `register_skills` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to `.replio/skills/`, refreshed on `/plugins install`/`update`/`uninstall`.
-- **Global** - `~/.config/replio/skills/<name>.md`.
-- **Local** - `.replio/skills/<name>.md`.
+- **Plugin** - skills contributed by plugins via the `register_skills` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to `.polyglav/skills/`, refreshed on `/plugins install`/`update`/`uninstall`.
+- **Global** - `~/.config/polyglav/skills/<name>.md`.
+- **Local** - `.polyglav/skills/<name>.md`.
 
 Each skill is one flat Markdown file: the filename stem is the skill name, the body is the instructions.
 
@@ -57,7 +57,7 @@ When a role with `skills` runs as a sub-agent (`delegate`), each registered skil
 Find sources and evaluate them. ...
 ```
 
-Missing or empty skills are skipped silently, and a role without skills gets an unchanged prompt. Jobs with `--role` inject the same section (from the global/local file layers, since plugin contributions do not reach the scheduler's preparse, the same rule as plugin roles there). The format is built by `skills_section(registry, names)` in `replio.skills`.
+Missing or empty skills are skipped silently, and a role without skills gets an unchanged prompt. Jobs with `--role` inject the same section (from the global/local file layers, since plugin contributions do not reach the scheduler's preparse, the same rule as plugin roles there). The format is built by `skills_section(registry, names)` in `polyglav.skills`.
 
 ## Managing skills
 

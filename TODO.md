@@ -9,16 +9,16 @@
 - Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time
 - Auto-improving skills (autogen/autolearn) - a role refines its skills from experience and keeps them alongside its memory, so recurring work gets better without re-prompting
 - Runtime pluginization - make models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI replaceable plugins, and move the REPL to a plugin. Five replaceable layers: access, orchestration, capability, model, storage
-- One runtime, many agents - position Replio as an agent harness for fleets, not a single assistant
-- ACP inward and outward - speak the Agent Client Protocol so Replio can host and be hosted by other harnesses, alongside MCP
+- One runtime, many agents - position Polyglav as an agent harness for fleets, not a single assistant
+- ACP inward and outward - speak the Agent Client Protocol so Polyglav can host and be hosted by other harnesses, alongside MCP
 - Commands as tools - expose slash commands to the model as permission-gated tools to configure roles, teams, and skills, with command access limited per permission
-- Markdown catalogue - store roles, teams, and skills as Markdown files (front matter) referenced from JSON, and move the bundled data files (`src/replio/*.json`) into one catalogue directory near `src`
+- Markdown catalogue - store roles, teams, and skills as Markdown files (front matter) referenced from JSON, and move the bundled data files (`src/polyglav/*.json`) into one catalogue directory near `src`
 - Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots
-- Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.replio/tmp/` referenced from the session log
+- Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.polyglav/tmp/` referenced from the session log
 - Context UI polish - auto-compaction, context trim, highlighting, and context desaturation
-- Research cache - store web and PDF results under `.replio/files` for later reuse, with a PDF-to-text tool
+- Research cache - store web and PDF results under `.polyglav/files` for later reuse, with a PDF-to-text tool
 - Fleet awareness - the supervisor always knows which agents and teams run on a machine, with oversight across multiple machines
-- Open WebUI and OpenTUI connectors - drive Replio from external chat and terminal UIs
+- Open WebUI and OpenTUI connectors - drive Polyglav from external chat and terminal UIs
 - Tool-call quality enhancer - steer tool calling toward correct, cheaper calls (for example web-search parameters that find the right references) and better results
 - PlantUML plugin - an external plugin that draws configurations and workflows as node diagrams instead of ASCII
 - UI commands - `/clear`, `/new`, `/providers`, `/providers list`, `/thinking [hide|show]`, and persist error logs
@@ -26,18 +26,17 @@
 - Inbound webhooks - accept inbound events to start a run or answer a parked ask
 - Plugin management UI - list, enable, disable, install, and update plugins from a UI surface, not only slash commands
 - Model picker - `/models` autocomplete and a direct numeric selection of a model
-- One agent, many heads - the Polyglav positioning variant
 - Centralized static strings - move hardcoded prompts and static strings into one module
 - Code cleanup pass - a dedicated pass over the core for dead code, naming, and rough edges
 - Report-back connectors - job summaries delivered out-of-band (email first, idea only) when the terminal is closed
-- Remove the legacy provider-plugin backfill migration (`Config._migrate_plugins`) once a stable replio release has shipped with the externalized providers. Existing `plugins` lists no longer need the automatic append, and the migration code is dead weight
+- Remove the legacy provider-plugin backfill migration (`Config._migrate_plugins`) once a stable polyglav release has shipped with the externalized providers. Existing `plugins` lists no longer need the automatic append, and the migration code is dead weight
 - Human-in-the-loop channels - job events outbound (`proposed`, `will_run`, `failed`, `waiting_approval`) plus inbound actions (`approve`/`reject`/`run`/`disable`) over configurable connectors (webhook first, then email, then Telegram), so a job can reach an operator who is not on the box
-- Global jobs overview across agents - `replio jobs list --root <dir>` fleet scan, a `GET /jobs` + `POST /jobs/<name>/approve|reject|run|disable` operator API on `replio serve`, then a web Control UI, so one view shows which agents run next and with which task
+- Global jobs overview across agents - `polyglav jobs list --root <dir>` fleet scan, a `GET /jobs` + `POST /jobs/<name>/approve|reject|run|disable` operator API on `polyglav serve`, then a web Control UI, so one view shows which agents run next and with which task
 - Edge / offline store-and-forward buffering - offline-capable agents with local buffering for unreliable connectivity (enterprise use case)
-- Immutable agent config - `replio serve` agents must never be able to change their own configuration, permissions, or tool list (control-plane rule from the use-case reference architecture)
+- Immutable agent config - `polyglav serve` agents must never be able to change their own configuration, permissions, or tool list (control-plane rule from the use-case reference architecture)
 - Hash-chained / tamper-evident audit log - additive on session logs (enterprise.md recommendation), hash-chained append or WORM storage
 - Single-purpose agent fleet with "one agent per process, scoped to a folder" as the headline pattern. README + `docs/fleet.md` set the niche
-- Fleet and swarm orchestration as the two layers - fleet: supervisor running many scoped `replio serve` instances (port allocation, health checks, restart policy, per-agent config generation), swarm: `/agent` types, auditor agents, generate > check > correct
+- Fleet and swarm orchestration as the two layers - fleet: supervisor running many scoped `polyglav serve` instances (port allocation, health checks, restart policy, per-agent config generation), swarm: `/agent` types, auditor agents, generate > check > correct
 - Community presence - decide on Discord/X channels and fill the README community link slots
 - Add multiuser capability or queue for API requests (request queue, per-token rate limits)
 - Add ReadTheDocs documentation
@@ -48,9 +47,8 @@
 - Hybrid web + local RAG - vector store (FAISS/Weaviate), embeddings, local document search
 - Command palette / fuzzy search - CTRL-P style history search
 - Topic-aware ranking - classifier for query intent to weight search results
-- Naming / positioning decision - "Replio" collides with commercial SaaS products (`replio.chat`, `repliohq.com`, `replio.eu`), kept for now (PyPI + repo claimed), revisit before any promotion push. Candidate free names: `pypelio`, `replcore`, `replkit`
-- Competitor research - validate USPs against actual peers (OpenClaw, Claude Code, opencode, agentic-infra services) rather than the unrelated SaaS "Replio" products. Comparison notes now live in `docs/compare/` and feed the feature backlog (Plan/Build modes, Web Control UI, plugin marketplace, telemetry, binary builds, sharing)
-- Self-update - `replio update` (Pi `pi update --self` analogue)
+- Competitor research - validate USPs against actual peers (OpenClaw, Claude Code, opencode, agentic-infra services). Comparison notes now live in `docs/compare/` and feed the feature backlog (Plan/Build modes, Web Control UI, plugin marketplace, telemetry, binary builds, sharing)
+- Self-update - `polyglav update` (Pi `pi update --self` analogue)
 - Standalone binary build - Pi-style release script producing a single executable (contentious for a zero-dep Python package)
 - Opt-in telemetry contracts - vendor-neutral event schema (OpenCode, Pi `@earendil-works/pi-telemetry`). Decide whether it fits the no-telemetry stance
 - Conversation sharing - web-shareable session links (OpenCode `/share`) or published sessions (Pi `pi-share-hf`), building on the planned Markdown export
@@ -71,15 +69,15 @@
 - [ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work
 - [ ] Researcher role with fresh context - a bundled researcher role with web access, started fresh for every task so research never inherits stale context
 - [ ] Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy rather than by a prompt
-- [ ] `.replio` directory layout - decide and document the reserved subfolders and file names under `.replio/`
+- [ ] `.polyglav` directory layout - decide and document the reserved subfolders and file names under `.polyglav/`
 - [ ] Skill definition - a skill holds tool, language, or framework instructions, not a project description
-- [ ] Skill catalog review - rework the bundled and local skills against that definition, add a `python` skill and a `replio` skill, and move project-description text into `AGENTS.md`
+- [ ] Skill catalog review - rework the bundled and local skills against that definition, add a `python` skill and a `polyglav` skill, and move project-description text into `AGENTS.md`
 - [ ] `AGENTS.md` as the project description - keep it the single project description and update it when the structure, conventions, or extension points change
 - [ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing
 - [ ] `memorize` as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command
-- [ ] Role instruction files - a role's long instructions live in `.replio/roles/<name>.md`, referenced from the short JSON entry and appended verbatim
+- [ ] Role instruction files - a role's long instructions live in `.polyglav/roles/<name>.md`, referenced from the short JSON entry and appended verbatim
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
-- [ ] Root role memory - inject `.replio/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
+- [ ] Root role memory - inject `.polyglav/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
 - [ ] Conclusion stage - a bundled stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/focus` stays live-runs-only
 - [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
@@ -99,7 +97,7 @@
 - [ ] Runs, focus, and memory redesign (see PLAN.md `Runs, focus, and memory`):
   - [ ] Non-blocking runs and live focus - background execution, output/input routing, cancellation
 - [ ] Remove `--session-id` - explicit session naming is no longer needed now that auto sessions are named `ses_<ts>_<id>`
-- [ ] Relocate job run sessions under `.replio/jobs/<name>/` (kept in `sessions/` for now)
+- [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
 - [ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs
 - [ ] Assistant-roles track docs - record the assistant, composer, and manager architecture and the work packages in VISION, PLAN, and TODO
 - [ ] Core dev team configuration - a bundled development team with the review loop plus the project lead/support teams and their skills
@@ -110,31 +108,31 @@
 - [ ] Tool spec polish - rename `grep.glob` -> `include` (alias `glob`), add examples and prefer-`web_fetch` guidance to tool descriptions
 - [ ] Mid-run blocking job approval - an `ask` tool inside a running job pauses the run in place (per-tool-call `waiting_approval`), notifies via a connector, and resumes the same session when the operator replies. Needs resumable mid-run state, a wait loop inside the run, and the connectors/transport below (deeper than the shipped per-run `--require-approval` gate)
 - [ ] Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`. Channel-agnostic core, first consumers are the connectors and the operator API
-- [ ] Job connectors - bundled `replio-core-webhook` (stdlib JSON POST, zero deps, works with n8n/IFTTT/any URL) first. External email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API so operators can react in time
-- [ ] Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `replio serve`, so clients (web Control UI, connectors, fleet supervisor) can see and act per agent
-- [ ] Fleet jobs overview - `replio jobs list --root <dir>` scanning agent worktrees (agent, job, status, next run, task table), then the web Control UI on top
-- [ ] Role directory scan for export/import - read `.replio/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
+- [ ] Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps, works with n8n/IFTTT/any URL) first. External email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API so operators can react in time
+- [ ] Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, so clients (web Control UI, connectors, fleet supervisor) can see and act per agent
+- [ ] Fleet jobs overview - `polyglav jobs list --root <dir>` scanning agent worktrees (agent, job, status, next run, task table), then the web Control UI on top
+- [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
 - [ ] Auto team selection - the assistant picks roles, teams, and skills from the registries for a task and delegates in sequence (team orchestration as a user-facing pattern, e.g. "compare with competitors" -> Researcher > Writer > Referencer > Editor)
 - [ ] Thinking visibility - `/thinking on` + `reasoning` config documented, per-provider `reasoning_content` check so reasoning shows in the REPL
-- [ ] `/spawn` command - launch a scoped `replio serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
+- [ ] `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
 - [ ] Remote channels - command agents from messaging apps (OpenClaw channels parity):
   - [ ] Channel gateway - one adapter surface over the engine/serve API
   - [ ] Telegram adapter - long-polling bot, send + receive
   - [ ] WhatsApp adapter - business-API HTTP channel
   - [ ] More adapters (Discord, Signal, email)
   - [ ] Remote auth + session scoping + headless deny
-- [ ] Plugin test harness - `replio plugins test <name>` ships. Bundled plugin suites live next to the plugins (`plugins/<name>/tests/`, discovered by the core suite). Remaining: external plugins are expected to ship a test suite, and `replio plugins test` is the runner for them
-- [ ] Session recall - full-text search across past sessions (grep/index over `.replio/sessions/`) so an agent can answer from its own history
+- [ ] Plugin test harness - `polyglav plugins test <name>` ships. Bundled plugin suites live next to the plugins (`plugins/<name>/tests/`, discovered by the core suite). Remaining: external plugins are expected to ship a test suite, and `polyglav plugins test` is the runner for them
+- [ ] Session recall - full-text search across past sessions (grep/index over `.polyglav/sessions/`) so an agent can answer from its own history
 - [ ] Tool dry-run mode - propose tool args/effects without executing (enterprise tool-gateway requirement)
-- [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > replio-core-web, `open ../...` > replio-core-fs), with merged schemas and args-aware policy accessors
+- [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > polyglav-core-web, `open ../...` > polyglav-core-fs), with merged schemas and args-aware policy accessors
 - [ ] Swarm orchestration - agent cooperation layer (`docs/swarm.md`): `/agent` types, auditor agents, generate > check > correct, and team patterns as sub-tasks below
 - [ ] Grep text index - internal bundled plugin (stdlib) that indexes converted text files for local search, bridging toward the vector store
 - [ ] Agent folder watcher - internal bundled plugin (stdlib `threading` + `pathlib` polling) that detects new files in an agent's folder and triggers their processing (e.g. convert new PDFs on arrival), scoped capability, no deps
-- [ ] Minimal web Control UI - stdlib `http.server` page over the existing `replio serve` JSON API (OpenClaw Control UI analogue). Richer frameworks stay plugin-first
-- [ ] Externalize the bundled plugins (`replio-core-web`/`fs`/`exec`) into separate versioned repositories, while the bundled copies stay the shipped defaults. Global/local plugins of the same name already override them
-- [ ] PyPI plugin source - discover installed plugin packages via `importlib.metadata` entry points (`replio.plugins` group)
+- [ ] Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API (OpenClaw Control UI analogue). Richer frameworks stay plugin-first
+- [ ] Externalize the bundled plugins (`polyglav-core-web`/`fs`/`exec`) into separate versioned repositories, while the bundled copies stay the shipped defaults. Global/local plugins of the same name already override them
+- [ ] PyPI plugin source - discover installed plugin packages via `importlib.metadata` entry points (`polyglav.plugins` group)
 - [ ] Shared plugin virtualenv - one venv for all plugin dependencies, injected at import
-- [ ] Per-plugin virtualenv isolation - `~/.config/replio/plugins/<name>/.venv`. The loader injects its site-packages at import (strongest dependency separation)
+- [ ] Per-plugin virtualenv isolation - `~/.config/polyglav/plugins/<name>/.venv`. The loader injects its site-packages at import (strongest dependency separation)
 - [ ] Web scraper plugin - full page scraping beyond `fetch_page`'s text extraction (structured content, links), shipped as an external plugin repository
 - [ ] PDF-to-text converter plugin - extract text from local/remote PDFs, shipped as an external plugin repository
 - [ ] Auditor agents - sub-agents that review/check a produced output (tests, code review, fact-check)
@@ -155,12 +153,13 @@
   - [ ] SCADA control - `scada_command` (OPC-UA registers)
   - [ ] Reporting - `report_gen` (Markdown/PDF, email/BI push)
   - [ ] Audit logging + metrics (`/metrics`) for enterprise deployments
-  - [ ] Onboarding wizard (`replio wizard`) for data-source / MES interface setup
+  - [ ] Onboarding wizard (`polyglav wizard`) for data-source / MES interface setup
   - [ ] RBAC - role-based access control for enterprise deployments
   - [ ] Queue-based scaling - many concurrent sensor/chat feeds without blocking the loop
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Renamed the project from Replio to Polyglav
 - [x] `code_test` no-match detected on Python 3.11 (`Ran 0 tests`)
 - [x] Tool identity - git and the dev wrappers print their own glyph and verb
 - [x] Error color - a failed command echoes its output red

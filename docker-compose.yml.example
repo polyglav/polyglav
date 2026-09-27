@@ -3,8 +3,8 @@ services:
     build:
       context: .
     environment:
-      REPLIO_PORT: 8781
-      REPLIO_PATH: /srv/docs
+      POLYGLAV_PORT: 8781
+      POLYGLAV_PATH: /srv/docs
     volumes:
       - ./agents/docs:/srv/docs
     ports:
@@ -20,8 +20,8 @@ services:
     build:
       context: .
     environment:
-      REPLIO_PORT: 8782
-      REPLIO_PATH: /srv/src
+      POLYGLAV_PORT: 8782
+      POLYGLAV_PATH: /srv/src
     volumes:
       - ./agents/src:/srv/src
     ports:

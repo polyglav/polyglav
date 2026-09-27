@@ -1,10 +1,10 @@
 # API
 
-`replio serve` runs an HTTP JSON API on `127.0.0.1:8787` by default (override with `--host` / `--port`).
+`polyglav serve` runs an HTTP JSON API on `127.0.0.1:8787` by default (override with `--host` / `--port`).
 
 ```bash
-replio serve
-# replio serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /asks, POST /asks/<id>/answer, GET /health, GET /version)
+polyglav serve
+# polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /asks, POST /asks/<id>/answer, GET /health, GET /version)
 ```
 
 All responses are JSON with `Content-Type: application/json`.
@@ -53,7 +53,7 @@ Answers a parked ask. Marks it `answered`, injects a `user` message `[answer to 
 curl localhost:8787/asks/1/answer -X POST -H 'Content-Type: application/json' \
   -d '{"answer": "use port 8080"}'
 # {"ask": {"id": 1, ..., "status": "answered", "answer": "use port 8080"},
-#  "session": "sub_20260910_...", "resume": "replio run --session-id sub_... \"continue\"",
+#  "session": "sub_20260910_...", "resume": "polyglav run --session-id sub_... \"continue\"",
 #  "injected": true}
 ```
 

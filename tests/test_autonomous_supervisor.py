@@ -4,13 +4,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import replio.scheduler as scheduler_mod
-from replio.asks import AskStore, inject_answer
-from replio.config import Config
-from replio.engine import Engine
-from replio.jobs import Job
-from replio.scheduler import JobScheduler
-from replio.ui import HeadlessUI
+import polyglav.scheduler as scheduler_mod
+from polyglav.asks import AskStore, inject_answer
+from polyglav.config import Config
+from polyglav.engine import Engine
+from polyglav.jobs import Job
+from polyglav.scheduler import JobScheduler
+from polyglav.ui import HeadlessUI
 
 from tests.test_jobs import _FakePM, _FakeReport
 
@@ -31,16 +31,16 @@ class TestAutonomousSupervisor(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.base = Path(self.tmp.name)
-        replio = self.base / '.replio'
-        replio.mkdir(parents=True)
-        (replio / 'config.json').write_text(json.dumps({
+        polyglav = self.base / '.polyglav'
+        polyglav.mkdir(parents=True)
+        (polyglav / 'config.json').write_text(json.dumps({
             'provider': 'ollama', 'model': 'm', 'base_url': 'https://x',
             'tool_calling': True, 'unattended': True, 'max_team_depth': 2,
             'grant_permission': {
                 'bash': 'allow', 'edit': 'allow', 'read': 'allow',
                 'list': 'allow', 'web': 'allow', 'ask': 'allow'},
         }))
-        (replio / 'roles.json').write_text(json.dumps({
+        (polyglav / 'roles.json').write_text(json.dumps({
             'leader': {
                 'system_prompt': 'You lead the team.',
                 'tool_permission': {
@@ -57,7 +57,7 @@ class TestAutonomousSupervisor(unittest.TestCase):
                     'read': 'allow', 'bash': 'allow', 'ask': 'allow'},
             },
         }))
-        (replio / 'teams.json').write_text(json.dumps({
+        (polyglav / 'teams.json').write_text(json.dumps({
             'dev': {'description': 'dev pipeline',
                     'stages': [{'role': 'worker'}]},
         }))
@@ -84,7 +84,7 @@ class TestAutonomousSupervisor(unittest.TestCase):
             self.built_engine = engine
             return engine
 
-        patcher = patch('replio.scheduler._build_engine',
+        patcher = patch('polyglav.scheduler._build_engine',
                         side_effect=fake_build)
         patcher.start()
         self.addCleanup(patcher.stop)

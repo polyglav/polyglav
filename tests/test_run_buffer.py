@@ -2,8 +2,8 @@ import io
 import unittest
 from contextlib import redirect_stdout
 
-from replio.runs import Run, RunRegistry
-from replio.ui import BufferUI
+from polyglav.runs import Run, RunRegistry
+from polyglav.ui import BufferUI
 
 from tests.helpers import make_chat
 

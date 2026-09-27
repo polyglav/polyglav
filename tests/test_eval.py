@@ -4,8 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from replio.config import Config
-from replio.eval import (EvalFixture, discover_fixtures, format_results,
+from polyglav.config import Config
+from polyglav.eval import (EvalFixture, discover_fixtures, format_results,
                          redundant_count, run_fixture, run_suite,
                          select_fixtures, summarize, token_total,
                          verify_fixture)
@@ -32,7 +32,7 @@ class _Base(unittest.TestCase):
             return p
         factory.DEFAULT_BASE_URL = 'https://fake.api.com'
         factory.DEFAULT_MODEL = 'fake-model'
-        return patch('replio.providers.PROVIDERS', {'ollama': factory})
+        return patch('polyglav.providers.PROVIDERS', {'ollama': factory})
 
 
 class TestVerifier(_Base):
@@ -245,7 +245,7 @@ class TestDiscovery(_Base):
 
     def test_discover_local_overrides_global(self):
         local = self.source.local_path.parent / 'eval'
-        global_ = self.home / '.config' / 'replio' / 'eval'
+        global_ = self.home / '.config' / 'polyglav' / 'eval'
         self._write(local, 'a.json', task='local task')
         self._write(global_, 'a.json', task='global task')
         self._write(global_, 'g.json', task='only global')

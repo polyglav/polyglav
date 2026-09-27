@@ -3,14 +3,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from replio.config import Config
-from replio.modes import (instructions_file_section, merge_policy, mode_list,
+from polyglav.config import Config
+from polyglav.modes import (instructions_file_section, merge_policy, mode_list,
                           resolve_mode, system_instruction)
 
 
 def make_config(data: dict | None = None) -> Config:
     tmp = tempfile.TemporaryDirectory()
-    config_dir = Path(tmp.name) / '.replio'
+    config_dir = Path(tmp.name) / '.polyglav'
     config_dir.mkdir(parents=True, exist_ok=True)
     with open(config_dir / 'config.json', 'w') as f:
         json.dump(data or {}, f)

@@ -1,12 +1,12 @@
 # Framework
 
-A **framework** gives you building blocks to construct an agent: you write the control flow, choose the persistence, and wire in models and tools yourself. A **harness** has the loop already built in, so you bring a model and instructions and go. Replio is a harness, so this page compares the two layers and shows how Replio covers the runtime while staying configurable.
+A **framework** gives you building blocks to construct an agent: you write the control flow, choose the persistence, and wire in models and tools yourself. A **harness** has the loop already built in, so you bring a model and instructions and go. Polyglav is a harness, so this page compares the two layers and shows how Polyglav covers the runtime while staying configurable.
 
-## Replio covers the runtime, and stays flexible
+## Polyglav covers the runtime, and stays flexible
 
-Replio gives you the whole agent runtime out of the box, then lets you shape it through configuration rather than through code you have to maintain. The loop, tools, permissions, sessions, delegation, teams, jobs, and the fleet supervisor are ready to use. Models, providers, tools, roles, teams, skills, modes, and permissions are all data you can edit, version, and extend with plugins.
+Polyglav gives you the whole agent runtime out of the box, then lets you shape it through configuration rather than through code you have to maintain. The loop, tools, permissions, sessions, delegation, teams, jobs, and the fleet supervisor are ready to use. Models, providers, tools, roles, teams, skills, modes, and permissions are all data you can edit, version, and extend with plugins.
 
-That covers the common need without a build step, and it keeps deep flexibility: you can define new roles with their own prompts and permission carves, compose teams with per-stage skills and a review loop, add tools and providers as plugins, and drive everything from configuration. When you truly need a bespoke control flow, a framework remains the right tool for that layer, and Replio can still serve as the runtime behind it through its CLI and HTTP API.
+That covers the common need without a build step, and it keeps deep flexibility: you can define new roles with their own prompts and permission carves, compose teams with per-stage skills and a review loop, add tools and providers as plugins, and drive everything from configuration. When you truly need a bespoke control flow, a framework remains the right tool for that layer, and Polyglav can still serve as the runtime behind it through its CLI and HTTP API.
 
 ## Representatives
 
@@ -18,7 +18,7 @@ That covers the common need without a build step, and it keeps deep flexibility:
 | LangGraph | Python, TypeScript | MIT | Stateful graph | Long-running, durable, stateful agents |
 | LlamaIndex | Python, TypeScript | MIT | Data and indexes | RAG and data-centric LLM apps |
 | Microsoft Agent Framework | Python, .NET | Open source | Agents and workflows | Enterprise agent SDK merging AutoGen and Semantic Kernel |
-| Replio | Python (stdlib only) | MIT | Ready harness | Runnable agent core with orchestration |
+| Polyglav | Python (stdlib only) | MIT | Ready harness | Runnable agent core with orchestration |
 
 ## Profiles
 
@@ -40,7 +40,7 @@ A data framework for connecting LLMs to data, with indexes, retrievers, and RAG 
 ### Microsoft Agent Framework
 Microsoft's SDK for building agents and workflows, consolidating ideas from AutoGen and Semantic Kernel for Python and .NET. It targets enterprise application integration.
 
-## Why teams choose Replio
+## Why teams choose Polyglav
 
 - A working agent from the first command, with the loop, tools, and orchestration already assembled.
 - Extensive configurability through data: types, teams, skills, modes, permissions, tools, and providers.
@@ -56,12 +56,12 @@ Microsoft's SDK for building agents and workflows, consolidating ideas from Auto
 | A bespoke graph or non-linear orchestration | LangGraph, LangChain | You design nodes, edges, and persistence |
 | Role-based research teams or multi-agent dialogue | CrewAI, AutoGen | Purpose-built multi-agent abstractions |
 | Retrieval and data-centric pipelines | LlamaIndex | Indexes, retrievers, and RAG |
-| A working terminal, CLI, or HTTP agent with no build step | Replio | Harness ships the loop, tools, and orchestration |
+| A working terminal, CLI, or HTTP agent with no build step | Polyglav | Harness ships the loop, tools, and orchestration |
 
 ## References
 
 - https://github.com/crewAIInc/crewAI
-- https://github.com/emyasnikov/replio
+- https://github.com/polyglav/polyglav
 - https://github.com/langchain-ai/langchain
 - https://github.com/langchain-ai/langgraph
 - https://github.com/microsoft/agent-framework

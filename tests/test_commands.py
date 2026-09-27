@@ -118,7 +118,7 @@ class TestToolCommand(unittest.TestCase):
         s = self.chat.sessions.create('saved1')
         s.add_user('hello from saved session')
         self.chat.sessions.save(s)
-        with patch('replio.commands.builtins.input', return_value='n'):
+        with patch('polyglav.commands.builtins.input', return_value='n'):
             self._dispatch('/session load saved1')
         self.assertIsNot(self.chat.current_session, old)
         texts = [p['text'] for t in self.chat.current_session.turns
@@ -129,7 +129,7 @@ class TestToolCommand(unittest.TestCase):
         s = self.chat.sessions.create('saved2')
         s.add_user('hello world')
         self.chat.sessions.save(s)
-        with patch('replio.commands.builtins.input', return_value='n'):
+        with patch('polyglav.commands.builtins.input', return_value='n'):
             output = self._dispatch('/session load saved2')
         self.assertIn('messages', output)
         self.assertIn('context', output)
@@ -143,7 +143,7 @@ class TestToolCommand(unittest.TestCase):
         s.add_user('x')
         self.chat.sessions.save(s)
         self.chat.compact_session = unittest.mock.MagicMock()
-        with patch('replio.commands.builtins.input', return_value='y'):
+        with patch('polyglav.commands.builtins.input', return_value='y'):
             self._dispatch('/session load big1')
         self.chat.compact_session.assert_called_once()
 
@@ -152,7 +152,7 @@ class TestToolCommand(unittest.TestCase):
         s.add_user('x')
         self.chat.sessions.save(s)
         self.chat.compact_session = unittest.mock.MagicMock()
-        with patch('replio.commands.builtins.input', return_value='n'):
+        with patch('polyglav.commands.builtins.input', return_value='n'):
             self._dispatch('/session load big2')
         self.chat.compact_session.assert_not_called()
 
@@ -177,7 +177,7 @@ class TestToolCommand(unittest.TestCase):
         self.chat.compact_session.assert_called_once()
 
     def test_version_prints_version(self):
-        from replio import get_version
+        from polyglav import get_version
         output = self._dispatch('/version')
         self.assertIn(get_version(), output)
 
@@ -207,12 +207,12 @@ class TestToolCommand(unittest.TestCase):
         self.assertNotIn('run_command', self.chat.config.get('tools.deny'))
 
     def test_config_unknown_key_prompts(self):
-        with patch('replio.commands.builtins.input', return_value='y'):
+        with patch('polyglav.commands.builtins.input', return_value='y'):
             self._dispatch('/config frobnicate 1')
         self.assertEqual(self.chat.config.get('frobnicate'), 1)
 
     def test_config_unknown_key_declined(self):
-        with patch('replio.commands.builtins.input', return_value='n'):
+        with patch('polyglav.commands.builtins.input', return_value='n'):
             output = self._dispatch('/config frobnicate 1')
         self.assertIn('Skipped', output)
         self.assertIsNone(self.chat.config.get('frobnicate'))
@@ -289,7 +289,7 @@ class TestToolCommand(unittest.TestCase):
 
     def test_tool_ask_prompt_declined(self):
         self.chat.config.set('tool_permission', {'web': 'ask'})
-        with patch('replio.ui.input', return_value='n'):
+        with patch('polyglav.ui.input', return_value='n'):
             output = self._dispatch('/tool web_search {"query": "x"}')
         self.assertIn('[cancelled]', output)
 
@@ -297,7 +297,7 @@ class TestToolCommand(unittest.TestCase):
         self.chat.config.set('tool_permission', {'web': 'ask'})
         with patch.object(self._search_service(), 'search', return_value=[
             {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
-        ]), patch('replio.ui.input', return_value='y'):
+        ]), patch('polyglav.ui.input', return_value='y'):
             output = self._dispatch('/tool web_search {"query": "python"}')
         self.assertNotIn('[cancelled]', output)
         self.assertIn('python', output)
@@ -325,13 +325,13 @@ class TestConnectCommand(unittest.TestCase):
             if inputs is None:
                 self.chat.registry.dispatch(line)
             else:
-                with patch('replio.commands.builtins.input', side_effect=inputs):
+                with patch('polyglav.commands.builtins.input', side_effect=inputs):
                     self.chat.registry.dispatch(line)
         return out.getvalue()
 
     def test_connect_pick_lists_providers(self):
         self.chat.providers.put('openai', 'https://api.openai.com/v1', 'oak')
-        with patch('replio.commands.builtins.input', side_effect=EOFError):
+        with patch('polyglav.commands.builtins.input', side_effect=EOFError):
             output = self._dispatch('/connect')
         self.assertIn('1. ollama', output)
         self.assertIn('openai (key)', output)
@@ -355,7 +355,7 @@ class TestConnectCommand(unittest.TestCase):
         self.chat.providers.put('ollama', 'https://api.ollama.com', 'old-key')
         with patch.object(self.chat, 'check_connection',
                           return_value=(True, 'ok', [])):
-            with patch('replio.commands.builtins.input',
+            with patch('polyglav.commands.builtins.input',
                        side_effect=['new-key']) as inp:
                 output = self._dispatch('/connect ollama')
         inp.assert_called_once_with('  API key [<stored>]: ')
@@ -395,7 +395,7 @@ class TestConnectCommand(unittest.TestCase):
         self.assertEqual(self.chat.config.get('base_url'), 'https://api.openai.com')
 
     def test_connect_url_plugin_default_match(self):
-        from replio.providers.base import OpenAICompatibleProvider
+        from polyglav.providers.base import OpenAICompatibleProvider
 
         class _PluginProvider(OpenAICompatibleProvider):
             DEFAULT_BASE_URL = 'https://llm.acme.example/v1'
@@ -665,7 +665,7 @@ class TestReadlineCompleter(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def _buffer(self, line):
-        return patch('replio.chat.readline.get_line_buffer', return_value=line)
+        return patch('polyglav.chat.readline.get_line_buffer', return_value=line)
 
     def _make_sessions(self, *names):
         for n in names:
@@ -830,10 +830,10 @@ class TestModeCompleter(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def test_mode_completes_names(self):
-        with patch('replio.chat.readline.get_line_buffer', return_value='/mode b'):
+        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode b'):
             self.assertEqual(self.chat._completer('b', 0), 'build ')
             self.assertIsNone(self.chat._completer('b', 1))
-        with patch('replio.chat.readline.get_line_buffer', return_value='/mode '):
+        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode '):
             matches = []
             i = 0
             while True:

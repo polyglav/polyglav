@@ -12,7 +12,7 @@ Research work is built on traceable, reproducible steps, and unpublished results
 ## Fit by use case
 
 - **Literature review**. Search, fetch, and summarize papers and preprints, with the trail saved per session. `/session save litreview-<topic>` keeps topics as separate threads.
-- **Corpus queries**. Point an agent at a folder of papers or notes (`replio serve --path ~/papers`) and ask comparative questions, with `grep` and `file_read` grounding every answer in the actual text.
+- **Corpus queries**. Point an agent at a folder of papers or notes (`polyglav serve --path ~/papers`) and ask comparative questions, with `grep` and `file_read` grounding every answer in the actual text.
 - **Data analysis support**. Describe datasets and plan analyses in plain language, draft analysis code and experiment notes, and prepare result summaries, with execution kept behind the `ask` gate on `run_command`.
 - **Writing support**. Draft methods, related-work, and appendix text from the corpus with citations attached, then use `file_write` for review.
 - **Lab notebooks and logs**. Sessions double as a structured, timestamped lab notebook per project or experiment.
@@ -23,7 +23,7 @@ Deep research features are planned: local RAG with embeddings and a vector store
 
 ## Get started
 
-1. Install with `pip install replio`, then run `replio`, or `replio serve --path ~/papers` for a headless corpus agent.
+1. Install with `pip install polyglav`, then run `polyglav`, or `polyglav serve --path ~/papers` for a headless corpus agent.
 2. `/connect` to a provider. Prefer a local model for embargoed or export-controlled material.
 3. Scope permissions with `tool_permission.bash: ask`, deny anything unused with `tools.deny`, and keep write tools out of read-only review agents.
-4. Start a session per topic. The complete log under `.replio/sessions/` is your reproducibility record.
+4. Start a session per topic. The complete log under `.polyglav/sessions/` is your reproducibility record.

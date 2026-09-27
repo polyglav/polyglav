@@ -1,43 +1,43 @@
 # Deployment
 
-You can run `replio serve` directly, but a fleet of agents is best supervised by Docker: one container per agent, restarted on failure, with config and sessions on a mounted folder. Replio has two install paths:
+You can run `polyglav serve` directly, but a fleet of agents is best supervised by Docker: one container per agent, restarted on failure, with config and sessions on a mounted folder. Polyglav has two install paths:
 
-- **Single interactive agent** - install with pipx and run the REPL, `replio run`, or `replio serve` by hand. See the [README](../README.md).
+- **Single interactive agent** - install with pipx and run the REPL, `polyglav run`, or `polyglav serve` by hand. See [INSTALL.md](../INSTALL.md).
 - **Supervised fleet or always-on server** - this page. Build the image from the repo's `Dockerfile` and run one container per agent with `docker-compose.yml.example`.
 
-The Docker templates live at the repo root (`Dockerfile`, `replio-entrypoint.sh`, `docker-compose.yml.example`) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always `replio serve` pointed at a folder inside the container. The folder holds `.replio/config.json` (provider, model, system prompt, tool permissions, plugins) and writes sessions under `.replio/sessions/`. Mount that folder into the container and the agent keeps its state across restarts.
+The Docker templates live at the repo root (`Dockerfile`, `polyglav-entrypoint.sh`, `docker-compose.yml.example`) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always `polyglav serve` pointed at a folder inside the container. The folder holds `.polyglav/config.json` (provider, model, system prompt, tool permissions, plugins) and writes sessions under `.polyglav/sessions/`. Mount that folder into the container and the agent keeps its state across restarts.
 
 ## Docker
 
-The image runs `replio serve` and takes three environment variables:
+The image runs `polyglav serve` and takes three environment variables:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `REPLIO_HOST` | `0.0.0.0` | Bind address |
-| `REPLIO_PORT` | `8787` | Bind port |
-| `REPLIO_PATH` | (unset) | Project path the agent is scoped to. When set, the server uses `--path` and reads `.replio/config.json` from that directory |
+| `POLYGLAV_HOST` | `0.0.0.0` | Bind address |
+| `POLYGLAV_PORT` | `8787` | Bind port |
+| `POLYGLAV_PATH` | (unset) | Project path the agent is scoped to. When set, the server uses `--path` and reads `.polyglav/config.json` from that directory |
 
 Build the image from the repo root:
 
 ```bash
-docker build -t replio .
+docker build -t polyglav .
 ```
 
 ### Single agent
 
 ```bash
 docker run -d --name docs-agent -p 127.0.0.1:8781:8781 \
-  -e REPLIO_PORT=8781 \
-  -e REPLIO_PATH=/srv/docs \
+  -e POLYGLAV_PORT=8781 \
+  -e POLYGLAV_PATH=/srv/docs \
   -v "$PWD/agents/docs:/srv/docs" \
-  replio
+  polyglav
 ```
 
-The mounted `agents/docs` directory holds the agent's `.replio/config.json` (model and permissions) and its sessions. The API key resolves from the global provider registry (`~/.config/replio/providers.json`), so mount that file into the container (or register the connection with `/connect` inside it) for keyed providers. The container runs as root, so agent-written session files are root-owned on the host. Add `--user "$(id -u):$(id -g)"` if you want them owned by your uid.
+The mounted `agents/docs` directory holds the agent's `.polyglav/config.json` (model and permissions) and its sessions. The API key resolves from the global provider registry (`~/.config/polyglav/providers.json`), so mount that file into the container (or register the connection with `/connect` inside it) for keyed providers. The container runs as root, so agent-written session files are root-owned on the host. Add `--user "$(id -u):$(id -g)"` if you want them owned by your uid.
 
 ### Fleet with Docker Compose
 
-The repo root's `docker-compose.yml.example` defines one service per agent. Copy it to `docker-compose.yml` and adjust the services (name, `REPLIO_PATH`, port, and volume, since the API key and model come from the mounted `.replio/config.json`):
+The repo root's `docker-compose.yml.example` defines one service per agent. Copy it to `docker-compose.yml` and adjust the services (name, `POLYGLAV_PATH`, port, and volume, since the API key and model come from the mounted `.polyglav/config.json`):
 
 ```yaml
 services:
@@ -45,8 +45,8 @@ services:
     build:
       context: .
     environment:
-      REPLIO_PORT: 8781
-      REPLIO_PATH: /srv/docs
+      POLYGLAV_PORT: 8781
+      POLYGLAV_PATH: /srv/docs
     volumes:
       - ./agents/docs:/srv/docs
     ports:

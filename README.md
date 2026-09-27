@@ -1,166 +1,63 @@
-# Replio
+# Polyglav
 
-**A lightweight, zero-dependency agentic core for fleets of single-purpose agents.**
+<p align="center"><img src="polyglav.svg" alt="Polyglav terminal session"></p>
+
+**One agent, many heads**
 
 <p>
-  <a href="https://pypi.org/project/replio/"><img src="https://img.shields.io/pypi/v/replio" alt="PyPI version"></a>
-  <a href="https://emyasnikov.github.io/replio/"><img src="https://img.shields.io/badge/docs-site-blue" alt="Site"></a>
+  <a href="https://pypi.org/project/polyglav/"><img src="https://img.shields.io/pypi/v/polyglav" alt="PyPI version"></a>
+  <a href="https://polyglav.github.io/polyglav/"><img src="https://img.shields.io/badge/docs-site-blue" alt="Site"></a>
   <img src="https://img.shields.io/badge/python-%3E%3D3.10-blue" alt="Python >=3.10">
-  <img src="https://img.shields.io/github/actions/workflow/status/emyasnikov/replio/ci.yml?branch=main" alt="CI">
+  <img src="https://img.shields.io/github/actions/workflow/status/polyglav/polyglav/ci.yml?branch=main" alt="CI">
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="Zero dependencies">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
 </p>
 
-An agent is a model plus a harness. Replio is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers roles, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability, and all layers share one API and compose, so a supervised fleet agent can delegate by role and a job can drive a team.
+Polyglav is an AI agent that lives in your terminal. You describe an outcome once, it breaks the job into steps, brings in specialist agents for each one, and lets them work through it in order, handing results from one to the next as they finish. You stay at a single prompt the whole time. The name says it: poly means many, glav means heads.
 
-<p align="center"><img src="replio.svg" alt="Replio terminal session"></p>
+## Why Polyglav
 
-## Features
+- **One prompt, many heads** - ask for an outcome, and Polyglav splits it across specialists that run one after another in the same process. As soon as one delivers, the next continues. No windows to switch and no babysitting.
+- **It actually gets work done** - it reads and writes files, searches the web, runs commands, edits code, and commits, all behind permissions you control.
+- **Grows with you** - reusable roles and skills, scheduled jobs that run unattended, and a supervisor for many agents at once.
+- **Your machine, your keys** - config and complete session logs stay on your disk. Bring your own provider key, or run fully local.
+- **Safe by default** - every tool is permission controlled. Anything outside your project asks first, and every action is on the record.
+- **Zero dependencies** - pure Python standard library. Nothing to audit, no supply chain, no lockfile churn.
+- **At home in the terminal** - a fast streaming REPL with dimmed thinking, markdown rendering, command completion, and history. No browser and no account.
+- **Many providers, any model** - Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, or any OpenAI-compatible endpoint, picked automatically from the address.
 
-### Core
+## What you can do with it
 
-- **Zero dependencies** - all Python standard library. Nothing to audit, no supply chain, no lockfile churn
-- **One agent loop** - a single SSE stream per turn powers the REPL, the CLI, and the API, so front-ends share one code path. Headless: `replio run` for scripting, `replio serve` for an HTTP JSON API
-- **Local-first** - config and session logs live on your disk. Bring your own provider key or run fully local
-- **Multi-provider** - Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, plus any OpenAI-compatible endpoint, auto-detected from the base URL
-- **Agentic REPL** - streaming token-by-token output, dimmed thinking, markdown-aware rendering, readline history, tab completion, and multi-line `"""` blocks
-- **Tool calling** - web search and page fetch, file read/write/list/glob/grep/edit, git status/diff/commit, test/lint/format wrappers, and shell execution via OpenAI-compatible function calling or directly with `/tool`
-- **Permissions** - every tool gated by `allow` / `ask` / `deny`, with path-scoped confirmation outside your worktree and an audit trail in session logs
-- **Modes** - named postures with their own instructions and permissions: `plan` (read-only) vs `build`, or custom modes, switchable live with `/mode` or `--mode`
-- **Sessions** - complete append-only conversation logs capturing every tool call, result, and error, plus `/compact` and Markdown export
-- **Evaluation** - `replio eval` runs task fixtures through the headless agent loop and reports tool-use metrics (call accuracy, redundant calls, errors, tokens)
-- **Plugins** - external repositories register tools, providers, slash commands, services, roles, teams, skills, and eval fixtures. The core stays zero-dependency. Plugin deps are imported lazily
+- **Ship a change end to end** - ask for a feature and let a planner, a programmer, and a reviewer work through it in order.
+- **Keep a project tidy** - schedule a job that refreshes docs, updates a changelog, or summarizes logs on a cron.
+- **Research and write** - point it at a folder of notes or papers and ask for a summary with sources.
+- **Run many agents** - give each folder its own agent and watch them all from one place.
+- **Automate with the API** - drive the same loop from scripts, CI, or another program.
 
-### Orchestration
+## How it works
 
-- **Swarm** - make agents cooperate. A role catalog (bundled defaults plus global/local `.replio/roles.json`), skills, and named teams. The `delegate` tool runs a task under a role as an in-process sub-agent with its own `sub_*` session log, prompt, model override, and tool permissions, and the `team` tool runs a named pipeline stage-by-stage with per-stage skills, shared memory, and an optional review loop. The root `assistant`, the `composer` role, and the `/roles`, `/teams`, and `/skills` catalogs round it out
-- **Jobs** - scheduled, durable workflows. Cron / interval / one-shot schedules, retries with exponential backoff, per-run timeouts, linked Markdown task files, a rolling run-memory summary, and human-in-the-loop approvals. Managed by `replio jobs`, `/jobs`, and the `replio jobs daemon`, with a `--role` supervisor recipe (`replio jobs add-supervisor`) for unattended overnight runs
-- **Fleet** - run many scoped agents under one supervisor. `replio fleet` allocates conflict-free ports, health-checks every `replio serve` child, restarts failures with a bounded backoff, and generates per-agent configs, with `status`, `logs`, and `restart` for ops, foreground or detached
-- **MCP (Model Context Protocol)** - work alongside other AI tools. Import external MCP servers' tools, or expose Replio's policy-filtered tools and session resources to other agents over `replio mcp` or `POST /mcp`
+1. **Ask** - describe an outcome to the assistant in one sentence.
+2. **Compose** - for bigger work it designs a small team: the specialists and the order they run in.
+3. **Run** - stages run one after another, each with its own tools and permissions.
+4. **Hand off** - as the work moves, each agent passes what it did to the next.
+5. **Report** - watch progress, jump into any agent, or come back to a summary.
 
-## Quick Start
-
-```bash
-pipx install replio
-replio
-```
-
-Or from source:
+## Install
 
 ```bash
-git clone https://github.com/emyasnikov/replio.git && cd replio
-python3 -m venv .venv && .venv/bin/pip install -e .
-.venv/bin/replio
+pipx install polyglav
+polyglav
 ```
 
-## Usage
+For source installs, the REPL, the headless CLI, the HTTP API, Docker, plugins, and the full command reference, see [INSTALL.md](INSTALL.md).
 
-Replio runs the same loop in three ways: interactively in the REPL, headlessly from the CLI, and as an HTTP service. For bigger work the flow is ask, compose, run, hand off, remember, report. The assistant composes a team, runs it stage by stage, and hands control between agents as phases change. See [docs/usage/workflow.md](docs/usage/workflow.md) for the workflows and patterns.
+## Learn more
 
-### REPL
-
-First-time setup with `/connect`, then type any message. Tab-complete `/` commands and session names, and navigate history with arrow keys. Open a `"""` or `'''` block to type a multi-line prompt, close it with a matching delimiter on its own line or a blank line, or end a line with `\` to continue on the next line. The framing is stripped and the whole message is sent as one turn. Ctrl-C exits the REPL from anywhere, even inside an open block.
-
-```
->>> /connect ollama
-  API key [stored]:
-Connected to ollama (https://api.ollama.com)
->>> /model gpt-oss:20b-cloud
->>> Hi
-<<< Hello! How can I help you today?
->>> /exit
-```
-
-### CLI
-
-Stream plain text with `--output text` or return JSON. Log tool status and diagnostics to stderr with `--verbose`. Address a persistent session by name with `--session-id <name>`. Tools that require confirmation auto-deny by default. Pass `--yes` to approve them.
-
-```bash
-replio run --prompt "Hi"
-{
-  "content": "Hello! How can I help you today?",
-  "duration": 7.0,
-  "errors": [],
-  "model": "gpt-oss:20b-cloud",
-  "provider": "ollama",
-  "session": "ses_20260814_192251_ab12cd",
-  "status": "ok"
-  "thinking": null,
-  "tool_calls": [],
-  "usage": null,
-}
-```
-
-### API
-
-`replio serve` exposes JSON endpoints. `POST /chat {"prompt": "..."}` (optionally with `"session"` to load or create a session by name) returns the same turn result as the CLI.
-
-```bash
-replio serve &
-curl localhost:8787/chat -X POST -d '{"prompt": "Hi"}'
-{"content": "Hello! How can I help you today?", "thinking": null, "tool_calls": [], "errors": [], "duration": 7.0, "usage": null, "model": "gpt-oss:20b-cloud", "provider": "ollama", "session": "ses_20260814_192711_ab12cd", "status": "ok"}
-```
-
-### Swarm - roles, skills, and teams
-
-A lead agent (or you) hands a task to a specialized role, or runs a named team stage-by-stage. Each sub-agent runs in-process, writes its own session log, and returns its final answer. The REPL shows its dimmed activity and a duration footer while it works. Roles are model- and permission-scoped: a researcher is read-only, a programmer may run shell. A team adds order, per-stage skills, a shared memory file, and an optional review loop.
-
-```
->>> /roles list
->>> /tool delegate {"role": "researcher", "task": "Summarize docs/ and cite sources"}
-[delegate researcher] <final answer of the research sub-agent, sources cited>
->>> /tool team {"name": "writing", "task": "Draft the release notes"}
-[team writing] <final stage answer>
-```
-
-See [docs/swarm.md](docs/swarm.md), [docs/teams.md](docs/teams.md), and [docs/roles.md](docs/roles.md).
-
-### Jobs - scheduled durable work
-
-Jobs are human-gated workflows: `add` proposes, `approve` arms it, and the daemon fires it on schedule. The task lives in a Markdown file edited in `$EDITOR`. A rolling memory summary carries context between runs.
-
-```bash
-replio jobs add nightly --file tasks/nightly.md --cron "0 2 * * *"
-replio jobs approve nightly
-replio jobs daemon            # polls on --tick 15s, Ctrl-C to stop
-replio jobs status
-```
-
-See [docs/jobs.md](docs/jobs.md).
-
-### Fleet - supervised agents
-
-One agent per folder, each a `replio serve` process with its own config, permissions, and sessions.
-
-```bash
-replio fleet init                                              # scan existing agent folders
-replio fleet config docs-agent --role researcher --port 8781
-replio fleet up                                                # Ctrl-C = graceful down, or --detach
-replio fleet status
-replio fleet logs docs-agent -f
-```
-
-See [docs/fleet.md](docs/fleet.md).
-
-### MCP - interop with other AI tools
-
-```bash
-replio mcp    # stdio MCP server: serve Replio's tools/sessions or import another server's tools, e.g. point Claude or opencode at it
-```
-
-On `replio serve`, the same is available at `POST /mcp`. See [docs/mcp.md](docs/mcp.md).
-
-## Roadmap
-
-The fleet orchestration, scheduled and durable jobs, and the swarm foundations are live: bundled roles, in-process sub-agents, the `delegate` and `team` tools, team pipelines, skills, the review loop, the `assistant` root and `composer` roles, and the `ask` tool. The runs, focus, and memory redesign is live too: run-owned sessions, focus that only navigates, run-to-run handoff, and bounded role/team/job memory. Next comes non-blocking runs with live focus, then the governance track (first-run onboarding, one-window status over sessions, running agents, and jobs, agent health monitoring, per-agent todo lists), report-back connectors, the jobs operator API, the interactive `/agent` command, and remote channels. See [docs/swarm.md](docs/swarm.md), [docs/jobs.md](docs/jobs.md), and the open tasks in [TODO.md](TODO.md).
-
-## Contributing
-
-The project is stdlib-only with no external dependencies. See [AGENTS.md](AGENTS.md) for architecture and conventions, and [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
-
-## Documentation
-
-The [website](https://emyasnikov.github.io/replio/) hosts the vision, development plan, and this documentation, rebuilt from `main` on every push. Detailed references live in [docs/index.md](docs/index.md).
+- [AGENTS.md](AGENTS.md) - architecture and conventions
+- [CONTRIBUTING.md](CONTRIBUTING.md) - the contribution workflow
+- [INSTALL.md](INSTALL.md) - install, run, and command reference
+- [VISION.md](VISION.md) - what Polyglav is and where it is going
+- [docs/index.md](docs/index.md) - full documentation
 
 ## License
 

@@ -3,9 +3,9 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from replio.engine import Engine, TeamRunResult
-from replio.teams import Team, TeamStage
-from replio.roles import Role
+from polyglav.engine import Engine, TeamRunResult
+from polyglav.teams import Team, TeamStage
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 
@@ -148,19 +148,19 @@ class TestRunResume(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs.get('context'), 'new')
 
     def test_team_fields_roundtrip(self):
-        from replio.teams import TeamRegistry
+        from polyglav.teams import TeamRegistry
         import tempfile
         from pathlib import Path
         tmp = tempfile.TemporaryDirectory()
         try:
             reg = TeamRegistry(
                 global_dir=Path(tmp.name),
-                local_path=Path(tmp.name) / '.replio' / 'teams.json',
+                local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
                 bundled_path=Path(tmp.name) / 'none.json')
             reg.put(Team(name='x', stages=[TeamStage(role='w')]))
             fresh = TeamRegistry(
                 global_dir=Path(tmp.name),
-                local_path=Path(tmp.name) / '.replio' / 'teams.json',
+                local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
                 bundled_path=Path(tmp.name) / 'none.json')
             team = fresh.find('x')
             self.assertFalse(hasattr(team, 'warm_sessions'))

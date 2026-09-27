@@ -3,8 +3,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from replio import memory
-from replio.roles import Role
+from polyglav import memory
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 
@@ -21,7 +21,7 @@ class TestMemoryModule(unittest.TestCase):
 
     def test_path_under_memory_dir(self):
         path = memory.memory_path(self.worktree, 'role', 'writer')
-        self.assertEqual(path, (self.worktree / '.replio' / 'memory' / 'roles'
+        self.assertEqual(path, (self.worktree / '.polyglav' / 'memory' / 'roles'
                                 / 'writer.md').resolve())
 
     def test_read_write_round_trip(self):
@@ -33,14 +33,14 @@ class TestMemoryModule(unittest.TestCase):
         self.assertEqual(memory.read_memory(self.worktree, 'job', 'nope'), '')
 
     def test_legacy_job_fallback(self):
-        legacy = self.worktree / '.replio' / 'jobs' / 'keep.memory.md'
+        legacy = self.worktree / '.polyglav' / 'jobs' / 'keep.memory.md'
         legacy.parent.mkdir(parents=True)
         legacy.write_text('legacy job notes')
         self.assertEqual(memory.read_memory(self.worktree, 'job', 'keep'),
                          'legacy job notes')
 
     def test_legacy_team_fallback(self):
-        legacy = self.worktree / '.replio' / 'teams' / 'doc' / 'memory.md'
+        legacy = self.worktree / '.polyglav' / 'teams' / 'doc' / 'memory.md'
         legacy.parent.mkdir(parents=True)
         legacy.write_text('legacy team notes')
         self.assertEqual(memory.read_memory(self.worktree, 'team', 'doc'),
@@ -123,10 +123,10 @@ class TestRoleMemory(unittest.TestCase):
         self.assertIn('Wrote role memory', out.getvalue())
 
     def test_team_memory_uses_shared_dir(self):
-        from replio.teams import team_memory_path, write_team_memory
+        from polyglav.teams import team_memory_path, write_team_memory
         write_team_memory(self.worktree, 'doc', 'shared team note')
         path = team_memory_path(self.worktree, 'doc')
-        self.assertEqual(path, (self.worktree / '.replio' / 'memory' / 'teams'
+        self.assertEqual(path, (self.worktree / '.polyglav' / 'memory' / 'teams'
                                 / 'doc.md').resolve())
         self.assertEqual(path.read_text().strip(), 'shared team note')
 

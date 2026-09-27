@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.37.0 - 2026-09-27
+
+- Renamed the project from Replio to Polyglav - the Python package (`src/polyglav`), the `polyglav` CLI and `python -m polyglav`, the worktree directory (`.polyglav/`), the global config directory (`~/.config/polyglav/`), the `POLYGLAV_*` environment variables, the bundled `polyglav-core-*` plugins with their `polyglav_version` manifest field, and all repository, PyPI, and documentation URLs. Existing `.replio/` configs and sessions are not migrated.
+- Rewrote the README around outcomes with the "One agent, many heads" slogan and moved the technical quick start, CLI, API, swarm, jobs, fleet, MCP, Docker, and plugin material into a new `INSTALL.md`.
+
 ## v0.36.0 - 2026-09-24
 
 - Fixed scoped `code_test` no-match detection on Python 3.11 - the dev wrapper now also treats `Ran 0 tests` in the output as no tests, because the `NO TESTS RAN` message and exit code 5 for a target with no tests were only added in Python 3.12. A scoped run on 3.11 now reports `no tests matched "<target>"` instead of looking like a passing check. The test no longer asserts the 3.12-only message or exit code, which also unblocks the all-plugins run on 3.11. Tests: `plugins/replio-core-dev/tests/test_tools.py`

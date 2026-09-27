@@ -1,6 +1,6 @@
-# Replio comparisons
+# Polyglav comparisons
 
-Replio is an agent **harness**: a runtime with the agent loop already built in. Projects in the space fall into four categories, depending on how much of the loop they give you and how you build with them.
+Polyglav is an agent **harness**: a runtime with the agent loop already built in. Projects in the space fall into four categories, depending on how much of the loop they give you and how you build with them.
 
 | Category | What it is | You provide | Page |
 |----------|------------|-------------|------|
@@ -9,9 +9,9 @@ Replio is an agent **harness**: a runtime with the agent loop already built in. 
 | Low-code | A visual canvas that generates code | flows, with code for custom parts | [lowcode.md](lowcode.md) |
 | No-code | A turnkey product you configure | nothing, or prompts | [nocode.md](nocode.md) |
 
-Replio sits in the harness category, with a clear angle: a zero-dependency, standard-library core that covers the full harness and the orchestration around it, stays configurable as data, and runs anywhere Python runs.
+Polyglav sits in the harness category, with a clear angle: a zero-dependency, standard-library core that covers the full harness and the orchestration around it, stays configurable as data, and runs anywhere Python runs.
 
-## Why Replio
+## Why Polyglav
 
 - **Complete harness**: loop, tools, permissions, sessions, delegation, teams, jobs, and a fleet supervisor in one package.
 - **Zero external dependencies**: the whole runtime is Python standard library, so it is small, portable, and easy to audit.
@@ -50,12 +50,12 @@ Replio sits in the harness category, with a clear angle: a zero-dependency, stan
 ## How to choose
 
 1. **How much do you want to build?** A harness runs out of the box, a framework is code you write, low-code is a canvas plus code, and no-code is a UI you configure.
-2. **Where does it run?** Replio is a local process or a small HTTP service. Hosted assistants are cloud-only. Some harnesses need Node.js, Bun, or Docker.
+2. **Where does it run?** Polyglav is a local process or a small HTTP service. Hosted assistants are cloud-only. Some harnesses need Node.js, Bun, or Docker.
 3. **Who operates it?** A developer is comfortable with a terminal and text configuration. A mixed team often prefers a visual canvas. A non-developer wants a chat UI.
-4. **What has to persist?** Replio keeps append-only session logs and bounded memory. Frameworks bring pluggable checkpointers. Chat UIs keep conversation history.
-5. **How much isolation?** Replio gates tools with `allow` / `ask` / `deny` and records an audit trail. Some harnesses add container or micro-VM isolation.
+4. **What has to persist?** Polyglav keeps append-only session logs and bounded memory. Frameworks bring pluggable checkpointers. Chat UIs keep conversation history.
+5. **How much isolation?** Polyglav gates tools with `allow` / `ask` / `deny` and records an audit trail. Some harnesses add container or micro-VM isolation.
 
 ## References
 
-- https://github.com/emyasnikov/replio
-- https://github.com/emyasnikov/replio/tree/main/docs
+- https://github.com/polyglav/polyglav
+- https://github.com/polyglav/polyglav/tree/main/docs

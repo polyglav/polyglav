@@ -8,14 +8,14 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from replio.config import Config
-from replio.engine import TurnResult
-from replio.sessions import turns as session_turns
-from replio.jobs import (Job, JobRun, JobRegistry, compute_next_run, ensure_task_file,
+from polyglav.config import Config
+from polyglav.engine import TurnResult
+from polyglav.sessions import turns as session_turns
+from polyglav.jobs import (Job, JobRun, JobRegistry, compute_next_run, ensure_task_file,
                          next_run, parse_cron_field, parse_dt, read_memory,
                          render_list, render_show, render_status, describe_schedule,
                          system_prompt_for, validate_schedule, write_memory)
-from replio.scheduler import JobScheduler
+from polyglav.scheduler import JobScheduler
 
 TZ = timezone.utc
 BASE = datetime(2026, 8, 26, 10, 0, tzinfo=TZ)
@@ -286,8 +286,8 @@ class ScriptedEngine:
 
 def _config(tmp) -> Config:
     base = Path(tmp.name)
-    (base / '.replio').mkdir(parents=True, exist_ok=True)
-    (base / '.replio' / 'config.json').write_text(json.dumps({
+    (base / '.polyglav').mkdir(parents=True, exist_ok=True)
+    (base / '.polyglav' / 'config.json').write_text(json.dumps({
         'provider': 'ollama', 'model': 'm', 'base_url': 'https://test.api.com'}))
     return Config(path=str(base))
 
@@ -304,7 +304,7 @@ class TestScheduler(unittest.TestCase):
         self.tmp.cleanup()
 
     def _patch_engine(self, outcomes):
-        patcher = patch('replio.scheduler._build_engine', return_value=ScriptedEngine(outcomes))
+        patcher = patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine(outcomes))
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -334,7 +334,7 @@ class TestScheduler(unittest.TestCase):
                        session='job.a'),
             TurnResult(status='ok', content='recovered', duration=1.0, session='job.a'),
         ])]
-        patcher = patch('replio.scheduler._build_engine',
+        patcher = patch('polyglav.scheduler._build_engine',
                         side_effect=lambda *a, **k: engine[0])
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -351,7 +351,7 @@ class TestScheduler(unittest.TestCase):
                        session='job.a'),
         ] + [TurnResult(status='error', errors=[{'message': 'x'}], duration=0.5,
                         session='job.a')] * 10)
-        patcher = patch('replio.scheduler._build_engine',
+        patcher = patch('polyglav.scheduler._build_engine',
                         return_value=engine)
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -375,14 +375,14 @@ class TestScheduler(unittest.TestCase):
 
     def test_build_engine_injects_type_skills(self):
         from pathlib import Path as _Path
-        from replio.scheduler import _build_engine
+        from polyglav.scheduler import _build_engine
         base = _Path(self.tmp.name)
         types = {
             'researcher': {'name': 'researcher',
                            'system_prompt': 'You are the researcher.',
                            'skills': ['finders']}}
-        (base / '.replio' / 'roles.json').write_text(json.dumps(types))
-        skills_dir = base / '.replio' / 'skills'
+        (base / '.polyglav' / 'roles.json').write_text(json.dumps(types))
+        skills_dir = base / '.polyglav' / 'skills'
         skills_dir.mkdir(parents=True)
         (skills_dir / 'finders.md').write_text('Find sources and evaluate them.')
         job = Job('r', {'interval': 3600}, prompt='work', role='researcher')
@@ -395,11 +395,11 @@ class TestScheduler(unittest.TestCase):
 
     def test_build_engine_skips_missing_type_skills(self):
         from pathlib import Path as _Path
-        from replio.scheduler import _build_engine
+        from polyglav.scheduler import _build_engine
         base = _Path(self.tmp.name)
         types = {'x': {'name': 'x', 'system_prompt': 'prompt',
                           'skills': ['nosuch']}}
-        (base / '.replio' / 'roles.json').write_text(json.dumps(types))
+        (base / '.polyglav' / 'roles.json').write_text(json.dumps(types))
         job = Job('x', {'interval': 3600}, prompt='work', role='x')
         engine = _build_engine(self.config, job, verbose=False)
         prompt = engine.config.get('system_prompt')
@@ -418,7 +418,7 @@ class TestScheduler(unittest.TestCase):
                 return TurnResult(status='ok', content='late', session='job.t')
 
         hung = HungEngine()
-        with patch('replio.scheduler._build_engine', return_value=hung):
+        with patch('polyglav.scheduler._build_engine', return_value=hung):
             job = Job('t', {'interval': 60}, prompt='work', status='approved',
                       retries=0, backoff=0, timeout=1)
             run = self.scheduler.run_job(job)
@@ -439,7 +439,7 @@ class TestScheduler(unittest.TestCase):
     def test_tick_runs_due_approved_only(self):
         ok_engine = ScriptedEngine([TurnResult(status='ok', content='r', duration=0.1,
                                                session='job.ok')])
-        patcher = patch('replio.scheduler._build_engine', return_value=ok_engine)
+        patcher = patch('polyglav.scheduler._build_engine', return_value=ok_engine)
         patcher.start()
         self.addCleanup(patcher.stop)
         due = Job('due', {'interval': 60}, prompt='p', status='approved')
@@ -457,7 +457,7 @@ class TestScheduler(unittest.TestCase):
     def test_tick_skips_future_jobs(self):
         engine = ScriptedEngine([TurnResult(status='ok', content='r', duration=0.1,
                                             session='job.f')])
-        with patch('replio.scheduler._build_engine', return_value=engine):
+        with patch('polyglav.scheduler._build_engine', return_value=engine):
             future = Job('f', {'interval': 3600}, prompt='p', status='approved')
             future.next_run_at = _iso(BASE + timedelta(hours=2))
             self.registry.put(future)
@@ -492,7 +492,7 @@ class TestScheduler(unittest.TestCase):
     def test_require_approval_parks_until_next_approve(self):
         engine = ScriptedEngine([
             TurnResult(status='ok', content='a', duration=0.1, session='job.a')])
-        with patch('replio.scheduler._build_engine', return_value=engine):
+        with patch('polyglav.scheduler._build_engine', return_value=engine):
             job = Job('a', {'interval': 60}, prompt='p', status='approved',
                       require_approval=True, approval_pending=True)
             job.next_run_at = _iso(BASE - timedelta(minutes=1))
@@ -531,7 +531,7 @@ class TestScheduler(unittest.TestCase):
     def test_system_prompt_composes_task_file(self):
         worktree = Path(self.tmp.name)
         job = Job('doc', {'interval': 60}, prompt='',
-                  task_file='.replio/jobs/doc.md')
+                  task_file='.polyglav/jobs/doc.md')
         ensure_task_file(worktree, job)
         text = system_prompt_for(job, worktree)
         self.assertIn('## Job task', text)
@@ -539,10 +539,10 @@ class TestScheduler(unittest.TestCase):
 
     def test_system_prompt_links_file_edits(self):
         worktree = Path(self.tmp.name)
-        path = worktree / '.replio' / 'jobs' / 'doc.md'
+        path = worktree / '.polyglav' / 'jobs' / 'doc.md'
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('# First task')
-        job = Job('doc', {'interval': 60}, prompt='', task_file='.replio/jobs/doc.md')
+        job = Job('doc', {'interval': 60}, prompt='', task_file='.polyglav/jobs/doc.md')
         self.assertIn('First task', system_prompt_for(job, worktree))
         path.write_text('# Second task')
         self.assertIn('Second task', system_prompt_for(job, worktree))
@@ -578,7 +578,7 @@ class TestScheduler(unittest.TestCase):
             eng.seen = msgs
             return 'compiled memory summary'
         eng._summarize = _summarize
-        with patch('replio.scheduler._build_engine', return_value=eng):
+        with patch('polyglav.scheduler._build_engine', return_value=eng):
             job = Job('sd', {'interval': 60}, prompt='p', status='approved')
             self.scheduler.run_job(job)
         memory = read_memory(Path(self.tmp.name), job)
@@ -597,7 +597,7 @@ class TestScheduler(unittest.TestCase):
         eng._summarize = _summarize
         worktree = Path(self.tmp.name)
         write_memory(worktree, Job('seed', {'interval': 60}), 'first summary')
-        with patch('replio.scheduler._build_engine', return_value=eng):
+        with patch('polyglav.scheduler._build_engine', return_value=eng):
             job = Job('seed', {'interval': 60}, prompt='p', status='approved')
             self.scheduler.run_job(job)
         self.assertTrue(any(
@@ -632,7 +632,7 @@ class TestScheduler(unittest.TestCase):
             (session_dir / f'{session_name}.json').write_text('{}')
             return ScriptedEngine([TurnResult(status='ok', content='x',
                                               duration=0.1, session=session_name)])
-        with patch('replio.scheduler._build_engine', side_effect=fake_build):
+        with patch('polyglav.scheduler._build_engine', side_effect=fake_build):
             job = Job('nightly', {'interval': 60}, prompt='p', status='approved')
             self.registry.put(job)
             self.scheduler.run_job(job)
@@ -649,7 +649,7 @@ class TestScheduler(unittest.TestCase):
             calls.append(session_name)
             return ScriptedEngine([TurnResult(status='ok', content='x',
                                               duration=0.1, session=session_name)])
-        with patch('replio.scheduler._build_engine', side_effect=fake_build):
+        with patch('polyglav.scheduler._build_engine', side_effect=fake_build):
             job = Job('stable', {'interval': 60}, prompt='p', status='approved',
                       session='myjobby')
             self.registry.put(job)
@@ -658,19 +658,19 @@ class TestScheduler(unittest.TestCase):
         self.assertEqual(calls, ['myjobby', 'myjobby'])
 
     def test_fresh_job_session_dedupes_collision(self):
-        from replio import scheduler
+        from polyglav import scheduler
         from datetime import datetime
         sessions_dir = self.config.local_path.parent / 'sessions'
         sessions_dir.mkdir(parents=True, exist_ok=True)
         when = datetime(2026, 8, 26, 10, 30, 5)
         (sessions_dir / 'job_fixed.json').write_text('{}')
-        with patch('replio.scheduler.job_session_name',
+        with patch('polyglav.scheduler.job_session_name',
                    side_effect=['job_fixed', 'job_free']):
             name = scheduler._fresh_job_session(sessions_dir, 'nightly', when)
         self.assertEqual(name, 'job_free')
 
     def test_job_session_name_format(self):
-        from replio.jobs import job_session_name
+        from polyglav.jobs import job_session_name
         from datetime import datetime
         when = datetime(2026, 8, 26, 10, 30, 5)
         name = job_session_name('nightly report', when)
@@ -712,7 +712,7 @@ class TestSchedulerReport(unittest.TestCase):
         self.tmp.cleanup()
 
     def _patch_engine(self, outcomes):
-        patcher = patch('replio.scheduler._build_engine',
+        patcher = patch('polyglav.scheduler._build_engine',
                         return_value=ScriptedEngine(outcomes))
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -751,7 +751,7 @@ class TestSchedulerReport(unittest.TestCase):
         self.assertIn('boom', self.reporter.payloads[0]['reason'])
 
     def test_report_on_build_failure(self):
-        patcher = patch('replio.scheduler._build_engine',
+        patcher = patch('polyglav.scheduler._build_engine',
                         side_effect=ValueError('unknown type'))
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -765,16 +765,16 @@ class TestSchedulerReport(unittest.TestCase):
         self.assertIn('unknown type', self.reporter.payloads[0]['reason'])
 
     def test_report_includes_parked_asks(self):
-        from replio.asks import AskStore
-        from replio.sessions.manager import SessionManager
-        replio_dir = self.config.local_path.parent
-        sessions = SessionManager(replio_dir / 'sessions')
+        from polyglav.asks import AskStore
+        from polyglav.sessions.manager import SessionManager
+        polyglav_dir = self.config.local_path.parent
+        sessions = SessionManager(polyglav_dir / 'sessions')
         root = sessions.create('job.a')
         root.sub_sessions = ['sub_1']
         sessions.save(root)
         sub = sessions.create('sub_1')
         sessions.save(sub)
-        AskStore(replio_dir / 'asks.json').add('which port?', 'sub_1')
+        AskStore(polyglav_dir / 'asks.json').add('which port?', 'sub_1')
         self._patch_engine([
             TurnResult(status='ok', content='done', duration=1.0, session='job.a'),
         ])
@@ -822,7 +822,7 @@ class TestAddSupervisor(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_scaffolds_supervisor_job(self):
-        from replio.jobs import add_supervisor_job, read_task_file
+        from polyglav.jobs import add_supervisor_job, read_task_file
         worktree = self.config.local_path.parent.parent
         job = add_supervisor_job(self.registry, 'night', worktree,
                                  {'interval': 86400}, task='Lead.')
@@ -834,7 +834,7 @@ class TestAddSupervisor(unittest.TestCase):
         self.assertIn('leader', task)
 
     def test_duplicate_name_rejected(self):
-        from replio.jobs import add_supervisor_job
+        from polyglav.jobs import add_supervisor_job
         worktree = self.config.local_path.parent.parent
         add_supervisor_job(self.registry, 'night', worktree,
                            {'interval': 86400})
@@ -908,43 +908,43 @@ class TestJobsCli(unittest.TestCase):
         return namespace
 
     def test_add_list_approve_cycle(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         with patch('sys.stdout', new=io.StringIO()) as buf:
             code = cmd_jobs(self._args(action='add', name='nightly', prompt='report',
                                        cron='0 2 * * *'))
             self.assertEqual(code, 0)
             self.assertIn('proposed', buf.getvalue())
-        registry = JobRegistry(self.base / '.replio' / 'jobs.json')
+        registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         job = registry.find('nightly')
         self.assertEqual(job.status, 'proposed')
         self.assertFalse(job.runnable())
         self.assertTrue(job.created_at)
         with patch('sys.stdout', new=io.StringIO()):
             cmd_jobs(self._args(action='approve', name='nightly'))
-        fresh = JobRegistry(self.base / '.replio' / 'jobs.json')
+        fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertTrue(fresh.find('nightly').runnable())
         with patch('sys.stdout', new=io.StringIO()) as buf:
             cmd_jobs(self._args(action='list'))
             self.assertIn('nightly', buf.getvalue())
 
     def test_add_auto_approved(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='auto', prompt='p', cron='* * * * *',
                             approval='auto'))
-        registry = JobRegistry(self.base / '.replio' / 'jobs.json')
+        registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertTrue(registry.find('auto').runnable())
 
     def test_add_rejects_bad_cron(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='bad', prompt='p',
                                        cron='not cron'))
             self.assertEqual(code, 1)
             self.assertIn('Error', err.getvalue())
-        self.assertIsNone(JobRegistry(self.base / '.replio' / 'jobs.json').find('bad'))
+        self.assertIsNone(JobRegistry(self.base / '.polyglav' / 'jobs.json').find('bad'))
 
     def test_add_rejects_duplicate(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='dup', prompt='p', interval=3600))
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='dup', prompt='p',
@@ -953,13 +953,13 @@ class TestJobsCli(unittest.TestCase):
             self.assertIn('already exists', err.getvalue())
 
     def test_run_exit_code_ok(self):
-        from replio.cli import cmd_jobs
-        config_dir = Path(self.base) / '.replio'
+        from polyglav.cli import cmd_jobs
+        config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
         registry.put(Job('nightly', {'interval': 60}, prompt='report',
                          status='approved'))
-        with patch('replio.scheduler._build_engine', return_value=ScriptedEngine([
+        with patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine([
             TurnResult(status='ok', content='fine', duration=0.5, session='job.nightly'),
         ])):
             with patch('sys.stdout', new=io.StringIO()) as buf:
@@ -970,8 +970,8 @@ class TestJobsCli(unittest.TestCase):
         self.assertEqual(registry.find('nightly').status, 'verified')
 
     def test_run_exit_code_failure(self):
-        from replio.cli import cmd_jobs
-        config_dir = Path(self.base) / '.replio'
+        from polyglav.cli import cmd_jobs
+        config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
         registry.put(Job('bad', {'interval': 60}, prompt='boom', status='approved',
@@ -979,44 +979,44 @@ class TestJobsCli(unittest.TestCase):
         engine = ScriptedEngine([TurnResult(status='error',
                                             errors=[{'message': 'boom'}],
                                             duration=0.2, session='job.bad')])
-        with patch('replio.scheduler._build_engine', return_value=engine):
+        with patch('polyglav.scheduler._build_engine', return_value=engine):
             with patch('sys.stdout', new=io.StringIO()) as buf:
                 code = cmd_jobs(self._args(action='run', name='bad', no_retry=True))
         self.assertEqual(code, 1)
         self.assertIn('failed', buf.getvalue())
 
     def test_stop_disables_job(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='x', prompt='p', interval=3600,
                             approval='auto'))
         with patch('sys.stdout', new=io.StringIO()) as buf:
             cmd_jobs(self._args(action='stop', name='x'))
             self.assertIn('disabled', buf.getvalue())
-        fresh = JobRegistry(self.base / '.replio' / 'jobs.json')
+        fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertFalse(fresh.find('x').enabled)
 
     def test_add_require_approval_parks_until_approve(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='gated', prompt='p', interval=3600,
                             approval='auto', require_approval=True))
-        fresh = JobRegistry(self.base / '.replio' / 'jobs.json')
+        fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         job = fresh.find('gated')
         self.assertEqual(job.status, 'waiting_approval')
         self.assertFalse(job.ready_to_run())
         cmd_jobs(self._args(action='approve', name='gated'))
-        job = JobRegistry(self.base / '.replio' / 'jobs.json').find('gated')
+        job = JobRegistry(self.base / '.polyglav' / 'jobs.json').find('gated')
         self.assertEqual(job.status, 'approved')
         self.assertTrue(job.approval_pending)
         self.assertTrue(job.ready_to_run())
 
     def test_run_prints_content_headless(self):
-        from replio.cli import cmd_jobs
-        config_dir = Path(self.base) / '.replio'
+        from polyglav.cli import cmd_jobs
+        config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
         registry.put(Job('c', {'interval': 60}, prompt='p', status='approved',
                          retries=0, backoff=0))
-        with patch('replio.scheduler._build_engine', return_value=ScriptedEngine([
+        with patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine([
             TurnResult(status='ok', content='hello from the job', duration=0.2,
                        session='job.c')])):
             with patch('sys.stdout', new=io.StringIO()) as buf:
@@ -1025,28 +1025,28 @@ class TestJobsCli(unittest.TestCase):
         self.assertIn('hello from the job', buf.getvalue())
 
     def test_add_with_task_file_only(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         with patch('sys.stdout', new=io.StringIO()) as buf:
             code = cmd_jobs(self._args(action='add', name='doc',
                                        file='tasks/doc.md', cron='0 2 * * *'))
             self.assertEqual(code, 0)
             self.assertIn('doc', buf.getvalue())
-        fresh = JobRegistry(self.base / '.replio' / 'jobs.json')
+        fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         job = fresh.find('doc')
         self.assertEqual(job.prompt, '')
         self.assertEqual(job.task_file, 'tasks/doc.md')
         self.assertTrue((self.base / 'tasks' / 'doc.md').exists())
 
     def test_add_requires_prompt_or_file(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='bare', cron='* * * * *'))
             self.assertEqual(code, 1)
             self.assertIn('--prompt or --file', err.getvalue())
-        self.assertIsNone(JobRegistry(self.base / '.replio' / 'jobs.json').find('bare'))
+        self.assertIsNone(JobRegistry(self.base / '.polyglav' / 'jobs.json').find('bare'))
 
     def test_add_creates_template_when_file_missing(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='archiver', interval=3600,
                             file='jobs/archiver.md'))
         path = self.base / 'jobs' / 'archiver.md'
@@ -1054,10 +1054,10 @@ class TestJobsCli(unittest.TestCase):
         self.assertIn('# archiver', path.read_text())
 
     def test_edit_creates_template_and_opens(self):
-        from replio.cli import cmd_jobs
+        from polyglav.cli import cmd_jobs
         cmd_jobs(self._args(action='add', name='writer', interval=3600,
                             prompt='write'))
-        task_path = self.base / '.replio' / 'jobs' / 'writer.md'
+        task_path = self.base / '.polyglav' / 'jobs' / 'writer.md'
         self.assertFalse(task_path.exists())
         with patch.dict('os.environ', {'EDITOR': 'true'}):
             with patch('sys.stdout', new=io.StringIO()):

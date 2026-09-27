@@ -3,7 +3,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from replio.roles import Role
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 from tests.test_engine import make_engine

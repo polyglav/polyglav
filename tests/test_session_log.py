@@ -5,9 +5,9 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from replio.sessions import turns
-from replio.sessions.manager import Session, SessionManager
-from replio import get_version
+from polyglav.sessions import turns
+from polyglav.sessions.manager import Session, SessionManager
+from polyglav import get_version
 from tests.helpers import make_chat
 
 

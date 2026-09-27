@@ -3,7 +3,7 @@ import threading
 from unittest.mock import MagicMock, patch
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from replio.utils.http import stream_sse
+from polyglav.utils.http import stream_sse
 
 
 class _FakeResp:
@@ -28,7 +28,7 @@ class TestStreamSse(unittest.TestCase):
         resp = _FakeResp(chunks)
         opener = MagicMock()
         opener.open.return_value = resp
-        with patch('replio.utils.http._opener', return_value=opener):
+        with patch('polyglav.utils.http._opener', return_value=opener):
             return list(stream_sse('https://test.api.com/chat', {}, {'m': 1}))
 
     def test_parses_data_lines_and_done_marker(self):
@@ -59,7 +59,7 @@ class TestStreamSse(unittest.TestCase):
         opener = MagicMock()
         opener.open.side_effect = __import__('urllib.error').error.HTTPError(
             'url', 500, 'boom', {}, None)
-        with patch('replio.utils.http._opener', return_value=opener):
+        with patch('polyglav.utils.http._opener', return_value=opener):
             events = list(stream_sse('https://test.api.com/chat', {}, {'m': 1}))
         self.assertEqual(events[0]['type'], 'error')
         self.assertEqual(events[0]['code'], 500)

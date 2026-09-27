@@ -4,8 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from replio.roles import Role
-from replio.sessions import turns as session_turns
+from polyglav.roles import Role
+from polyglav.sessions import turns as session_turns
 
 from tests.helpers import make_chat
 
@@ -233,8 +233,8 @@ class TestDelegateTool(unittest.TestCase):
 
     def test_empty_result_uses_log_summary(self):
         from types import SimpleNamespace
-        from replio.sessions.manager import Session
-        from replio.tools.delegate import _format_result
+        from polyglav.sessions.manager import Session
+        from polyglav.tools.delegate import _format_result
         subname = 'sub_20260825_000000_ses_20260825_000000_parent'
         sess = Session(subname, turns_list=[self._summary_turn()])
         self.chat.sessions.save(sess)

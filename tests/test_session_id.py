@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from replio.runs import RunRegistry
-from replio.sessions.manager import (SESSION_ID_LEN, Session, SessionManager,
+from polyglav.runs import RunRegistry
+from polyglav.sessions.manager import (SESSION_ID_LEN, Session, SessionManager,
                                      coded_session_name, session_id_from_name,
                                      session_id_hash)
 from tests.helpers import make_chat

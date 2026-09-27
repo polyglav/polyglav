@@ -2,8 +2,8 @@ import io
 import unittest
 from unittest.mock import patch
 
-from replio.sessions import turns
-from replio.sessions.manager import Session
+from polyglav.sessions import turns
+from polyglav.sessions.manager import Session
 from tests.helpers import make_chat
 
 

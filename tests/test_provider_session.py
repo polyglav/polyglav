@@ -1,8 +1,8 @@
 import unittest
 
-from replio.engine import Engine
-from replio.providers.base import BaseProvider, OpenAICompatibleProvider
-from replio.sessions.manager import Session
+from polyglav.engine import Engine
+from polyglav.providers.base import BaseProvider, OpenAICompatibleProvider
+from polyglav.sessions.manager import Session
 
 
 class TestProviderSessionBinding(unittest.TestCase):

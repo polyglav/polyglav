@@ -4,12 +4,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from replio.config import Config
-from replio.engine import Engine
-from replio.plugins.manager import PluginManager
-from replio.sessions.manager import SessionManager
-from replio.runs import RunRegistry
-from replio.ui import HeadlessUI, NullUI
+from polyglav.config import Config
+from polyglav.engine import Engine
+from polyglav.plugins.manager import PluginManager
+from polyglav.sessions.manager import SessionManager
+from polyglav.runs import RunRegistry
+from polyglav.ui import HeadlessUI, NullUI
 
 
 def make_engine(config_data: dict | None = None) -> Engine:
@@ -26,7 +26,7 @@ def make_engine(config_data: dict | None = None) -> Engine:
     }
     if config_data:
         data.update(config_data)
-    config_dir = Path(temp_dir.name) / '.replio'
+    config_dir = Path(temp_dir.name) / '.polyglav'
     config_dir.mkdir(parents=True, exist_ok=True)
     with open(config_dir / 'config.json', 'w') as f:
         json.dump(data, f)
@@ -439,7 +439,7 @@ class TestEngineCheckConnection(unittest.TestCase):
 
     def test_check_connection_resolves_and_probes(self):
         factory = self._factory(['m1', 'm2'])
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             ok, msg, models = self.engine.check_connection()
         self.assertTrue(ok)
         self.assertIn('2 models available', msg)
@@ -450,7 +450,7 @@ class TestEngineCheckConnection(unittest.TestCase):
 
     def test_check_connection_model_mismatch_note(self):
         factory = self._factory(['a', 'b'])
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             ok, msg, models = self.engine.check_connection(model='zzz')
         self.assertTrue(ok)
         self.assertIn('"zzz" not in the model list', msg)
@@ -458,7 +458,7 @@ class TestEngineCheckConnection(unittest.TestCase):
 
     def test_check_connection_overrides_win(self):
         factory = self._factory([], error='HTTP 401: bad')
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             ok, msg, models = self.engine.check_connection(
                 base_url='https://other.example', api_key='sk-new', model='m2')
         self.assertFalse(ok)
@@ -469,7 +469,7 @@ class TestEngineCheckConnection(unittest.TestCase):
         self.assertEqual(factory.captured['model'], 'm2')
 
     def test_check_connection_unknown_factory(self):
-        with patch('replio.providers.PROVIDERS', {}):
+        with patch('polyglav.providers.PROVIDERS', {}):
             ok, msg, models = self.engine.check_connection(
                 provider='nope', base_url='http://localhost:11434')
         self.assertFalse(ok)
@@ -479,7 +479,7 @@ class TestEngineCheckConnection(unittest.TestCase):
     def test_check_connection_does_not_mutate_state(self):
         before = self.engine.provider
         factory = self._factory(['ok-model'])
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             self.engine.check_connection(base_url='https://other.example')
         self.assertIs(self.engine.provider, before)
         self.assertEqual(self.engine.config.get('base_url'), 'https://test.api.com')
@@ -487,7 +487,7 @@ class TestEngineCheckConnection(unittest.TestCase):
     def test_check_connection_detects_from_base_url(self):
         factory = self._factory(['g1'])
         factory.HOST_PATTERNS = ('groq.com',)
-        with patch('replio.providers.PROVIDERS', {'groq': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'groq': factory}):
             ok, msg, _ = self.engine.check_connection(
                 provider='nope', base_url='https://api.groq.com/openai/v1')
         self.assertTrue(ok)
@@ -495,20 +495,20 @@ class TestEngineCheckConnection(unittest.TestCase):
 
     def test_list_models_returns_models(self):
         factory = self._factory(['m1', 'm2'])
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             models, error = self.engine.list_models()
         self.assertIsNone(error)
         self.assertEqual(models, ['m1', 'm2'])
 
     def test_list_models_returns_error(self):
         factory = self._factory([], error='HTTP 403: forbidden')
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             models, error = self.engine.list_models()
         self.assertEqual(models, [])
         self.assertEqual(error, 'HTTP 403: forbidden')
 
     def test_list_models_unknown_factory(self):
-        with patch('replio.providers.PROVIDERS', {}):
+        with patch('polyglav.providers.PROVIDERS', {}):
             models, error = self.engine.list_models(
                 provider='nope', base_url='http://localhost:11434')
         self.assertEqual(models, [])
@@ -516,7 +516,7 @@ class TestEngineCheckConnection(unittest.TestCase):
 
     def test_list_models_respects_overrides(self):
         factory = self._factory(['x'])
-        with patch('replio.providers.PROVIDERS', {'ollama': factory}):
+        with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):
             self.engine.list_models(base_url='https://other.example')
         self.assertEqual(factory.captured['base_url'], 'https://other.example')
 
@@ -552,7 +552,7 @@ class TestEngineSinks(unittest.TestCase):
             engine._tmp.cleanup()
 
     def test_null_ui_confirm_denies(self):
-        from replio.ui import NullUI
+        from polyglav.ui import NullUI
         self.assertEqual(NullUI().confirm('x', 'x'), False)
 
     def test_headless_ui_auto(self):
@@ -642,7 +642,7 @@ class TestEngineModes(unittest.TestCase):
 
     def test_project_instructions_injected_as_system_message(self):
         worktree = self.engine.config.local_path.parent.parent
-        (worktree / 'AGENTS.md').write_text('# Replio conventions\n\nTest before commit.\n')
+        (worktree / 'AGENTS.md').write_text('# Polyglav conventions\n\nTest before commit.\n')
         self.engine.chat('q')
         msgs = self.engine.provider.chat.call_args.args[0]
         system = [m for m in msgs if m['role'] == 'system']
@@ -794,7 +794,7 @@ class TestModelRefUnfold(unittest.TestCase):
         self.assertEqual(sub.config.get('model'), 'deepseek-v4-flash')
 
     def test_run_team_precheck_denies_unapproved_model(self):
-        from replio.teams import Team, TeamStage
+        from polyglav.teams import Team, TeamStage
         self._write_type('coder', 'opencode-go/deepseek-v4-flash')
         self.engine.models.remove('opencode-go', 'deepseek-v4-flash')
         team = Team(name='t', stages=[TeamStage(role='coder')])

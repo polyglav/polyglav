@@ -1,6 +1,6 @@
 import unittest
 
-from replio.roles import Role
+from polyglav.roles import Role
 
 from tests.helpers import make_chat
 
