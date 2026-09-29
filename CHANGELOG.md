@@ -2,6 +2,7 @@
 
 ## v0.38.0 - 2026-09-29
 
+- Sub-agent permission feedback - an ask-gated tool inside a sub-agent now returns an explicit `permission denied` result that names the category and points at `ask(kind="permission")`, instead of the interactive `[cancelled] User declined` marker. The sub-agent prompt names the auto-denied categories and tells it not to retry, and the agent loop stops a sub-agent after repeated consecutive denials. This fixes a team stage (for example a Tester that could not run commands) that retried a denied call dozens of times and then reported a false success. Docs (`security.md`, `swarm.md`, `teams.md`). Tests: `tests/test_subagent.py`
 - Ollama null-content fix - an assistant turn that only made tool calls, or only produced reasoning, is now serialized with an empty `content` instead of `null` (`turn_to_provider`), and `OpenAICompatibleProvider._prepare_messages` coerces a null assistant content to an empty string. A session with any tool-using turn no longer 400s on Ollama's OpenAI-compatible endpoint (`invalid message content type: <nil>`), which had made every later request in the session fail. Tests: `tests/test_turns.py`, `tests/test_providers.py`
 
 ## v0.37.0 - 2026-09-27

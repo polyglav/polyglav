@@ -219,7 +219,7 @@ class TestSubAgentEngine(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.chat.run_subagent('nope', 'anything')
 
-    def test_ask_gated_tool_cancelled_without_prompt(self):
+    def test_ask_gated_tool_denied_without_prompt(self):
         self.chat.roles.put(
             Role(name='defaults', system_prompt='plain agent'),
             scope='local')
@@ -234,8 +234,31 @@ class TestSubAgentEngine(unittest.TestCase):
         tools = [p for t in data['turns'] for p in t.get('parts') or []
                  if p['type'] == 'tool']
         self.assertTrue(tools)
-        self.assertIn('[cancelled]', tools[0]['output'])
+        self.assertIn('permission denied', tools[0]['output'])
+        self.assertNotIn('[cancelled]', tools[0]['output'])
+        self.assertTrue(tools[0]['is_error'])
         self.assertEqual(result.content, 'final')
+
+    def test_subagent_stops_after_repeated_denials(self):
+        self.chat.roles.put(
+            Role(name='loopless', system_prompt='plain'), scope='local')
+        self.chat.provider.chat.side_effect = [
+            [{'type': 'tool_calls', 'tool_calls': self._tool_call()}],
+            [{'type': 'tool_calls', 'tool_calls': self._tool_call()}],
+            [{'type': 'tool_calls', 'tool_calls': self._tool_call()}],
+        ]
+        result = self.chat.run_subagent('loopless', 'run the build')
+        self.assertEqual(result.status, 'error')
+        self.assertEqual(self.chat.provider.chat.call_count, 3)
+
+    def test_subagent_prompt_warns_on_auto_denied_categories(self):
+        self.chat.roles.put(
+            Role(name='tester2', system_prompt='You test.',
+                 tool_permission={'bash': 'allow'}), scope='local')
+        sub = self.chat._new_sub_engine('tester2')
+        prompt = sub.config.get('system_prompt')
+        self.assertIn('no interactive confirmation', prompt)
+        self.assertIn('bash', prompt)
 
 
 if __name__ == '__main__':

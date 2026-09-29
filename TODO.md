@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Sub-agent denial feedback - explicit `permission denied`, prompt warning, loop cap
 - [x] Ollama null-content fix - tool-only assistant turns serialize empty content, not null
 - [x] Renamed the project from Replio to Polyglav
 - [x] `code_test` no-match detected on Python 3.11 (`Ran 0 tests`)

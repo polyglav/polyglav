@@ -68,6 +68,15 @@ class TeamRunResult:
 CONTINUE_INSTRUCTION = ('Continue exactly where you stopped. '
                         'Do not repeat what was already written.')
 
+_MAX_DENIED_STREAK = 3
+
+_SUB_PERMISSION_NOTE = (
+    'Operating note: you are a sub-agent with no interactive confirmation. '
+    'Any tool in a category that resolves to "ask" is auto-denied. Do not '
+    'retry a denied call. If a task truly needs such a tool, request it with '
+    'ask(kind="permission", permission="<category>"), otherwise return a '
+    'final answer with what you have.')
+
 
 def _review_passed(content: str | None, marker: str) -> bool:
     if not content:
@@ -110,6 +119,8 @@ class Engine:
         self._pending_focus = None
         self._provider_error = None
         self._ui = ui
+        self._sub_run = False
+        self._denied_streak = 0
         self._unattended = bool(config.get('unattended'))
         self._ask_ui = ui if isinstance(ui, ReplUI) else None
         if self._unattended:
@@ -528,6 +539,17 @@ class Engine:
         permissions = resolve_permissions(
             parent_self, parent_grant, agent_role.tool_permission)
         sub_config.apply('tool_permission', permissions)
+        requested = agent_role.tool_permission or {}
+        auto_denied = sorted(
+            key for key, value in requested.items()
+            if isinstance(value, str) and value in ('allow', 'ask')
+            and permissions.get(key) == 'ask')
+        if auto_denied:
+            prompt = (sub_config.get('system_prompt') or '').rstrip()
+            note = (_SUB_PERMISSION_NOTE
+                    + ' Auto-denied categories: ' + ', '.join(auto_denied) + '.')
+            sub_config.apply('system_prompt',
+                             (prompt + '\n\n' + note).strip() if prompt else note)
         sub_config.apply('mode', mode or 'build')
         sub_config.apply('unattended', self._is_unattended())
         if agent_role.ask_policy:
@@ -554,6 +576,7 @@ class Engine:
         sub.role = role_name
         sub.current_run.role = role_name
         sub.current_run.task = task
+        sub._sub_run = True
         sub._lead = self
         sub._ask_ui = getattr(self, '_ask_ui', None)
         sub._grant_ceiling = resolve_grant_ceiling(
@@ -582,6 +605,7 @@ class Engine:
                          plugin_manager=self._plugin_manager,
                          provider=self.provider, runs=self.runs, run=run)
             sub.load_or_create_session(run.session)
+            sub._sub_run = True
             sub._lead = self
             sub._ask_ui = getattr(self, '_ask_ui', None)
         sub.role = run.role
@@ -1034,6 +1058,7 @@ class Engine:
 
     def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
         self._pending_handoff = None
+        self._denied_streak = 0
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
         tools_schema = self._init_tooling()
@@ -1143,6 +1168,16 @@ class Engine:
                                 end_thinking()
                                 executed_tool_calls += self._execute_tool_calls(
                                     event['tool_calls'], s_thinking or None)
+                                if (getattr(self, '_sub_run', False)
+                                        and self._denied_streak >= _MAX_DENIED_STREAK):
+                                    msg = (f'Stopped after {self._denied_streak} '
+                                           'consecutive permission denials - this '
+                                           'sub-agent run has no interactive '
+                                           'confirmation')
+                                    self.current_session.add_error(0, msg)
+                                    self.ui.error(0, msg)
+                                    status = 'error'
+                                    aborted = True
                                 break
                             elif t == 'error':
                                 code = event.get('code', '')
@@ -1411,6 +1446,14 @@ class Engine:
             self._log_permission(name, action, 'denied', path)
             return f'Error: tool "{name}" is disabled by tool policy'
         if action == 'ask' and registry.confirm_for(name):
+            if getattr(self, '_sub_run', False):
+                self._log_permission(name, action, 'declined', path)
+                self._denied_streak = getattr(self, '_denied_streak', 0) + 1
+                return (f'Error: permission denied - "{name}" needs category '
+                        f'"{permission_key}", which a sub-agent run cannot '
+                        f'confirm. Do not retry. Use '
+                        f'ask(kind="permission", permission="{permission_key}") '
+                        f'to request it, or return a final answer.')
             try:
                 granted = self._confirm_tool(name, args)
             except KeyboardInterrupt:
@@ -1434,6 +1477,7 @@ class Engine:
         elif (registry.is_note_result(name, result)
               and self.config.get('show_notes', True)):
             self.ui.tool_note(result)
+        self._denied_streak = 0
         return result
 
     def _log_permission(self, name: str, action: str, decision: str,
