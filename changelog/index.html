@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0380-2026-09-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.38.0 - 2026-09-29
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0370-2026-09-27" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1543,6 +1554,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0380-2026-09-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.38.0 - 2026-09-29
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0370-2026-09-27" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1967,6 +1989,13 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0380-2026-09-29">v0.38.0 - 2026-09-29<a class="headerlink" href="#v0380-2026-09-29" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Team stage error reporting - <code>run_team</code> synthesizes a stage error from the stage status and its sub-session id when the stage result carried none, so the <code>team</code> tool reports <code>stage "&lt;role&gt;" ended with status "&lt;status&gt;" (session &lt;id&gt;) - see the sub-session log</code> instead of <code>unknown error</code>. A permission-clamped stage failure also points at the caller ceiling and how to widen it. Docs (<code>teams.md</code>). Tests: <code>tests/test_team_tool.py</code></li>
+<li>Team stage self-reentry guard - a team stage can no longer call the <code>team</code> tool for the team it belongs to: the per-invocation resolver returns <code>deny</code> (<code>disabled by tool policy</code>) when the requested name is already on the <code>_team_stack</code>, each stage brief tells the stage to do its own work directly rather than orchestrate, and the <code>team_cycle</code> error carries the same guidance. This fixes a stage (for example a Developer whose brief read <code>Team: DevTestPipeline</code>) that tried to re-run its own pipeline and either tripped a confusing cycle error or stalled. Docs (<code>teams.md</code>). Tests: <code>tests/test_team_tool.py</code></li>
+<li>Sub-agent permission feedback - an ask-gated tool inside a sub-agent now returns an explicit <code>permission denied</code> result that names the category and points at <code>ask(kind="permission")</code>, instead of the interactive <code>[cancelled] User declined</code> marker. The sub-agent prompt names the auto-denied categories and tells it not to retry, and the agent loop stops a sub-agent after repeated consecutive denials. This fixes a team stage (for example a Tester that could not run commands) that retried a denied call dozens of times and then reported a false success. Docs (<code>security.md</code>, <code>swarm.md</code>, <code>teams.md</code>). Tests: <code>tests/test_subagent.py</code></li>
+<li>Ollama null-content fix - an assistant turn that only made tool calls, or only produced reasoning, is now serialized with an empty <code>content</code> instead of <code>null</code> (<code>turn_to_provider</code>), and <code>OpenAICompatibleProvider._prepare_messages</code> coerces a null assistant content to an empty string. A session with any tool-using turn no longer 400s on Ollama's OpenAI-compatible endpoint (<code>invalid message content type: &lt;nil&gt;</code>), which had made every later request in the session fail. Tests: <code>tests/test_turns.py</code>, <code>tests/test_providers.py</code></li>
+</ul>
 <h2 id="v0370-2026-09-27">v0.37.0 - 2026-09-27<a class="headerlink" href="#v0370-2026-09-27" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Renamed the project from Replio to Polyglav - the Python package (<code>src/polyglav</code>), the <code>polyglav</code> CLI and <code>python -m polyglav</code>, the worktree directory (<code>.polyglav/</code>), the global config directory (<code>~/.config/polyglav/</code>), the <code>POLYGLAV_*</code> environment variables, the bundled <code>polyglav-core-*</code> plugins with their <code>polyglav_version</code> manifest field, and all repository, PyPI, and documentation URLs. Existing <code>.replio/</code> configs and sessions are not migrated.</li>
