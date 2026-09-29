@@ -4,8 +4,9 @@ import unittest
 from pathlib import Path
 
 from polyglav.config import Config
-from polyglav.modes import (instructions_file_section, merge_policy, mode_list,
-                          resolve_mode, system_instruction)
+from polyglav.modes import (PROMPT_COLORS, instructions_file_section,
+                          merge_policy, mode_color, mode_list, resolve_mode,
+                          system_instruction)
 
 
 def make_config(data: dict | None = None) -> Config:
@@ -197,6 +198,60 @@ class TestModes(unittest.TestCase):
             text = instructions_file_section(config, max_chars=1000)
             self.assertIn('... (truncated)', text)
             self.assertLess(len(text), 2000)
+        finally:
+            config._tmp.cleanup()
+
+
+class TestModeColor(unittest.TestCase):
+
+    def test_build_mode_is_orange(self):
+        config = make_config()
+        try:
+            mode, _ = resolve_mode(config)
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['orange'])
+        finally:
+            config._tmp.cleanup()
+
+    def test_plan_mode_is_cyan(self):
+        config = make_config({'mode': 'plan'})
+        try:
+            mode, _ = resolve_mode(config)
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
+        finally:
+            config._tmp.cleanup()
+
+    def test_explicit_color_wins(self):
+        config = make_config({
+            'mode': 'custom',
+            'modes': {'custom': {'tool_permission': {}, 'color': 'cyan'}},
+        })
+        try:
+            mode, _ = resolve_mode(config)
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
+        finally:
+            config._tmp.cleanup()
+
+    def test_read_only_mode_defaults_cyan(self):
+        config = make_config({
+            'mode': 'ro',
+            'modes': {'ro': {'tool_permission': {'edit': 'deny',
+                                                 'bash': 'deny'}}},
+        })
+        try:
+            mode, _ = resolve_mode(config)
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
+        finally:
+            config._tmp.cleanup()
+
+    def test_unknown_color_name_falls_back_by_posture(self):
+        config = make_config({
+            'mode': 'weird',
+            'modes': {'weird': {'tool_permission': {'bash': 'deny'},
+                                'color': 'magenta'}},
+        })
+        try:
+            mode, _ = resolve_mode(config)
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['orange'])
         finally:
             config._tmp.cleanup()
 

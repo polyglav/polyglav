@@ -3,12 +3,21 @@ from typing import NamedTuple
 from .config import Config
 
 
+PROMPT_COLORS = {
+    'cyan': '\033[1;36m',
+    'orange': '\033[1;38;5;208m',
+}
+
+DEFAULT_PROMPT_COLOR = 'orange'
+
+
 class ModeSpec(NamedTuple):
     name: str
     instruction: str
     permissions: dict
     deny: list
     allow: list
+    color: str = ''
 
 
 def _normalize_spec(name: str, spec: dict) -> ModeSpec:
@@ -17,7 +26,19 @@ def _normalize_spec(name: str, spec: dict) -> ModeSpec:
     deny = [str(n) for n in (spec.get('tools.deny') or [])]
     allow = [str(n) for n in (spec.get('tools.allow') or [])]
     instruction = str(spec.get('system_prompt') or '')
-    return ModeSpec(name, instruction, permissions, deny, allow)
+    color = str(spec.get('color') or '')
+    return ModeSpec(name, instruction, permissions, deny, allow, color)
+
+
+def mode_color(spec: ModeSpec) -> str:
+    name = str(spec.color or '').strip().lower()
+    if name in PROMPT_COLORS:
+        return PROMPT_COLORS[name]
+    permissions = spec.permissions or {}
+    if (permissions.get('edit') == 'deny'
+            and permissions.get('bash') == 'deny'):
+        return PROMPT_COLORS['cyan']
+    return PROMPT_COLORS[DEFAULT_PROMPT_COLOR]
 
 
 def resolve_mode(config: Config) -> tuple[ModeSpec, list[str]]:

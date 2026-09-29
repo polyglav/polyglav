@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Mode-aware prompt color - cyan read, orange write, per-mode `color` override
 - [x] Team stage error detail - status and sub-session instead of `unknown error`
 - [x] Team stage self-reentry guard - a stage cannot re-run its own team
 - [x] Sub-agent denial feedback - explicit `permission denied`, prompt warning, loop cap

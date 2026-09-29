@@ -6,12 +6,16 @@ from .config import Config
 from .engine import Engine
 from .focus import FocusManager
 from .ui import ReplUI
+from .modes import PROMPT_COLORS, mode_color, resolve_mode
 from . import get_version
 
 HISTFILE = '.polyglav_history'
 
-MAIN_PROMPT = '\001\033[1;36m\002>>>\001\033[0m\002 '
-CONT_PROMPT = '\001\033[1;36m\002...\001\033[0m\002 '
+_RST = '\001\033[0m\002'
+_ORANGE = PROMPT_COLORS['orange']
+
+MAIN_PROMPT = f'\001{_ORANGE}\002>>>{_RST} '
+CONT_PROMPT = f'\001{_ORANGE}\002...{_RST} '
 
 
 def _open_delim(text: str) -> str | None:
@@ -182,7 +186,7 @@ class ChatLoop(Engine):
         parts = [line]
         while True:
             try:
-                nxt = input(CONT_PROMPT).rstrip()
+                nxt = input(self._cont_prompt()).rstrip()
             except (EOFError, KeyboardInterrupt):
                 print()
                 return None
@@ -201,7 +205,7 @@ class ChatLoop(Engine):
         parts = [line[:-1].rstrip()]
         while True:
             try:
-                nxt = input(CONT_PROMPT).rstrip()
+                nxt = input(self._cont_prompt()).rstrip()
             except (EOFError, KeyboardInterrupt):
                 print()
                 return None
@@ -223,10 +227,16 @@ class ChatLoop(Engine):
         role = ''
         if self.config.get('prompt_role', False):
             role = str(getattr(self.active(), 'role', '') or '')
-        if not role:
-            return MAIN_PROMPT
-        label = role[:1].upper() + role[1:]
-        return f'\001\033[1;36m\002{label} >>>\001\033[0m\002 '
+        return self._make_prompt('>>>', role)
+
+    def _cont_prompt(self) -> str:
+        return self._make_prompt('...', '')
+
+    def _make_prompt(self, marker: str, role: str) -> str:
+        spec, _ = resolve_mode(self.config)
+        color = mode_color(spec)
+        label = f'{role[:1].upper() + role[1:]} {marker}' if role else marker
+        return f'\001{color}\002{label}{_RST} '
 
     def _open_output_log(self):
         if not self.config.get('output_log', False):
@@ -265,8 +275,12 @@ class ChatLoop(Engine):
 
         model_str = self.config.get('model', '?')
         provider_str = self.config.get('provider', '?')
-        mode_str = self.config.get('mode', 'build')
-        suffix = f'  [{mode_str} mode]' if mode_str != 'build' else ''
+        spec, _ = resolve_mode(self.config)
+        mode_str = spec.name
+        if mode_str != 'build':
+            suffix = f'  [{mode_color(spec)}{mode_str} mode\033[0m]'
+        else:
+            suffix = ''
         if self.config.get('show_version', True):
             print(f'Polyglav v{get_version()} ({provider_str}: {model_str}){suffix}  /help for commands')
         else:

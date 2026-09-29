@@ -145,6 +145,13 @@ class TestFocusRouting(unittest.TestCase):
         self.chat.focus.enter(child.id)
         self.assertEqual(self.chat._prompt(), MAIN_PROMPT)
 
+    def test_prompt_color_tracks_mode(self):
+        self.assertIn('\033[1;38;5;208m', self.chat._prompt())
+        self.assertIn('\033[1;38;5;208m', self.chat._cont_prompt())
+        self.chat.config.set('mode', 'plan')
+        self.assertIn('\033[1;36m', self.chat._prompt())
+        self.assertIn('\033[1;36m', self.chat._cont_prompt())
+
 
 class TestFocusCommand(unittest.TestCase):
 

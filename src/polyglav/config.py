@@ -23,7 +23,7 @@ DEFAULT_CONFIG = {
     'memory_max_chars': 2000,
     'mode': 'build',
     'modes': {
-        'build': {'system_prompt': '', 'tool_permission': {}},
+        'build': {'system_prompt': '', 'tool_permission': {}, 'color': 'orange'},
         'plan': {
             'system_prompt': (
                 'You are in plan mode (read-only). Investigate, cite sources, and '
@@ -31,6 +31,7 @@ DEFAULT_CONFIG = {
                 'exec tools are disabled.'
             ),
             'tool_permission': {'edit': 'deny', 'bash': 'deny'},
+            'color': 'cyan',
         },
     },
     'tool_calling': True,

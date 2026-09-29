@@ -114,16 +114,17 @@ Modes are named postures combining an instruction block with tool-policy overrid
 {
   "mode": "plan",
   "modes": {
-    "build": { "system_prompt": "", "tool_permission": {} },
+    "build": { "system_prompt": "", "tool_permission": {}, "color": "orange" },
     "plan": {
       "system_prompt": "You are in plan mode (read-only)...",
-      "tool_permission": { "edit": "deny", "bash": "deny" }
+      "tool_permission": { "edit": "deny", "bash": "deny" },
+      "color": "cyan"
     }
   }
 }
 ```
 
-Each mode may define `system_prompt` (instructions), `tool_permission` (category actions merged over the base, mode wins per key), `tools.deny` (appended to the base deny list), and `tools.allow` (replaces the base allowlist when non-empty). An unknown `mode` falls back to `build`. Switch live with `/mode <name>` or `--mode <name>` on `polyglav run` / `polyglav serve`. The mode instruction and `system_prompt` are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.
+Each mode may define `system_prompt` (instructions), `tool_permission` (category actions merged over the base, mode wins per key), `tools.deny` (appended to the base deny list), `tools.allow` (replaces the base allowlist when non-empty), and `color` (the REPL prompt color, `orange` or `cyan`). The prompt marker and its continuation variant are colored by the active mode, an explicit `color` wins, and otherwise a mode that denies both `edit` and `bash` is treated as read-only and colored `cyan`, every other mode `orange`. An unknown `mode` falls back to `build`. Switch live with `/mode <name>` or `--mode <name>` on `polyglav run` / `polyglav serve`. The mode instruction and `system_prompt` are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.
 
 ### `tool_permission`
 
