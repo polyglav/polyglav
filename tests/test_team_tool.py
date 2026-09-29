@@ -157,6 +157,32 @@ class TestTeamTool(unittest.TestCase):
         self.assertIn('disabled by tool policy', out)
         self.assertEqual(self.chat.provider.chat.call_count, 0)
 
+    def test_stage_error_without_details_reports_status_and_session(self):
+        from polyglav.engine import TurnResult
+        self._team('doc', TeamStage(role='writer'))
+        with patch.object(
+                self.chat, '_run_team_stage',
+                return_value=TurnResult(status='cancelled', session='sub_x')):
+            out = self._run()
+        self.assertIn('cancelled', out)
+        self.assertIn('sub_x', out)
+        self.assertNotIn('unknown error', out)
+
+    def test_clamped_stage_failure_hints_ceiling(self):
+        from polyglav.engine import TurnResult
+        self.chat.roles.put(Role(
+            name='impl2', system_prompt='x',
+            tool_permission={'bash': 'allow'}), scope='local')
+        self._team('doc', TeamStage(role='impl2'))
+        with patch.object(
+                self.chat, '_run_team_stage',
+                return_value=TurnResult(status='error',
+                                        errors=[{'message': 'boom'}])):
+            out = self._run()
+        self.assertIn('boom', out)
+        self.assertIn('reduced permissions for: impl2', out)
+        self.assertIn('above the caller ceiling', out)
+
     def test_stage_brief_forbids_reentry(self):
         self._team('doc', TeamStage(role='writer'))
         team = self.chat.teams.find('doc')

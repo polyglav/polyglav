@@ -84,6 +84,16 @@ def _review_passed(content: str | None, marker: str) -> bool:
     return f'{marker} PASS'.lower() in content.lower()
 
 
+def _stage_errors(role: str, result: TurnResult) -> list:
+    if result.errors:
+        return list(result.errors)
+    status = result.status or 'error'
+    detail = f'stage "{role}" ended with status "{status}"'
+    if result.session:
+        detail += f' (session {result.session})'
+    return [{'code': status, 'message': detail + ' - see the sub-session log'}]
+
+
 def _resolver_takes_policy(fn: Callable) -> bool:
     try:
         import inspect
@@ -924,7 +934,7 @@ class Engine:
                 team, stage, brief, skills, resume, context)
             stages.append(res)
             if res.status not in ('ok', 'truncated'):
-                return 'error', list(res.errors)
+                return 'error', _stage_errors(stage.role, res)
         iterations = 0
         last_review = ''
         block: list[TurnResult] = []
@@ -941,7 +951,7 @@ class Engine:
                 stages.append(res)
                 block.append(res)
                 if res.status not in ('ok', 'truncated'):
-                    return 'error', list(res.errors)
+                    return 'error', _stage_errors(stage.role, res)
             last_review = (block[-1].content or '') if block else ''
             if _review_passed(last_review, marker):
                 break
@@ -955,7 +965,7 @@ class Engine:
                 team, stage, brief, skills, resume, context)
             stages.append(res)
             if res.status not in ('ok', 'truncated'):
-                return 'error', list(res.errors)
+                return 'error', _stage_errors(stage.role, res)
         return 'ok', []
 
     def _run_team_stages(self, team, task: str, skills: list | None = None,
@@ -989,7 +999,7 @@ class Engine:
                     stages.append(res)
                     if res.status not in ('ok', 'truncated'):
                         status = 'error'
-                        errors.extend(res.errors)
+                        errors.extend(_stage_errors(stage.role, res))
                         break
             else:
                 status, errors = self._run_team_loop(

@@ -49,7 +49,8 @@ def _format_result(team_name: str, res) -> str:
     if res.status == 'error':
         msgs = '; '.join(e.get('message', '') for e in (res.errors or [])
                          if isinstance(e, dict) and e.get('message'))
-        return f'Error: team "{team_name}" failed: {msgs or "unknown error"}'
+        return (f'Error: team "{team_name}" failed: '
+                f'{msgs or f"status {res.status}"}')
     content = (res.content or '').strip()
     if content:
         return f'[team {team_name}] {content}'
@@ -148,6 +149,11 @@ def register_team_tool(registry, engine) -> Callable:
         if clamped:
             result += (f' (reduced permissions for: '
                        f'{", ".join(sorted(set(clamped)))})')
+            if result.startswith('Error'):
+                result += ('. A stage requested permissions above the caller '
+                           'ceiling; raise tool_permission/grant_permission or '
+                           'run the team under a role whose grant_permission '
+                           'widens it')
         if (_echo and _config is not None and _config.get('delegate_echo', True)
                 and not result.startswith('Error')):
             engine.ui.tool_result(result)
