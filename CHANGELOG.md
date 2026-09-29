@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.38.0 - 2026-09-29
+
+- Ollama null-content fix - an assistant turn that only made tool calls, or only produced reasoning, is now serialized with an empty `content` instead of `null` (`turn_to_provider`), and `OpenAICompatibleProvider._prepare_messages` coerces a null assistant content to an empty string. A session with any tool-using turn no longer 400s on Ollama's OpenAI-compatible endpoint (`invalid message content type: <nil>`), which had made every later request in the session fail. Tests: `tests/test_turns.py`, `tests/test_providers.py`
+
 ## v0.37.0 - 2026-09-27
 
 - Renamed the project from Replio to Polyglav - the Python package (`src/polyglav`), the `polyglav` CLI and `python -m polyglav`, the worktree directory (`.polyglav/`), the global config directory (`~/.config/polyglav/`), the `POLYGLAV_*` environment variables, the bundled `polyglav-core-*` plugins with their `polyglav_version` manifest field, and all repository, PyPI, and documentation URLs. Existing `.replio/` configs and sessions are not migrated.

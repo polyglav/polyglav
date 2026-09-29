@@ -82,8 +82,31 @@ class TestTurnToProvider(unittest.TestCase):
         turn = self._turn(turns.user_part('hi'), turns.thinking_part('reason'))
         out = turns.turn_to_provider(turn)
         self.assertEqual(out[1]['role'], 'assistant')
-        self.assertIsNone(out[1]['content'])
+        self.assertEqual(out[1]['content'], '')
         self.assertEqual(out[1]['thinking'], 'reason')
+
+    def test_tool_only_turn_has_empty_content(self):
+        turn = self._turn(
+            turns.user_part('q'),
+            turns.tool_part('file_write', input={'path': 'a.py'},
+                            output='Created a.py'),
+        )
+        out = turns.turn_to_provider(turn)
+        call = out[1]
+        self.assertEqual(call['role'], 'assistant')
+        self.assertEqual(call['content'], '')
+        self.assertIsNotNone(call['content'])
+        self.assertEqual(out[2]['role'], 'tool')
+
+    def test_no_assistant_message_has_null_content(self):
+        turn = self._turn(
+            turns.user_part('q'),
+            turns.thinking_part('reason'),
+            turns.tool_part('read', input={'path': 'a.py'}, output='body'),
+        )
+        for message in turns.turn_to_provider(turn):
+            if message['role'] == 'assistant':
+                self.assertIsNotNone(message.get('content'))
 
     def test_text_tool_call_result_then_answer(self):
         turn = self._turn(

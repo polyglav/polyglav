@@ -140,7 +140,7 @@ def turn_to_provider(turn: dict) -> list[dict]:
                     'content': tp.get('output') or '',
                 })
                 i += 1
-            message = {'role': 'assistant', 'content': pending_text,
+            message = {'role': 'assistant', 'content': pending_text or '',
                        'tool_calls': calls}
             if pending_thinking:
                 message['thinking'] = pending_thinking
@@ -151,7 +151,7 @@ def turn_to_provider(turn: dict) -> list[dict]:
         else:
             i += 1
     if pending_text is not None or pending_thinking:
-        message = {'role': 'assistant', 'content': pending_text}
+        message = {'role': 'assistant', 'content': pending_text or ''}
         if pending_thinking:
             message['thinking'] = pending_thinking
         out.append(message)

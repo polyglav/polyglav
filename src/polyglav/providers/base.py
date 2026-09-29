@@ -71,6 +71,9 @@ class OpenAICompatibleProvider(BaseProvider):
         for message in messages:
             prepared = dict(message)
             thinking = prepared.pop('thinking', None)
+            if (prepared.get('role') == 'assistant'
+                    and prepared.get('content') is None):
+                prepared['content'] = ''
             if (self.ECHO_REASONING and thinking
                     and prepared.get('role') == 'assistant'):
                 prepared['reasoning_content'] = thinking

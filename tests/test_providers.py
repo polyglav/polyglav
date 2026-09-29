@@ -486,6 +486,20 @@ class TestReasoningEcho(unittest.TestCase):
             self.assertNotIn('thinking', message)
             self.assertNotIn('reasoning_content', message)
 
+    def test_none_assistant_content_normalized(self):
+        p = OpenAICompatibleProvider(model='m')
+        payload = p._payload([
+            {'role': 'assistant', 'content': None,
+             'tool_calls': [{'id': 'c1', 'type': 'function',
+                             'function': {'name': 'read', 'arguments': '{}'}}]},
+        ])
+        self.assertEqual(payload['messages'][0]['content'], '')
+
+    def test_none_user_content_left_untouched(self):
+        p = OpenAICompatibleProvider(model='m')
+        payload = p._payload([{'role': 'user', 'content': None}])
+        self.assertIsNone(payload['messages'][0]['content'])
+
     def test_prepare_messages_does_not_mutate_input(self):
         p = self._echo()
         original = {'role': 'assistant', 'content': 'hi', 'thinking': 'reason'}
