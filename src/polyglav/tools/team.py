@@ -10,6 +10,8 @@ def _stage_action(engine, entry) -> str:
 
 def _team_action(engine, args: dict) -> str:
     name = (args or {}).get('name', '')
+    if name and name in list(getattr(engine, '_team_stack', []) or []):
+        return 'deny'
     team = engine.teams.find(name)
     if team is None or not team.stages:
         return 'allow'

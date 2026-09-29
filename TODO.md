@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Team stage self-reentry guard - a stage cannot re-run its own team
 - [x] Sub-agent denial feedback - explicit `permission denied`, prompt warning, loop cap
 - [x] Ollama null-content fix - tool-only assistant turns serialize empty content, not null
 - [x] Renamed the project from Replio to Polyglav

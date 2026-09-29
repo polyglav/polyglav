@@ -142,6 +142,27 @@ class TestTeamTool(unittest.TestCase):
         result = self.chat.run_team(self.chat.teams.find('doc'), 'task')
         self.assertEqual(result.status, 'error')
         self.assertTrue(any(e.get('code') == 'team_cycle' for e in result.errors))
+        self.assertIn('do not call the team tool',
+                      result.errors[0]['message'])
+
+    def test_resolver_denies_self_team_on_stack(self):
+        self._team('doc', TeamStage(role='writer'))
+        self.chat._team_stack = ['doc']
+        self.assertEqual(_team_action(self.chat, {'name': 'doc'}), 'deny')
+
+    def test_self_team_call_refused_on_stage(self):
+        self._team('doc', TeamStage(role='writer'))
+        self.chat._team_stack = ['doc']
+        out = self._run()
+        self.assertIn('disabled by tool policy', out)
+        self.assertEqual(self.chat.provider.chat.call_count, 0)
+
+    def test_stage_brief_forbids_reentry(self):
+        self._team('doc', TeamStage(role='writer'))
+        team = self.chat.teams.find('doc')
+        brief = self.chat._build_stage_brief(team, 'task', [], 0, '')
+        self.assertIn('stage 1 of team "doc"', brief)
+        self.assertIn('do not call the team tool', brief)
 
     def test_depth_guard(self):
         self._team('doc', TeamStage(role='writer'))

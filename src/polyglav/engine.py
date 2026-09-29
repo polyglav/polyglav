@@ -782,6 +782,9 @@ class Engine:
             parts.append(f'## Team memory\n{memory}')
         hint = stage.task_hint or 'Complete this stage of the task.'
         parts.append(f'Your stage ({stage.role}):\n{hint}')
+        parts.append(f'You are stage {index + 1} of team "{team.name}". Do this '
+                     f"stage's work directly and do not call the team tool for "
+                     f'"{team.name}".')
         return '\n\n'.join(parts)
 
     def _team_memory_summary(self, team, results: list, prior: str) -> str:
@@ -827,7 +830,10 @@ class Engine:
             return TeamRunResult(
                 name=team.name, status='error',
                 errors=[{'code': 'team_cycle', 'message':
-                         f'Team cycle detected: {" -> ".join(stack + [team.name])}'}])
+                         f'Team cycle detected: {" -> ".join(stack + [team.name])}. '
+                         'This run is already a stage of that team; do the '
+                         'stage work directly and do not call the team tool '
+                         'for it again.'}])
         if max_depth and depth >= max_depth:
             return TeamRunResult(
                 name=team.name, status='error',
@@ -878,6 +884,9 @@ class Engine:
             parts.append(f'## Team memory\n{memory}')
         hint = stage.task_hint or 'Complete this stage of the task.'
         parts.append(f'Your stage ({stage.role}):\n{hint}')
+        parts.append(f'You are a stage of team "{team.name}". Do this stage\'s '
+                     f'work directly and do not call the team tool for '
+                     f'"{team.name}".')
         return '\n\n'.join(parts)
 
     def _team_loop_plan(self, team):
