@@ -25,10 +25,11 @@ class TestFocusOnDelegate(unittest.TestCase):
         return self.chat._run_tool('delegate',
                                    {'role': role_name, 'task': 'draft it'})
 
-    def test_default_is_off(self):
-        self.assertEqual(self.chat.config.get('focus_on_delegate'), 'off')
+    def test_default_is_on(self):
+        self.assertEqual(self.chat.config.get('focus_on_delegate'), 'on')
 
     def test_off_leaves_focus_alone(self):
+        self.chat.config.set('focus_on_delegate', 'off')
         out = self._delegate()
         self.assertIsNone(self.chat._pending_focus)
         self.assertNotIn('focus follows', out)

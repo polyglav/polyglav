@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Auto-follow sub-runs - `focus_on_delegate` defaults on, teams focus the last stage
 - [x] Interruptible sub-run status - Enter pauses the spinner, prompts are never overwritten
 - [x] Mode-aware prompt color - cyan read, orange write, per-mode `color` override
 - [x] Team stage error detail - status and sub-session instead of `unknown error`

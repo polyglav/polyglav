@@ -17,7 +17,7 @@ DEFAULT_CONFIG = {
     'assistant': True,
     'assistant_role': 'assistant',
     'prompt_role': False,
-    'focus_on_delegate': 'off',
+    'focus_on_delegate': 'on',
     'memory': True,
     'memory_scopes': {'role': True, 'team': True, 'job': True},
     'memory_max_chars': 2000,

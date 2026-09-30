@@ -57,6 +57,21 @@ class TestTeamTool(unittest.TestCase):
         self.assertEqual(self.chat.provider.chat.call_count, 2)
         self.assertEqual(len(self.chat.current_session.sub_sessions), 2)
 
+    def test_team_offers_focus_on_last_stage(self):
+        self._team('doc', TeamStage(role='writer'))
+        self.chat.provider.chat.side_effect = [self._result('done')]
+        out = self._run()
+        self.assertIn('focus follows', out)
+        self.assertIsNotNone(self.chat._pending_focus)
+
+    def test_team_focus_off_leaves_focus_alone(self):
+        self._team('doc', TeamStage(role='writer'))
+        self.chat.config.set('focus_on_delegate', 'off')
+        self.chat.provider.chat.side_effect = [self._result('done')]
+        out = self._run()
+        self.assertNotIn('focus follows', out)
+        self.assertIsNone(self.chat._pending_focus)
+
     def test_unknown_team_errors(self):
         out = self._run(name='ghost')
         self.assertIn('Error: unknown team "ghost"', out)

@@ -19,7 +19,7 @@ def _focus_manager(engine):
 
 
 def _focus_mode(config) -> str:
-    value = str((config.get('focus_on_delegate') if config else 'off') or 'off')
+    value = str((config.get('focus_on_delegate') if config else 'on') or 'on')
     value = value.strip().lower()
     return value if value in _FOCUS_MODES else 'off'
 
