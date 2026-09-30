@@ -121,7 +121,12 @@ class TestCatalogTool(unittest.TestCase):
 
     def test_unknown_kind(self):
         out = self._catalog(action='list', kind='nope')
-        self.assertIn('Error: kind must be', out)
+        self.assertIn('Error: kind must be role, team, or skill', out)
+
+    def test_type_alias_for_role(self):
+        out = self._catalog(action='show', kind='type', name='leader')
+        self.assertIn('system_prompt:', out)
+        self.assertNotIn('Error', out)
 
     def test_missing_name(self):
         out = self._catalog(action='save', kind='role')

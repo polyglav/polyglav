@@ -5,6 +5,7 @@ from polyglav.modes import merge_policy
 from polyglav.tools.policy import ToolPolicy
 from polyglav.roles import (Role, clamp_action, resolve_grant_ceiling,
                           resolve_permissions)
+from polyglav.tools.ask import _permission_scope
 
 from tests.helpers import make_chat
 from tests.test_engine import make_engine
@@ -268,6 +269,54 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
+    def test_human_route_numbered_approve_grants_once(self):
+        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        try:
+            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            with patch('builtins.input', return_value='1'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            self.assertIn('[granted]', out)
+            self.assertIn('once', out)
+            self.assertTrue(sub._tool_policy.has_grant('run_command', 'bash'))
+        finally:
+            chat._tmp.cleanup()
+
+    def test_human_route_numbered_approve_always(self):
+        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        try:
+            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            with patch('builtins.input', return_value='2'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            self.assertIn('[granted]', out)
+            self.assertIn('always', out)
+        finally:
+            chat._tmp.cleanup()
+
+    def test_human_route_numbered_deny(self):
+        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        try:
+            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            with patch('builtins.input', return_value='3'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            self.assertIn('[denied]', out)
+            self.assertFalse(sub._tool_policy.has_grant('run_command', 'bash'))
+        finally:
+            chat._tmp.cleanup()
+
+    def test_human_route_approve_phrase_grants(self):
+        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        try:
+            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            with patch('builtins.input', return_value='Approve bash for this run'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            self.assertIn('[granted]', out)
+        finally:
+            chat._tmp.cleanup()
+
     def test_direction_ask_unchanged(self):
         chat = make_chat()
         try:
@@ -277,6 +326,27 @@ class TestAskPermission(unittest.TestCase):
             self.assertEqual(out, 'use port 9')
         finally:
             chat._tmp.cleanup()
+
+
+class TestPermissionScope(unittest.TestCase):
+
+    def test_approve_phrases(self):
+        for answer in ('y', 'yes', 'yes always', 'Approve once',
+                       'Approve bash for this run', '1'):
+            self.assertIn(_permission_scope(answer), ('once', 'always'))
+
+    def test_always_wins(self):
+        self.assertEqual(_permission_scope('yes always'), 'always')
+        self.assertEqual(_permission_scope('Approve always'), 'always')
+        self.assertEqual(_permission_scope('2'), 'always')
+
+    def test_deny_phrases(self):
+        for answer in ('n', 'no', 'deny', 'Decline', 'reject', '3'):
+            self.assertEqual(_permission_scope(answer), 'deny')
+
+    def test_ambiguous_is_none(self):
+        self.assertEqual(_permission_scope('maybe later'), 'none')
+        self.assertEqual(_permission_scope(''), 'none')
 
 
 class TestGrantLifecycle(unittest.TestCase):

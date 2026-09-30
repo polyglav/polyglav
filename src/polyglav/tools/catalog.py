@@ -232,8 +232,10 @@ def register_catalog_tool(registry, engine) -> Callable:
             return f'Reloaded catalogs: {", ".join(reloaded) or "(none loaded)"}'
         if action not in ('list', 'show', 'save', 'remove'):
             return 'Error: action must be list, show, save, remove, or reload'
+        if kind == 'type':
+            kind = 'role'
         if kind not in ('role', 'team', 'skill'):
-            return 'Error: kind must be type, team, or skill'
+            return 'Error: kind must be role, team, or skill'
         if action == 'list':
             if kind == 'role':
                 return '\n'.join(_role_line(engine, t) for t in engine.roles.all())

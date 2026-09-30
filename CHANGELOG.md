@@ -2,6 +2,8 @@
 
 ## v0.39.0 - 2026-09-30
 
+- Permission asks honor the operator's choice - a human-routed permission ask now presents `Approve once` / `Approve always` / `Deny` and interprets the answer robustly, so selecting the approve option (or typing `1`) actually grants instead of being misread as a decline by a `startswith('y')` check. An ambiguous answer now returns the no-answer result instead of a silent denial. Docs (`config.md`). Tests: `tests/test_delegation_permissions.py`
+- Catalog `kind` alias - the catalog tool accepts `kind="type"` as `role` and its error now reads `kind must be role, team, or skill`. It previously told the model the valid kind was `type` while rejecting `type`, so a composing agent looped on it. Tests: `tests/test_catalog.py`
 - Auto-follow sub-runs - `focus_on_delegate` now defaults to `on`, and a team run offers the same focus as `delegate` (landing on its last stage), so a delegated or team run's output is shown automatically. Set it to `off` or `ask` to opt out. Docs (`config.md`, `architecture.md`, `swarm.md`, `testing.md`). Tests: `tests/test_focus_on_delegate.py`, `tests/test_team_tool.py`
 - Interruptible sub-run status - the Braille status line now names the active stage and prints a dim `↔ Switch <run>` marker, pauses on Enter (the frozen line stays visible, `^C` still cancels), and always yields while a confirm or `ask` prompt waits for input. The yield fixes a hang where the spinner repainted over the `? Answer:` prompt during a delegated or team run, so a sub-agent's permission ask looked like a freeze instead of waiting for the operator. Docs (`config.md`, `swarm.md`). Tests: `tests/test_ui.py`
 

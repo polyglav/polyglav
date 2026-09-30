@@ -161,7 +161,7 @@ Routes the `ask` tool by kind:
 }
 ```
 
-- `permission` - a sub-agent's request for a tool or category it is not allowed to use (`ask(kind="permission", permission="bash")`). `auto` has the lead agent decide and grants one use, `human` routes to the operator, `deny` disables grants. A request above the engine's `grant_permission` ceiling is always denied. The operator may grant `always` (reusable for the rest of that sub-agent's run), the lead only ever grants `once`.
+- `permission` - a sub-agent's request for a tool or category it is not allowed to use (`ask(kind="permission", permission="bash")`). `auto` has the lead agent decide and grants one use, `human` routes to the operator, `deny` disables grants. A request above the engine's `grant_permission` ceiling is always denied; when the ceiling itself is `ask` for that category, the request is routed to the operator, because the lead may not grant above an operator-gated category. To let the calling agent authorize a category without asking you, widen the ceiling with `grant_permission` (for example `{"bash": "allow"}`). The operator may grant `always` (reusable for the rest of that sub-agent's run), the lead only ever grants `once`. A human-routed ask offers `Approve once` / `Approve always` / `Deny`.
 - `direction` - a decision or scope change. `human` (default) routes to the operator, `auto` to the lead.
 
 ### Permission authority

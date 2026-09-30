@@ -166,6 +166,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Permission asks honor the operator's choice - approve option grants once/always
+- [x] Catalog `kind="type"` accepted as `role`, corrected error message
 - [x] Auto-follow sub-runs - `focus_on_delegate` defaults on, teams focus the last stage
 - [x] Interruptible sub-run status - Enter pauses the spinner, prompts are never overwritten
 - [x] Mode-aware prompt color - cyan read, orange write, per-mode `color` override

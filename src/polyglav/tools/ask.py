@@ -20,6 +20,27 @@ _NO_ANSWER = ('[cancelled] No answer given - decide autonomously or return the '
 _NO_ONE = ('Error: ask has no one to answer (no lead agent and no interactive '
            'terminal) - decide autonomously or return the question as an open item')
 
+_PERMISSION_OPTIONS = ['Approve once', 'Approve always', 'Deny']
+
+
+def _permission_scope(answer: str) -> str:
+    text = str(answer or '').strip().lower()
+    if not text:
+        return 'none'
+    if 'always' in text:
+        return 'always'
+    if text.startswith(('y', 'yes', 'approve', 'grant', 'allow', 'ok')):
+        return 'once'
+    if text.startswith(('n', 'no', 'deny', 'decline', 'reject')):
+        return 'deny'
+    if text == '1':
+        return 'once'
+    if text == '2':
+        return 'always'
+    if text == '3':
+        return 'deny'
+    return 'none'
+
 
 def _park(engine, question: str, context: str, options: list,
           kind: str, permission: str) -> str:
@@ -107,17 +128,19 @@ def _ask_permission(engine, question: str, context: str, options: list,
         ui = getattr(engine, '_ask_ui', None)
         if ui is not None:
             answer = ui.ask(question, context=context or '',
-                            options=options or [],
+                            options=list(_PERMISSION_OPTIONS),
                             origin=engine.current_session.session_name)
             if not answer:
                 return _NO_ANSWER
-            if answer.strip().lower().startswith('y'):
-                scope = 'always' if 'always' in answer.lower() else 'once'
+            scope = _permission_scope(answer)
+            if scope in ('once', 'always'):
                 engine.grant_permission(permission, key, scope=scope,
                                         origin='human')
                 return f'[granted] Permission "{permission}" approved ({scope}).'
-            return (f'[denied] Permission "{permission}" declined by the '
-                    'operator.')
+            if scope == 'deny':
+                return (f'[denied] Permission "{permission}" declined by the '
+                        'operator.')
+            return _NO_ANSWER
         if engine._is_unattended():
             return _park(engine, question, context or '', options or [],
                          'permission', permission)
