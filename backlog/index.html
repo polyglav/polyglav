@@ -1254,9 +1254,16 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[ ] Access classification - config <code>access.read_tools</code> keyed by permission key, unknown key defaults to write; <code>free</code>/<code>read</code>/<code>write</code> classes; the mode cap is applied last and inherited by sub-agents</li>
+<li>[ ] <code>read</code>/<code>write</code> modes - hard rename of <code>plan</code>/<code>build</code>, default <code>read</code>, any unknown mode value falls back to <code>read</code> with a warning; prompt color and <code>/mode</code> switch (session-scoped, <code>/config</code> persists)</li>
+<li>[ ] Mode-capped grants - clamp the grant ceiling by the mode cap; a permission ask in <code>read</code> is denied and redirected to a <code>direction</code> ask for a mode switch</li>
+<li>[ ] Tool taxonomy - <code>offload</code> (sibling, inherits the caller's cap), <code>call</code> (named role, write), <code>delegate</code> (named team, write); <code>offload_depth</code>; role-less sub-engine</li>
+<li>[ ] Drop root roles - remove <code>assistant</code>/<code>assistant_role</code>/<code>bind_root_agent</code>; the root is <code>system_prompt</code> + mode</li>
+<li>[ ] Headless default - jobs/<code>run</code>/<code>serve</code> default <code>read</code> and set their mode explicitly</li>
+<li>[ ] Dev tool fallback - <code>code_lint</code>/<code>code_format</code> report a clear setup hint when the configured linter/formatter (<code>ruff</code>) is absent, and honor the <code>dev.lint_cmd</code>/<code>dev.format_cmd</code> overrides</li>
+<li>[ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</li>
 <li>[ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate</li>
 <li>[ ] Focus keeps the run's context - re-entering a finished run uses its retained engine or resumes that run's own session, and never starts a fresh session. /focus drops the session:<name> attach, because saved sessions belong to /load</li>
-<li>[ ] Interruptible run status - the status line yields to the keyboard during a delegated or team run, with a hint line naming the keys (Enter to continue, ^O to open, ^C to cancel) and a Switch <role> marker</li>
 <li>[ ] Focus a live sub-run - /focus attaches to a running sub-run and leaves the caller reachable</li>
 <li>[ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change</li>
 <li>[ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown</li>
@@ -1358,6 +1365,8 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Auto-follow sub-runs - <code>focus_on_delegate</code> defaults on, teams focus the last stage</li>
+<li>[x] Interruptible sub-run status - Enter pauses the spinner, prompts are never overwritten</li>
 <li>[x] Mode-aware prompt color - cyan read, orange write, per-mode <code>color</code> override</li>
 <li>[x] Team stage error detail - status and sub-session instead of <code>unknown error</code></li>
 <li>[x] Team stage self-reentry guard - a stage cannot re-run its own team</li>

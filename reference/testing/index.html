@@ -1324,7 +1324,7 @@
 </tr>
 <tr>
 <td><code>test_focus_on_delegate.py</code></td>
-<td><code>focus_on_delegate</code> config: default <code>off</code>, <code>off</code> leaves focus alone, <code>on</code> records a pending focus on the child run, <code>ask</code> prompts and focuses on yes / leaves focus on no, unattended <code>ask</code> skips the prompt, an invalid mode falls back to <code>off</code>, a sub-agent without a focus manager is a no-op. The pending focus does not stop the agent loop (the caller's answer still streams) and <code>ChatLoop</code> applies it after the turn</td>
+<td><code>focus_on_delegate</code> config: default <code>on</code>, <code>off</code> leaves focus alone, <code>on</code> records a pending focus on the child run (and the last stage for a team), <code>ask</code> prompts and focuses on yes / leaves focus on no, unattended <code>ask</code> skips the prompt, an invalid mode falls back to <code>off</code>, a sub-agent without a focus manager is a no-op. The pending focus does not stop the agent loop (the caller's answer still streams) and <code>ChatLoop</code> applies it after the turn</td>
 </tr>
 <tr>
 <td><code>test_handoff.py</code></td>

@@ -361,6 +361,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#modes-first-redesign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modes-first redesign
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1400,6 +1411,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#modes-first-redesign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modes-first redesign
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1666,8 +1688,8 @@
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
-<h2 id="run-control-and-sub-run-visibility">Run control and sub-run visibility<a class="headerlink" href="#run-control-and-sub-run-visibility" title="Permanent link">&para;</a></h2>
-<p>A running team or delegate takes the terminal, so the operator cannot abort, run a command, or focus another run. The status line yields to the keyboard, a sub-run reports what it cost, and a middle verbosity keeps the caller in place.</p>
+<h2 id="modes-first-redesign">Modes-first redesign<a class="headerlink" href="#modes-first-redesign" title="Permanent link">&para;</a></h2>
+<p>Modes become the only posture: <code>read</code> by default, <code>write</code> on request. A simple prompt-based chat can read, search, and offload context to read-only siblings, while writing, named-role calls, teams, and permission grants sit behind an explicit mode switch. Root roles and the assistant persona are removed, and tool access is classified by permission key, fail-closed.</p>
 <table>
 <thead>
 <tr>
@@ -1678,10 +1700,48 @@
 </thead>
 <tbody>
 <tr>
-<td>Interruptible run status - the status line yields to the keyboard, with a hint line naming the keys (Enter to continue, ^O to open, ^C to cancel) plus a <code>Switch &lt;role&gt;</code> marker</td>
+<td>Access classification - config <code>access.read_tools</code> by permission key (unknown key is write), <code>free</code>/<code>read</code>/<code>write</code> classes, mode cap applied last and inherited by sub-agents</td>
 <td>M</td>
-<td>stay in control during a run</td>
+<td>a fail-closed, plugin-safe access model</td>
 </tr>
+<tr>
+<td><code>read</code>/<code>write</code> modes + rename - hard rename of <code>plan</code>/<code>build</code>, default <code>read</code>, any unknown mode value falls back to <code>read</code>; prompt color and <code>/mode</code> switch</td>
+<td>M</td>
+<td>one posture switch</td>
+</tr>
+<tr>
+<td>Mode-capped grants - clamp the grant ceiling by the mode cap, deny a permission ask in <code>read</code>, redirect to a <code>direction</code> ask for a mode switch</td>
+<td>M</td>
+<td>no grant cascade, one operator decision</td>
+</tr>
+<tr>
+<td>Tool taxonomy - <code>offload</code> (sibling), <code>call</code> (named role), <code>delegate</code> (named team); <code>offload_depth</code>; role-less sub-engine</td>
+<td>M-L</td>
+<td>clear delegation vocabularies</td>
+</tr>
+<tr>
+<td>Drop root roles - remove <code>assistant</code>/<code>assistant_role</code>/<code>bind_root_agent</code>; the root is <code>system_prompt</code> + mode</td>
+<td>M</td>
+<td>no opaque root authority</td>
+</tr>
+<tr>
+<td>Headless default - jobs/<code>run</code>/<code>serve</code> default <code>read</code> and set their mode explicitly</td>
+<td>S</td>
+<td>batch runs stay explicit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="run-control-and-sub-run-visibility">Run control and sub-run visibility<a class="headerlink" href="#run-control-and-sub-run-visibility" title="Permanent link">&para;</a></h2>
+<p>A running team or delegate blocks the terminal. The status line is now interruptible (Enter pauses, interactive prompts are never hidden), so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Focus a live sub-run - <code>/focus</code> watches, joins, or cancels a running sub-run and leaves the caller reachable</td>
 <td>M</td>
@@ -1787,6 +1847,11 @@
 <td>the leader remembers across runs</td>
 </tr>
 <tr>
+<td>Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</td>
+<td>S-M</td>
+<td>no duplicated reads</td>
+</tr>
+<tr>
 <td><code>memorize</code> as a tool - memory writes through a tool an agent calls</td>
 <td>S-M</td>
 <td>memory the agent maintains</td>
@@ -1798,7 +1863,7 @@
 </tr>
 </tbody>
 </table>
-<p>Known gap: <code>bind_root_agent</code> applies the role prompt only when <code>config.origin('system_prompt') == 'default'</code>, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with <code>_new_sub_engine</code>, respect the <code>origin</code> guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates.</p>
+<p>Known gap: <code>bind_root_agent</code> applies the role prompt only when <code>config.origin('system_prompt') == 'default'</code>, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with <code>_new_sub_engine</code>, respect the <code>origin</code> guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates. The modes-first redesign removes root roles entirely, so root-role memory folds into role memory for delegated roles only; land it after that redesign or re-scope it there.</p>
 <h2 id="role-boundaries-skills-and-project-knowledge">Role boundaries, skills, and project knowledge<a class="headerlink" href="#role-boundaries-skills-and-project-knowledge" title="Permanent link">&para;</a></h2>
 <p>A role's file and folder access is a config rule, not a prompt, and a skill is tool or framework centered while the project description lives in <code>AGENTS.md</code>.</p>
 <table>
@@ -2199,6 +2264,11 @@
 <td><code>code_debug</code> / <code>compile</code> - pdb/gcc/rustc wrappers (test/lint/format landed as <code>code_test</code>/<code>code_lint</code>/<code>code_format</code>)</td>
 <td>S-M</td>
 <td>debug + compile</td>
+</tr>
+<tr>
+<td>Dev tool fallback - <code>code_lint</code>/<code>code_format</code> print a setup hint when the configured linter/formatter is absent and honor the <code>dev.lint_cmd</code>/<code>dev.format_cmd</code> overrides</td>
+<td>S</td>
+<td>lint/format in any repo</td>
 </tr>
 </tbody>
 </table>

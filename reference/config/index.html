@@ -1494,8 +1494,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>focus_on_delegate</code></td>
-<td><code>"off"</code></td>
-<td>After a <code>delegate</code> call, move the REPL focus to the child run just created. <code>off</code> leaves focus alone, <code>on</code> focuses automatically, <code>ask</code> prompts the operator first (skipped under <a href="#unattended-mode">unattended mode</a>). The root turn still finishes, so its answer is not lost. REPL-only</td>
+<td><code>"on"</code></td>
+<td>After a <code>delegate</code> call or a team run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. <code>off</code> leaves focus alone, <code>on</code> focuses automatically, <code>ask</code> prompts the operator first (skipped under <a href="#unattended-mode">unattended mode</a>). The root turn still finishes, so its answer is not lost. REPL-only</td>
 </tr>
 <tr>
 <td><code>footer_tokens</code></td>
@@ -1690,7 +1690,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>status_spinner</code></td>
 <td><code>true</code></td>
-<td>Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. Off hides it. Headless and Null sinks ignore it</td>
+<td>Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. Pressing Enter freezes the animation (it stays visible, <code>^C</code> still cancels), and the spinner always yields while a confirm or <code>ask</code> prompt waits for input, so the prompt is never overwritten. Each stage also prints a dim <code>↔ Switch &lt;run&gt;</code> marker. Off hides the animation. Headless and Null sinks ignore it</td>
 </tr>
 <tr>
 <td><code>stream_retries</code></td>
