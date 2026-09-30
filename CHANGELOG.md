@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.39.0 - 2026-09-30
+
+- Interruptible sub-run status - the Braille status line now names the active stage and prints a dim `↔ Switch <run>` marker, pauses on Enter (the frozen line stays visible, `^C` still cancels), and always yields while a confirm or `ask` prompt waits for input. The yield fixes a hang where the spinner repainted over the `? Answer:` prompt during a delegated or team run, so a sub-agent's permission ask looked like a freeze instead of waiting for the operator. Docs (`config.md`, `swarm.md`). Tests: `tests/test_ui.py`
+
 ## v0.38.0 - 2026-09-29
 
 - Mode-aware prompt color - the REPL prompt marker and its continuation variant are colored by the active mode, `cyan` for a read-only mode and `orange` otherwise, and the startup banner's mode label matches. A mode may set an explicit `color` (`cyan`/`orange`) in its spec to override the derived default. Docs (`config.md`). Tests: `tests/test_modes.py`, `tests/test_focus.py`

@@ -1,5 +1,6 @@
 import io
 import sys
+import time
 import unittest
 from unittest.mock import patch
 
@@ -175,6 +176,75 @@ class TestThinkingSpinner(unittest.TestCase):
         value = out.getvalue()
         self.assertIn('✓ dev: planner', value)
         self.assertIn('(1.2s, 300 tokens)', value)
+
+    def test_status_begin_prints_switch_marker(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.status_begin('dev: programmer...')
+            self.chat._ui.status_end()
+        self.assertIn('↔ Switch dev: programmer', out.getvalue())
+
+    def test_confirm_sets_prompting_during_input(self):
+        seen = []
+
+        def fake_input(prompt, timeout, hidden=False):
+            seen.append(self.chat._ui._prompting.is_set())
+            return 'y'
+
+        with patch('polyglav.ui._timed_input', side_effect=fake_input):
+            with patch('sys.stdout', new=io.StringIO()):
+                self.assertTrue(self.chat._ui.confirm('x', 'probe'))
+        self.assertEqual(seen, [True])
+        self.assertFalse(self.chat._ui._prompting.is_set())
+
+    def test_ask_sets_prompting_during_input(self):
+        seen = []
+
+        def fake_input(prompt, timeout):
+            seen.append(self.chat._ui._prompting.is_set())
+            return 'answer'
+
+        with patch('polyglav.ui._timed_input', side_effect=fake_input):
+            with patch('sys.stdout', new=io.StringIO()):
+                answer = self.chat._ui.ask('q')
+        self.assertEqual(answer, 'answer')
+        self.assertEqual(seen, [True])
+        self.assertFalse(self.chat._ui._prompting.is_set())
+
+    def test_spinner_skips_repaint_while_prompting(self):
+        out = io.StringIO()
+        self.chat._ui._prompting.set()
+        try:
+            with patch('sys.stdout', new=out):
+                self.chat._ui._start_spinner('x...')
+                time.sleep(0.25)
+                self.chat._ui._stop_spinner()
+        finally:
+            self.chat._ui._prompting.clear()
+        self.assertNotIn('⠋', out.getvalue())
+
+    def test_paused_by_key_ignores_non_tty(self):
+        class NotTty:
+            def isatty(self):
+                return False
+
+        with patch('polyglav.ui.sys.stdin', new=NotTty()):
+            self.assertFalse(self.chat._ui._paused_by_key())
+
+    def test_paused_by_key_freezes_on_enter(self):
+        class FakeStdin:
+            def isatty(self):
+                return True
+
+            def readline(self):
+                return '\n'
+
+        with patch('polyglav.ui.sys.stdin', new=FakeStdin()):
+            with patch('polyglav.ui.select.select',
+                       return_value=([FakeStdin()], [], [])):
+                with patch('sys.stdout', new=io.StringIO()):
+                    self.assertTrue(self.chat._ui._paused_by_key())
+        self.assertTrue(self.chat._ui._status_paused)
 
     def test_run_stats_reports_duration_and_tokens(self):
         from polyglav.engine import TurnResult

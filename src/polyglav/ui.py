@@ -217,6 +217,8 @@ class ReplUI:
         self._spinner_lock = threading.Lock()
         self._spinner_frame = 0
         self._spinner_label = 'Thinking'
+        self._status_paused = False
+        self._prompting = threading.Event()
         self._word_buffer = ''
 
     def _prefix(self):
@@ -289,7 +291,10 @@ class ReplUI:
         self._ensure_newline()
         if not self._loop.config.get('status_spinner', True):
             return
-        self._start_spinner(str(label or 'Working'))
+        text = str(label or 'Working')
+        self._status_paused = False
+        self._emit(f'↔ Switch {text.rstrip(".").strip()}', DIM)
+        self._start_spinner(text)
 
     def status_end(self, note: str = ''):
         if not self._loop.config.get('status_spinner', True):
@@ -305,14 +310,49 @@ class ReplUI:
 
     def _spinner_run(self):
         while not self._spinner_stop.is_set():
+            if self._prompting.is_set() or self._status_paused:
+                time.sleep(SPINNER_INTERVAL)
+                continue
+            if self._paused_by_key():
+                continue
             frame = SPINNER_FRAMES[self._spinner_frame % len(SPINNER_FRAMES)]
             self._spinner_frame += 1
             with self._spinner_lock:
                 if self._spinner_stop.is_set():
                     break
-                sys.stdout.write(f'\r\033[K{frame} {self._spinner_label}')
+                sys.stdout.write(
+                    f'\r\033[K{frame} {self._spinner_label}  '
+                    f'{DIM}(Enter to pause, ^C to cancel){RESET}')
                 sys.stdout.flush()
             time.sleep(SPINNER_INTERVAL)
+
+    def _paused_by_key(self) -> bool:
+        stream = sys.stdin
+        try:
+            if stream is None or not stream.isatty():
+                return False
+            ready, _, _ = select.select([stream], [], [], SPINNER_INTERVAL)
+        except (OSError, ValueError, TypeError, AttributeError):
+            return False
+        if not ready:
+            return False
+        try:
+            stream.readline()
+        except (OSError, ValueError):
+            return False
+        with self._spinner_lock:
+            self._status_paused = True
+            sys.stdout.write(
+                f'\r\033[K{self._spinner_label}  '
+                f'{DIM}(paused, ^C to cancel){RESET}\n')
+            sys.stdout.flush()
+        return True
+
+    def _clear_spinner_line(self):
+        if self._spinner_thread is not None and self._spinner_thread.is_alive():
+            with self._spinner_lock:
+                sys.stdout.write('\r\033[K')
+                sys.stdout.flush()
 
     def _start_spinner(self, label: str | None = None):
         if self._spinner_thread is not None and self._spinner_thread.is_alive():
@@ -321,6 +361,7 @@ class ReplUI:
             return
         if label:
             self._spinner_label = label
+        self._status_paused = False
         self._spinner_stop.clear()
         self._spinner_frame = 0
         self._spinner_thread = threading.Thread(
@@ -328,6 +369,7 @@ class ReplUI:
         self._spinner_thread.start()
 
     def _stop_spinner(self):
+        self._status_paused = False
         if self._spinner_thread is None or not self._spinner_thread.is_alive():
             self._spinner_thread = None
             return
@@ -445,25 +487,30 @@ class ReplUI:
         timeout = self._confirm_timeout()
         hidden = bool(self._loop.config.get('hide_confirm_input', False))
         prompt = f'\001{ORANGE}\002? {label} - approve? [Y/n] \001{RESET}\002'
-        while True:
-            try:
-                answer = _timed_input(prompt, timeout, hidden=hidden)
-            except EOFError:
-                sys.stdout.write('\n')
-                return False
-            except KeyboardInterrupt:
-                sys.stdout.write('\n')
-                raise
-            if answer is None:
-                sys.stdout.write(
-                    f'? {label} - no answer in {timeout:g}s, denied\n')
-                return False
-            normalized = answer.strip().lower()
-            if normalized in ('', 'y', 'yes'):
-                return True
-            if normalized in ('n', 'no'):
-                return False
-            sys.stdout.write('? please answer y or n\n')
+        self._prompting.set()
+        self._clear_spinner_line()
+        try:
+            while True:
+                try:
+                    answer = _timed_input(prompt, timeout, hidden=hidden)
+                except EOFError:
+                    sys.stdout.write('\n')
+                    return False
+                except KeyboardInterrupt:
+                    sys.stdout.write('\n')
+                    raise
+                if answer is None:
+                    sys.stdout.write(
+                        f'? {label} - no answer in {timeout:g}s, denied\n')
+                    return False
+                normalized = answer.strip().lower()
+                if normalized in ('', 'y', 'yes'):
+                    return True
+                if normalized in ('n', 'no'):
+                    return False
+                sys.stdout.write('? please answer y or n\n')
+        finally:
+            self._prompting.clear()
 
     def _confirm_timeout(self) -> float:
         loop = getattr(self, '_loop', None)
@@ -488,6 +535,8 @@ class ReplUI:
         if options:
             self._emit('  (pick a number, or type your own)', DIM)
         prompt = f'\001{ORANGE}\002? Answer: \001{RESET}\002'
+        self._prompting.set()
+        self._clear_spinner_line()
         try:
             answer = _timed_input(prompt, timeout)
         except EOFError:
@@ -496,6 +545,8 @@ class ReplUI:
         except KeyboardInterrupt:
             sys.stdout.write('\n')
             raise
+        finally:
+            self._prompting.clear()
         if answer is None:
             sys.stdout.write('? no answer given\n')
             return None
