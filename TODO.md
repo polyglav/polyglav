@@ -56,9 +56,16 @@
 
 ## Open
 
+- [ ] Access classification - config `access.read_tools` keyed by permission key, unknown key defaults to write; `free`/`read`/`write` classes; the mode cap is applied last and inherited by sub-agents
+- [ ] `read`/`write` modes - hard rename of `plan`/`build`, default `read`, any unknown mode value falls back to `read` with a warning; prompt color and `/mode` switch (session-scoped, `/config` persists)
+- [ ] Mode-capped grants - clamp the grant ceiling by the mode cap; a permission ask in `read` is denied and redirected to a `direction` ask for a mode switch
+- [ ] Tool taxonomy - `offload` (sibling, inherits the caller's cap), `call` (named role, write), `delegate` (named team, write); `offload_depth`; role-less sub-engine
+- [ ] Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode
+- [ ] Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly
+- [ ] Dev tool fallback - `code_lint`/`code_format` report a clear setup hint when the configured linter/formatter (`ruff`) is absent, and honor the `dev.lint_cmd`/`dev.format_cmd` overrides
+- [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files
 - [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
 - [ ] Focus keeps the run's context - re-entering a finished run uses its retained engine or resumes that run's own session, and never starts a fresh session. /focus drops the session:<name> attach, because saved sessions belong to /load
-- [ ] Interruptible run status - the status line yields to the keyboard during a delegated or team run, with a hint line naming the keys (Enter to continue, ^O to open, ^C to cancel) and a Switch <role> marker
 - [ ] Focus a live sub-run - /focus attaches to a running sub-run and leaves the caller reachable
 - [ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change
 - [ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown

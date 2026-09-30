@@ -9,13 +9,25 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Run control and sub-run visibility
+## Modes-first redesign
 
-A running team or delegate takes the terminal, so the operator cannot abort, run a command, or focus another run. The status line yields to the keyboard, a sub-run reports what it cost, and a middle verbosity keeps the caller in place.
+Modes become the only posture: `read` by default, `write` on request. A simple prompt-based chat can read, search, and offload context to read-only siblings, while writing, named-role calls, teams, and permission grants sit behind an explicit mode switch. Root roles and the assistant persona are removed, and tool access is classified by permission key, fail-closed.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Interruptible run status - the status line yields to the keyboard, with a hint line naming the keys (Enter to continue, ^O to open, ^C to cancel) plus a `Switch <role>` marker | M | stay in control during a run |
+| Access classification - config `access.read_tools` by permission key (unknown key is write), `free`/`read`/`write` classes, mode cap applied last and inherited by sub-agents | M | a fail-closed, plugin-safe access model |
+| `read`/`write` modes + rename - hard rename of `plan`/`build`, default `read`, any unknown mode value falls back to `read`; prompt color and `/mode` switch | M | one posture switch |
+| Mode-capped grants - clamp the grant ceiling by the mode cap, deny a permission ask in `read`, redirect to a `direction` ask for a mode switch | M | no grant cascade, one operator decision |
+| Tool taxonomy - `offload` (sibling), `call` (named role), `delegate` (named team); `offload_depth`; role-less sub-engine | M-L | clear delegation vocabularies |
+| Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode | M | no opaque root authority |
+| Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly | S | batch runs stay explicit |
+
+## Run control and sub-run visibility
+
+A running team or delegate blocks the terminal. The status line is now interruptible (Enter pauses, interactive prompts are never hidden), so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.
+
+| Task | Effort | Provides |
+|------|--------|----------|
 | Focus a live sub-run - `/focus` watches, joins, or cancels a running sub-run and leaves the caller reachable | M | jump into a live agent |
 | Focus keeps the run's context - re-entering a finished run resumes its own session, never a fresh one, and `/focus` drops the `session:<name>` attach | S | context survives a re-entry |
 
@@ -50,10 +62,11 @@ The leader remembers the operator's instructions across runs, long role instruct
 | Role instruction files - `.polyglav/roles/<name>.md` referenced from the JSON entry and appended verbatim | M | full-length role instructions |
 | Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
 | Root role memory - inject role memory in `bind_root_agent` through a shared compose helper | S | the leader remembers across runs |
+| Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files | S-M | no duplicated reads |
 | `memorize` as a tool - memory writes through a tool an agent calls | S-M | memory the agent maintains |
 | Conclusion stage - a write-scoped stage that distills a finished run into role files, skills, or memory, and never commits | M | self-improvement loop |
 
-Known gap: `bind_root_agent` applies the role prompt only when `config.origin('system_prompt') == 'default'`, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with `_new_sub_engine`, respect the `origin` guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates.
+Known gap: `bind_root_agent` applies the role prompt only when `config.origin('system_prompt') == 'default'`, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with `_new_sub_engine`, respect the `origin` guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates. The modes-first redesign removes root roles entirely, so root-role memory folds into role memory for delegated roles only; land it after that redesign or re-scope it there.
 
 ## Role boundaries, skills, and project knowledge
 
@@ -183,6 +196,7 @@ Repo-aware coding assistance: version control, lint/format/test wrappers, scoped
 |------|--------|----------|
 | Workspace sessions - tools write into a scoped `--workspace` dir, optional git sync | M | scoped workspaces |
 | `code_debug` / `compile` - pdb/gcc/rustc wrappers (test/lint/format landed as `code_test`/`code_lint`/`code_format`) | S-M | debug + compile |
+| Dev tool fallback - `code_lint`/`code_format` print a setup hint when the configured linter/formatter is absent and honor the `dev.lint_cmd`/`dev.format_cmd` overrides | S | lint/format in any repo |
 
 ## Knowledge & memory
 

@@ -71,7 +71,8 @@ This is the operator-facing half of the runtime, and it is what the phases turn 
 
 ## Decisions
 
-- **Assistant is the single point of contact** - the main agent is named `assistant`. Delegation and team composition are assistant-driven, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).
+- **Assistant is the single point of contact** - the main agent is the operator's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).
+- **Modes are the posture** - the root agent is `config.system_prompt` plus the active mode, not a bound role. `read` is the default (read, search, and role-less read-only sibling offload; no writes, no named-role calls, no grants), and `write` is opt-in (filesystem writes, named-role `call`, team `delegate`, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).
 - **Run-owned sessions** - a session belongs to a run. Whoever starts a run creates its session: the root at startup, `delegate`/`team` at delegation, the scheduler per job run. A role is an identity a run borrows, never a session owner, so there is no `agent_<role>` and no `sub_<key>`.
 - **Focus navigates, handoff moves** - `/focus` shows the run tree and jumps into existing runs, and never creates a session. `handoff` moves focus between runs and pauses or finishes the current one, without creating or naming a session.
 - **Memory, not replay** - continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per role, team, and job, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.
@@ -90,6 +91,7 @@ This is the operator-facing half of the runtime, and it is what the phases turn 
 The task mapping lives in `PLAN.md` (work packages). The phases below name the verifiable stages, ordered by dependency:
 
 - **Runtime and docs** - one runtime for many agents, the five replaceable layers, and the plugin direction, reflected in VISION, README, and the site.
+- **Modes-first** - `read`/`write` modes as the only posture, access classified by permission key (fail-closed), per-tool grants replaced by a session-scoped mode switch, the root as `system_prompt` + mode, and the tool taxonomy `offload`/`call`/`delegate`.
 - **Runs, focus, and memory** - run-owned sessions, focus that only navigates, handoff between runs, bounded memory per role/team/job, and non-blocking runs with live focus.
 - **Onboarding** - the assistant introduces itself on first run and asks what to do. Defaults and docs for simple users.
 - **One-window status** - `/status` shows sessions, running agents, and configured jobs on the machine. Logs are reachable from the same surface.
