@@ -91,7 +91,7 @@ class TestAskTool(unittest.TestCase):
         self.chat.roles.put(
             Role(name='w', system_prompt='Writer agent'), scope='local')
         sub = self.chat._new_sub_engine('w')
-        self.assertIs(sub._lead, self.chat)
+        self.assertIs(sub._caller, self.chat)
         self.assertIs(sub._ask_ui, self.chat._ask_ui)
         self.chat.provider.chat_nonstreaming.return_value = {
             'content': 'Proceed with B'}
@@ -115,7 +115,7 @@ class TestAskTool(unittest.TestCase):
 
     def test_lead_target_at_root_falls_back_to_human(self):
         self.chat._init_tooling()
-        self.assertIsNone(self.chat._lead)
+        self.assertIsNone(self.chat._caller)
         with patch('builtins.input', return_value='operator decision'):
             out = self.chat._run_tool('ask', {'question': 'q', 'target': 'lead'})
         self.assertEqual(out, 'operator decision')

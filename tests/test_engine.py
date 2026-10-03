@@ -40,7 +40,7 @@ def make_engine(config_data: dict | None = None) -> Engine:
     engine.current_session = engine.sessions.create()
     engine._tool_registry = None
     engine._ask_ui = None
-    engine._lead = None
+    engine._caller = None
     engine.role = ''
     engine.runs = RunRegistry()
     engine.current_run = engine.runs.start(role='', session=engine.current_session.session_name)

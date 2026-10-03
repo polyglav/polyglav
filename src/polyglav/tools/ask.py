@@ -67,10 +67,10 @@ def _task_preview(engine) -> str:
     return ''
 
 
-def _lead_answer(engine, question: str, context: str, options,
-                 system: str = _ASK_SYSTEM) -> str | None:
-    lead = getattr(engine, '_lead', None)
-    if lead is None:
+def _caller_answer(engine, question: str, context: str, options,
+                   system: str = _ASK_SYSTEM) -> str | None:
+    caller = getattr(engine, '_caller', None)
+    if caller is None:
         return None
     parts = [f'Question: {question}']
     if context:
@@ -81,7 +81,7 @@ def _lead_answer(engine, question: str, context: str, options,
     if task:
         parts.append(f'Delegated task: {task}')
     try:
-        result = lead.provider.chat_nonstreaming(
+        result = caller.provider.chat_nonstreaming(
             [
                 {'role': 'system', 'content': system},
                 {'role': 'user', 'content': '\n'.join(parts)},
@@ -105,9 +105,9 @@ def _permission_key(engine, permission: str) -> str:
 
 
 def _ceiling_for(engine) -> dict:
-    lead = getattr(engine, '_lead', None)
-    if lead is not None and hasattr(lead, '_grant'):
-        return lead._grant()
+    caller = getattr(engine, '_caller', None)
+    if caller is not None and hasattr(caller, '_grant'):
+        return caller._grant()
     return engine._grant()
 
 
@@ -144,10 +144,10 @@ def _ask_permission(engine, question: str, context: str, options: list,
         if engine._is_unattended():
             return _park(engine, question, context or '', options or [],
                          'permission', permission)
-    lead = getattr(engine, '_lead', None)
-    if lead is not None:
-        answer = _lead_answer(engine, question, context, options,
-                              system=_PERMISSION_SYSTEM)
+    caller = getattr(engine, '_caller', None)
+    if caller is not None:
+        answer = _caller_answer(engine, question, context, options,
+                                system=_PERMISSION_SYSTEM)
         if answer is None:
             return _NO_ONE
         if answer.strip().lower().startswith('y'):
@@ -228,10 +228,10 @@ def register_ask_tool(registry, engine) -> Callable:
             return _ask_permission(engine, question, context or '',
                                    options or [], permission)
         ui = getattr(engine, '_ask_ui', None)
-        lead = getattr(engine, '_lead', None)
+        caller = getattr(engine, '_caller', None)
         if target == 'lead':
-            if lead is not None:
-                answer = _lead_answer(engine, question, context or '', options or [])
+            if caller is not None:
+                answer = _caller_answer(engine, question, context or '', options or [])
                 if answer is not None:
                     return answer
             if engine._is_unattended():
@@ -251,8 +251,8 @@ def register_ask_tool(registry, engine) -> Callable:
                             options=options or [],
                             origin=engine.current_session.session_name)
             return answer or _NO_ANSWER
-        if lead is not None:
-            answer = _lead_answer(engine, question, context or '', options or [])
+        if caller is not None:
+            answer = _caller_answer(engine, question, context or '', options or [])
             if answer is not None:
                 return answer
         return _NO_ONE

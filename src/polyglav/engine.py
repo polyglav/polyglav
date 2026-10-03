@@ -135,7 +135,7 @@ class Engine:
         self._ask_ui = ui if isinstance(ui, ReplUI) else None
         if self._unattended:
             self._ask_ui = None
-        self._lead = None
+        self._caller = None
         self._owns_provider = provider is None
         if plugin_manager is None:
             self._plugin_manager = PluginManager(config)
@@ -591,7 +591,7 @@ class Engine:
         sub.current_run.role = role_name
         sub.current_run.task = task
         sub._sub_run = True
-        sub._lead = self
+        sub._caller = self
         sub._ask_ui = getattr(self, '_ask_ui', None)
         sub._grant_ceiling = resolve_grant_ceiling(
             parent_self, parent_grant, agent_role.grant_permission, permissions)
@@ -620,7 +620,7 @@ class Engine:
                          provider=self.provider, runs=self.runs, run=run)
             sub.load_or_create_session(run.session)
             sub._sub_run = True
-            sub._lead = self
+            sub._caller = self
             sub._ask_ui = getattr(self, '_ask_ui', None)
         sub.role = run.role
         sub.current_run.role = run.role

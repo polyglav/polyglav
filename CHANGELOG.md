@@ -2,6 +2,7 @@
 
 ## v0.39.0 - 2026-10-03
 
+- Clearer caller reference - a sub-engine's back-reference to the engine that delegated it is now `_caller` (was `_lead`), so it does not collide with the `leader` role. The public `ask` target stays `'lead'`. Docs (`AGENTS.md`, `testing.md`). Tests: `tests/test_ask.py`
 - Leader supervises only - the bundled `leader` role denies `edit` for itself (it already denied `bash`/`web`) while keeping `grant_permission` for `edit`/`bash`, so it coordinates and grants help without doing the work. Docs (`roles.md`). Tests: `tests/test_roles.py`
 - Root role grant - `bind_root_agent` now applies a bound root role's `grant_permission` into the root config, so a read-only assistant or supervisor role can set its delegation ceiling and authorize teams. Previously the role's grant was dropped and the ceiling fell back to the role's own carve, which clamped every stage to deny. An explicit config `grant_permission` still wins. Docs (`roles.md`). Tests: `tests/test_delegation_permissions.py`
 - Default delegation ceiling - `grant_permission` now defaults to a built-in allow set (`ask`, `bash`, `edit`, `list`, `read`, `web`), so the assistant can authorize a delegated team's permission asks by itself while its own `tool_permission` stays as narrow as configured. Set `grant_permission: {}` to restore the no-escalation fallback. Docs (`config.md`). Tests: `tests/test_config.py`

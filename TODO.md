@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Renamed sub-engine `_lead` reference to `_caller`
 - [x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash
 - [x] Root role grant permission applied by `bind_root_agent`
 - [x] Default delegation ceiling - `grant_permission` defaults to a built-in allow set
