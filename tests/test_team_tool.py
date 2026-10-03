@@ -14,6 +14,7 @@ class TestTeamTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        self.chat.config.set('mode', 'write')
         self.chat._summarize = MagicMock(return_value='summary')
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
         for name in ('researcher', 'writer'):
@@ -113,6 +114,7 @@ class TestTeamTool(unittest.TestCase):
 
     def test_clamped_stage_is_noted(self):
         chat = make_chat({
+            'mode': 'write',
             'grant_permission': {'bash': 'deny', 'read': 'allow'},
             'tool_permission': {'ask': 'allow', 'read': 'allow', 'bash': 'ask'},
         })
