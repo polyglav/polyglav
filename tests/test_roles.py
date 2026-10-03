@@ -144,6 +144,11 @@ class TestRoleRegistry(unittest.TestCase):
         self.assertEqual(composer.tool_permission['catalog'], 'allow')
         self.assertEqual(composer.tool_permission['edit'], 'deny')
         self.assertEqual(composer.tool_permission['team'], 'deny')
+        leader = reg.find('leader')
+        self.assertEqual(leader.tool_permission['edit'], 'deny')
+        self.assertEqual(leader.tool_permission['bash'], 'deny')
+        self.assertEqual(leader.grant_permission['edit'], 'allow')
+        self.assertEqual(leader.grant_permission['bash'], 'allow')
 
     def test_bundled_tags(self):
         reg = self.bundled()

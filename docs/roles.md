@@ -23,7 +23,7 @@ The bundled catalog ships two pre-carved teams plus an `assistant`, a `composer`
 | `code-reviewer` | auditor: reviews a change, returns findings | programming, review | deny | allow | deny | allow |
 | `composer` | team composer: designs and persists a team (`catalog` allow, `team` deny) | management | deny | deny | allow | allow |
 | `editor` | auditor: checks a document against the prompt and sources | writing, review | deny | deny | deny | allow |
-| `leader` | supervisor: coordinates teams and agents, delegates, parks asks | research, writing, programming, review | allow | deny | deny | allow |
+| `leader` | supervisor: coordinates teams and agents, delegates, grants, parks asks | research, writing, programming, review | deny | deny | deny | allow |
 | `planner` | decomposes a task into an ordered, verifiable plan | programming | deny | deny | allow | allow |
 | `programmer` | implements a change and runs the tests until green | programming | allow | allow | deny | allow |
 | `referencer` | resolves citations into a `.bib` file | writing | allow | deny | deny | allow |

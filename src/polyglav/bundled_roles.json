@@ -26,7 +26,7 @@
     "tool_permission": {
       "ask": "allow",
       "bash": "deny",
-      "edit": "allow",
+      "edit": "deny",
       "list": "allow",
       "read": "allow",
       "web": "deny"
