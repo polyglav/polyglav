@@ -66,8 +66,9 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(len(names), 10)
 
     def test_subagent_applies_type_prompt_mode_permissions(self):
+        self.chat.config.set('mode', 'write')
         sub = self.chat._new_sub_engine('writer')
-        self.assertEqual(sub.config.get('mode'), 'read')
+        self.assertEqual(sub.config.get('mode'), 'write')
         self.assertTrue(sub.config.get('system_prompt').startswith(
             'You are the writer.'))
         tp = sub.config.get('tool_permission')
@@ -260,6 +261,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(self.chat.provider.chat.call_count, 3)
 
     def test_subagent_prompt_warns_on_auto_denied_categories(self):
+        self.chat.config.set('mode', 'write')
         self.chat.config.apply('grant_permission', {'bash': 'ask'})
         self.chat.roles.put(
             Role(name='tester2', system_prompt='You test.',

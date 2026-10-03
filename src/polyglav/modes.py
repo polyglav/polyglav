@@ -13,6 +13,8 @@ DEFAULT_PROMPT_COLOR = 'orange'
 DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'handoff',
                      'offload']
 
+DEFAULT_WRITE_KEYS = ['bash', 'call', 'delegate', 'edit', 'mcp', 'team', 'vcs']
+
 
 def read_keys(config: Config) -> set:
     listed = (config.get('access') or {}).get('read_tools')

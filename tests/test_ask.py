@@ -87,6 +87,37 @@ class TestAskTool(unittest.TestCase):
         finally:
             engine._tmp.cleanup()
 
+    def test_read_mode_permission_ask_switches_on_approval(self):
+        self.chat._init_tooling()
+        with patch('builtins.input', return_value='y'):
+            with patch('sys.stdout', new=io.StringIO()):
+                out = self.chat._run_tool('ask', {
+                    'question': 'need the shell', 'kind': 'permission',
+                    'permission': 'bash'})
+        self.assertIn('[granted]', out)
+        self.assertEqual(self.chat.current_session.mode, 'write')
+
+    def test_read_mode_permission_ask_declined(self):
+        self.chat._init_tooling()
+        with patch('builtins.input', return_value='n'):
+            with patch('sys.stdout', new=io.StringIO()):
+                out = self.chat._run_tool('ask', {
+                    'question': 'need the shell', 'kind': 'permission',
+                    'permission': 'bash'})
+        self.assertIn('[denied]', out)
+        self.assertEqual(self.chat.current_session.mode, '')
+
+    def test_read_mode_permission_ask_headless_points_at_mode_switch(self):
+        engine = make_engine()
+        try:
+            engine._init_tooling()
+            out = engine._run_tool('ask', {
+                'question': 'need the shell', 'kind': 'permission',
+                'permission': 'bash'})
+            self.assertIn('needs write mode', out)
+        finally:
+            engine._tmp.cleanup()
+
     def test_lead_target_consults_lead_model(self):
         self.chat.roles.put(
             Role(name='w', system_prompt='Writer agent'), scope='local')
