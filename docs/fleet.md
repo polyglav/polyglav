@@ -88,7 +88,7 @@ While `up` runs, every sweep (default 2s) the supervisor does:
 
 ```bash
 polyglav fleet config code-agent \
-  --provider ollama --model llama3.2 --mode build \
+  --provider ollama --model llama3.2 --mode write \
   --system-prompt "You implement code." \
   --tools-deny web_search \
   --tool-permission "bash=allow" \
