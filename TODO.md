@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Root role grant permission applied by `bind_root_agent`
 - [x] Default delegation ceiling - `grant_permission` defaults to a built-in allow set
 - [x] Permission asks honor the operator's choice - approve option grants once/always
 - [x] Catalog `kind="type"` accepted as `role`, corrected error message

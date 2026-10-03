@@ -257,6 +257,10 @@ class Engine:
             permissions = dict(self.config.get('tool_permission') or {})
             permissions.update(agent_role.tool_permission)
             self.config.apply('tool_permission', permissions)
+        if (agent_role.grant_permission
+                and self.config.origin('grant_permission') == 'default'):
+            self.config.apply('grant_permission',
+                              dict(agent_role.grant_permission))
         if (agent_role.ask_policy
                 and self.config.origin('ask_policy') == 'default'):
             policy = dict(self.config.get('ask_policy') or {})
