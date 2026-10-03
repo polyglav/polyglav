@@ -322,7 +322,7 @@ class ReplUI:
                     break
                 sys.stdout.write(
                     f'\r\033[K{frame} {self._spinner_label}  '
-                    f'{DIM}(Enter to pause, ^C to cancel){RESET}')
+                    f'{DIM}(press Enter to continue, ^C to cancel){RESET}')
                 sys.stdout.flush()
             time.sleep(SPINNER_INTERVAL)
 
@@ -344,7 +344,7 @@ class ReplUI:
             self._status_paused = True
             sys.stdout.write(
                 f'\r\033[K{self._spinner_label}  '
-                f'{DIM}(paused, ^C to cancel){RESET}\n')
+                f'{DIM}(continuing, ^C to cancel){RESET}\n')
             sys.stdout.flush()
         return True
 
