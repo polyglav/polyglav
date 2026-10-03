@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Mode-capped grants - clamp the grant ceiling by the mode cap; a permission ask in `read` is denied and redirected to a `direction` ask for a mode switch
 - [ ] Tool taxonomy - `offload` (sibling, inherits the caller's cap), `call` (named role, write), `delegate` (named team, write); `offload_depth`; role-less sub-engine
 - [ ] Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode
 - [ ] Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly
@@ -164,6 +163,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Mode-capped grants - grants only in write, read asks redirect to a mode switch
+- [x] Sub-agents inherit the caller mode, a stage cannot escalate it
 - [x] Mode-gated catalog writes and MCP tools - read mode cannot mutate the catalog or reach MCP
 - [x] Session-scoped mode switch - `/mode` per session, `/config mode` persists
 - [x] Fail-closed access classification - `access.read_tools` by permission key, mode cap applied last
