@@ -223,29 +223,6 @@ class TestThinkingSpinner(unittest.TestCase):
             self.chat._ui._prompting.clear()
         self.assertNotIn('⠋', out.getvalue())
 
-    def test_paused_by_key_ignores_non_tty(self):
-        class NotTty:
-            def isatty(self):
-                return False
-
-        with patch('polyglav.ui.sys.stdin', new=NotTty()):
-            self.assertFalse(self.chat._ui._paused_by_key())
-
-    def test_paused_by_key_freezes_on_enter(self):
-        class FakeStdin:
-            def isatty(self):
-                return True
-
-            def readline(self):
-                return '\n'
-
-        with patch('polyglav.ui.sys.stdin', new=FakeStdin()):
-            with patch('polyglav.ui.select.select',
-                       return_value=([FakeStdin()], [], [])):
-                with patch('sys.stdout', new=io.StringIO()):
-                    self.assertTrue(self.chat._ui._paused_by_key())
-        self.assertTrue(self.chat._ui._status_paused)
-
     def test_run_stats_reports_duration_and_tokens(self):
         from polyglav.engine import TurnResult
         result = TurnResult(duration=2.5, usage={'prompt_tokens': 100,

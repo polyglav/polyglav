@@ -217,7 +217,6 @@ class ReplUI:
         self._spinner_lock = threading.Lock()
         self._spinner_frame = 0
         self._spinner_label = 'Thinking'
-        self._status_paused = False
         self._prompting = threading.Event()
         self._word_buffer = ''
 
@@ -292,7 +291,6 @@ class ReplUI:
         if not self._loop.config.get('status_spinner', True):
             return
         text = str(label or 'Working')
-        self._status_paused = False
         self._emit(f'↔ Switch {text.rstrip(".").strip()}', DIM)
         self._start_spinner(text)
 
@@ -310,43 +308,17 @@ class ReplUI:
 
     def _spinner_run(self):
         while not self._spinner_stop.is_set():
-            if self._prompting.is_set() or self._status_paused:
+            if self._prompting.is_set():
                 time.sleep(SPINNER_INTERVAL)
-                continue
-            if self._paused_by_key():
                 continue
             frame = SPINNER_FRAMES[self._spinner_frame % len(SPINNER_FRAMES)]
             self._spinner_frame += 1
             with self._spinner_lock:
                 if self._spinner_stop.is_set():
                     break
-                sys.stdout.write(
-                    f'\r\033[K{frame} {self._spinner_label}  '
-                    f'{DIM}(press Enter to continue, ^C to cancel){RESET}')
+                sys.stdout.write(f'\r\033[K{frame} {self._spinner_label}')
                 sys.stdout.flush()
             time.sleep(SPINNER_INTERVAL)
-
-    def _paused_by_key(self) -> bool:
-        stream = sys.stdin
-        try:
-            if stream is None or not stream.isatty():
-                return False
-            ready, _, _ = select.select([stream], [], [], SPINNER_INTERVAL)
-        except (OSError, ValueError, TypeError, AttributeError):
-            return False
-        if not ready:
-            return False
-        try:
-            stream.readline()
-        except (OSError, ValueError):
-            return False
-        with self._spinner_lock:
-            self._status_paused = True
-            sys.stdout.write(
-                f'\r\033[K{self._spinner_label}  '
-                f'{DIM}(continuing, ^C to cancel){RESET}\n')
-            sys.stdout.flush()
-        return True
 
     def _clear_spinner_line(self):
         if self._spinner_thread is not None and self._spinner_thread.is_alive():
@@ -361,7 +333,6 @@ class ReplUI:
             return
         if label:
             self._spinner_label = label
-        self._status_paused = False
         self._spinner_stop.clear()
         self._spinner_frame = 0
         self._spinner_thread = threading.Thread(
@@ -369,7 +340,6 @@ class ReplUI:
         self._spinner_thread.start()
 
     def _stop_spinner(self):
-        self._status_paused = False
         if self._spinner_thread is None or not self._spinner_thread.is_alive():
             self._spinner_thread = None
             return

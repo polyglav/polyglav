@@ -171,7 +171,7 @@
 - [x] Permission asks honor the operator's choice - approve option grants once/always
 - [x] Catalog `kind="type"` accepted as `role`, corrected error message
 - [x] Auto-follow sub-runs - `focus_on_delegate` defaults on, teams focus the last stage
-- [x] Interruptible sub-run status - Enter pauses the spinner, prompts are never overwritten
+- [x] Sub-run status line - stage marker, prompts are never overwritten
 - [x] Mode-aware prompt color - cyan read, orange write, per-mode `color` override
 - [x] Team stage error detail - status and sub-session instead of `unknown error`
 - [x] Team stage self-reentry guard - a stage cannot re-run its own team
