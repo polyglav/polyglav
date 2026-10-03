@@ -15,8 +15,6 @@ Modes become the only posture: `read` by default, `write` on request. A simple p
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Access classification - config `access.read_tools` by permission key (unknown key is write), `free`/`read`/`write` classes, mode cap applied last and inherited by sub-agents | M | a fail-closed, plugin-safe access model |
-| `read`/`write` modes + rename - hard rename of `plan`/`build`, default `read`, any unknown mode value falls back to `read`; prompt color and `/mode` switch | M | one posture switch |
 | Mode-capped grants - clamp the grant ceiling by the mode cap, deny a permission ask in `read`, redirect to a `direction` ask for a mode switch | M | no grant cascade, one operator decision |
 | Tool taxonomy - `offload` (sibling), `call` (named role), `delegate` (named team); `offload_depth`; role-less sub-engine | M-L | clear delegation vocabularies |
 | Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode | M | no opaque root authority |
