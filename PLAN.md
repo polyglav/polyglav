@@ -9,18 +9,9 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Modes-first redesign
-
-Modes become the only posture: `read` by default, `write` on request. A simple prompt-based chat can read, search, and offload context to read-only siblings, while writing, named-role calls, teams, and permission grants sit behind an explicit mode switch. Root roles and the assistant persona are removed, and tool access is classified by permission key, fail-closed.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode | M | no opaque root authority |
-| Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly | S | batch runs stay explicit |
-
 ## Run control and sub-run visibility
 
-A running team or delegate blocks the terminal. The status line is now interruptible (Enter pauses, interactive prompts are never hidden), so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.
+A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.
 
 | Task | Effort | Provides |
 |------|--------|----------|

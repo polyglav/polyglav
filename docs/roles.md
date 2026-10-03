@@ -15,11 +15,10 @@ A role is a single reusable profile carrying several distinct axes of an agent.
 | **Expertise** | The domains it is tagged for, used for grouping and filtering | `tags` |
 | **Archetype** | A stored, reusable pattern that teams reference as a stage | the registry entry itself |
 
-The bundled catalog ships two pre-carved teams plus an `assistant`, a `composer`, and a `leader` role, useful as delegation targets and as templates (see [teams.md](teams.md)). The assistant is the REPL's default root identity, the composer designs and persists teams, and the leader supervises them. All leave `model` and `skills` empty (inheriting the caller's model) and differ mainly in `tool_permission` (`leader` also sets `grant_permission`/`ask_policy`, `composer` sets `ask_policy`):
+The bundled catalog ships two pre-carved teams plus a `composer` and a `leader` role, useful as delegation targets and as templates (see [teams.md](teams.md)). The composer designs and persists teams, and the leader supervises them. All leave `model` and `skills` empty (inheriting the caller's model) and differ mainly in `tool_permission` (`leader` also sets `grant_permission`/`ask_policy`, `composer` sets `ask_policy`):
 
 | role | function | tags | edit | bash | web | read |
 |---|---|---|---|---|---|---|
-| `assistant` | REPL root: answers small tasks, delegates bigger work to a composer/leader | management | - | - | - | - |
 | `code-reviewer` | auditor: reviews a change, returns findings | programming, review | deny | allow | deny | allow |
 | `composer` | team composer: designs and persists a team (`catalog` allow, `delegate` deny) | management | deny | deny | allow | allow |
 | `editor` | auditor: checks a document against the prompt and sources | writing, review | deny | deny | deny | allow |

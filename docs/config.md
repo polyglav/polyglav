@@ -40,8 +40,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | Key                         | Default                | Description                                                            |
 |-----------------------------|------------------------|------------------------------------------------------------------------|
 | `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
-| `assistant`                 | `true`                 | Bind the REPL root to the `assistant_role` identity on startup. `false` leaves the root untyped (no injected identity). A non-empty `system_prompt` always wins over the role prompt |
-| `assistant_role`            | `"assistant"`          | Role the REPL root binds to when `assistant` is on. Rebind to any role (e.g. `leader`, `composer`) or a local override of `assistant` |
 | `ask_policy`                | *(see below)*          | Routing for the `ask` tool by kind (`permission`/`direction`)          |
 | `auto_continue`             | `true`                 | On truncation (`finish_reason=length`) with a partial answer, re-request with a "continue" instruction and stitch the parts into one message |
 | `auto_continue_max`         | `2`                    | Max continuation rounds per turn before reporting truncation     |
@@ -95,7 +93,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `stream_retries`            | `2`                    | Extra attempts (after the first) when a provider stream ends before a completion event without content |
 | `stream_retry_delay`        | `0.5`                  | Seconds to wait between stream retries                                  |
 | `subrun_verbosity`          | `"quiet"`              | How much of a delegated sub-run reaches the terminal while the caller waits. `quiet` buffers the whole run (read it with `/focus log`), `summary` forwards only the sub-run's write and edit activity lines, `full` forwards every activity line. The run's own `✓ <stage> (Ns, N tokens)` line always prints on completion |
-| `system_prompt`             | `""`                   | Optional system prompt, injected for every front-end (REPL, `run`, `serve`) |
+| `system_prompt`             | `""`                   | The root instruction, injected for every front-end (REPL, `run`, `serve`) and composed with the active mode. Onboarding sets it later; empty means no root persona |
 | `temperature`               | `0.7`                  | Sampling temperature                                                   |
 | `tool_analysis`             | `false`                | Model-generated one-line analysis of each tool result (log-only)      |
 | `tool_calling`              | `true`                 | Enable OpenAI-compatible function calling                              |
