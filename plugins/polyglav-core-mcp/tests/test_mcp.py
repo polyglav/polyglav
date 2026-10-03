@@ -210,7 +210,9 @@ class TestPluginRegistration(unittest.TestCase):
     def test_management_tools_registered(self):
         mcp_plugin.register_tools(self.reg)
         self.assertTrue({'mcp_connect', 'mcp_list', 'mcp_disconnect'} <= set(self.reg.names()))
-        self.assertEqual(self.reg.permission_for('mcp_connect'), 'web')
+        self.assertEqual(self.reg.permission_for('mcp_connect'), 'mcp')
+        self.assertEqual(self.reg.permission_for('mcp_list'), 'read')
+        self.assertEqual(self.reg.permission_for('mcp_disconnect'), 'mcp')
 
     def test_connected_tool_mapping_and_prefix(self):
         conn = mcp_client.MCPClient(

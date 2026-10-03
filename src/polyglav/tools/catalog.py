@@ -8,6 +8,15 @@ from ..roles import Role
 _ROLE_FIELDS = ('system_prompt', 'model', 'skills', 'tags',
                 'tool_permission', 'grant_permission', 'ask_policy')
 
+_CATALOG_WRITE_ACTIONS = ('save', 'remove', 'reload')
+
+
+def _catalog_action(engine, args: dict) -> str | None:
+    action = str((args or {}).get('action') or '')
+    if action in _CATALOG_WRITE_ACTIONS and engine._mode() != 'write':
+        return 'deny'
+    return None
+
 
 def _role_line(engine, agent_role) -> str:
     parts = []
@@ -217,6 +226,7 @@ def register_catalog_tool(registry, engine) -> Callable:
         short='Manage roles, teams, and skills',
         glyph='+',
         verb='Catalog',
+        permission_fn=lambda args: _catalog_action(engine, args),
     )
     def catalog(action: str, kind: str = '', name: str = '',
                 system_prompt: str | None = None, model: str | None = None,

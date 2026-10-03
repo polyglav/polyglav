@@ -147,6 +147,28 @@ class TestCatalogTool(unittest.TestCase):
         out = self._catalog(action='dance', kind='role')
         self.assertIn('Error: action must be', out)
 
+    def test_read_mode_gates_catalog_writes(self):
+        policy = self.chat._tool_policy
+        for read_action in ('list', 'show'):
+            self.assertEqual(
+                policy.action('catalog', 'catalog', None,
+                              {'action': read_action}), 'allow')
+        for write_action in ('save', 'remove', 'reload'):
+            self.assertEqual(
+                policy.action('catalog', 'catalog', None,
+                              {'action': write_action}), 'deny')
+
+    def test_write_mode_allows_catalog_writes(self):
+        self.chat.current_session.mode = 'write'
+        self.chat._init_tooling()
+        policy = self.chat._tool_policy
+        self.assertEqual(
+            policy.action('catalog', 'catalog', None, {'action': 'save'}),
+            'allow')
+        self.assertEqual(
+            policy.action('catalog', 'catalog', None, {'action': 'list'}),
+            'allow')
+
 
 if __name__ == '__main__':
     unittest.main()
