@@ -869,7 +869,7 @@ class Engine:
 
     def _run_team_stage(self, team, stage, brief: str, skills: list | None,
                         resume: str = '', context: str = 'continue') -> TurnResult:
-        mode = stage.mode or self._mode()
+        mode = self._mode()
         stage_skills = list(skills or [])
         for name in (stage.skills or []):
             if name and name not in stage_skills:
