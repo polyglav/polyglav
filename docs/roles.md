@@ -21,7 +21,7 @@ The bundled catalog ships two pre-carved teams plus an `assistant`, a `composer`
 |---|---|---|---|---|---|---|
 | `assistant` | REPL root: answers small tasks, delegates bigger work to a composer/leader | management | - | - | - | - |
 | `code-reviewer` | auditor: reviews a change, returns findings | programming, review | deny | allow | deny | allow |
-| `composer` | team composer: designs and persists a team (`catalog` allow, `team` deny) | management | deny | deny | allow | allow |
+| `composer` | team composer: designs and persists a team (`catalog` allow, `delegate` deny) | management | deny | deny | allow | allow |
 | `editor` | auditor: checks a document against the prompt and sources | writing, review | deny | deny | deny | allow |
 | `leader` | supervisor: coordinates teams and agents, delegates, grants, parks asks | research, writing, programming, review | deny | deny | deny | allow |
 | `planner` | decomposes a task into an ordered, verifiable plan | programming | deny | deny | allow | allow |
@@ -64,7 +64,7 @@ Fields:
 - `name` - unique key of the role.
 - `system_prompt` - the role's system prompt, injected when it runs.
 - `model` - optional. Overrides the caller's model when the role runs, falls back to the caller's when empty. Accepts a `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) to pin provider and model together. The model must be approved before the role runs (`delegate`/`/teams run` ask interactively, or pass `--approve-model` headlessly, see [Model refs and approval](providers.md#model-refs-and-approval)).
-- `skills` - optional list of standing skill names from the [skills registry](skills.md), resolved and injected into the role's sub-agent system prompt (and jobs with `--role`). A caller may layer additional skills per run through `delegate`/`team` or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.
+- `skills` - optional list of standing skill names from the [skills registry](skills.md), resolved and injected into the role's sub-agent system prompt (and jobs with `--role`). A caller may layer additional skills per run through `call`/`delegate` or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.
 - `tags` - optional list of tags for grouping and filtering (`/roles list <tag>`). The bundled set uses a controlled vocabulary: `management`, `research`, `writing`, `programming`, `review`.
 - `tool_permission` - optional per-agent overrides of `tool_permission` categories. The per-agent permission profile.
 - `grant_permission` - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in `write`, denied in `read`), and this only narrows it. See [Delegation and permissions](#delegation-and-permissions).
@@ -83,15 +83,15 @@ Fields:
 
 ## Delegation and permissions
 
-`delegate` resolves its permission from the target role rather than from a single tool-level default:
+`call` resolves its permission from the target role rather than from a single tool-level default:
 
-- A configured role uses its own `tool_permission` overrides. The default for the `delegate` category is `allow` (delegation runs without a prompt). Set `delegate: "ask"` on a role to confirm each delegation to it. A role with `delegate: "deny"` is refused as a delegation target and is not offered the `delegate` tool itself. To bar a role from running team pipelines without blocking delegation to it, set `team: "deny"` instead (the `team` category gates only the `team` tool).
+- A configured role uses its own `tool_permission` overrides. The default for the `call` category is `allow` (a call runs without a prompt). Set `call: "ask"` on a role to confirm each call to it. A role with `call: "deny"` is refused as a call target and is not offered the `call` tool itself. To bar a role from running team pipelines without blocking calls to it, set `delegate: "deny"` instead (the `delegate` category gates only the team pipeline tool).
 - A temporary role created only to run a task in parallel defaults to `deny` until you opt in.
 
 Sub-agent permissions are bounded by the caller: the effective carve is the caller's `tool_permission`, narrowed by the role's carve and capped by the caller's `grant_permission` ceiling (see [config.md](config.md#permission-authority)). The ceiling comes from the mode: `write` makes write keys grantable, `read` denies them, and a role or config `grant_permission` can only narrow the result. A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor that denies `edit`/`bash` for itself but allows them in its ceiling can hand them to an `implementer` while never running them. An approved `ask(kind="permission")` request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The operator may grant `always` for the rest of that sub-agent's run.
 
 ## Relationship to /agent, skills, and fleets
 
-- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `delegate` tool (the lead model proposes it, or `/tool delegate {"role": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
+- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `call` tool (the lead model proposes it, or `/tool call {"role": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
 - Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.
 - A role runs either in-process as a sub-engine (the default for delegation) or as a scoped `polyglav serve` process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and `tool_permission` (see [fleet.md](fleet.md)).
