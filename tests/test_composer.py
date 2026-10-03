@@ -20,7 +20,7 @@ class TestComposerType(unittest.TestCase):
         self.assertEqual(composer.tool_permission['catalog'], 'allow')
         self.assertEqual(composer.tool_permission['edit'], 'deny')
         self.assertEqual(composer.tool_permission['bash'], 'deny')
-        self.assertEqual(composer.tool_permission['team'], 'deny')
+        self.assertEqual(composer.tool_permission['delegate'], 'deny')
         self.assertEqual(composer.tags, ['management'])
 
     def test_delegated_composer_can_manage_catalog(self):
@@ -34,8 +34,8 @@ class TestComposerType(unittest.TestCase):
     def test_composer_cannot_run_teams(self):
         sub = self.chat._new_sub_engine('composer')
         sub._init_tooling()
-        self.assertFalse(sub._tool_policy.allowed('team', 'team'))
-        self.assertTrue(sub._tool_policy.allowed('delegate', 'delegate'))
+        self.assertFalse(sub._tool_policy.allowed('delegate', 'delegate'))
+        self.assertTrue(sub._tool_policy.allowed('call', 'call'))
 
     def test_composer_saves_team_through_catalog(self):
         tool_call = [{

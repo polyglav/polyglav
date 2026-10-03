@@ -123,15 +123,15 @@ class TestRunResume(unittest.TestCase):
         from types import SimpleNamespace
         self.chat.roles.put(
             Role(name='dev', system_prompt='Dev',
-                      tool_permission={'delegate': 'allow'}), scope='local')
+                      tool_permission={'call': 'allow'}), scope='local')
         with patch.object(self.chat, 'run_subagent', return_value=SimpleNamespace(
                 status='ok', content='done', errors=[], session='sub_x',
                 run_id=1, duration=0.0, usage=None)) as run:
             with patch('sys.stdout', new=io.StringIO()):
                 self.chat._init_tooling()
                 self.chat._tool_registry.execute(
-                    'delegate', {'role': 'dev', 'task': 't',
-                                 'resume': '#3', 'context': 'compact'})
+                    'call', {'role': 'dev', 'task': 't',
+                             'resume': '#3', 'context': 'compact'})
         self.assertEqual(run.call_args.kwargs.get('resume'), '#3')
         self.assertEqual(run.call_args.kwargs.get('context'), 'compact')
 
@@ -142,8 +142,8 @@ class TestRunResume(unittest.TestCase):
             with patch('sys.stdout', new=io.StringIO()):
                 self.chat._init_tooling()
                 self.chat._tool_registry.execute(
-                    'team', {'name': 'writing', 'task': 't',
-                             'resume': '#4', 'context': 'new'})
+                    'delegate', {'name': 'writing', 'task': 't',
+                                 'resume': '#4', 'context': 'new'})
         self.assertEqual(run.call_args.kwargs.get('resume'), '#4')
         self.assertEqual(run.call_args.kwargs.get('context'), 'new')
 

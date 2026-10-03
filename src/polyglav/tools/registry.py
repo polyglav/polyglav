@@ -9,7 +9,9 @@ ACTIVITY_DEFAULTS: dict[str, tuple[str, str]] = {
     'exec': ('$', 'Run'),
     'ask': ('~', 'Ask'),
     'todo': ('-', 'Todo'),
-    'delegate': ('↳', 'Call'),
+    'call': ('↳', 'Call'),
+    'delegate': ('↳', 'Delegate'),
+    'offload': ('↳', 'Offload'),
 }
 
 

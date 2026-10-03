@@ -16,6 +16,7 @@ DEFAULT_EVAL_PERMISSION = {
     'edit': 'deny',
     'bash': 'deny',
     'mcp': 'deny',
+    'call': 'allow',
     'delegate': 'allow',
 }
 

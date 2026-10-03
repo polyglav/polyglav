@@ -525,13 +525,14 @@ class Engine:
                         session_name: str | None = None, ui=None,
                         link_parent: bool = True,
                         run: Run | None = None) -> 'Engine':
-        agent_role = self.roles.find(role_name)
-        if agent_role is None:
+        agent_role = self.roles.find(role_name) if role_name else None
+        if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         sub_config = Config(path=str(self.config.local_path.parent.parent))
         from .skills import skills_section
-        system_prompt = agent_role.system_prompt
-        names = list(agent_role.skills or [])
+        system_prompt = (agent_role.system_prompt if agent_role
+                         else str(self.config.get('system_prompt') or ''))
+        names = list(agent_role.skills or []) if agent_role else []
         for name in (skills or []):
             if name and name not in names:
                 names.append(name)
@@ -544,7 +545,8 @@ class Engine:
                     system_prompt = section
         from . import memory as memory_store
         worktree = self.config.local_path.parent.parent
-        if memory_store.memory_enabled(sub_config, 'role'):
+        if (agent_role is not None
+                and memory_store.memory_enabled(sub_config, 'role')):
             text = memory_store.read_memory(worktree, 'role', role_name)
             section = memory_store.memory_section(text, self.config)
             if section:
@@ -553,7 +555,7 @@ class Engine:
                 else:
                     system_prompt = section
         sub_config.apply('system_prompt', system_prompt)
-        if agent_role.model:
+        if agent_role is not None and agent_role.model:
             ref = self.unfold_ref(agent_role.model)
             if ref is not None:
                 t_provider, t_base_url, t_model = ref
@@ -565,10 +567,10 @@ class Engine:
         from .roles import resolve_permissions, resolve_grant_ceiling
         parent_self = self._self_permissions()
         parent_grant = self._grant()
-        permissions = resolve_permissions(
-            parent_self, parent_grant, agent_role.tool_permission)
+        role_carve = agent_role.tool_permission if agent_role else {}
+        permissions = resolve_permissions(parent_self, parent_grant, role_carve)
         sub_config.apply('tool_permission', permissions)
-        requested = agent_role.tool_permission or {}
+        requested = role_carve or {}
         auto_denied = sorted(
             key for key, value in requested.items()
             if isinstance(value, str) and value in ('allow', 'ask')
@@ -581,11 +583,11 @@ class Engine:
                              (prompt + '\n\n' + note).strip() if prompt else note)
         sub_config.apply('mode', mode or self._mode())
         sub_config.apply('unattended', self._is_unattended())
-        if agent_role.ask_policy:
-            ask_policy = dict(self.config.get('ask_policy') or {})
+        ask_policy = dict(self.config.get('ask_policy') or {})
+        if agent_role is not None and agent_role.ask_policy:
             ask_policy.update(agent_role.ask_policy)
-            sub_config.apply('ask_policy', ask_policy)
-        if provider is None and not agent_role.model:
+        sub_config.apply('ask_policy', ask_policy)
+        if provider is None and not (agent_role and agent_role.model):
             provider = self.provider
         sub = Engine(sub_config, ui=ui,
                      plugin_manager=self._plugin_manager, provider=provider,
@@ -608,7 +610,8 @@ class Engine:
         sub._sub_run = True
         sub._caller = self
         sub._ask_ui = getattr(self, '_ask_ui', None)
-        role_grant = agent_role.grant_permission or parent_grant
+        role_grant = ((agent_role.grant_permission if agent_role else None)
+                      or parent_grant)
         sub._grant_ceiling = resolve_grant_ceiling(
             parent_self, parent_grant, role_grant, permissions)
         sub._team_depth = getattr(self, '_team_depth', 0)
@@ -676,10 +679,16 @@ class Engine:
     def run_subagent(self, role_name: str, task: str, mode: str = '',
                      skills: list | None = None,
                      resume: str = '', context: str = 'continue') -> TurnResult:
-        agent_role = self.roles.find(role_name)
-        if agent_role is None:
+        agent_role = self.roles.find(role_name) if role_name else None
+        if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
-        if agent_role.model:
+        if not role_name:
+            limit = int(self.config.get('offload_depth', 1) or 0)
+            if limit and getattr(self, '_offload_depth', 0) >= limit:
+                raise ValueError(
+                    'offload depth limit reached - ask the operator before '
+                    'spawning another sibling')
+        if agent_role is not None and agent_role.model:
             ref = self.unfold_ref(agent_role.model)
             provider, _, model = ref if ref else (
                 self.config.get('provider'), None, agent_role.model)
@@ -697,11 +706,12 @@ class Engine:
         sub = self._new_sub_engine(
             role_name, mode=mode, skills=skills, task=task,
             session_name=session_name, run=run, link_parent=run is None)
+        sub._offload_depth = getattr(self, '_offload_depth', 0) + 1
         if run is not None:
             self.runs.reactivate(run.id)
         if ctx == 'compact':
             sub.compact_session()
-        label = role_name
+        label = role_name or 'offload'
         stack = list(getattr(self, '_team_stack', []))
         if stack:
             label = f'{stack[-1]}: {role_name}'
@@ -1423,16 +1433,18 @@ class Engine:
             return None
         from .tools.registry import ToolRegistry
         from .tools.policy import ToolPolicy
+        from .tools.call import register_call_tool
         from .tools.delegate import register_delegate_tool
-        from .tools.team import register_team_tool
+        from .tools.offload import register_offload_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
         from .tools.handoff import register_handoff_tool
         from .modes import merge_policy, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry()
+        register_call_tool(self._tool_registry, self)
         register_delegate_tool(self._tool_registry, self)
-        register_team_tool(self._tool_registry, self)
+        register_offload_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
         register_handoff_tool(self._tool_registry, self)

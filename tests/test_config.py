@@ -169,7 +169,8 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(permissions['ask'], 'allow')
         self.assertEqual(permissions['catalog'], 'allow')
         self.assertEqual(permissions['handoff'], 'allow')
-        self.assertEqual(permissions['team'], 'allow')
+        self.assertEqual(permissions['delegate'], 'allow')
+        self.assertEqual(permissions['call'], 'allow')
         self.assertEqual(permissions['mcp'], 'ask')
         self.assertEqual(permissions['bash'], 'allow')
         self.assertEqual(permissions['bash_allow'], ['git'])
@@ -181,7 +182,7 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(policy.action('ask', 'ask'), 'allow')
         self.assertEqual(policy.action('catalog', 'catalog'), 'allow')
         self.assertEqual(policy.action('handoff', 'handoff'), 'allow')
-        self.assertEqual(policy.action('team', 'team'), 'allow')
+        self.assertEqual(policy.action('delegate', 'delegate'), 'allow')
 
     def test_partial_mode_keeps_default_keys(self):
         self.write_local({
