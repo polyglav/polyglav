@@ -129,8 +129,8 @@ class TestRoleRegistry(unittest.TestCase):
     def test_bundled_defaults_loaded(self):
         reg = self.bundled()
         names = reg.names()
-        self.assertEqual(len(names), 11)
-        for expected in ('assistant', 'composer', 'leader', 'researcher',
+        self.assertEqual(len(names), 10)
+        for expected in ('composer', 'leader', 'researcher',
                          'writer', 'referencer', 'editor', 'planner',
                          'programmer', 'tester', 'code-reviewer'):
             self.assertIn(expected, names)
@@ -298,12 +298,12 @@ class TestTypeCommand(unittest.TestCase):
 
     def test_list_shows_bundled(self):
         out = self._type()
-        self.assertIn('11 roles', out)
+        self.assertIn('10 roles', out)
         self.assertIn('researcher', out)
         self.assertIn('(bundled)', out)
 
     def test_role_shows_active_role(self):
-        self.chat.bind_root_agent('leader')
+        self.chat.role = 'leader'
         with patch('sys.stdout', new=io.StringIO()) as buf:
             self.chat.registry.dispatch('/role')
         self.assertIn('Role: leader', buf.getvalue())

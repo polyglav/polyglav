@@ -67,10 +67,6 @@ class TestEngineRuns(unittest.TestCase):
         self.assertEqual(self.chat.current_run.session, self.chat.current_session.session_name)
         self.assertIsNone(self.chat.current_run.parent)
 
-    def test_bind_assistant_updates_run_role(self):
-        self.chat._bind_assistant()
-        self.assertEqual(self.chat.current_run.role, 'assistant')
-        self.assertEqual(self.chat.current_session.role, 'assistant')
 
     def test_sub_engine_shares_registry_and_links_parent(self):
         sub = self.chat._new_sub_engine('writer', task='draft')

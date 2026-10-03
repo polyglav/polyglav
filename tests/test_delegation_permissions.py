@@ -143,37 +143,6 @@ class TestNoEscalation(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_root_role_grant_permission_applies(self):
-        chat = make_chat({'mode': 'write'})
-        try:
-            chat.roles.put(Role(
-                name='supervisor',
-                tool_permission={'bash': 'deny', 'edit': 'deny'},
-                grant_permission={'bash': 'allow', 'edit': 'allow'}),
-                scope='local')
-            self.assertTrue(chat.bind_root_agent('supervisor'))
-            self.assertEqual(chat.config.get('grant_permission'),
-                             {'bash': 'allow', 'edit': 'allow'})
-            self.assertEqual(self._permissions(chat)['bash'], 'deny')
-            self.assertEqual(chat._grant()['bash'], 'allow')
-            chat.roles.put(Role(name='impl', tool_permission={'bash': 'allow'}),
-                           scope='local')
-            sub = chat._new_sub_engine('impl')
-            self.assertEqual(self._permissions(sub)['bash'], 'allow')
-        finally:
-            chat._tmp.cleanup()
-
-    def test_root_role_grant_permission_ignored_when_config_set(self):
-        chat = make_chat({'grant_permission': {'bash': 'deny'}})
-        try:
-            chat.roles.put(Role(
-                name='supervisor',
-                grant_permission={'bash': 'allow'}), scope='local')
-            self.assertTrue(chat.bind_root_agent('supervisor'))
-            self.assertEqual(chat._grant()['bash'], 'deny')
-        finally:
-            chat._tmp.cleanup()
-
     def test_supervisor_grants_bash_but_cannot_use_it(self):
         chat = make_chat({'mode': 'write',
                           'grant_permission': {'read': 'allow', 'bash': 'allow',
