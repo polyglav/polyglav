@@ -143,7 +143,7 @@ class TestRoleRegistry(unittest.TestCase):
         composer = reg.find('composer')
         self.assertEqual(composer.tool_permission['catalog'], 'allow')
         self.assertEqual(composer.tool_permission['edit'], 'deny')
-        self.assertEqual(composer.tool_permission['team'], 'deny')
+        self.assertEqual(composer.tool_permission['delegate'], 'deny')
         leader = reg.find('leader')
         self.assertEqual(leader.tool_permission['edit'], 'deny')
         self.assertEqual(leader.tool_permission['bash'], 'deny')

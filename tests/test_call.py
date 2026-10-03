@@ -24,7 +24,7 @@ class TestDelegateTool(unittest.TestCase):
         return [{
             'id': 'call_del001',
             'type': 'function',
-            'function': {'name': 'delegate',
+            'function': {'name': 'call',
                          'arguments': json.dumps({'role': role_name,
                                                   'task': task})},
         }]
@@ -40,7 +40,7 @@ class TestDelegateTool(unittest.TestCase):
     def _allow_delegate(self, name='writer'):
         self.chat.roles.put(
             Role(name=name, system_prompt='Writer agent',
-                      tool_permission={'delegate': 'allow'}), scope='local')
+                      tool_permission={'call': 'allow'}), scope='local')
 
     def _delegate_logs(self, role_name):
         return sorted(
@@ -69,7 +69,7 @@ class TestDelegateTool(unittest.TestCase):
         self.assertEqual(self.chat.provider.chat.call_count, 3)
         tools = self._tool_msgs()
         self.assertTrue(tools)
-        self.assertIn('[delegate writer] Draft text.', tools[0]['output'])
+        self.assertIn('[call writer] Draft text.', tools[0]['output'])
         self.assertTrue(self._delegate_logs('writer'))
 
     def test_echo_on_prints_result_and_footer(self):
@@ -115,13 +115,13 @@ class TestDelegateTool(unittest.TestCase):
         self._run()
         self.assertEqual(self.chat.provider.chat.call_count, 3)
         self.chat._ui.confirm.assert_not_called()
-        self.assertIn('[delegate writer] Draft text.',
+        self.assertIn('[call writer] Draft text.',
                       self._tool_msgs()[0]['output'])
 
     def test_type_ask_requires_confirm(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='W',
-                      tool_permission={'delegate': 'ask'}), scope='local')
+                      tool_permission={'call': 'ask'}), scope='local')
         self.chat._ui.confirm = MagicMock(return_value=False)
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
@@ -138,7 +138,7 @@ class TestDelegateTool(unittest.TestCase):
     def test_confirm_granted_runs(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='W',
-                      tool_permission={'delegate': 'ask'}), scope='local')
+                      tool_permission={'call': 'ask'}), scope='local')
         self.chat._ui.confirm = MagicMock(return_value=True)
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
@@ -149,7 +149,7 @@ class TestDelegateTool(unittest.TestCase):
         ]
         self._run()
         self.assertEqual(self.chat.provider.chat.call_count, 3)
-        self.assertIn('[delegate writer] Draft text.',
+        self.assertIn('[call writer] Draft text.',
                       self._tool_msgs()[0]['output'])
 
     def test_unknown_type_denied(self):
@@ -175,9 +175,9 @@ class TestDelegateTool(unittest.TestCase):
         ]
         with patch('sys.stdout', new=io.StringIO()) as buf:
             self.chat.registry.dispatch(
-                '/tool delegate {"role": "writer", "task": "write"}')
+                '/tool call {"role": "writer", "task": "write"}')
         out = buf.getvalue()
-        self.assertEqual(out.count('[delegate writer] Sub result.'), 1)
+        self.assertEqual(out.count('[call writer] Sub result.'), 1)
         self.assertTrue(self._delegate_logs('writer'))
 
     def test_tool_command_delegate_runs_loop_turn(self):
@@ -190,7 +190,7 @@ class TestDelegateTool(unittest.TestCase):
         ]
         with patch('sys.stdout', new=io.StringIO()):
             self.chat.registry.dispatch(
-                '/tool delegate {"role": "writer", "task": "write"}')
+                '/tool call {"role": "writer", "task": "write"}')
         roles = [p['type'] for t in self.chat.current_session.turns
                  for p in t.get('parts') or []]
         self.assertIn('text', roles)
@@ -206,13 +206,13 @@ class TestDelegateTool(unittest.TestCase):
         from types import SimpleNamespace
         self.chat.roles.put(
             Role(name='dev', system_prompt='Dev',
-                      tool_permission={'delegate': 'allow'}), scope='local')
+                      tool_permission={'call': 'allow'}), scope='local')
         with patch.object(self.chat, 'run_subagent', return_value=SimpleNamespace(
                 status='ok', content='done', errors=[], session='sub_x',
                 duration=0.0, usage=None)) as run:
             self.chat._init_tooling()
             self.chat._tool_registry.execute(
-                'delegate', {'role': 'dev', 'task': 't',
+                'call', {'role': 'dev', 'task': 't',
                              'skills': ['django']})
         run.assert_called_once()
         self.assertEqual(run.call_args.kwargs.get('skills'), ['django'])
@@ -225,17 +225,17 @@ class TestDelegateTool(unittest.TestCase):
         args_default = {'role': 'programmer', 'task': 't'}
         args_unknown = {'role': 'ghost', 'task': 't'}
         self.assertEqual(
-            policy.action('delegate', 'delegate', None, args_allow), 'allow')
+            policy.action('call', 'call', None, args_allow), 'allow')
         self.assertEqual(
-            policy.action('delegate', 'delegate', None, args_default), 'allow')
+            policy.action('call', 'call', None, args_default), 'allow')
         self.assertEqual(
-            policy.action('delegate', 'delegate', None, args_unknown), 'deny')
-        self.assertTrue(policy.allowed('delegate', 'delegate'))
+            policy.action('call', 'call', None, args_unknown), 'deny')
+        self.assertTrue(policy.allowed('call', 'call'))
 
     def test_empty_result_uses_log_summary(self):
         from types import SimpleNamespace
         from polyglav.sessions.manager import Session
-        from polyglav.tools.delegate import _format_result
+        from polyglav.tools.call import _format_result
         subname = 'sub_20260825_000000_ses_20260825_000000_parent'
         sess = Session(subname, turns_list=[self._summary_turn()])
         self.chat.sessions.save(sess)

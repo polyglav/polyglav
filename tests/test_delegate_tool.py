@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from polyglav.teams import Team, TeamStage
-from polyglav.tools.team import _clamped_stages, _team_action
+from polyglav.tools.delegate import _clamped_stages, _team_action
 from polyglav.roles import Role
 
 from tests.helpers import make_chat
@@ -35,16 +35,16 @@ class TestTeamTool(unittest.TestCase):
 
     def _run(self, name='doc', task='write a report'):
         self.chat._init_tooling()
-        return self.chat._run_tool('team', {'name': name, 'task': task})
+        return self.chat._run_tool('delegate', {'name': name, 'task': task})
 
     def test_registered_in_schema(self):
         schema = self.chat._init_tooling()
         names = [s['function']['name'] for s in schema]
-        self.assertIn('team', names)
-        entry = self.chat._tool_registry.info('team')
+        self.assertIn('delegate', names)
+        entry = self.chat._tool_registry.info('delegate')
         self.assertEqual(entry['category'], 'delegate')
-        self.assertEqual(entry['permission'], 'team')
-        self.assertTrue(self.chat._tool_registry.loop_for('team'))
+        self.assertEqual(entry['permission'], 'delegate')
+        self.assertTrue(self.chat._tool_registry.loop_for('delegate'))
         self.assertIn('name', entry['parameters']['properties'])
         self.assertIn('task', entry['parameters']['properties'])
 
@@ -54,7 +54,7 @@ class TestTeamTool(unittest.TestCase):
             self._result('Research done.'), self._result('Draft done.'),
         ]
         out = self._run()
-        self.assertIn('[team doc] Draft done.', out)
+        self.assertIn('[delegate doc] Draft done.', out)
         self.assertEqual(self.chat.provider.chat.call_count, 2)
         self.assertEqual(len(self.chat.current_session.sub_sessions), 2)
 
@@ -130,7 +130,7 @@ class TestTeamTool(unittest.TestCase):
                  {'type': 'done', 'reason': 'stop'}),
             ]
             chat._init_tooling()
-            out = chat._run_tool('team', {'name': 'doc', 'task': 't'})
+            out = chat._run_tool('delegate', {'name': 'doc', 'task': 't'})
             self.assertIn('reduced permissions for: impl', out)
         finally:
             chat._tmp.cleanup()
@@ -227,7 +227,7 @@ class TestTeamTool(unittest.TestCase):
         tool_call = [{
             'id': 'call_team001',
             'type': 'function',
-            'function': {'name': 'team',
+            'function': {'name': 'delegate',
                          'arguments': json.dumps({'name': 'doc',
                                                   'task': 'write it'})},
         }]
@@ -242,7 +242,7 @@ class TestTeamTool(unittest.TestCase):
         tools = [p for t in self.chat.current_session.turns
                  for p in t.get('parts') or [] if p['type'] == 'tool']
         self.assertTrue(tools)
-        self.assertIn('[team doc] Stage output.', tools[0]['output'])
+        self.assertIn('[delegate doc] Stage output.', tools[0]['output'])
 
 
 if __name__ == '__main__':
