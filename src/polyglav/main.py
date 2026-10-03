@@ -12,7 +12,7 @@ def _add_run_parser(sub):
     p.add_argument('--provider', help='Provider override (e.g. ollama, openai, groq)')
     p.add_argument('--model', help='Model override')
     p.add_argument('--base-url', help='Base URL override')
-    p.add_argument('--mode', help='Agent mode override (plan, build, or a custom mode)')
+    p.add_argument('--mode', help='Agent mode override (read or write, default read)')
     p.add_argument('--output', choices=['text', 'json'], default='json',
                    help='Output format (default: json)')
     p.add_argument('--verbose', action='store_true',
@@ -74,7 +74,7 @@ def _add_serve_parser(sub):
     p.add_argument('--port', type=int, default=8787)
     p.add_argument('--path', default=argparse.SUPPRESS,
                    help='Project path (default: current directory)')
-    p.add_argument('--mode', help='Agent mode override (plan, build, or a custom mode)')
+    p.add_argument('--mode', help='Agent mode override (read or write, default read)')
 
 
 def _add_mcp_parser(sub):
@@ -154,7 +154,7 @@ def _add_jobs_parser(sub):
     sched.add_argument('--at', help='One-shot run at an ISO datetime (e.g. 2026-08-27T02:00:00Z)')
     ga.add_argument('--session', help='Stable session name (default: a fresh '
                     'job_<ts>_<code> file per run)')
-    ga.add_argument('--mode', help='Agent mode override (plan, build, or custom)')
+    ga.add_argument('--mode', help='Agent mode for the job (read or write, default write)')
     ga.add_argument('--provider', help='Provider override')
     ga.add_argument('--model', help='Model override')
     ga.add_argument('--role', help='Role whose prompt, model, and permissions apply')
@@ -253,7 +253,7 @@ def _add_fleet_parser(sub):
     gc.add_argument('--model', help='Model override')
     gc.add_argument('--role', help='Inline a role\'s prompt, model, and permissions')
     gc.add_argument('--system-prompt', help='System prompt override')
-    gc.add_argument('--mode', help='Agent mode override (plan, build, or custom)')
+    gc.add_argument('--mode', help='Agent mode override (read or write)')
     gc.add_argument('--tools-deny', action='append', default=[],
                     help='Tool name to deny (repeatable)')
     gc.add_argument('--tool-permission', action='append', default=[],
