@@ -1514,8 +1514,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>grant_permission</code></td>
-<td><code>{}</code></td>
-<td>Delegation ceiling: the maximum category actions an engine may hand down to sub-agents. Empty means the engine's own <code>tool_permission</code> is the ceiling (no escalation). See <a href="#permission-authority">Permission authority</a></td>
+<td><code>{ask,bash,edit,list,read,web: allow}</code></td>
+<td>Delegation ceiling: the maximum category actions an engine may hand down to sub-agents. Defaults to a built-in allow set (<code>ask</code>, <code>bash</code>, <code>edit</code>, <code>list</code>, <code>read</code>, <code>web</code>), so the assistant can authorize a team's permission asks on its own. Set it to <code>{}</code> to fall back to the engine's own <code>tool_permission</code> (no escalation). See <a href="#permission-authority">Permission authority</a></td>
 </tr>
 <tr>
 <td><code>hide_confirm_input</code></td>
@@ -1690,7 +1690,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>status_spinner</code></td>
 <td><code>true</code></td>
-<td>Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. Pressing Enter freezes the animation (it stays visible, <code>^C</code> still cancels), and the spinner always yields while a confirm or <code>ask</code> prompt waits for input, so the prompt is never overwritten. Each stage also prints a dim <code>↔ Switch &lt;run&gt;</code> marker. Off hides the animation. Headless and Null sinks ignore it</td>
+<td>Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. The spinner always yields while a confirm or <code>ask</code> prompt waits for input, so the prompt is never overwritten, and each stage prints a dim <code>↔ Switch &lt;run&gt;</code> marker. Off hides the animation. Headless and Null sinks ignore it</td>
 </tr>
 <tr>
 <td><code>stream_retries</code></td>
@@ -1812,7 +1812,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="p">}</span>
 </code></pre></div>
 <ul>
-<li><code>permission</code> - a sub-agent's request for a tool or category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). <code>auto</code> has the lead agent decide and grants one use, <code>human</code> routes to the operator, <code>deny</code> disables grants. A request above the engine's <code>grant_permission</code> ceiling is always denied. The operator may grant <code>always</code> (reusable for the rest of that sub-agent's run), the lead only ever grants <code>once</code>.</li>
+<li><code>permission</code> - a sub-agent's request for a tool or category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). <code>auto</code> has the lead agent decide and grants one use, <code>human</code> routes to the operator, <code>deny</code> disables grants. A request above the engine's <code>grant_permission</code> ceiling is always denied; when the ceiling itself is <code>ask</code> for that category, the request is routed to the operator, because the lead may not grant above an operator-gated category. To let the calling agent authorize a category without asking you, widen the ceiling with <code>grant_permission</code> (for example <code>{"bash": "allow"}</code>). The operator may grant <code>always</code> (reusable for the rest of that sub-agent's run), the lead only ever grants <code>once</code>. A human-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
 <li><code>direction</code> - a decision or scope change. <code>human</code> (default) routes to the operator, <code>auto</code> to the lead.</li>
 </ul>
 <h3 id="permission-authority">Permission authority<a class="headerlink" href="#permission-authority" title="Permanent link">&para;</a></h3>
@@ -1821,7 +1821,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>tool_permission</code> - what the engine itself may use.</li>
 <li><code>grant_permission</code> - the ceiling on what it may hand down to sub-agents.</li>
 </ul>
-<p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the parent's <code>grant_permission</code>. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate. <code>grant_permission</code> defaults to the engine's own <code>tool_permission</code>, so delegation never escalates unless a role (or config) explicitly widens the ceiling.</p>
+<p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the parent's <code>grant_permission</code>. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate. <code>grant_permission</code> defaults to a built-in allow set (<code>ask</code>, <code>bash</code>, <code>edit</code>, <code>list</code>, <code>read</code>, <code>web</code>), so the caller can hand the work categories down without holding them itself. Set it to <code>{}</code> to fall back to the engine's own <code>tool_permission</code>, where delegation never escalates unless a role or config explicitly widens the ceiling.</p>
 <p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The operator may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>
 <h3 id="unattended-mode">Unattended mode<a class="headerlink" href="#unattended-mode" title="Permanent link">&para;</a></h3>

@@ -1365,8 +1365,14 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Renamed sub-engine <code>_lead</code> reference to <code>_caller</code></li>
+<li>[x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash</li>
+<li>[x] Root role grant permission applied by <code>bind_root_agent</code></li>
+<li>[x] Default delegation ceiling - <code>grant_permission</code> defaults to a built-in allow set</li>
+<li>[x] Permission asks honor the operator's choice - approve option grants once/always</li>
+<li>[x] Catalog <code>kind="type"</code> accepted as <code>role</code>, corrected error message</li>
 <li>[x] Auto-follow sub-runs - <code>focus_on_delegate</code> defaults on, teams focus the last stage</li>
-<li>[x] Interruptible sub-run status - Enter pauses the spinner, prompts are never overwritten</li>
+<li>[x] Sub-run status line - stage marker, prompts are never overwritten</li>
 <li>[x] Mode-aware prompt color - cyan read, orange write, per-mode <code>color</code> override</li>
 <li>[x] Team stage error detail - status and sub-session instead of <code>unknown error</code></li>
 <li>[x] Team stage self-reentry guard - a stage cannot re-run its own team</li>

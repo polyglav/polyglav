@@ -1253,9 +1253,9 @@
 </tr>
 <tr>
 <td><code>leader</code></td>
-<td>supervisor: coordinates teams and agents, delegates, parks asks</td>
+<td>supervisor: coordinates teams and agents, delegates, grants, parks asks</td>
 <td>research, writing, programming, review</td>
-<td>allow</td>
+<td>deny</td>
 <td>deny</td>
 <td>deny</td>
 <td>allow</td>
@@ -1346,7 +1346,7 @@
 <li><code>skills</code> - optional list of standing skill names from the <a href="../skills/">skills registry</a>, resolved and injected into the role's sub-agent system prompt (and jobs with <code>--role</code>). A caller may layer additional skills per run through <code>delegate</code>/<code>team</code> or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.</li>
 <li><code>tags</code> - optional list of tags for grouping and filtering (<code>/roles list &lt;tag&gt;</code>). The bundled set uses a controlled vocabulary: <code>management</code>, <code>research</code>, <code>writing</code>, <code>programming</code>, <code>review</code>.</li>
 <li><code>tool_permission</code> - optional per-agent overrides of <code>tool_permission</code> categories. The per-agent permission profile.</li>
-<li><code>grant_permission</code> - optional ceiling on the categories this role may hand down to sub-agents. Defaults to the role's own <code>tool_permission</code>, so it never widens delegation unless set explicitly. See <a href="#delegation-and-permissions">Delegation and permissions</a>.</li>
+<li><code>grant_permission</code> - optional ceiling on the categories this role may hand down to sub-agents. As a sub-agent it defaults to the role's own <code>tool_permission</code>; bound as the root (<code>assistant_role</code>) its <code>grant_permission</code> sets the root ceiling, so a read-only assistant can still authorize a team (an explicit config <code>grant_permission</code> wins). See <a href="#delegation-and-permissions">Delegation and permissions</a>.</li>
 <li><code>ask_policy</code> - optional per-role override of the <code>ask</code> routing by kind (<code>permission</code>/<code>direction</code>), merged over the config <code>ask_policy</code>. See <a href="../config/#ask_policy">config.md</a>.</li>
 </ul>
 <h2 id="command">Command<a class="headerlink" href="#command" title="Permanent link">&para;</a></h2>
@@ -1365,7 +1365,7 @@
 <li>A configured role uses its own <code>tool_permission</code> overrides. The default for the <code>delegate</code> category is <code>allow</code> (delegation runs without a prompt). Set <code>delegate: "ask"</code> on a role to confirm each delegation to it. A role with <code>delegate: "deny"</code> is refused as a delegation target and is not offered the <code>delegate</code> tool itself. To bar a role from running team pipelines without blocking delegation to it, set <code>team: "deny"</code> instead (the <code>team</code> category gates only the <code>team</code> tool).</li>
 <li>A temporary role created only to run a task in parallel defaults to <code>deny</code> until you opt in.</li>
 </ul>
-<p>Sub-agent permissions are bounded by the caller: the effective carve is the caller's <code>tool_permission</code>, narrowed by the role's carve and capped by the caller's <code>grant_permission</code> ceiling (see <a href="../config/#permission-authority">config.md</a>). <code>grant_permission</code> defaults to the caller's own <code>tool_permission</code>, so a role can never grant a sub-agent more than the caller holds. A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor that denies <code>edit</code>/<code>bash</code> for itself but allows them in its ceiling can hand them to an <code>implementer</code> while never running them. An approved <code>ask(kind="permission")</code> request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The operator may grant <code>always</code> for the rest of that sub-agent's run.</p>
+<p>Sub-agent permissions are bounded by the caller: the effective carve is the caller's <code>tool_permission</code>, narrowed by the role's carve and capped by the caller's <code>grant_permission</code> ceiling (see <a href="../config/#permission-authority">config.md</a>). The config ceiling is a built-in allow set (<code>ask</code>, <code>bash</code>, <code>edit</code>, <code>list</code>, <code>read</code>, <code>web</code>), so a caller normally does not need to set one; set <code>grant_permission: {}</code> to fall back to the caller's own <code>tool_permission</code>, where a role can never grant a sub-agent more than the caller holds. A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor that denies <code>edit</code>/<code>bash</code> for itself but allows them in its ceiling can hand them to an <code>implementer</code> while never running them. An approved <code>ask(kind="permission")</code> request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The operator may grant <code>always</code> for the rest of that sub-agent's run.</p>
 <h2 id="relationship-to-agent-skills-and-fleets">Relationship to /agent, skills, and fleets<a class="headerlink" href="#relationship-to-agent-skills-and-fleets" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>/agent</code> is the planned interactive way to pick a role and run with it. Today a role runs directly through the <code>delegate</code> tool (the lead model proposes it, or <code>/tool delegate {"role": ..., "task": ...}</code>), which builds the in-process sub-engine from this catalog.</li>
