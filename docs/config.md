@@ -50,8 +50,8 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth, so an unattended-but-watched run still cannot freeze on a prompt. See [Unattended mode](#unattended-mode) |
 | `connect_check`             | `true`                 | Test the provider connection on config changes: `/connect` probes before saving (broken values rejected unless confirmed), `/provider` warns on a failed probe. `false` skips all probes |
-| `delegate_echo`             | `true`                 | When `delegate` runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output |
-| `focus_on_delegate`         | `"on"`                 | After a `delegate` call or a team run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. `off` leaves focus alone, `on` focuses automatically, `ask` prompts the operator first (skipped under [unattended mode](#unattended-mode)). The root turn still finishes, so its answer is not lost. REPL-only |
+| `delegate_echo`             | `true`                 | When a `call`, `delegate`, or `offload` runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output |
+| `focus_on_delegate`         | `"on"`                 | After a `call` or team `delegate` run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. `off` leaves focus alone, `on` focuses automatically, `ask` prompts the operator first (skipped under [unattended mode](#unattended-mode)). The root turn still finishes, so its answer is not lost. REPL-only |
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
 | `glyph_lines`               | `true`                 | Typed `<glyph> <verb> <arg>` status lines for mapped categories. Off or unmapped categories fall back to the `[tool: arg]` oneliner |
 | `glyph_params`              | `true`                 | Append tool call parameters to glyph status lines and confirm prompts (e.g. `← Read engine.py [offset=299, limit=85]`). Off for bare `<glyph> <verb> <arg>` |
@@ -60,7 +60,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
 | `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults |
-| `max_team_depth`            | `2`                    | Maximum nested team runs (a `team` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
+| `max_team_depth`            | `2`                    | Maximum nested team runs (a `delegate` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
 | `mcp.servers`               | `[]`                   | MCP client server definitions (see [mcp.md](mcp.md) for the schema)     |
 | `mcp_server.allow_ask`      | `true`                 | When serving MCP, run `ask`-policy tools (deferred to the client) vs refuse them |
 | `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
@@ -69,6 +69,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `noise_tools`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
+| `offload_depth`             | `1`                    | Maximum nested `offload` siblings. `0` = unlimited. An `offload` sibling cannot spawn another until the operator raises this. See [modes.md](modes.md) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, ANSI colors included, so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default |
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
@@ -136,20 +137,21 @@ Access is classified by permission key. Any key not in `access.read_tools` is wr
   "ask": "allow",
   "bash": "ask",
   "bash_allow": ["pytest", "python -m unittest", "ruff", "git"],
+  "call": "allow",
   "catalog": "allow",
   "delegate": "allow",
   "edit": "allow",
   "handoff": "allow",
   "list": "allow",
   "mcp": "ask",
+  "offload": "allow",
   "read": "allow",
-  "team": "allow",
   "vcs": "ask",
   "web": "allow"
 }
 ```
 
-Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `delegate` category gates the `delegate` tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own `tool_permission` overrides (category `delegate` defaulting to `allow`), while a role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `team` category gates the `team` tool (default `allow`), separate from `delegate` so a role can be a delegation target yet be barred from running pipelines. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the human or the lead agent, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `handoff` category gates the `handoff` tool (default `allow`). It only moves the REPL's focus between runs (see [tools.md](tools.md#handing-off-control)). The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
+Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `call` category gates the `call` tool. On top of the category action, a call resolves its permission from the target role: a configured role uses its own `tool_permission` overrides (category `call` defaulting to `allow`), while a role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `delegate` category gates the team pipeline tool (default `allow`), separate from `call` so a role can be a call target yet be barred from running pipelines. The `offload` category gates the `offload` tool (default `allow`, read-class). The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the human or the lead agent, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `handoff` category gates the `handoff` tool (default `allow`). It only moves the REPL's focus between runs (see [tools.md](tools.md#handing-off-control)). The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
 
 ### `ask_policy`
 

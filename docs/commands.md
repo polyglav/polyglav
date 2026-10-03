@@ -35,7 +35,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions.
 
-Delegation is a normal tool: the lead agent proposes it, or you run it directly, and `/tool delegate {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role delegates without prompting (`delegate` defaults to `allow`. Set a role's `delegate` to `ask` to confirm), and a role outside the registry is denied. See [roles.md](roles.md) and [swarm.md](swarm.md).
+Delegation is a normal tool: the lead agent proposes it, or you run it directly, and `/tool call {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role is called without prompting (`call` defaults to `allow`. Set a role's `call` to `ask` to confirm), and a role outside the registry is denied. A named team runs with `/tool delegate {"name": "...", "task": "..."}`. See [roles.md](roles.md) and [swarm.md](swarm.md).
 
 ## CLI
 

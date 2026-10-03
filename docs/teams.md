@@ -1,6 +1,6 @@
 # Teams
 
-A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the `delegate` primitive into a repeatable pipeline: "writing" = researcher > writer > referencer > editor for documents, "programming" = planner > programmer > tester > code-reviewer. The registry stores the definition and the sequential stage loop (`Engine.run_team`) executes it, reachable from the REPL (`/teams run`), the model (the `team` tool), and the CLI.
+A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the `delegate` primitive into a repeatable pipeline: "writing" = researcher > writer > referencer > editor for documents, "programming" = planner > programmer > tester > code-reviewer. The registry stores the definition and the sequential stage loop (`Engine.run_team`) executes it, reachable from the REPL (`/teams run`), the model (the `delegate` tool), and the CLI.
 
 ## Storage
 
@@ -51,7 +51,7 @@ Stage fields:
 - `mode` - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.
 - `task_hint` - optional guidance folded into the delegated brief for this stage.
 - `handoff_note` - optional note passed with the previous stage's result into the next stage's brief.
-- `skills` - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see [skills.md](skills.md)). The `team` tool adds task-wide skills to every stage through its own `skills` argument.
+- `skills` - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see [skills.md](skills.md)). The `delegate` tool adds task-wide skills to every stage through its own `skills` argument.
 
 ## Managing teams
 
@@ -65,7 +65,7 @@ Plugins contribute teams through the same `register_teams` entry hook the kit ma
 
 ## Running a team
 
-`Engine.run_team(team, task)` runs the stages one after another through the same in-process sub-engine as `delegate` (`run_subagent`): each stage runs in its own fresh `sub_<ts>_<id>` session by default, with its own role prompt, skills, and permission carve, and the stage `mode` overrides the caller's when set (an empty `mode` inherits). A failed stage stops the run and the remaining stages do not execute.
+`Engine.run_team(team, task)` runs the stages one after another through the same in-process sub-engine as `delegate` (`run_subagent`): each stage runs in its own fresh `sub_<ts>_<id>` session by default, with its own role prompt, skills, and permission carve, and every stage inherits the caller's mode (a stage cannot escalate it). A failed stage stops the run and the remaining stages do not execute.
 
 The brief handed to each member is built per run from:
 
@@ -81,7 +81,7 @@ After the run, the whole team run is summarized (seeded with the previous team m
 
 ## Resuming a member run
 
-Every stage starts a fresh run with its own session by default. To continue a previous thread, pass `resume` to the `team` tool:
+Every stage starts a fresh run with its own session by default. To continue a previous thread, pass `resume` to the `delegate` tool:
 
 - `team(name, task, resume=...)` resumes that run or session for the **first stage**, which then keeps its prior context. Later stages start fresh, seeded by the brief.
 - `resume` accepts a run id (`#3`), a session id (`#ab12cd`), a session name, or `session:<name>`.
@@ -106,14 +106,14 @@ A team can iterate a producer/reviewer block until the review passes or a cap is
 
 Each loop iteration starts a fresh producer run seeded by the findings, rather than replaying a standing session.
 
-## The `team` tool
+## The `delegate` tool
 
-`team(name, task)` is the model-facing entry point (core, like `delegate` and `ask`), so a lead agent can orchestrate a whole pipeline in one call instead of delegating each stage itself. It runs `Engine.run_team` and returns the final stage's answer (or `Error: team "<name>" failed: <reason>`).
+`delegate(name, task)` is the model-facing entry point (core, like `call` and `ask`), so a lead agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs `Engine.run_team` and returns the final stage's answer (or `Error: team "<name>" failed: <reason>`).
 
-- **Permission**: the `team` category gates the tool (default `allow`), separate from `delegate` so a role can be a delegation target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like `delegate`: a stage role that sets `delegate: "deny"` disables the team, `"ask"` confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.
+- **Permission**: the `delegate` category gates the tool (default `allow`), separate from `call` so a role can be a call target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like `call`: a stage role that sets `delegate: "deny"` disables the team, `"ask"` confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.
 - **Ceiling**: each stage's carve is still capped by the caller's `grant_permission` (see [config.md](config.md#permission-authority)). When a stage's requested permissions get clamped, the result carries a `(reduced permissions for: <role>)` note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque `unknown error`.
 - **Depth and cycles**: `run_team` refuses a team already on the current stack (`team_cycle`) and stops at `max_team_depth` nested team runs (default 2, `team_depth`), so a supervisor stage that itself runs teams cannot recurse forever. Both values propagate into sub-engines. A stage cannot run its own team: the per-invocation resolver returns `deny` (`disabled by tool policy`) when the requested name is already on the stack, and each stage brief instructs the stage to do its own work directly instead of calling the team tool for its own team.
 
-The REPL `/tool team {"name": ..., "task": ...}` runs the same handler through a persisted agent-loop turn (the tool is registered `loop=True`).
+The REPL `/tool delegate {"name": ..., "task": ...}` runs the same handler through a persisted agent-loop turn (the tool is registered `loop=True`).
 
 Scheduled team runs (`jobs add --team`) and job-style recurring member sessions are later milestones.
