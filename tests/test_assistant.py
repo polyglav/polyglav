@@ -72,6 +72,7 @@ class TestAssistantRoot(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_assistant_can_delegate(self):
+        self.chat.config.set('mode', 'write')
         self.chat._bind_assistant()
         self.chat._init_tooling()
         policy = self.chat._tool_policy

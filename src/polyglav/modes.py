@@ -10,6 +10,22 @@ PROMPT_COLORS = {
 
 DEFAULT_PROMPT_COLOR = 'orange'
 
+DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'handoff',
+                     'offload']
+
+
+def read_keys(config: Config) -> set:
+    listed = (config.get('access') or {}).get('read_tools')
+    return set(listed if isinstance(listed, list) else DEFAULT_READ_KEYS)
+
+
+def is_write_key(config: Config, permission_key: str) -> bool:
+    return str(permission_key) not in read_keys(config)
+
+
+def mode_name(config: Config, mode: str | None = None) -> str:
+    return resolve_mode(config, mode)[0].name
+
 
 class ModeSpec(NamedTuple):
     name: str
@@ -60,12 +76,16 @@ def mode_list(config: Config) -> list[ModeSpec]:
     return [_normalize_spec(n, s) for n, s in sorted(specs.items())]
 
 
-def merge_policy(config: Config) -> tuple[dict, list, list]:
-    mode, _ = resolve_mode(config)
+def merge_policy(config: Config, mode: str | None = None) -> tuple[dict, list, list]:
+    spec, _ = resolve_mode(config, mode)
     permissions = dict(config.get('tool_permission') or {})
-    permissions.update(mode.permissions)
-    deny = [str(n) for n in (config.get('tools.deny') or [])] + mode.deny
-    allow = mode.allow if mode.allow else [str(n) for n in (config.get('tools.allow') or [])]
+    permissions.update(spec.permissions)
+    deny = [str(n) for n in (config.get('tools.deny') or [])] + spec.deny
+    allow = spec.allow if spec.allow else [str(n) for n in (config.get('tools.allow') or [])]
+    if spec.name == 'read':
+        for key in list(permissions):
+            if is_write_key(config, key):
+                permissions[key] = 'deny'
     return permissions, allow, deny
 
 
@@ -78,14 +98,14 @@ def _instructions_path(config: Config):
     return candidate if candidate.is_file() else None
 
 
-def system_instruction(config: Config) -> str:
+def system_instruction(config: Config, mode: str | None = None) -> str:
     parts = []
     system_prompt = config.get('system_prompt')
     if system_prompt:
         parts.append(str(system_prompt))
-    mode, _ = resolve_mode(config)
-    if mode.instruction:
-        parts.append(mode.instruction)
+    spec, _ = resolve_mode(config, mode)
+    if spec.instruction:
+        parts.append(spec.instruction)
     return '\n\n'.join(parts).strip()
 
 

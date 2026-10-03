@@ -487,8 +487,8 @@ class Engine:
         return self._self_permissions()
 
     def _self_permissions(self) -> dict:
-        from .modes import merge_policy
-        return dict(merge_policy(self.config)[0])
+        from .modes import merge_policy, mode_name
+        return dict(merge_policy(self.config, mode_name(self.config))[0])
 
     def grant_permission(self, permission: str, permission_key: str,
                          scope: str = 'once', origin: str = 'supervisor') -> bool:
@@ -1411,7 +1411,8 @@ class Engine:
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
         from .tools.handoff import register_handoff_tool
-        from .modes import merge_policy
+        from .modes import merge_policy, mode_name, read_keys
+        mode = mode_name(self.config)
         self._tool_registry = ToolRegistry()
         register_delegate_tool(self._tool_registry, self)
         register_team_tool(self._tool_registry, self)
@@ -1421,7 +1422,7 @@ class Engine:
         plugin_manager = getattr(self, '_plugin_manager', None)
         if plugin_manager is not None:
             plugin_manager.register_tools(self._tool_registry)
-        permissions, allow, deny = merge_policy(self.config)
+        permissions, allow, deny = merge_policy(self.config, mode)
         resolvers = {}
         for n in self._tool_registry.names():
             fn = self._tool_registry.resolver_for(n)
@@ -1436,6 +1437,8 @@ class Engine:
             deny=deny,
             worktree=self.config.local_path.parent.parent,
             resolvers=resolvers,
+            mode=mode,
+            read_keys=read_keys(self.config),
         )
         return self._tool_schema()
 

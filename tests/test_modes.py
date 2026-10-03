@@ -5,8 +5,9 @@ from pathlib import Path
 
 from polyglav.config import Config
 from polyglav.modes import (PROMPT_COLORS, instructions_file_section,
-                          merge_policy, mode_color, mode_list, resolve_mode,
-                          system_instruction, unknown_mode)
+                          is_write_key, merge_policy, mode_color, mode_list,
+                          read_keys, resolve_mode, system_instruction,
+                          unknown_mode)
 
 
 def make_config(data: dict | None = None) -> Config:
@@ -36,7 +37,7 @@ class TestModes(unittest.TestCase):
         try:
             mode, _ = resolve_mode(config)
             self.assertEqual(mode.name, 'read')
-            self.assertEqual(mode.permissions, {'edit': 'deny', 'bash': 'deny'})
+            self.assertEqual(mode.permissions, {})
             self.assertIn('read mode', mode.instruction)
         finally:
             config._tmp.cleanup()
@@ -159,6 +160,58 @@ class TestModes(unittest.TestCase):
             text = instructions_file_section(config, max_chars=1000)
             self.assertIn('... (truncated)', text)
             self.assertLess(len(text), 2000)
+        finally:
+            config._tmp.cleanup()
+
+
+class TestAccessClassification(unittest.TestCase):
+
+    def test_default_read_keys(self):
+        config = make_config()
+        try:
+            keys = read_keys(config)
+            self.assertIn('read', keys)
+            self.assertIn('list', keys)
+            self.assertIn('web', keys)
+            self.assertIn('offload', keys)
+            for key in ('edit', 'bash', 'vcs', 'mcp', 'delegate', 'team'):
+                self.assertTrue(is_write_key(config, key))
+        finally:
+            config._tmp.cleanup()
+
+    def test_unknown_key_is_write(self):
+        config = make_config()
+        try:
+            self.assertTrue(is_write_key(config, 'plugin_thing'))
+        finally:
+            config._tmp.cleanup()
+
+    def test_custom_read_keys(self):
+        config = make_config({'access': {'read_tools': ['read']}})
+        try:
+            self.assertIn('read', read_keys(config))
+            self.assertTrue(is_write_key(config, 'web'))
+        finally:
+            config._tmp.cleanup()
+
+    def test_read_mode_caps_write_keys(self):
+        config = make_config({'mode': 'read',
+                              'tool_permission': {'bash': 'allow',
+                                                  'edit': 'allow'}})
+        try:
+            permissions, _, _ = merge_policy(config)
+            self.assertEqual(permissions['bash'], 'deny')
+            self.assertEqual(permissions['edit'], 'deny')
+            self.assertEqual(permissions['read'], 'allow')
+        finally:
+            config._tmp.cleanup()
+
+    def test_write_mode_keeps_tool_permission(self):
+        config = make_config({'mode': 'write',
+                              'tool_permission': {'bash': 'allow'}})
+        try:
+            permissions, _, _ = merge_policy(config)
+            self.assertEqual(permissions['bash'], 'allow')
         finally:
             config._tmp.cleanup()
 

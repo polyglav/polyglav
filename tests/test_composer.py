@@ -8,6 +8,7 @@ class TestComposerType(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        self.chat.config.set('mode', 'write')
 
     def tearDown(self):
         self.chat._tmp.cleanup()

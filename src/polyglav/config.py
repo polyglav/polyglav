@@ -29,10 +29,13 @@ DEFAULT_CONFIG = {
                 'propose a plan; do not modify files or run commands. Write and '
                 'exec tools are disabled.'
             ),
-            'tool_permission': {'edit': 'deny', 'bash': 'deny'},
             'color': 'cyan',
         },
-        'write': {'system_prompt': '', 'tool_permission': {}, 'color': 'orange'},
+        'write': {'system_prompt': '', 'color': 'orange'},
+    },
+    'access': {
+        'read_tools': ['read', 'list', 'web', 'catalog', 'ask', 'handoff',
+                       'offload'],
     },
     'tool_calling': True,
     'tool_status_visible': True,
