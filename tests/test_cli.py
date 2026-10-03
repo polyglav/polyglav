@@ -169,7 +169,7 @@ class TestCliRun(unittest.TestCase):
         data = json.loads(out)
         self.assertEqual(len(data['tool_calls']), 1)
 
-    def test_run_mode_plan_filters_schema(self):
+    def test_run_mode_read_filters_schema(self):
         captured = {}
 
         def _factory_rec(rounds):
@@ -186,7 +186,7 @@ class TestCliRun(unittest.TestCase):
         with patch('polyglav.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
-                rc = cmd_run(self._args(mode='plan'))
+                rc = cmd_run(self._args(mode='read'))
         self.assertEqual(rc, 0)
         data = json.loads(out.getvalue())
         self.assertEqual(data['content'], 'plan answer')
@@ -196,9 +196,9 @@ class TestCliRun(unittest.TestCase):
         self.assertNotIn('run_command', names)
         self.assertIn('file_read', names)
         msgs = captured['provider'].chat.call_args.args[0]
-        self.assertIn('plan mode', msgs[0]['content'])
+        self.assertIn('read mode', msgs[0]['content'])
 
-    def test_run_mode_build_keeps_write_tools(self):
+    def test_run_mode_write_keeps_write_tools(self):
         captured = {}
 
         def _factory_rec(rounds):
@@ -215,7 +215,7 @@ class TestCliRun(unittest.TestCase):
         with patch('polyglav.providers.PROVIDERS', {'ollama': _factory_rec(rounds)}):
             out = io.StringIO()
             with patch('sys.stdout', new=out):
-                cmd_run(self._args())
+                cmd_run(self._args(mode='write'))
         tools = captured['provider'].chat.call_args.kwargs['tools']
         names = [s['function']['name'] for s in tools]
         self.assertIn('file_write', names)

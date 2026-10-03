@@ -54,6 +54,7 @@ class TestToolCommand(unittest.TestCase):
         self.assertIn('\n    new', output)
 
     def test_help_lists_tools_under_tool(self):
+        self.chat.config.set('mode', 'write')
         output = self._dispatch('/help')
         self.assertNotIn('Available tools:', output)
         self.assertIn('\n    run_command', output)
@@ -73,6 +74,7 @@ class TestToolCommand(unittest.TestCase):
         self.assertIn('offset (optional)', output)
 
     def test_help_tool_detail_has_permission(self):
+        self.chat.config.set('mode', 'write')
         output = self._dispatch('/help run_command')
         self.assertIn('category: exec', output)
         self.assertIn('permission: bash: ask', output)
@@ -769,52 +771,52 @@ class TestModeCommand(unittest.TestCase):
 
     def test_mode_shows_current_and_list(self):
         output = self._dispatch('/mode')
-        self.assertIn('Current mode: build', output)
-        self.assertIn('plan', output)
-        self.assertIn('build  <-- current', output)
+        self.assertIn('Current mode: read', output)
+        self.assertIn('write', output)
+        self.assertIn('read  <-- current', output)
 
     def test_mode_switch(self):
-        output = self._dispatch('/mode plan')
-        self.assertIn('Mode set to: plan', output)
-        self.assertEqual(self.chat.config.get('mode'), 'plan')
+        output = self._dispatch('/mode write')
+        self.assertIn('Mode set to: write', output)
+        self.assertEqual(self.chat.config.get('mode'), 'write')
 
     def test_mode_unknown(self):
         output = self._dispatch('/mode nosuch')
         self.assertIn('Unknown mode "nosuch"', output)
-        self.assertIn('build', output)
-        self.assertEqual(self.chat.config.get('mode'), 'build')
+        self.assertIn('read', output)
+        self.assertEqual(self.chat.config.get('mode'), 'read')
 
-    def test_plan_mode_denies_write_tool(self):
-        self._dispatch('/mode plan')
+    def test_read_mode_denies_write_tool(self):
+        self._dispatch('/mode read')
         output = self._dispatch('/tool write_file {"path": "x.txt", "content": "x"}')
         self.assertIn('disabled by tool policy', output)
 
-    def test_plan_mode_filters_schema(self):
-        self._dispatch('/mode plan')
+    def test_read_mode_filters_schema(self):
+        self._dispatch('/mode read')
         schema = self.chat._init_tooling()
         names = [s['function']['name'] for s in schema]
         self.assertNotIn('file_write', names)
         self.assertNotIn('run_command', names)
         self.assertIn('file_read', names)
 
-    def test_plan_mode_tool_listing_hides_write_tools(self):
-        self._dispatch('/mode plan')
+    def test_read_mode_tool_listing_hides_write_tools(self):
+        self._dispatch('/mode read')
         output = self._dispatch('/tool')
         self.assertNotIn('\n  write_file', output)
         self.assertNotIn('\n  run_command', output)
         self.assertIn('\n  read_file', output)
 
-    def test_plan_mode_help_lists_hides_write_tools(self):
-        self._dispatch('/mode plan')
+    def test_read_mode_help_hides_write_tools(self):
+        self._dispatch('/mode read')
         output = self._dispatch('/help')
         self.assertNotIn('\n    write_file', output)
         self.assertNotIn('\n    run_command', output)
         self.assertIn('\n    read_file', output)
         self.assertIn('\n    list_dir', output)
 
-    def test_switch_back_to_build_restores_tools(self):
-        self._dispatch('/mode plan')
-        self._dispatch('/mode build')
+    def test_switch_back_to_write_restores_tools(self):
+        self._dispatch('/mode read')
+        self._dispatch('/mode write')
         schema = self.chat._init_tooling()
         names = [s['function']['name'] for s in schema]
         self.assertIn('file_write', names)
@@ -830,9 +832,9 @@ class TestModeCompleter(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def test_mode_completes_names(self):
-        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode b'):
-            self.assertEqual(self.chat._completer('b', 0), 'build ')
-            self.assertIsNone(self.chat._completer('b', 1))
+        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode w'):
+            self.assertEqual(self.chat._completer('w', 0), 'write ')
+            self.assertIsNone(self.chat._completer('w', 1))
         with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode '):
             matches = []
             i = 0
@@ -842,7 +844,7 @@ class TestModeCompleter(unittest.TestCase):
                     break
                 matches.append(m)
                 i += 1
-        self.assertEqual(matches, ['build ', 'plan '])
+        self.assertEqual(matches, ['read ', 'write '])
 
 
 if __name__ == '__main__':

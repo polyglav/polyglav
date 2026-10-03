@@ -76,6 +76,7 @@ class TestEngine(unittest.TestCase):
 
     def setUp(self):
         self.engine = make_engine()
+        self.engine.config.set('mode', 'write')
 
     def tearDown(self):
         self.engine._tmp.cleanup()
@@ -603,8 +604,8 @@ class TestEngineModes(unittest.TestCase):
     def tearDown(self):
         self.engine._tmp.cleanup()
 
-    def test_plan_mode_filters_write_and_exec_from_schema(self):
-        self.engine.config.set('mode', 'plan')
+    def test_read_mode_filters_write_and_exec_from_schema(self):
+        self.engine.config.set('mode', 'read')
         schema = self.engine._init_tooling()
         names = [s['function']['name'] for s in schema]
         self.assertNotIn('file_write', names)
@@ -612,13 +613,15 @@ class TestEngineModes(unittest.TestCase):
         self.assertIn('file_read', names)
         self.assertIn('web_search', names)
 
-    def test_build_mode_schema_unfiltered(self):
+    def test_write_mode_schema_unfiltered(self):
+        self.engine.config.set('mode', 'write')
         schema = self.engine._init_tooling()
         names = [s['function']['name'] for s in schema]
         self.assertIn('file_write', names)
         self.assertIn('run_command', names)
 
     def test_schema_advertises_only_canonical_names(self):
+        self.engine.config.set('mode', 'write')
         schema = self.engine._init_tooling()
         names = [s['function']['name'] for s in schema]
         for expected in ('delegate', 'ask', 'run_command', 'file_read', 'list_dir',
@@ -632,12 +635,12 @@ class TestEngineModes(unittest.TestCase):
                       'edit', 'commit'):
             self.assertNotIn(alias, names)
 
-    def test_plan_mode_instruction_sent_to_provider(self):
-        self.engine.config.set('mode', 'plan')
+    def test_read_mode_instruction_sent_to_provider(self):
+        self.engine.config.set('mode', 'read')
         self.engine.chat('q')
         msgs = self.engine.provider.chat.call_args.args[0]
         self.assertEqual(msgs[0]['role'], 'system')
-        self.assertIn('plan mode', msgs[0]['content'])
+        self.assertIn('read mode', msgs[0]['content'])
         self.assertIn('read-only', msgs[0]['content'])
 
     def test_project_instructions_injected_as_system_message(self):
@@ -682,12 +685,12 @@ class TestEngineModes(unittest.TestCase):
         self.assertIn('compliance bot', msgs[0]['content'])
 
     def test_mode_recorded_on_assistant_message(self):
-        self.engine.config.set('mode', 'plan')
+        self.engine.config.set('mode', 'read')
         self.engine.chat('q')
-        self.assertEqual(self.engine.current_session.turns[0]['mode'], 'plan')
+        self.assertEqual(self.engine.current_session.turns[0]['mode'], 'read')
 
     def test_mode_recorded_on_tool_call_message(self):
-        self.engine.config.set('mode', 'plan')
+        self.engine.config.set('mode', 'read')
         self.engine.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': [{
                 'id': 'c1', 'type': 'function',
@@ -697,19 +700,19 @@ class TestEngineModes(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.engine.chat('q')
-        self.assertEqual(self.engine.current_session.turns[0]['mode'], 'plan')
+        self.assertEqual(self.engine.current_session.turns[0]['mode'], 'read')
 
-    def test_plan_mode_run_tool_refuses_write(self):
-        self.engine.config.set('mode', 'plan')
+    def test_read_mode_run_tool_refuses_write(self):
+        self.engine.config.set('mode', 'read')
         self.engine._init_tooling()
         out = self.engine._run_tool('write_file', {'path': 'x.txt', 'content': 'x'})
         self.assertIn('disabled by tool policy', out)
 
-    def test_unknown_mode_falls_back_to_build(self):
+    def test_unknown_mode_falls_back_to_read(self):
         self.engine.config.set('mode', 'nosuch')
         schema = self.engine._init_tooling()
         names = [s['function']['name'] for s in schema]
-        self.assertIn('file_write', names)
+        self.assertNotIn('file_write', names)
 
 
 class TestModelRefUnfold(unittest.TestCase):

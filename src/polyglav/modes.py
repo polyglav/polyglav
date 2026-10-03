@@ -41,11 +41,17 @@ def mode_color(spec: ModeSpec) -> str:
     return PROMPT_COLORS[DEFAULT_PROMPT_COLOR]
 
 
-def resolve_mode(config: Config) -> tuple[ModeSpec, list[str]]:
-    name = str(config.get('mode') or 'build')
+def unknown_mode(config: Config, mode: str | None = None) -> str | None:
+    name = str(mode if mode is not None else (config.get('mode') or 'read'))
+    specs = {str(k): v for k, v in (config.get('modes') or {}).items()}
+    return name if name not in specs else None
+
+
+def resolve_mode(config: Config, mode: str | None = None) -> tuple[ModeSpec, list[str]]:
+    name = str(mode if mode is not None else (config.get('mode') or 'read'))
     specs = {str(k): v for k, v in (config.get('modes') or {}).items()}
     if name not in specs:
-        name = 'build'
+        name = 'read'
     return _normalize_spec(name, specs.get(name) or {}), sorted(specs)
 
 

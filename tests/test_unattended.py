@@ -144,7 +144,7 @@ class TestUnattendedNonBlocking(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_run_command_confirm_auto_deny_in_loop(self):
-        chat = make_chat({'unattended': True})
+        chat = make_chat({'unattended': True, 'mode': 'write'})
         try:
             tool_call = [{
                 'id': 'call_run001',

@@ -564,7 +564,7 @@ class Engine:
                     + ' Auto-denied categories: ' + ', '.join(auto_denied) + '.')
             sub_config.apply('system_prompt',
                              (prompt + '\n\n' + note).strip() if prompt else note)
-        sub_config.apply('mode', mode or 'build')
+        sub_config.apply('mode', mode or str(self.config.get('mode') or 'read'))
         sub_config.apply('unattended', self._is_unattended())
         if agent_role.ask_policy:
             ask_policy = dict(self.config.get('ask_policy') or {})
@@ -864,7 +864,7 @@ class Engine:
 
     def _run_team_stage(self, team, stage, brief: str, skills: list | None,
                         resume: str = '', context: str = 'continue') -> TurnResult:
-        mode = stage.mode or str(self.config.get('mode') or 'build')
+        mode = stage.mode or str(self.config.get('mode') or 'read')
         stage_skills = list(skills or [])
         for name in (stage.skills or []):
             if name and name not in stage_skills:

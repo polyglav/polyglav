@@ -185,14 +185,14 @@ class TestConfigMerge(_IsolatedConfigBase):
 
     def test_partial_mode_keeps_default_keys(self):
         self.write_local({
-            'modes': {'plan': {'tool_permission': {'bash': 'allow'}}}})
+            'modes': {'read': {'tool_permission': {'bash': 'allow'}}}})
         c = Config(path=str(self.project))
         modes = c.get('modes')
-        self.assertEqual(modes['plan']['tool_permission']['bash'], 'allow')
-        self.assertEqual(modes['plan']['tool_permission']['edit'], 'deny')
-        self.assertEqual(modes['plan']['system_prompt'],
-                         DEFAULT_CONFIG['modes']['plan']['system_prompt'])
-        self.assertEqual(modes['build'], DEFAULT_CONFIG['modes']['build'])
+        self.assertEqual(modes['read']['tool_permission']['bash'], 'allow')
+        self.assertEqual(modes['read']['tool_permission']['edit'], 'deny')
+        self.assertEqual(modes['read']['system_prompt'],
+                         DEFAULT_CONFIG['modes']['read']['system_prompt'])
+        self.assertEqual(modes['write'], DEFAULT_CONFIG['modes']['write'])
 
     def test_partial_ask_policy_keeps_default_keys(self):
         self.write_local({'ask_policy': {'direction': 'lead'}})
@@ -300,9 +300,9 @@ class TestConfigMerge(_IsolatedConfigBase):
 
     def test_partial_mode_permission_keeps_other_default_denies(self):
         self.write_local({
-            'modes': {'plan': {'tool_permission': {'edit': 'allow'}}}})
+            'modes': {'read': {'tool_permission': {'edit': 'allow'}}}})
         c = Config(path=str(self.project))
-        permissions = c.get('modes')['plan']['tool_permission']
+        permissions = c.get('modes')['read']['tool_permission']
         self.assertEqual(permissions['edit'], 'allow')
         self.assertEqual(permissions['bash'], 'deny')
 
@@ -311,9 +311,9 @@ class TestConfigMerge(_IsolatedConfigBase):
         c = Config(path=str(self.project))
         modes = c.get('modes')
         self.assertEqual(modes['custom'], {'system_prompt': 'hi'})
-        self.assertEqual(modes['build'], DEFAULT_CONFIG['modes']['build'])
-        self.assertEqual(modes['plan']['tool_permission'],
-                         DEFAULT_CONFIG['modes']['plan']['tool_permission'])
+        self.assertEqual(modes['write'], DEFAULT_CONFIG['modes']['write'])
+        self.assertEqual(modes['read']['tool_permission'],
+                         DEFAULT_CONFIG['modes']['read']['tool_permission'])
 
     def test_nested_list_value_replaces(self):
         self.write_global({'grant_permission': {'bash': ['git', 'pytest']}})

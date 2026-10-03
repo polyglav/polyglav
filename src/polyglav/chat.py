@@ -6,16 +6,16 @@ from .config import Config
 from .engine import Engine
 from .focus import FocusManager
 from .ui import ReplUI
-from .modes import PROMPT_COLORS, mode_color, resolve_mode
+from .modes import PROMPT_COLORS, mode_color, resolve_mode, unknown_mode
 from . import get_version
 
 HISTFILE = '.polyglav_history'
 
 _RST = '\001\033[0m\002'
-_ORANGE = PROMPT_COLORS['orange']
+_DEFAULT = PROMPT_COLORS['cyan']
 
-MAIN_PROMPT = f'\001{_ORANGE}\002>>>{_RST} '
-CONT_PROMPT = f'\001{_ORANGE}\002...{_RST} '
+MAIN_PROMPT = f'\001{_DEFAULT}\002>>>{_RST} '
+CONT_PROMPT = f'\001{_DEFAULT}\002...{_RST} '
 
 
 def _open_delim(text: str) -> str | None:
@@ -275,9 +275,12 @@ class ChatLoop(Engine):
 
         model_str = self.config.get('model', '?')
         provider_str = self.config.get('provider', '?')
+        unknown = unknown_mode(self.config)
+        if unknown:
+            print(f'Unknown mode "{unknown}" - using read mode')
         spec, _ = resolve_mode(self.config)
         mode_str = spec.name
-        if mode_str != 'build':
+        if mode_str != 'write':
             suffix = f'  [{mode_color(spec)}{mode_str} mode\033[0m]'
         else:
             suffix = ''

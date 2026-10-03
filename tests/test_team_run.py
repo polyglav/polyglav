@@ -91,18 +91,18 @@ class TestTeamRun(unittest.TestCase):
             self.assertEqual(data['turns'][0]['parts'][0]['text'], expected)
 
     def test_run_team_stage_mode_engine(self):
-        self.chat.config.apply('mode', 'plan')
+        self.chat.config.apply('mode', 'read')
         self.chat.provider.chat.side_effect = [
             self._result('a'), self._result('b'),
         ]
         self.chat.run_team(self._team(
             TeamStage(role='researcher'),
-            TeamStage(role='writer', mode='build')), 'task')
+            TeamStage(role='writer', mode='write')), 'task')
         subs = sorted(self.sessions_dir.glob('sub_*.json'))
         self.assertEqual(len(subs), 2)
         modes = sorted(
             json.loads(f.read_text())['turns'][-1]['mode'] for f in subs)
-        self.assertEqual(modes, ['build', 'plan'])
+        self.assertEqual(modes, ['read', 'write'])
 
     def test_run_team_stage_and_task_skills(self):
         from polyglav.skills import Skill

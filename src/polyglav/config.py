@@ -21,18 +21,18 @@ DEFAULT_CONFIG = {
     'memory': True,
     'memory_scopes': {'role': True, 'team': True, 'job': True},
     'memory_max_chars': 2000,
-    'mode': 'build',
+    'mode': 'read',
     'modes': {
-        'build': {'system_prompt': '', 'tool_permission': {}, 'color': 'orange'},
-        'plan': {
+        'read': {
             'system_prompt': (
-                'You are in plan mode (read-only). Investigate, cite sources, and '
+                'You are in read mode (read-only). Investigate, cite sources, and '
                 'propose a plan; do not modify files or run commands. Write and '
                 'exec tools are disabled.'
             ),
             'tool_permission': {'edit': 'deny', 'bash': 'deny'},
             'color': 'cyan',
         },
+        'write': {'system_prompt': '', 'tool_permission': {}, 'color': 'orange'},
     },
     'tool_calling': True,
     'tool_status_visible': True,

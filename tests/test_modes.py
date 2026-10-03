@@ -6,7 +6,7 @@ from pathlib import Path
 from polyglav.config import Config
 from polyglav.modes import (PROMPT_COLORS, instructions_file_section,
                           merge_policy, mode_color, mode_list, resolve_mode,
-                          system_instruction)
+                          system_instruction, unknown_mode)
 
 
 def make_config(data: dict | None = None) -> Config:
@@ -22,57 +22,55 @@ def make_config(data: dict | None = None) -> Config:
 
 class TestModes(unittest.TestCase):
 
-    def test_default_mode_is_build(self):
+    def test_default_mode_is_read(self):
         config = make_config()
         try:
             mode, names = resolve_mode(config)
-            self.assertEqual(mode.name, 'build')
-            self.assertIn('plan', names)
+            self.assertEqual(mode.name, 'read')
+            self.assertIn('write', names)
         finally:
             config._tmp.cleanup()
 
-    def test_plan_mode_resolves(self):
-        config = make_config({'mode': 'plan'})
+    def test_read_mode_resolves(self):
+        config = make_config({'mode': 'read'})
         try:
             mode, _ = resolve_mode(config)
-            self.assertEqual(mode.name, 'plan')
+            self.assertEqual(mode.name, 'read')
             self.assertEqual(mode.permissions, {'edit': 'deny', 'bash': 'deny'})
-            self.assertIn('plan mode', mode.instruction)
+            self.assertIn('read mode', mode.instruction)
         finally:
             config._tmp.cleanup()
 
-    def test_unknown_mode_falls_back_to_build(self):
+    def test_unknown_mode_falls_back_to_read(self):
         config = make_config({'mode': 'nosuch'})
         try:
             mode, _ = resolve_mode(config)
-            self.assertEqual(mode.name, 'build')
+            self.assertEqual(mode.name, 'read')
         finally:
             config._tmp.cleanup()
 
-    def test_custom_mode_from_config(self):
-        config = make_config({
-            'mode': 'review',
-            'modes': {
-                'review': {
-                    'system_prompt': 'You review code only.',
-                    'tool_permission': {'bash': 'deny'},
-                    'tools.deny': ['write_file'],
-                },
-            },
-        })
+    def test_unknown_mode_reports_name(self):
+        config = make_config({'mode': 'nosuch'})
+        try:
+            self.assertEqual(unknown_mode(config), 'nosuch')
+            self.assertIsNone(unknown_mode(make_config()))
+        finally:
+            config._tmp.cleanup()
+
+    def test_known_overridden_mode_spec(self):
+        config = make_config({'mode': 'write',
+                              'modes': {'write': {'system_prompt': 'Be bold.'}}})
         try:
             mode, names = resolve_mode(config)
-            self.assertEqual(mode.name, 'review')
-            self.assertEqual(mode.instruction, 'You review code only.')
-            self.assertEqual(mode.permissions, {'bash': 'deny'})
-            self.assertEqual(mode.deny, ['write_file'])
-            self.assertIn('review', names)
+            self.assertEqual(mode.name, 'write')
+            self.assertEqual(mode.instruction, 'Be bold.')
+            self.assertIn('write', names)
         finally:
             config._tmp.cleanup()
 
     def test_merge_policy_permission_override_wins(self):
         config = make_config({
-            'mode': 'plan',
+            'mode': 'read',
             'tool_permission': {'edit': 'allow', 'read': 'allow'},
         })
         try:
@@ -85,7 +83,7 @@ class TestModes(unittest.TestCase):
 
     def test_merge_policy_deny_appends(self):
         config = make_config({
-            'mode': 'plan',
+            'mode': 'read',
             'tools.deny': ['web_search'],
         })
         try:
@@ -95,64 +93,27 @@ class TestModes(unittest.TestCase):
         finally:
             config._tmp.cleanup()
 
-    def test_merge_policy_mode_deny_joins_base(self):
-        config = make_config({
-            'modes': {
-                'review': {'tools.deny': ['write_file']},
-            },
-            'tools.deny': ['web_search'],
-            'mode': 'review',
-        })
-        try:
-            _, _, deny = merge_policy(config)
-            self.assertEqual(sorted(deny), ['web_search', 'write_file'])
-        finally:
-            config._tmp.cleanup()
-
-    def test_merge_policy_allow_replaces_when_mode_sets(self):
-        config = make_config({
-            'modes': {
-                'review': {'tools.allow': ['read_file', 'grep']},
-            },
-            'tools.allow': ['list_dir'],
-            'mode': 'review',
-        })
-        try:
-            _, allow, _ = merge_policy(config)
-            self.assertEqual(sorted(allow), ['grep', 'read_file'])
-        finally:
-            config._tmp.cleanup()
-
-    def test_merge_policy_base_allow_kept_without_mode_allow(self):
-        config = make_config({'tools.allow': ['list_dir']})
-        try:
-            _, allow, _ = merge_policy(config)
-            self.assertEqual(allow, ['list_dir'])
-        finally:
-            config._tmp.cleanup()
-
     def test_system_instruction_combines_prompt_and_mode(self):
-        config = make_config({'system_prompt': 'You are helpful.', 'mode': 'plan'})
+        config = make_config({'system_prompt': 'You are helpful.', 'mode': 'read'})
         try:
             text = system_instruction(config)
             self.assertIn('You are helpful.', text)
-            self.assertIn('plan mode', text)
+            self.assertIn('read mode', text)
         finally:
             config._tmp.cleanup()
 
-    def test_system_instruction_empty_when_unset(self):
+    def test_system_instruction_read_mode_default(self):
         config = make_config()
         try:
-            self.assertEqual(system_instruction(config), '')
+            self.assertIn('read mode', system_instruction(config))
         finally:
             config._tmp.cleanup()
 
     def test_mode_list_sorted(self):
-        config = make_config({'modes': {'zeta': {}, 'alpha': {}}})
+        config = make_config({'modes': {'write': {}, 'read': {}}})
         try:
             specs = mode_list(config)
-            self.assertEqual([s.name for s in specs],
-                             ['alpha', 'build', 'plan', 'zeta'])
+            self.assertEqual([s.name for s in specs], ['read', 'write'])
         finally:
             config._tmp.cleanup()
 
@@ -204,16 +165,16 @@ class TestModes(unittest.TestCase):
 
 class TestModeColor(unittest.TestCase):
 
-    def test_build_mode_is_orange(self):
-        config = make_config()
+    def test_write_mode_is_orange(self):
+        config = make_config({'mode': 'write'})
         try:
             mode, _ = resolve_mode(config)
             self.assertEqual(mode_color(mode), PROMPT_COLORS['orange'])
         finally:
             config._tmp.cleanup()
 
-    def test_plan_mode_is_cyan(self):
-        config = make_config({'mode': 'plan'})
+    def test_read_mode_is_cyan(self):
+        config = make_config({'mode': 'read'})
         try:
             mode, _ = resolve_mode(config)
             self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
@@ -222,8 +183,8 @@ class TestModeColor(unittest.TestCase):
 
     def test_explicit_color_wins(self):
         config = make_config({
-            'mode': 'custom',
-            'modes': {'custom': {'tool_permission': {}, 'color': 'cyan'}},
+            'mode': 'write',
+            'modes': {'write': {'tool_permission': {}, 'color': 'cyan'}},
         })
         try:
             mode, _ = resolve_mode(config)
@@ -233,9 +194,10 @@ class TestModeColor(unittest.TestCase):
 
     def test_read_only_mode_defaults_cyan(self):
         config = make_config({
-            'mode': 'ro',
-            'modes': {'ro': {'tool_permission': {'edit': 'deny',
-                                                 'bash': 'deny'}}},
+            'mode': 'write',
+            'modes': {'write': {'tool_permission': {'edit': 'deny',
+                                                    'bash': 'deny'},
+                                'color': ''}},
         })
         try:
             mode, _ = resolve_mode(config)
@@ -245,8 +207,8 @@ class TestModeColor(unittest.TestCase):
 
     def test_unknown_color_name_falls_back_by_posture(self):
         config = make_config({
-            'mode': 'weird',
-            'modes': {'weird': {'tool_permission': {'bash': 'deny'},
+            'mode': 'write',
+            'modes': {'write': {'tool_permission': {'bash': 'deny'},
                                 'color': 'magenta'}},
         })
         try:

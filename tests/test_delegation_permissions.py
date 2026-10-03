@@ -108,7 +108,8 @@ class TestNoEscalation(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_type_widens_when_grant_ceiling_allows(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write',
+                          'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             chat.roles.put(Role(name='impl', tool_permission={'bash': 'allow'}),
                            scope='local')
@@ -118,7 +119,7 @@ class TestNoEscalation(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_root_role_grant_permission_applies(self):
-        chat = make_chat()
+        chat = make_chat({'mode': 'write'})
         try:
             chat.roles.put(Role(
                 name='supervisor',
@@ -149,7 +150,8 @@ class TestNoEscalation(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_supervisor_grants_bash_but_cannot_use_it(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow',
+        chat = make_chat({'mode': 'write',
+                          'grant_permission': {'read': 'allow', 'bash': 'allow',
                                                'edit': 'allow'}})
         try:
             chat.roles.put(Role(

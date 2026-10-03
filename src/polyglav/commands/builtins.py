@@ -646,7 +646,7 @@ def register_builtins(registry):
                 chat.set_unattended(new)
             print(f'Unattended mode: {"on" if new else "off"}')
 
-    @registry.register('mode', description='Show or switch the agent mode (plan = read-only, build, or custom)')
+    @registry.register('mode', description='Show or switch the agent mode (read = read-only, write)')
     def mode_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
         current, names = resolve_mode(chat.config)
@@ -665,8 +665,6 @@ def register_builtins(registry):
             return
         chat.config.set('mode', arg)
         print(f'Mode set to: {arg}')
-        if arg == 'plan':
-            print('  Read-only: write and exec tools are disabled')
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),

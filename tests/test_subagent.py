@@ -67,7 +67,7 @@ class TestSubAgentEngine(unittest.TestCase):
 
     def test_subagent_applies_type_prompt_mode_permissions(self):
         sub = self.chat._new_sub_engine('writer')
-        self.assertEqual(sub.config.get('mode'), 'build')
+        self.assertEqual(sub.config.get('mode'), 'read')
         self.assertTrue(sub.config.get('system_prompt').startswith(
             'You are the writer.'))
         tp = sub.config.get('tool_permission')
@@ -220,6 +220,7 @@ class TestSubAgentEngine(unittest.TestCase):
             self.chat.run_subagent('nope', 'anything')
 
     def test_ask_gated_tool_denied_without_prompt(self):
+        self.chat.config.set('mode', 'write')
         self.chat.roles.put(
             Role(name='defaults', system_prompt='plain agent'),
             scope='local')
@@ -240,6 +241,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(result.content, 'final')
 
     def test_subagent_stops_after_repeated_denials(self):
+        self.chat.config.set('mode', 'write')
         self.chat.roles.put(
             Role(name='loopless', system_prompt='plain'), scope='local')
         self.chat.provider.chat.side_effect = [
