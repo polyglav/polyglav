@@ -210,12 +210,8 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.write_local({'grant_permission': {'edit': ['file_write']}})
         c = Config(path=str(self.project))
         self.assertEqual(c.get('grant_permission'), {
-            'ask': 'allow',
             'bash': ['git'],
             'edit': ['file_write'],
-            'list': 'allow',
-            'read': 'allow',
-            'web': 'allow',
         })
 
     def test_global_partial_override_merges_with_default(self):
