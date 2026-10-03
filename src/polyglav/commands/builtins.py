@@ -646,10 +646,11 @@ def register_builtins(registry):
                 chat.set_unattended(new)
             print(f'Unattended mode: {"on" if new else "off"}')
 
-    @registry.register('mode', description='Show or switch the agent mode (read = read-only, write)')
+    @registry.register('mode', description='Show or switch the agent mode for this session (read = read-only, write); persist with /config mode')
     def mode_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
-        current, names = resolve_mode(chat.config)
+        session_mode = chat.current_session.mode or None
+        current, names = resolve_mode(chat.config, session_mode)
         arg = arg.strip()
         if not arg or arg in ('?', 'status'):
             print(f'Current mode: {current.name}')
@@ -663,8 +664,10 @@ def register_builtins(registry):
         if arg not in names:
             print(f'Unknown mode "{arg}" - valid modes: ' + ', '.join(names))
             return
-        chat.config.set('mode', arg)
-        print(f'Mode set to: {arg}')
+        chat.current_session.mode = arg
+        chat.session_auto_save()
+        print(f'Mode set to: {arg} (this session)')
+        print(f'  Persist with: /config mode {arg}')
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),

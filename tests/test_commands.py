@@ -775,16 +775,17 @@ class TestModeCommand(unittest.TestCase):
         self.assertIn('write', output)
         self.assertIn('read  <-- current', output)
 
-    def test_mode_switch(self):
+    def test_mode_switch_is_session_scoped(self):
         output = self._dispatch('/mode write')
         self.assertIn('Mode set to: write', output)
-        self.assertEqual(self.chat.config.get('mode'), 'write')
+        self.assertEqual(self.chat.current_session.mode, 'write')
+        self.assertEqual(self.chat.config.get('mode'), 'read')
 
     def test_mode_unknown(self):
         output = self._dispatch('/mode nosuch')
         self.assertIn('Unknown mode "nosuch"', output)
         self.assertIn('read', output)
-        self.assertEqual(self.chat.config.get('mode'), 'read')
+        self.assertEqual(self.chat.current_session.mode, '')
 
     def test_read_mode_denies_write_tool(self):
         self._dispatch('/mode read')
