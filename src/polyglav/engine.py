@@ -227,47 +227,6 @@ class Engine:
             self._plugin_manager.register_skills(self._skills)
         return self._skills
 
-    def bind_root_agent(self, name: str) -> bool:
-        name = str(name or '').strip()
-        if not name:
-            return False
-        agent_role = self.roles.find(name)
-        if agent_role is None:
-            return False
-        self.role = name
-        self.current_session.role = name
-        self.current_run.role = name
-        if self.config.origin('system_prompt') == 'default':
-            prompt = agent_role.system_prompt
-            if agent_role.skills:
-                from .skills import skills_section
-                section = skills_section(self.skills, agent_role.skills)
-                if section:
-                    if prompt.strip():
-                        prompt = prompt.rstrip() + '\n\n' + section
-                    else:
-                        prompt = section
-            if prompt:
-                self.config.apply('system_prompt', prompt)
-        if agent_role.model and self.config.origin('model') == 'default':
-            self.config.apply('model', agent_role.model)
-            self._reinit_provider()
-        if (agent_role.tool_permission
-                and self.config.origin('tool_permission') == 'default'):
-            permissions = dict(self.config.get('tool_permission') or {})
-            permissions.update(agent_role.tool_permission)
-            self.config.apply('tool_permission', permissions)
-        if (agent_role.grant_permission
-                and self.config.origin('grant_permission') == 'default'):
-            self.config.apply('grant_permission',
-                              dict(agent_role.grant_permission))
-        if (agent_role.ask_policy
-                and self.config.origin('ask_policy') == 'default'):
-            policy = dict(self.config.get('ask_policy') or {})
-            policy.update(agent_role.ask_policy)
-            self.config.apply('ask_policy', policy)
-        return True
-
     def _catalog_version(self) -> int:
         return int(getattr(self._plugin_manager, '_catalog_version', 0))
 

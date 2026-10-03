@@ -55,7 +55,6 @@ class ChatLoop(Engine):
     def __init__(self, config: Config):
         ui = ReplUI(self)
         super().__init__(config, ui=ui)
-        self._bind_assistant()
         self.focus = FocusManager(self)
         self._load_history(config)
         self._setup_readline()
@@ -65,13 +64,6 @@ class ChatLoop(Engine):
         if focus is None:
             return self
         return focus.active
-
-    def _bind_assistant(self):
-        if not self.config.get('assistant', True):
-            return
-        name = str(self.config.get('assistant_role') or '').strip()
-        if name:
-            self.bind_root_agent(name)
 
     def _load_history(self, config):
         hist = config.local_path.parent / HISTFILE
