@@ -94,6 +94,31 @@ class TestNoEscalation(unittest.TestCase):
         engine._init_tooling()
         return merge_policy(engine.config)[0]
 
+    def test_grant_ceiling_read_mode_denies_write(self):
+        chat = make_chat()
+        try:
+            self.assertEqual(chat._grant()['bash'], 'deny')
+            self.assertEqual(chat._grant()['edit'], 'deny')
+        finally:
+            chat._tmp.cleanup()
+
+    def test_grant_ceiling_write_mode_allows_write(self):
+        chat = make_chat({'mode': 'write'})
+        try:
+            self.assertEqual(chat._grant()['bash'], 'allow')
+            self.assertEqual(chat._grant()['edit'], 'allow')
+            self.assertEqual(chat._grant()['read'], 'allow')
+        finally:
+            chat._tmp.cleanup()
+
+    def test_role_grant_narrows_write_ceiling(self):
+        chat = make_chat({'mode': 'write', 'grant_permission': {'bash': 'ask'}})
+        try:
+            self.assertEqual(chat._grant()['bash'], 'ask')
+            self.assertEqual(chat._grant()['edit'], 'allow')
+        finally:
+            chat._tmp.cleanup()
+
     def test_type_cannot_widen_above_grant_ceiling(self):
         chat = make_chat({
             'grant_permission': {'bash': 'deny', 'read': 'allow'},
@@ -172,7 +197,7 @@ class TestNoEscalation(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_oneshot_grant_does_not_propagate_to_child(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             chat.roles.put(Role(
                 name='supervisor',
@@ -202,7 +227,7 @@ class TestAskPermission(unittest.TestCase):
         return sub
 
     def test_auto_route_grants_once_via_lead(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             chat.provider.chat_nonstreaming.return_value = {'content': 'yes - needed'}
             sub = self._worker(chat)
@@ -217,7 +242,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_auto_route_denies_when_lead_says_no(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             chat.provider.chat_nonstreaming.return_value = {'content': 'no'}
             sub = self._worker(chat)
@@ -229,7 +254,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_auto_route_never_grants_always(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             chat.provider.chat_nonstreaming.return_value = {'content': 'yes always'}
             sub = self._worker(chat)
@@ -241,7 +266,8 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_denied_above_ceiling(self):
-        chat = make_chat({'grant_permission': {'bash': 'deny', 'read': 'allow'}})
+        chat = make_chat({'mode': 'write',
+                          'grant_permission': {'bash': 'deny', 'read': 'allow'}})
         try:
             sub = self._worker(chat)
             out = sub._run_tool('ask', {
@@ -252,7 +278,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_grants_disabled_by_policy(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'deny'})
             out = sub._run_tool('ask', {
@@ -263,7 +289,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_grants_once(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='yes'):
@@ -278,7 +304,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_grants_always_and_reuses(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='yes always'):
@@ -291,7 +317,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_declined(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='no'):
@@ -303,7 +329,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_numbered_approve_grants_once(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='1'):
@@ -316,7 +342,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_numbered_approve_always(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='2'):
@@ -328,7 +354,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_numbered_deny(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='3'):
@@ -340,7 +366,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_human_route_approve_phrase_grants(self):
-        chat = make_chat({'grant_permission': {'read': 'allow', 'bash': 'allow'}})
+        chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
             sub = self._worker(chat, ask_policy={'permission': 'human'})
             with patch('builtins.input', return_value='Approve bash for this run'):

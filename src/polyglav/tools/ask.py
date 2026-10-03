@@ -111,9 +111,48 @@ def _ceiling_for(engine) -> dict:
     return engine._grant()
 
 
+def _switch_write(engine) -> None:
+    root = engine
+    while getattr(root, '_caller', None) is not None:
+        root = root._caller
+    engine.current_session.mode = 'write'
+    root.current_session.mode = 'write'
+    for target in {id(engine): engine, id(root): root}.values():
+        try:
+            target._init_tooling()
+        except Exception:
+            pass
+    try:
+        root.session_auto_save()
+    except Exception:
+        pass
+
+
 def _ask_permission(engine, question: str, context: str, options: list,
                     permission: str) -> str:
     key = _permission_key(engine, permission)
+    mode = engine._mode() if hasattr(engine, '_mode') else 'write'
+    from ..modes import is_write_key
+    if mode != 'write' and is_write_key(engine.config, key):
+        prompt = (f'Allow "{permission}"? This run needs write mode. {question}')
+        ui = getattr(engine, '_ask_ui', None)
+        if ui is not None:
+            answer = ui.ask(prompt, context=context or '',
+                            options=['Approve (switch to write)', 'Deny'],
+                            origin=engine.current_session.session_name)
+            if answer and _permission_scope(answer) in ('once', 'always'):
+                _switch_write(engine)
+                return (f'[granted] Write mode enabled for this session - '
+                        f'retry "{permission}".')
+            return (f'[denied] Permission "{permission}" needs write mode, '
+                    'which the operator declined.')
+        if engine._is_unattended():
+            return _park(engine, prompt, context or '',
+                         ['Approve (switch to write)', 'Deny'],
+                         'permission', permission)
+        return (f'[denied] Permission "{permission}" needs write mode. '
+                "Request it with ask(kind='direction') to switch this session "
+                'to write mode.')
     cap = _ceiling_for(engine).get(key, 'deny')
     if cap == 'deny':
         return (f'[denied] Permission "{permission}" cannot be granted '

@@ -481,10 +481,21 @@ class Engine:
         ceiling = getattr(self, '_grant_ceiling', None)
         if isinstance(ceiling, dict):
             return dict(ceiling)
-        grant = self.config.get('grant_permission')
-        if isinstance(grant, dict) and grant:
-            return dict(grant)
-        return self._self_permissions()
+        from .modes import DEFAULT_WRITE_KEYS, read_keys
+        mode = self._mode()
+        self_perms = self._self_permissions()
+        role_grant = self.config.get('grant_permission')
+        role_grant = dict(role_grant) if isinstance(role_grant, dict) else {}
+        out: dict = {}
+        for key in read_keys(self.config):
+            out[key] = self_perms.get(key, 'ask')
+        for key in DEFAULT_WRITE_KEYS:
+            out[key] = 'allow' if mode == 'write' else 'deny'
+        out.update(role_grant)
+        if mode != 'write':
+            for key in DEFAULT_WRITE_KEYS:
+                out[key] = 'deny'
+        return out
 
     def _mode(self) -> str:
         from .modes import mode_name
@@ -597,8 +608,9 @@ class Engine:
         sub._sub_run = True
         sub._caller = self
         sub._ask_ui = getattr(self, '_ask_ui', None)
+        role_grant = agent_role.grant_permission or parent_grant
         sub._grant_ceiling = resolve_grant_ceiling(
-            parent_self, parent_grant, agent_role.grant_permission, permissions)
+            parent_self, parent_grant, role_grant, permissions)
         sub._team_depth = getattr(self, '_team_depth', 0)
         sub._team_stack = list(getattr(self, '_team_stack', []))
         if session_name:
