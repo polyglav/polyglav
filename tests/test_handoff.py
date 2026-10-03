@@ -10,7 +10,6 @@ class TestHandoffTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
         self.chat._init_tooling()
 
     def tearDown(self):
@@ -109,7 +108,6 @@ class TestHandoffTurnStop(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
 
     def tearDown(self):
         self.chat._tmp.cleanup()
@@ -135,7 +133,6 @@ class TestHandoffApply(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
 
     def tearDown(self):
         self.chat._tmp.cleanup()

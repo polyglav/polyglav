@@ -12,7 +12,6 @@ class TestFocusManager(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
         self.focus = self.chat.focus
 
     def tearDown(self):
@@ -93,7 +92,6 @@ class TestFocusRouting(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
 
     def tearDown(self):
         self.chat._tmp.cleanup()
@@ -135,7 +133,7 @@ class TestFocusRouting(unittest.TestCase):
     def test_prompt_shows_role_when_enabled(self):
         self.assertEqual(self.chat._prompt(), MAIN_PROMPT)
         self.chat.config.set('prompt_role', True)
-        self.assertIn('Assistant >>>', self.chat._prompt())
+        self.assertEqual(self.chat._prompt(), MAIN_PROMPT)
         child = self._child()
         self.chat.focus.enter(child.id)
         self.assertIn('Writer >>>', self.chat._prompt())
@@ -157,7 +155,6 @@ class TestFocusCommand(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat._bind_assistant()
 
     def tearDown(self):
         self.chat._tmp.cleanup()

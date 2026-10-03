@@ -15,8 +15,6 @@ DEFAULT_CONFIG = {
     'confirm_timeout': 0,
     'hide_confirm_input': False,
     'system_prompt': '',
-    'assistant': True,
-    'assistant_role': 'assistant',
     'prompt_role': False,
     'focus_on_delegate': 'on',
     'memory': True,
