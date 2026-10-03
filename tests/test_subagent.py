@@ -75,6 +75,12 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(tp['bash'], 'deny')
         self.assertEqual(tp['web'], 'deny')
 
+    def test_subagent_inherits_session_mode(self):
+        self.chat.current_session.mode = 'write'
+        sub = self.chat._new_sub_engine('writer')
+        self.assertEqual(sub.config.get('mode'), 'write')
+        self.assertEqual(sub.current_session.mode, 'write')
+
     def test_subagent_injects_type_skills(self):
         from polyglav.skills import Skill
         self.chat.roles.put(

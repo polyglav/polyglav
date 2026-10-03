@@ -90,7 +90,7 @@ class TestTeamRun(unittest.TestCase):
                 'write a report', result.stages[:i], i, '')
             self.assertEqual(data['turns'][0]['parts'][0]['text'], expected)
 
-    def test_run_team_stage_mode_engine(self):
+    def test_team_stages_inherit_caller_mode(self):
         self.chat.config.apply('mode', 'read')
         self.chat.provider.chat.side_effect = [
             self._result('a'), self._result('b'),
@@ -102,7 +102,7 @@ class TestTeamRun(unittest.TestCase):
         self.assertEqual(len(subs), 2)
         modes = sorted(
             json.loads(f.read_text())['turns'][-1]['mode'] for f in subs)
-        self.assertEqual(modes, ['read', 'write'])
+        self.assertEqual(modes, ['read', 'read'])
 
     def test_run_team_stage_and_task_skills(self):
         from polyglav.skills import Skill
