@@ -15,6 +15,7 @@ Detailed reference for Polyglav. For the overview and features see the [README](
 - [Jobs](jobs.md) - scheduled and durable jobs (`polyglav jobs`), cron scheduling, approvals
 - [Memory](memory.md) - bounded role, team, and job memory, automatic and manual
 - [Model Context Protocol](mcp.md) - MCP client and server
+- [Modes and access](modes.md) - read/write posture, access classification, the mode cap
 - [Plugins](plugins.md) - bundled, layout, manifest, management
 - [Providers](providers.md) - providers, auto-detection, the chat event contract, adding a provider
 - [Security](security.md) - permission model, threat model, data posture, prompt injection

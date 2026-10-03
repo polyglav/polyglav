@@ -35,7 +35,7 @@ The `delegate` tool runs a task under a role as an in-process sub-agent. A sub-a
 
 ## Modes
 
-Modes ([config.md](config.md)) are named postures combining an instruction block with tool-policy overrides. The built-in `plan` mode is read-only: it denies the `edit` and `bash` categories, so write and exec tools are filtered from the provider schema and refused on direct calls, and its system prompt instructs the model to investigate and propose rather than modify. Custom modes can express stronger postures (e.g. deny `mcp` as well) per deployment. The active mode is recorded on each turn in the session log, so the posture in effect for every turn is auditable. Mode switches are recorded as `command` parts.
+The mode ([modes.md](modes.md)) is the outermost bound. `read` (default) allows only read-class permission keys and denies every write-class key, so write, exec, commit, MCP, and delegation tools are filtered from the provider schema and refused on direct calls. `write` leaves write keys to `tool_permission`, still bounded by each key's action. Access is classified by permission key in config `access.read_tools`, and any key not listed (including a new plugin key) defaults write, so read mode is fail-closed. The cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The active mode is stored on the session and recorded on each turn, so the posture in effect for every turn is auditable. An unknown `mode` value falls back to `read` with a warning.
 
 ## Config-driven surface
 

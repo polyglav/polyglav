@@ -39,6 +39,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 | Key                         | Default                | Description                                                            |
 |-----------------------------|------------------------|------------------------------------------------------------------------|
+| `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
 | `assistant`                 | `true`                 | Bind the REPL root to the `assistant_role` identity on startup. `false` leaves the root untyped (no injected identity). A non-empty `system_prompt` always wins over the role prompt |
 | `assistant_role`            | `"assistant"`          | Role the REPL root binds to when `assistant` is on. Rebind to any role (e.g. `leader`, `composer`) or a local override of `assistant` |
 | `ask_policy`                | *(see below)*          | Routing for the `ask` tool by kind (`permission`/`direction`)          |
@@ -65,7 +66,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
 | `memory_max_chars`          | `2000`                 | Cap characters of a memory summary injected into a prompt or brief (`... (truncated)` appended). `0` = unlimited |
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
-| `mode`                      | `"build"`              | Active agent mode (`build`, `plan`, or a custom mode from `modes`) |
+| `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `noise_tools`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, ANSI colors included, so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default |
@@ -108,23 +109,25 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 ### `modes`
 
-Modes are named postures combining an instruction block with tool-policy overrides. The built-ins ship as defaults: `build` (no overrides) and `plan` (read-only, `edit` and `bash` denied):
+There are two modes: `read` (default) and `write`. `read` allows only read-class permission keys and denies every write-class key, while `write` leaves write keys to `tool_permission`. A mode may override its instruction block and prompt color:
 
 ```json
 {
-  "mode": "plan",
+  "mode": "read",
   "modes": {
-    "build": { "system_prompt": "", "tool_permission": {}, "color": "orange" },
-    "plan": {
-      "system_prompt": "You are in plan mode (read-only)...",
-      "tool_permission": { "edit": "deny", "bash": "deny" },
+    "read": {
+      "system_prompt": "You are in read mode (read-only)...",
       "color": "cyan"
-    }
+    },
+    "write": { "system_prompt": "", "color": "orange" }
+  },
+  "access": {
+    "read_tools": ["read", "list", "web", "catalog", "ask", "handoff", "offload"]
   }
 }
 ```
 
-Each mode may define `system_prompt` (instructions), `tool_permission` (category actions merged over the base, mode wins per key), `tools.deny` (appended to the base deny list), `tools.allow` (replaces the base allowlist when non-empty), and `color` (the REPL prompt color, `orange` or `cyan`). The prompt marker and its continuation variant are colored by the active mode, an explicit `color` wins, and otherwise a mode that denies both `edit` and `bash` is treated as read-only and colored `cyan`, every other mode `orange`. An unknown `mode` falls back to `build`. Switch live with `/mode <name>` or `--mode <name>` on `polyglav run` / `polyglav serve`. The mode instruction and `system_prompt` are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.
+Access is classified by permission key. Any key not in `access.read_tools` is write-class, and an unknown key (a new plugin permission) defaults write, so read mode is fail-closed. The read cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The mode instruction and `system_prompt` are injected as a system message, and the active mode is recorded on each turn. Switch the current session with `/mode <name>` and persist with `/config mode <value>`. An unknown `mode` falls back to `read` with a warning. Full detail in [modes.md](modes.md).
 
 ### `tool_permission`
 

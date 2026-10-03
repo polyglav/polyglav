@@ -56,8 +56,6 @@
 
 ## Open
 
-- [ ] Access classification - config `access.read_tools` keyed by permission key, unknown key defaults to write; `free`/`read`/`write` classes; the mode cap is applied last and inherited by sub-agents
-- [ ] `read`/`write` modes - hard rename of `plan`/`build`, default `read`, any unknown mode value falls back to `read` with a warning; prompt color and `/mode` switch (session-scoped, `/config` persists)
 - [ ] Mode-capped grants - clamp the grant ceiling by the mode cap; a permission ask in `read` is denied and redirected to a `direction` ask for a mode switch
 - [ ] Tool taxonomy - `offload` (sibling, inherits the caller's cap), `call` (named role, write), `delegate` (named team, write); `offload_depth`; role-less sub-engine
 - [ ] Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode
@@ -166,6 +164,10 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Mode-gated catalog writes and MCP tools - read mode cannot mutate the catalog or reach MCP
+- [x] Session-scoped mode switch - `/mode` per session, `/config mode` persists
+- [x] Fail-closed access classification - `access.read_tools` by permission key, mode cap applied last
+- [x] Read/write modes replace plan/build, read default, unknown falls back to read with a warning
 - [x] Renamed sub-engine `_lead` reference to `_caller`
 - [x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash
 - [x] Root role grant permission applied by `bind_root_agent`
