@@ -409,7 +409,7 @@ def cmd_jobs(args) -> int:
             schedule=schedule,
             prompt=prompt,
             session=getattr(args, 'session', '') or '',
-            mode=getattr(args, 'mode', '') or '',
+            mode=getattr(args, 'mode', '') or 'write',
             provider=getattr(args, 'provider', '') or '',
             model=getattr(args, 'model', '') or '',
             role=getattr(args, 'role', '') or '',

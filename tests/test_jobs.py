@@ -934,6 +934,28 @@ class TestJobsCli(unittest.TestCase):
         registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertTrue(registry.find('auto').runnable())
 
+    def test_add_defaults_to_write_mode(self):
+        from polyglav.cli import cmd_jobs
+        with patch('sys.stdout', new=io.StringIO()):
+            cmd_jobs(self._args(action='add', name='wnightly', prompt='work',
+                                cron='0 3 * * *'))
+        registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
+        self.assertEqual(registry.find('wnightly').mode, 'write')
+
+    def test_add_keeps_explicit_read_mode(self):
+        from polyglav.cli import cmd_jobs
+        with patch('sys.stdout', new=io.StringIO()):
+            cmd_jobs(self._args(action='add', name='probe', prompt='look',
+                                cron='0 4 * * *', mode='read'))
+        registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
+        self.assertEqual(registry.find('probe').mode, 'read')
+
+    def test_build_engine_defaults_to_write_mode(self):
+        from polyglav.scheduler import _build_engine
+        job = Job('m', {'interval': 3600}, prompt='p', status='approved')
+        engine = _build_engine(self.config, job, verbose=False)
+        self.assertEqual(engine.config.get('mode'), 'write')
+
     def test_add_rejects_bad_cron(self):
         from polyglav.cli import cmd_jobs
         with patch('sys.stderr', new=io.StringIO()) as err:
