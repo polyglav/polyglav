@@ -54,7 +54,8 @@ class Session:
                  sub_sessions: list | None = None,
                  role: str = '',
                  session_id: str = '',
-                 version: str = ''):
+                 version: str = '',
+                 mode: str = ''):
         now = datetime.now(timezone.utc).isoformat(timespec='seconds')
         self.session_name = session_name
         self.session_id = session_id or ''
@@ -67,6 +68,7 @@ class Session:
         self.parent_id = parent_id or ''
         self.sub_sessions = sub_sessions or []
         self.role = role or ''
+        self.mode = mode or ''
         self._open: dict | None = None
 
     def _touch(self):
@@ -191,6 +193,7 @@ class Session:
             'parent_id': self.parent_id,
             'sub_sessions': self.sub_sessions,
             'role': self.role,
+            'mode': self.mode,
             'version': self.version,
         }
 
@@ -210,6 +213,7 @@ class Session:
             data.get('role', ''),
             data.get('session_id', ''),
             data.get('version', ''),
+            data.get('mode', ''),
         )
 
 

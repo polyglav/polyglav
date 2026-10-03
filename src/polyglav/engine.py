@@ -486,9 +486,13 @@ class Engine:
             return dict(grant)
         return self._self_permissions()
 
+    def _mode(self) -> str:
+        from .modes import mode_name
+        return mode_name(self.config, self.current_session.mode or None)
+
     def _self_permissions(self) -> dict:
-        from .modes import merge_policy, mode_name
-        return dict(merge_policy(self.config, mode_name(self.config))[0])
+        from .modes import merge_policy
+        return dict(merge_policy(self.config, self._mode())[0])
 
     def grant_permission(self, permission: str, permission_key: str,
                          scope: str = 'once', origin: str = 'supervisor') -> bool:
@@ -564,7 +568,7 @@ class Engine:
                     + ' Auto-denied categories: ' + ', '.join(auto_denied) + '.')
             sub_config.apply('system_prompt',
                              (prompt + '\n\n' + note).strip() if prompt else note)
-        sub_config.apply('mode', mode or str(self.config.get('mode') or 'read'))
+        sub_config.apply('mode', mode or self._mode())
         sub_config.apply('unattended', self._is_unattended())
         if agent_role.ask_policy:
             ask_policy = dict(self.config.get('ask_policy') or {})
@@ -602,6 +606,7 @@ class Engine:
         else:
             sub.load_or_create_session(_sub_session_name(
                 self.current_session.session_name, self.sessions.sessions_dir))
+        sub.current_session.mode = sub_config.get('mode') or ''
         if link_parent:
             sub.current_session.parent_id = self.current_session.session_name
         self.runs.set_engine(sub.current_run.id, sub)
@@ -864,7 +869,7 @@ class Engine:
 
     def _run_team_stage(self, team, stage, brief: str, skills: list | None,
                         resume: str = '', context: str = 'continue') -> TurnResult:
-        mode = stage.mode or str(self.config.get('mode') or 'read')
+        mode = stage.mode or self._mode()
         stage_skills = list(skills or [])
         for name in (stage.skills or []):
             if name and name not in stage_skills:
@@ -1033,7 +1038,7 @@ class Engine:
         return {
             'model': self.config.get('model'),
             'provider': self.config.get('provider'),
-            'mode': self.config.get('mode'),
+            'mode': self._mode(),
             'reasoning': self.config.get('reasoning'),
         }
 
@@ -1411,8 +1416,8 @@ class Engine:
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
         from .tools.handoff import register_handoff_tool
-        from .modes import merge_policy, mode_name, read_keys
-        mode = mode_name(self.config)
+        from .modes import merge_policy, read_keys
+        mode = self._mode()
         self._tool_registry = ToolRegistry()
         register_delegate_tool(self._tool_registry, self)
         register_team_tool(self._tool_registry, self)
@@ -1557,7 +1562,7 @@ class Engine:
         instructions = instructions_file_section(self.config)
         if instructions:
             out.append({'role': 'system', 'content': instructions})
-        instruction = system_instruction(self.config)
+        instruction = system_instruction(self.config, self._mode())
         if instruction:
             out.append({'role': 'system', 'content': instruction})
         for turn in self.current_session.turns:

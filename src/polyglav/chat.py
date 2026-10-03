@@ -233,7 +233,8 @@ class ChatLoop(Engine):
         return self._make_prompt('...', '')
 
     def _make_prompt(self, marker: str, role: str) -> str:
-        spec, _ = resolve_mode(self.config)
+        engine = self.active() if hasattr(self, 'active') else self
+        spec, _ = resolve_mode(self.config, engine._mode())
         color = mode_color(spec)
         label = f'{role[:1].upper() + role[1:]} {marker}' if role else marker
         return f'\001{color}\002{label}{_RST} '
@@ -275,10 +276,11 @@ class ChatLoop(Engine):
 
         model_str = self.config.get('model', '?')
         provider_str = self.config.get('provider', '?')
-        unknown = unknown_mode(self.config)
+        session_mode = self.current_session.mode or None
+        unknown = unknown_mode(self.config, session_mode)
         if unknown:
             print(f'Unknown mode "{unknown}" - using read mode')
-        spec, _ = resolve_mode(self.config)
+        spec, _ = resolve_mode(self.config, session_mode)
         mode_str = spec.name
         if mode_str != 'write':
             suffix = f'  [{mode_color(spec)}{mode_str} mode\033[0m]'

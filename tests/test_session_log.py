@@ -98,6 +98,19 @@ class TestSessionModel(unittest.TestCase):
         del data['version']
         self.assertEqual(Session.from_dict(data).version, '')
 
+    def test_mode_defaults_empty_and_round_trips(self):
+        s = Session('s1')
+        self.assertEqual(s.mode, '')
+        s.mode = 'write'
+        d = s.to_dict()
+        self.assertEqual(d['mode'], 'write')
+        self.assertEqual(Session.from_dict(d).mode, 'write')
+
+    def test_missing_mode_loads_empty(self):
+        data = Session('s1').to_dict()
+        del data['mode']
+        self.assertEqual(Session.from_dict(data).mode, '')
+
     def test_errors_round_trip(self):
         s = Session('s1')
         s.add_error(401, 'Unauthorized')
