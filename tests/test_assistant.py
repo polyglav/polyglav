@@ -77,7 +77,7 @@ class TestAssistantRoot(unittest.TestCase):
         self.chat._init_tooling()
         policy = self.chat._tool_policy
         self.assertEqual(
-            policy.action('delegate', 'delegate', None,
+            policy.action('call', 'call', None,
                           {'role': 'composer', 'task': 't'}), 'allow')
         self.assertEqual(
             policy.action('catalog', 'catalog', None, {'action': 'list'}),

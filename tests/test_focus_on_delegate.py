@@ -23,7 +23,7 @@ class TestFocusOnDelegate(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def _delegate(self, role_name='writer'):
-        return self.chat._run_tool('delegate',
+        return self.chat._run_tool('call',
                                    {'role': role_name, 'task': 'draft it'})
 
     def test_default_is_on(self):
@@ -73,7 +73,7 @@ class TestFocusOnDelegate(unittest.TestCase):
         sub._init_tooling()
         sub.run_subagent = MagicMock(return_value=TurnResult(
             content='done', session='sub_2', status='ok', run_id=self.run.id))
-        out = sub._run_tool('delegate', {'role': 'writer', 'task': 'x'})
+        out = sub._run_tool('call', {'role': 'writer', 'task': 'x'})
         self.assertNotIn('focus follows', out)
         self.assertIsNone(self.chat._pending_focus)
 
@@ -97,7 +97,7 @@ class TestFocusOnDelegateLoop(unittest.TestCase):
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': [
                 {'id': 'call_1', 'type': 'function',
-                 'function': {'name': 'delegate',
+                 'function': {'name': 'call',
                               'arguments': json.dumps({'role': 'writer',
                                                        'task': 'draft it'})}},
             ]}],

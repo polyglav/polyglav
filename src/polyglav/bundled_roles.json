@@ -10,9 +10,9 @@
       "bash": "deny",
       "catalog": "allow",
       "edit": "deny",
+      "delegate": "deny",
       "list": "allow",
       "read": "allow",
-      "team": "deny",
       "web": "allow"
     },
     "ask_policy": {
