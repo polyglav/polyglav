@@ -16,7 +16,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/history`              |                | List the active session's turns as a numbered index: `/history [n|all] [--thoughts [all]] [--run <target>]`. Default last 10, `--thoughts` adds a dim thinking excerpt (`all` prints it in full), and `--run` reads another run's session without switching focus. See [session.md](session.md) |
 | `/jobs`                 |                | Manage scheduled and durable jobs: `list`, `status`, `show`, `add`, `add-supervisor`, `approve`, `reject`, `enable`, `disable`, `stop`, `remove`, `run`. See [jobs.md](jobs.md) |
 | `/memorize`             |                | Summarize the active run into bounded memory: `/memorize` (active role), or `/memorize <role\|team\|job> <name>`. Writes `.polyglav/memory/<scopes>/<name>.md`. See [config.md](config.md) |
-| `/mode`                 |                | Show or switch the agent mode (`/mode plan` = read-only, `/mode build`, or a custom mode) |
+| `/mode`                 |                | Show or switch the agent mode for this session (`read` = read-only, `write`). Persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `/model`                 |                | Show or switch the active model. `/model <name>` sets it on the current provider. `/model <provider>/<model>` switches provider and model together, approving the model on confirm |
 | `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key). `/models list [provider]` probes a provider's advertised models live (default: current provider) |
 | `/plugins`              | `/plugin`      | Manage plugins: `list`, `enable`, `disable`, `install`, `update`, `uninstall` |
@@ -33,7 +33,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, human asks route to the lead or return without pausing. See [config.md](config.md#unattended-mode) |
 | `/version`              | `/v`           | Show the Polyglav version                                       |
 
-`/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so plan mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions.
+`/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions.
 
 Delegation is a normal tool: the lead agent proposes it, or you run it directly, and `/tool delegate {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role delegates without prompting (`delegate` defaults to `allow`. Set a role's `delegate` to `ask` to confirm), and a role outside the registry is denied. See [roles.md](roles.md) and [swarm.md](swarm.md).
 
@@ -61,7 +61,7 @@ One-shot headless chat.
 | `--model`            | Model override (accepts a `provider/model` ref. Explicit `--model` auto-approves) |
 | `--approve-model`    | Approve the configured model ref without prompting             |
 | `--base-url`         | Base URL override                                            |
-| `--mode`             | Agent mode override (`plan`, `build`, or a custom mode)      |
+| `--mode`             | Agent mode override (`read` or `write`)                      |
 | `--output`           | `json` (default) or `text`                                   |
 | `--verbose`          | Print tool status and diagnostics to stderr                   |
 | `--session-id`       | Persistent session name (load or create)                     |
@@ -138,7 +138,7 @@ HTTP JSON API server. See [api.md](api.md). Also serves `POST /mcp` (MCP server)
 | `--host`      | `127.0.0.1`  | Bind address                 |
 | `--port`      | `8787`       | Bind port                    |
 | `--path`      |              | Project path                 |
-| `--mode`      |              | Agent mode override (`plan`, `build`, or a custom mode) |
+| `--mode`      |              | Agent mode override (`read` or `write`)               |
 
 ### `polyglav mcp`
 

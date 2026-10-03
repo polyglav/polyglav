@@ -47,6 +47,7 @@ nav:
       - reference/fleet.md
       - reference/jobs.md
       - reference/mcp.md
+      - reference/modes.md
       - reference/plugins.md
       - reference/providers.md
       - reference/security.md

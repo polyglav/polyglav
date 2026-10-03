@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.40.0 - 2026-10-03
+
+- Read and write modes - `plan`/`build` are replaced by `read` (default) and `write`. `read` allows read-class tools only and denies writes, exec, commits, MCP, and delegation, while `write` gates write keys by `tool_permission`. Any unknown mode value resolves to `read` with a warning, and the prompt color still signals the posture (cyan read, orange write). Docs (`docs/modes.md`, `config.md`, `commands.md`). Tests: `tests/test_modes.py`, `tests/test_commands.py`, `tests/test_focus.py`
+- Fail-closed access classification - tools are classed by permission key from config `access.read_tools`, and any key not listed is write-class (unknown and new plugin keys included). The read cap is applied last, after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. Docs (`docs/modes.md`, `config.md`, `security.md`, `tools.md`). Tests: `tests/test_tool_policy.py`, `tests/test_modes.py`
+- Session-scoped mode switch - the active mode lives on the session and is recorded on every turn, so `/mode <name>` changes the current session's posture without rewriting the config, `/config mode <value>` persists it, and a loaded session keeps its mode. Docs (`session.md`, `commands.md`). Tests: `tests/test_session_log.py`, `tests/test_commands.py`
+- Catalog and MCP gating - catalog `save`/`remove`/`reload` and the MCP connect/disconnect tools plus the imported remote tools are write-class, while catalog `list`/`show` and `mcp_list` stay read, so read mode cannot mutate the catalog or reach MCP. Tests: `tests/test_catalog.py`, `plugins/polyglav-core-mcp/tests/test_mcp.py`
+
 ## v0.39.0 - 2026-10-03
 
 - Clearer caller reference - a sub-engine's back-reference to the engine that delegated it is now `_caller` (was `_lead`), so it does not collide with the `leader` role. The public `ask` target stays `'lead'`. Docs (`AGENTS.md`, `testing.md`). Tests: `tests/test_ask.py`

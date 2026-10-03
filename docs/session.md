@@ -66,6 +66,7 @@ The headless CLI `polyglav export <name> [--out <file>]` reuses the same rendere
 {
   "created_at": "2026-08-17T12:00:00+00:00",
   "errors": [],
+  "mode": "",
   "parent_id": "",
   "permissions": [],
   "role": "",
@@ -82,6 +83,7 @@ The headless CLI `polyglav export <name> [--out <file>]` reuses the same rendere
 |-----|------|-------------|
 | `created_at` | string | ISO 8601 UTC timestamp of creation |
 | `errors` | array | Turn-level errors (provider, network, agent loop) |
+| `mode` | string | Session posture (`read` or `write`), empty means follow the config `mode`. Set by `/mode` |
 | `parent_id` | string | Name of the session this one was spawned from (sub-agent sessions set it, empty otherwise) |
 | `permissions` | array | Audit log of tool permission decisions (see below) |
 | `role` | string | Role that owns the session, stamped at creation (empty for a plain root or a headless run with no `--role`) |
@@ -104,7 +106,7 @@ A turn is one operator prompt (or one slash command) and the agent's response to
 | `started_at` / `ended_at` | ISO 8601 UTC timestamps (duration is the difference) |
 | `status` | `running`, `ok`, `error`, `truncated`, `empty`, or `cancelled` |
 | `model` / `provider` | Model and provider that served the turn |
-| `mode` | Agent `mode` in effect (`build`, `plan`, or a custom mode) |
+| `mode` | Agent `mode` in effect (`read` or `write`) |
 | `reasoning` | The `reasoning` config value in effect (`false`/`"off"` or an effort value) |
 | `parts` | Ordered list of parts (below) |
 
@@ -129,7 +131,7 @@ A plain prompt and answer:
 {
   "index": 1, "started_at": "2026-08-17T12:00:00+00:00",
   "ended_at": "2026-08-17T12:00:05+00:00", "status": "ok",
-  "model": "llama3.2", "provider": "ollama", "mode": "build",
+  "model": "llama3.2", "provider": "ollama", "mode": "read",
   "parts": [
     {"type": "user", "text": "What is OEE?", "timestamp": "2026-08-17T12:00:00+00:00"},
     {"type": "thinking", "text": "The user asks a definitional question, answer directly.", "timestamp": "2026-08-17T12:00:01+00:00"},
