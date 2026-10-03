@@ -56,8 +56,6 @@
 
 ## Open
 
-- [ ] Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode
-- [ ] Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly
 - [ ] Dev tool fallback - `code_lint`/`code_format` report a clear setup hint when the configured linter/formatter (`ruff`) is absent, and honor the `dev.lint_cmd`/`dev.format_cmd` overrides
 - [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files
 - [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
@@ -162,6 +160,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Headless modes - run/serve default read, jobs add records write unless set
+- [x] Root roles dropped - root is `system_prompt` + mode, no assistant persona
 - [x] Delegation taxonomy - `call` (named role), `delegate` (team), `offload` (role-less sibling)
 - [x] Mode-capped grants - grants only in write, read asks redirect to a mode switch
 - [x] Sub-agents inherit the caller mode, a stage cannot escalate it
