@@ -385,7 +385,8 @@ class TestPermissionScope(unittest.TestCase):
 class TestGrantLifecycle(unittest.TestCase):
 
     def test_granted_tool_appears_then_is_consumed(self):
-        engine = make_engine({'tool_permission': {'bash': 'deny'}})
+        engine = make_engine({'mode': 'write',
+                              'tool_permission': {'bash': 'deny'}})
         try:
             engine._init_tooling()
             names = [s['function']['name'] for s in engine._tool_schema()]
@@ -402,7 +403,8 @@ class TestGrantLifecycle(unittest.TestCase):
             engine._tmp.cleanup()
 
     def test_grant_use_is_audited(self):
-        engine = make_engine({'tool_permission': {'bash': 'deny'}})
+        engine = make_engine({'mode': 'write',
+                              'tool_permission': {'bash': 'deny'}})
         try:
             engine._init_tooling()
             engine.grant_permission('run_command', 'bash', scope='once',

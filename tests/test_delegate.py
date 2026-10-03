@@ -14,6 +14,7 @@ class TestDelegateTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        self.chat.config.set('mode', 'write')
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
 
     def tearDown(self):

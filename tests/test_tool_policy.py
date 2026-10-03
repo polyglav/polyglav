@@ -48,6 +48,26 @@ class TestToolPolicy(unittest.TestCase):
         p = self.policy(permissions={})
         self.assertEqual(p.action('some_tool', 'nope'), 'ask')
 
+    def test_read_mode_allows_listed_key(self):
+        p = self.policy(permissions={'read': 'allow'}, mode='read',
+                        read_keys={'read'})
+        self.assertEqual(p.action('file_read', 'read'), 'allow')
+
+    def test_read_mode_denies_unlisted_key(self):
+        p = self.policy(permissions={'edit': 'allow'}, mode='read',
+                        read_keys={'read'})
+        self.assertEqual(p.action('file_write', 'edit'), 'deny')
+
+    def test_read_mode_denies_unknown_key(self):
+        p = self.policy(permissions={}, mode='read', read_keys={'read'})
+        self.assertEqual(p.action('plugin_tool', 'plugin_key'), 'deny')
+
+    def test_read_mode_deny_beats_grant(self):
+        p = self.policy(permissions={'edit': 'allow'}, mode='read',
+                        read_keys={'read'})
+        p.grant('file_write', 'edit')
+        self.assertEqual(p.action('file_write', 'edit'), 'deny')
+
     def test_deny_never_escalates_to_ask(self):
         p = self.policy(permissions={'edit': 'deny'})
         outside = self.root.parent / 'elsewhere' / 'f.txt'

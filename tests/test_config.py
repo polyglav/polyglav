@@ -188,8 +188,7 @@ class TestConfigMerge(_IsolatedConfigBase):
             'modes': {'read': {'tool_permission': {'bash': 'allow'}}}})
         c = Config(path=str(self.project))
         modes = c.get('modes')
-        self.assertEqual(modes['read']['tool_permission']['bash'], 'allow')
-        self.assertEqual(modes['read']['tool_permission']['edit'], 'deny')
+        self.assertEqual(modes['read']['tool_permission'], {'bash': 'allow'})
         self.assertEqual(modes['read']['system_prompt'],
                          DEFAULT_CONFIG['modes']['read']['system_prompt'])
         self.assertEqual(modes['write'], DEFAULT_CONFIG['modes']['write'])
@@ -298,13 +297,13 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertIsNone(c.get('custom_key'))
         self.assertNotIn('custom_key', self.local())
 
-    def test_partial_mode_permission_keeps_other_default_denies(self):
+    def test_partial_mode_permission_keeps_spec_isolated(self):
         self.write_local({
             'modes': {'read': {'tool_permission': {'edit': 'allow'}}}})
         c = Config(path=str(self.project))
         permissions = c.get('modes')['read']['tool_permission']
         self.assertEqual(permissions['edit'], 'allow')
-        self.assertEqual(permissions['bash'], 'deny')
+        self.assertNotIn('bash', permissions)
 
     def test_new_mode_keeps_default_modes(self):
         self.write_local({'modes': {'custom': {'system_prompt': 'hi'}}})
@@ -312,8 +311,8 @@ class TestConfigMerge(_IsolatedConfigBase):
         modes = c.get('modes')
         self.assertEqual(modes['custom'], {'system_prompt': 'hi'})
         self.assertEqual(modes['write'], DEFAULT_CONFIG['modes']['write'])
-        self.assertEqual(modes['read']['tool_permission'],
-                         DEFAULT_CONFIG['modes']['read']['tool_permission'])
+        self.assertEqual(modes['read']['system_prompt'],
+                         DEFAULT_CONFIG['modes']['read']['system_prompt'])
 
     def test_nested_list_value_replaces(self):
         self.write_global({'grant_permission': {'bash': ['git', 'pytest']}})

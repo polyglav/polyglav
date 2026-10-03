@@ -4,13 +4,19 @@ from pathlib import Path
 class ToolPolicy:
     def __init__(self, permissions: dict, allow: list | None = None,
                  deny: list | None = None, worktree: Path | None = None,
-                 resolvers: dict | None = None, grants: list | None = None):
+                 resolvers: dict | None = None, grants: list | None = None,
+                 mode: str = 'write', read_keys: set | None = None):
         self.permissions = dict(permissions or {})
         self.allow = set(allow or [])
         self.deny = set(deny or [])
         self.worktree = worktree.resolve() if worktree else None
         self.resolvers = dict(resolvers or {})
         self.grants = list(grants or [])
+        self.mode = mode
+        self.read_keys = set(read_keys or ())
+
+    def _mode_denies(self, permission_key: str) -> bool:
+        return self.mode == 'read' and permission_key not in self.read_keys
 
     def grant(self, name: str, permission_key: str, scope: str = 'once',
               origin: str = 'supervisor') -> dict:
@@ -54,6 +60,8 @@ class ToolPolicy:
             return 'deny'
         if self.allow and name not in self.allow:
             return 'deny'
+        if self._mode_denies(permission_key):
+            return 'deny'
         action = self.permissions.get(permission_key, 'ask')
         return action if action in ('allow', 'ask', 'deny') else 'ask'
 
@@ -84,6 +92,8 @@ class ToolPolicy:
                     resolved = None
                 if resolved in ('allow', 'ask', 'deny'):
                     action = resolved
+        if self._mode_denies(permission_key):
+            return 'deny'
         if action == 'allow' and path and self._outside_worktree(path):
             return 'ask'
         return action
