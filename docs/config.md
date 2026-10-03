@@ -54,7 +54,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
 | `glyph_lines`               | `true`                 | Typed `<glyph> <verb> <arg>` status lines for mapped categories. Off or unmapped categories fall back to the `[tool: arg]` oneliner |
 | `glyph_params`              | `true`                 | Append tool call parameters to glyph status lines and confirm prompts (e.g. `← Read engine.py [offset=299, limit=85]`). Off for bare `<glyph> <verb> <arg>` |
-| `grant_permission`          | `{}`                   | Delegation ceiling: the maximum category actions an engine may hand down to sub-agents. Empty means the engine's own `tool_permission` is the ceiling (no escalation). See [Permission authority](#permission-authority) |
+| `grant_permission`          | `{ask,bash,edit,list,read,web: allow}` | Delegation ceiling: the maximum category actions an engine may hand down to sub-agents. Defaults to a built-in allow set (`ask`, `bash`, `edit`, `list`, `read`, `web`), so the assistant can authorize a team's permission asks on its own. Set it to `{}` to fall back to the engine's own `tool_permission` (no escalation). See [Permission authority](#permission-authority) |
 | `hide_confirm_input`        | `false`                | Hide the typed input for the REPL `[Y/n]` tool confirm prompt (the answer is not echoed). Free-text `ask` answers stay visible |
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
@@ -171,7 +171,7 @@ Every engine has two permission axes:
 - `tool_permission` - what the engine itself may use.
 - `grant_permission` - the ceiling on what it may hand down to sub-agents.
 
-A sub-agent's effective permissions are the parent's `tool_permission`, narrowed by the role's `tool_permission` carve and capped by the parent's `grant_permission`. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate. `grant_permission` defaults to the engine's own `tool_permission`, so delegation never escalates unless a role (or config) explicitly widens the ceiling.
+A sub-agent's effective permissions are the parent's `tool_permission`, narrowed by the role's `tool_permission` carve and capped by the parent's `grant_permission`. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate. `grant_permission` defaults to a built-in allow set (`ask`, `bash`, `edit`, `list`, `read`, `web`), so the caller can hand the work categories down without holding them itself. Set it to `{}` to fall back to the engine's own `tool_permission`, where delegation never escalates unless a role or config explicitly widens the ceiling.
 
 A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor with `edit`/`bash` denied for itself but allowed in its ceiling can hand them to an `implementer` while never running them.
 

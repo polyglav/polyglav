@@ -252,6 +252,7 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(self.chat.provider.chat.call_count, 3)
 
     def test_subagent_prompt_warns_on_auto_denied_categories(self):
+        self.chat.config.apply('grant_permission', {'bash': 'ask'})
         self.chat.roles.put(
             Role(name='tester2', system_prompt='You test.',
                  tool_permission={'bash': 'allow'}), scope='local')

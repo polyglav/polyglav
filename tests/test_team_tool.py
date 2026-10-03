@@ -113,7 +113,7 @@ class TestTeamTool(unittest.TestCase):
 
     def test_clamped_stage_is_noted(self):
         chat = make_chat({
-            'grant_permission': {'read': 'allow'},
+            'grant_permission': {'bash': 'deny', 'read': 'allow'},
             'tool_permission': {'ask': 'allow', 'read': 'allow', 'bash': 'ask'},
         })
         try:
@@ -135,7 +135,7 @@ class TestTeamTool(unittest.TestCase):
 
     def test_clamped_stages_helper(self):
         chat = make_chat({
-            'grant_permission': {'read': 'allow'},
+            'grant_permission': {'bash': 'deny', 'read': 'allow'},
             'tool_permission': {'ask': 'allow', 'read': 'allow', 'bash': 'ask'},
         })
         try:
@@ -185,6 +185,7 @@ class TestTeamTool(unittest.TestCase):
 
     def test_clamped_stage_failure_hints_ceiling(self):
         from polyglav.engine import TurnResult
+        self.chat.config.apply('grant_permission', {'bash': 'deny'})
         self.chat.roles.put(Role(
             name='impl2', system_prompt='x',
             tool_permission={'bash': 'allow'}), scope='local')

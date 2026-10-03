@@ -76,7 +76,14 @@ DEFAULT_CONFIG = {
     'search_results': 5,
     'tools.allow': [],
     'tools.deny': [],
-    'grant_permission': {},
+    'grant_permission': {
+        'ask': 'allow',
+        'bash': 'allow',
+        'edit': 'allow',
+        'list': 'allow',
+        'read': 'allow',
+        'web': 'allow',
+    },
     'ask_policy': {
         'permission': 'auto',
         'direction': 'human',

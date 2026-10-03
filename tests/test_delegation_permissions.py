@@ -96,7 +96,7 @@ class TestNoEscalation(unittest.TestCase):
 
     def test_type_cannot_widen_above_grant_ceiling(self):
         chat = make_chat({
-            'grant_permission': {'read': 'allow'},
+            'grant_permission': {'bash': 'deny', 'read': 'allow'},
             'tool_permission': {'ask': 'allow', 'read': 'allow', 'bash': 'deny'},
         })
         try:
@@ -208,7 +208,7 @@ class TestAskPermission(unittest.TestCase):
             chat._tmp.cleanup()
 
     def test_denied_above_ceiling(self):
-        chat = make_chat({'grant_permission': {'read': 'allow'}})
+        chat = make_chat({'grant_permission': {'bash': 'deny', 'read': 'allow'}})
         try:
             sub = self._worker(chat)
             out = sub._run_tool('ask', {

@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Default delegation ceiling - `grant_permission` defaults to a built-in allow set
 - [x] Permission asks honor the operator's choice - approve option grants once/always
 - [x] Catalog `kind="type"` accepted as `role`, corrected error message
 - [x] Auto-follow sub-runs - `focus_on_delegate` defaults on, teams focus the last stage

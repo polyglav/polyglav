@@ -2,6 +2,7 @@
 
 ## v0.39.0 - 2026-10-03
 
+- Default delegation ceiling - `grant_permission` now defaults to a built-in allow set (`ask`, `bash`, `edit`, `list`, `read`, `web`), so the assistant can authorize a delegated team's permission asks by itself while its own `tool_permission` stays as narrow as configured. Set `grant_permission: {}` to restore the no-escalation fallback. Docs (`config.md`). Tests: `tests/test_config.py`
 - Permission asks honor the operator's choice - a human-routed permission ask now presents `Approve once` / `Approve always` / `Deny` and interprets the answer robustly, so selecting the approve option (or typing `1`) actually grants instead of being misread as a decline by a `startswith('y')` check. An ambiguous answer now returns the no-answer result instead of a silent denial. Docs (`config.md`). Tests: `tests/test_delegation_permissions.py`
 - Catalog `kind` alias - the catalog tool accepts `kind="type"` as `role` and its error now reads `kind must be role, team, or skill`. It previously told the model the valid kind was `type` while rejecting `type`, so a composing agent looped on it. Tests: `tests/test_catalog.py`
 - Auto-follow sub-runs - `focus_on_delegate` now defaults to `on`, and a team run offers the same focus as `delegate` (landing on its last stage), so a delegated or team run's output is shown automatically. Set it to `off` or `ask` to opt out. Docs (`config.md`, `architecture.md`, `swarm.md`, `testing.md`). Tests: `tests/test_focus_on_delegate.py`, `tests/test_team_tool.py`
