@@ -11,11 +11,12 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | Tool | Plugin | Category | Permission | Purpose |
 |------|--------|----------|------------|---------|
 | `ask` | core | `ask` | `ask` | Ask the human or the lead agent for a decision, pausing until answered |
+| `call` | core | `call` | `call` | Run a task under a named role as a sub-agent |
 | `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/remove, plus reload |
 | `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
 | `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
-| `delegate` | core | `delegate` | `delegate` | Run a task under a role as a sub-agent |
+| `delegate` | core | `delegate` | `delegate` | Run a named team (an ordered chain of role stages) and return the final stage's answer |
 | `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
 | `file_read` | polyglav-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
 | `file_write` | polyglav-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |
@@ -25,8 +26,8 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
 | `handoff` | core | `handoff` | `handoff` | Pause or finish this run and hand control to a parent/sibling/child/root/run id |
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
+| `offload` | core | `offload` | `offload` | Hand a self-contained sub-task to an anonymous read-only sibling |
 | `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
-| `team` | core | `delegate` | `team` | Run a named team (an ordered chain of agent-type stages) and return the final stage's answer |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
@@ -34,7 +35,7 @@ Plugins register additional tools the same way and automatically inherit tool po
 
 ## Asking the human or the lead
 
-The `ask` tool (core, like `delegate`) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: `question` (required), `context`, `options` (suggested answers), `target`, `kind` (`permission`/`direction`, default `direction`), and `permission` (the tool or category for a permission request):
+The `ask` tool (core, like `call`) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: `question` (required), `context`, `options` (suggested answers), `target`, `kind` (`permission`/`direction`, default `direction`), and `permission` (the tool or category for a permission request):
 
 - `target='human'` (default) - the operator answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its `sub_<...>` session name so the operator knows who is asking (delegation and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues.
 - `target='lead'` - the role or engine that delegated this run decides. The lead answers through a lightweight non-streaming consultation (a bounded prompt with the question, context, options, and the sub-agent's delegated task), not a full parent turn. A root engine has no lead, so `target='lead'` falls back to `human`, and `human` falls back to `lead` when no terminal is reachable.
@@ -68,9 +69,9 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | Key | Description |
 |-----|-------------|
 | `refine` | Auto-refine short `query` args via a lightweight model call, gated by `query_refine` |
-| `category` | `ask` / `catalog` / `delegate` / `exec` / `handoff` / `mcp` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
-| `permission` | The `tool_permission` key that gates the tool: `bash` / `catalog` / `edit` / `handoff` / `list` / `mcp` / `read` / `team` / `vcs` / `web` |
-| `permission_fn` | Optional `Callable[[dict], str]` resolving the action (`allow`/`ask`/`deny`) from the current arguments - refines a non-`deny` base action at call time, or returns `None` to defer to the category action (see `delegate`, `git_commit`) |
+| `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `handoff` / `mcp` / `offload` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
+| `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `handoff` / `list` / `mcp` / `offload` / `read` / `vcs` / `web` |
+| `permission_fn` | Optional `Callable[[dict], str]` resolving the action (`allow`/`ask`/`deny`) from the current arguments - refines a non-`deny` base action at call time, or returns `None` to defer to the category action (see `call`, `git_commit`) |
 | `path_arg` | Which parameter is a filesystem path, for worktree scope checks |
 | `key_arg` | Which argument appears in status/confirm labels and glyph activity lines |
 | `glyph` / `verb` | Per-tool activity-line overrides (e.g. `glob` uses `* Glob`, `web_fetch` uses `↓ Fetch`) |
@@ -79,7 +80,7 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | `short` | Short label for `/help` listing (defaults to the description truncated) |
 | `aliases` | Extra tool names resolving to this tool (e.g. `read`/`view` for `file_read`, `open`/`fetch_page` for `web_fetch`) - absorbed at call time, never advertised |
 | `param_aliases` | Caller-side parameter synonyms mapped onto declared parameters (e.g. `cursor` -> `offset`, `query` -> `pattern`) |
-| `loop` | When true, `/tool <name>` runs the tool as a real agent-loop turn (`Engine.chat_tool`) - the tool call and result persist, then the model streams its final answer. Used by `delegate` so a `/tool delegate` plan, results, and answer land in the session and a later prompt can continue the work. Direct `ToolRegistry.execute()` calls are unaffected |
+| `loop` | When true, `/tool <name>` runs the tool as a real agent-loop turn (`Engine.chat_tool`) - the tool call and result persist, then the model streams its final answer. Used by `call` so a `/tool call` plan, results, and answer land in the session and a later prompt can continue the work. Direct `ToolRegistry.execute()` calls are unaffected |
 | `confirm` | When false, the tool is never Y/n confirm-gated even when its category action is `ask`, so the call proceeds and the permission audit records it as granted. Used by `ask` so a question is never blocked by the prompt it needs |
 | `error` | A `Callable[[str], bool]` predicate over the raw result. When true, the echoed result renders red instead of dim, so a failed command is visible. Used by `run_command` and the dev wrappers, which read the `exit N` line |
 
@@ -135,7 +136,7 @@ Resolution precedence:
 
 1. **Name-level** - `tools.deny` (always denied) and `tools.allow` (when non-empty, it is an allowlist, so everything else is denied).
 2. **Category action** - the `tool_permission.<key>` action for the tool's `permission` key. `deny` here is final, skips the resolver, and filters the tool from the provider schema and from tool listings, not just direct calls.
-3. **Per-invocation resolver** - a tool may declare a `permission_fn` that overrides a non-`deny` base action from its current arguments, and returning `None` defers to the category action. It is skipped when the base action is `deny` and when no arguments are available, so schema filtering (`allowed()`) keeps the tool visible for `ask`/`allow` categories. `delegate` resolves per role: a configured role uses its own `tool_permission` with `delegate` defaulting to `allow`, a role outside the registry is `deny`. `git_commit` defers to the `vcs` category except for `all=true`, which asks.
+3. **Per-invocation resolver** - a tool may declare a `permission_fn` that overrides a non-`deny` base action from its current arguments, and returning `None` defers to the category action. It is skipped when the base action is `deny` and when no arguments are available, so schema filtering (`allowed()`) keeps the tool visible for `ask`/`allow` categories. `call` resolves per role: a configured role uses its own `tool_permission` with `call` defaulting to `allow`, a role outside the registry is `deny`. `git_commit` defers to the `vcs` category except for `all=true`, which asks.
 4. **Worktree escalation** - `read` / `list` / `write` tools pointing outside the project worktree escalate from `allow` to `ask`.
 
 The mode ([modes.md](modes.md)) is the outermost bound, applied last, after grants and per-invocation resolvers. `read` (default) denies every permission key not listed in config `access.read_tools`, so write, exec, commit, MCP, and delegation tools are filtered from the schema and refused on direct calls. `write` leaves write keys to `tool_permission`, still bounded by each key's action. A mode may also set `system_prompt`/`color` and append `tools.deny` or replace `tools.allow` in its spec. An unknown `mode` falls back to `read`. Switch with `/mode <name>` in the REPL or `--mode <name>` on `polyglav run` / `polyglav serve`.
@@ -176,7 +177,7 @@ See [config.md](config.md) for the `tools.allow`, `tools.deny`, and `tool_permis
 
 ## Status and activity lines
 
-Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `glyph_lines` (default `true`). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `~` Ask, todo `-` Todo, delegate `↳` Call. Unmapped categories fall back to the `[tool: key_arg]` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`.
+Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `glyph_lines` (default `true`). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `~` Ask, todo `-` Todo, call `↳` Call, delegate `↳` Delegate, offload `↳` Offload. Unmapped categories fall back to the `[tool: key_arg]` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`.
 
 When `glyph_params` is on (default `true`), the parameters the model passed (excluding the one already shown in the label) are appended: `← Read engine.py [offset=299, limit=85]`, `$ Run pytest [cwd=/workspace, timeout=600]`. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving.
 

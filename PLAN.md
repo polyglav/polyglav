@@ -15,7 +15,6 @@ Modes become the only posture: `read` by default, `write` on request. A simple p
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Tool taxonomy - `offload` (sibling), `call` (named role), `delegate` (named team); `offload_depth`; role-less sub-engine | M-L | clear delegation vocabularies |
 | Drop root roles - remove `assistant`/`assistant_role`/`bind_root_agent`; the root is `system_prompt` + mode | M | no opaque root authority |
 | Headless default - jobs/`run`/`serve` default `read` and set their mode explicitly | S | batch runs stay explicit |
 
