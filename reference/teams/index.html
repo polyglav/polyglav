@@ -700,6 +700,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -994,10 +1022,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-team-tool" class="md-nav__link">
+  <a href="#the-delegate-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The team tool
+        The delegate tool
       
     </span>
   </a>
@@ -1281,10 +1309,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-team-tool" class="md-nav__link">
+  <a href="#the-delegate-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The team tool
+        The delegate tool
       
     </span>
   </a>
@@ -1309,7 +1337,7 @@
 
 
 <h1 id="teams">Teams<a class="headerlink" href="#teams" title="Permanent link">&para;</a></h1>
-<p>A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the <code>delegate</code> primitive into a repeatable pipeline: "writing" = researcher &gt; writer &gt; referencer &gt; editor for documents, "programming" = planner &gt; programmer &gt; tester &gt; code-reviewer. The registry stores the definition and the sequential stage loop (<code>Engine.run_team</code>) executes it, reachable from the REPL (<code>/teams run</code>), the model (the <code>team</code> tool), and the CLI.</p>
+<p>A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the <code>delegate</code> primitive into a repeatable pipeline: "writing" = researcher &gt; writer &gt; referencer &gt; editor for documents, "programming" = planner &gt; programmer &gt; tester &gt; code-reviewer. The registry stores the definition and the sequential stage loop (<code>Engine.run_team</code>) executes it, reachable from the REPL (<code>/teams run</code>), the model (the <code>delegate</code> tool), and the CLI.</p>
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>Teams come from four layers, merged exactly like roles: bundled, then plugin, then global, then local, local winning per field. Precedence is <code>bundled &lt; plugin &lt; global &lt; local</code>:</p>
 <ul>
@@ -1354,7 +1382,7 @@
 <li><code>mode</code> - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.</li>
 <li><code>task_hint</code> - optional guidance folded into the delegated brief for this stage.</li>
 <li><code>handoff_note</code> - optional note passed with the previous stage's result into the next stage's brief.</li>
-<li><code>skills</code> - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see <a href="../skills/">skills.md</a>). The <code>team</code> tool adds task-wide skills to every stage through its own <code>skills</code> argument.</li>
+<li><code>skills</code> - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see <a href="../skills/">skills.md</a>). The <code>delegate</code> tool adds task-wide skills to every stage through its own <code>skills</code> argument.</li>
 </ul>
 <h2 id="managing-teams">Managing teams<a class="headerlink" href="#managing-teams" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1366,7 +1394,7 @@
 </ul>
 <p>Plugins contribute teams through the same <code>register_teams</code> entry hook the kit machine (templates, recipes) uses. See <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="running-a-team">Running a team<a class="headerlink" href="#running-a-team" title="Permanent link">&para;</a></h2>
-<p><code>Engine.run_team(team, task)</code> runs the stages one after another through the same in-process sub-engine as <code>delegate</code> (<code>run_subagent</code>): each stage runs in its own fresh <code>sub_&lt;ts&gt;_&lt;id&gt;</code> session by default, with its own role prompt, skills, and permission carve, and the stage <code>mode</code> overrides the caller's when set (an empty <code>mode</code> inherits). A failed stage stops the run and the remaining stages do not execute.</p>
+<p><code>Engine.run_team(team, task)</code> runs the stages one after another through the same in-process sub-engine as <code>delegate</code> (<code>run_subagent</code>): each stage runs in its own fresh <code>sub_&lt;ts&gt;_&lt;id&gt;</code> session by default, with its own role prompt, skills, and permission carve, and every stage inherits the caller's mode (a stage cannot escalate it). A failed stage stops the run and the remaining stages do not execute.</p>
 <p>The brief handed to each member is built per run from:</p>
 <ul>
 <li>the team name (and description) plus the original task,</li>
@@ -1378,7 +1406,7 @@
 <p>After the run, the whole team run is summarized (seeded with the previous team memory) and written to <strong><code>.polyglav/memory/teams/&lt;name&gt;.md</code></strong> (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.</p>
 <p><code>/teams run &lt;name&gt; &lt;task&gt;</code> executes a team from the REPL and prints one line per stage (<code>&lt;n&gt;. &lt;role&gt; &lt;status&gt; &lt;duration&gt;s</code>), the final member's result, and the memory file path.</p>
 <h2 id="resuming-a-member-run">Resuming a member run<a class="headerlink" href="#resuming-a-member-run" title="Permanent link">&para;</a></h2>
-<p>Every stage starts a fresh run with its own session by default. To continue a previous thread, pass <code>resume</code> to the <code>team</code> tool:</p>
+<p>Every stage starts a fresh run with its own session by default. To continue a previous thread, pass <code>resume</code> to the <code>delegate</code> tool:</p>
 <ul>
 <li><code>team(name, task, resume=...)</code> resumes that run or session for the <strong>first stage</strong>, which then keeps its prior context. Later stages start fresh, seeded by the brief.</li>
 <li><code>resume</code> accepts a run id (<code>#3</code>), a session id (<code>#ab12cd</code>), a session name, or <code>session:&lt;name&gt;</code>.</li>
@@ -1398,14 +1426,14 @@
 <li><code>max_iterations</code> (default 3) caps the block. Reaching it without a pass is still a successful run, with the last review as the result.</li>
 </ul>
 <p>Each loop iteration starts a fresh producer run seeded by the findings, rather than replaying a standing session.</p>
-<h2 id="the-team-tool">The <code>team</code> tool<a class="headerlink" href="#the-team-tool" title="Permanent link">&para;</a></h2>
-<p><code>team(name, task)</code> is the model-facing entry point (core, like <code>delegate</code> and <code>ask</code>), so a lead agent can orchestrate a whole pipeline in one call instead of delegating each stage itself. It runs <code>Engine.run_team</code> and returns the final stage's answer (or <code>Error: team "&lt;name&gt;" failed: &lt;reason&gt;</code>).</p>
+<h2 id="the-delegate-tool">The <code>delegate</code> tool<a class="headerlink" href="#the-delegate-tool" title="Permanent link">&para;</a></h2>
+<p><code>delegate(name, task)</code> is the model-facing entry point (core, like <code>call</code> and <code>ask</code>), so a lead agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs <code>Engine.run_team</code> and returns the final stage's answer (or <code>Error: team "&lt;name&gt;" failed: &lt;reason&gt;</code>).</p>
 <ul>
-<li><strong>Permission</strong>: the <code>team</code> category gates the tool (default <code>allow</code>), separate from <code>delegate</code> so a role can be a delegation target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like <code>delegate</code>: a stage role that sets <code>delegate: "deny"</code> disables the team, <code>"ask"</code> confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.</li>
+<li><strong>Permission</strong>: the <code>delegate</code> category gates the tool (default <code>allow</code>), separate from <code>call</code> so a role can be a call target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like <code>call</code>: a stage role that sets <code>delegate: "deny"</code> disables the team, <code>"ask"</code> confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.</li>
 <li><strong>Ceiling</strong>: each stage's carve is still capped by the caller's <code>grant_permission</code> (see <a href="../config/#permission-authority">config.md</a>). When a stage's requested permissions get clamped, the result carries a <code>(reduced permissions for: &lt;role&gt;)</code> note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque <code>unknown error</code>.</li>
 <li><strong>Depth and cycles</strong>: <code>run_team</code> refuses a team already on the current stack (<code>team_cycle</code>) and stops at <code>max_team_depth</code> nested team runs (default 2, <code>team_depth</code>), so a supervisor stage that itself runs teams cannot recurse forever. Both values propagate into sub-engines. A stage cannot run its own team: the per-invocation resolver returns <code>deny</code> (<code>disabled by tool policy</code>) when the requested name is already on the stack, and each stage brief instructs the stage to do its own work directly instead of calling the team tool for its own team.</li>
 </ul>
-<p>The REPL <code>/tool team {"name": ..., "task": ...}</code> runs the same handler through a persisted agent-loop turn (the tool is registered <code>loop=True</code>).</p>
+<p>The REPL <code>/tool delegate {"name": ..., "task": ...}</code> runs the same handler through a persisted agent-loop turn (the tool is registered <code>loop=True</code>).</p>
 <p>Scheduled team runs (<code>jobs add --team</code>) and job-style recurring member sessions are later milestones.</p>
 
 

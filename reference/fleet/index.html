@@ -819,6 +819,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -1393,7 +1421,7 @@ polyglav<span class="w"> </span>fleet<span class="w"> </span>logs<span class="w"
 <h3 id="per-agent-config-generation">Per-agent config generation<a class="headerlink" href="#per-agent-config-generation" title="Permanent link">&para;</a></h3>
 <p><code>polyglav fleet config &lt;name&gt;</code> writes only the keys you pass into <code>&lt;dir&gt;/.polyglav/config.json</code>, leaving existing keys intact, so an agent gets its personality before its first launch:</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>fleet<span class="w"> </span>config<span class="w"> </span>code-agent<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--provider<span class="w"> </span>ollama<span class="w"> </span>--model<span class="w"> </span>llama3.2<span class="w"> </span>--mode<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--provider<span class="w"> </span>ollama<span class="w"> </span>--model<span class="w"> </span>llama3.2<span class="w"> </span>--mode<span class="w"> </span>write<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--system-prompt<span class="w"> </span><span class="s2">"You implement code."</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tools-deny<span class="w"> </span>web_search<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tool-permission<span class="w"> </span><span class="s2">"bash=allow"</span><span class="w"> </span><span class="se">\</span>

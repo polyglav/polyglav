@@ -869,6 +869,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -1438,14 +1466,9 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </thead>
 <tbody>
 <tr>
-<td><code>assistant</code></td>
-<td><code>true</code></td>
-<td>Bind the REPL root to the <code>assistant_role</code> identity on startup. <code>false</code> leaves the root untyped (no injected identity). A non-empty <code>system_prompt</code> always wins over the role prompt</td>
-</tr>
-<tr>
-<td><code>assistant_role</code></td>
-<td><code>"assistant"</code></td>
-<td>Role the REPL root binds to when <code>assistant</code> is on. Rebind to any role (e.g. <code>leader</code>, <code>composer</code>) or a local override of <code>assistant</code></td>
+<td><code>access</code></td>
+<td><code>{"read_tools": [...]}</code></td>
+<td>Read-class permission keys (<code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>handoff</code>, <code>offload</code>). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>ask_policy</code></td>
@@ -1490,12 +1513,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>delegate_echo</code></td>
 <td><code>true</code></td>
-<td>When <code>delegate</code> runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output</td>
+<td>When a <code>call</code>, <code>delegate</code>, or <code>offload</code> runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output</td>
 </tr>
 <tr>
 <td><code>focus_on_delegate</code></td>
 <td><code>"on"</code></td>
-<td>After a <code>delegate</code> call or a team run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. <code>off</code> leaves focus alone, <code>on</code> focuses automatically, <code>ask</code> prompts the operator first (skipped under <a href="#unattended-mode">unattended mode</a>). The root turn still finishes, so its answer is not lost. REPL-only</td>
+<td>After a <code>call</code> or team <code>delegate</code> run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. <code>off</code> leaves focus alone, <code>on</code> focuses automatically, <code>ask</code> prompts the operator first (skipped under <a href="#unattended-mode">unattended mode</a>). The root turn still finishes, so its answer is not lost. REPL-only</td>
 </tr>
 <tr>
 <td><code>footer_tokens</code></td>
@@ -1514,8 +1537,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>grant_permission</code></td>
-<td><code>{ask,bash,edit,list,read,web: allow}</code></td>
-<td>Delegation ceiling: the maximum category actions an engine may hand down to sub-agents. Defaults to a built-in allow set (<code>ask</code>, <code>bash</code>, <code>edit</code>, <code>list</code>, <code>read</code>, <code>web</code>), so the assistant can authorize a team's permission asks on its own. Set it to <code>{}</code> to fall back to the engine's own <code>tool_permission</code> (no escalation). See <a href="#permission-authority">Permission authority</a></td>
+<td><code>{}</code></td>
+<td>Optional narrowing of the mode-derived delegation ceiling. In <code>write</code> mode the mode itself grants write keys, in <code>read</code> mode grants are denied, and this key can only narrow the result (for example <code>{"bash": "ask"}</code>). See <a href="#permission-authority">Permission authority</a></td>
 </tr>
 <tr>
 <td><code>hide_confirm_input</code></td>
@@ -1540,7 +1563,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>max_team_depth</code></td>
 <td><code>2</code></td>
-<td>Maximum nested team runs (a <code>team</code> stage that itself runs a team). <code>0</code> = unlimited. Cycles are refused regardless. See <a href="../teams/#the-team-tool">teams.md</a></td>
+<td>Maximum nested team runs (a <code>delegate</code> stage that itself runs a team). <code>0</code> = unlimited. Cycles are refused regardless. See <a href="../teams/#the-team-tool">teams.md</a></td>
 </tr>
 <tr>
 <td><code>mcp.servers</code></td>
@@ -1569,8 +1592,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>mode</code></td>
-<td><code>"build"</code></td>
-<td>Active agent mode (<code>build</code>, <code>plan</code>, or a custom mode from <code>modes</code>)</td>
+<td><code>"read"</code></td>
+<td>Active agent mode: <code>read</code> (default, read-only) or <code>write</code>. Any unknown value falls back to <code>read</code> with a warning. Switch the session with <code>/mode &lt;name&gt;</code> or persist with <code>/config mode &lt;value&gt;</code>. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>model</code></td>
@@ -1581,6 +1604,11 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>noise_tools</code></td>
 <td><code>["web_fetch", "open", "fetch_page"]</code></td>
 <td>Tool results replaced by a marker in persisted sessions</td>
+</tr>
+<tr>
+<td><code>offload_depth</code></td>
+<td><code>1</code></td>
+<td>Maximum nested <code>offload</code> siblings. <code>0</code> = unlimited. An <code>offload</code> sibling cannot spawn another until the operator raises this. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>output_log</code></td>
@@ -1710,7 +1738,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>system_prompt</code></td>
 <td><code>""</code></td>
-<td>Optional system prompt, injected for every front-end (REPL, <code>run</code>, <code>serve</code>)</td>
+<td>The root instruction, injected for every front-end (REPL, <code>run</code>, <code>serve</code>) and composed with the active mode. Onboarding sets it later; empty means no root persona</td>
 </tr>
 <tr>
 <td><code>temperature</code></td>
@@ -1770,38 +1798,41 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tbody>
 </table>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
-<p>Modes are named postures combining an instruction block with tool-policy overrides. The built-ins ship as defaults: <code>build</code> (no overrides) and <code>plan</code> (read-only, <code>edit</code> and <code>bash</code> denied):</p>
+<p>There are two modes: <code>read</code> (default) and <code>write</code>. <code>read</code> allows only read-class permission keys and denies every write-class key, while <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may override its instruction block and prompt color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plan"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"modes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"build"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orange"</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"plan"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are in plan mode (read-only)..."</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deny"</span><span class="p">,</span><span class="w"> </span><span class="nt">"bash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deny"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"read"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are in read mode (read-only)..."</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cyan"</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"write"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orange"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"access"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"handoff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Each mode may define <code>system_prompt</code> (instructions), <code>tool_permission</code> (category actions merged over the base, mode wins per key), <code>tools.deny</code> (appended to the base deny list), <code>tools.allow</code> (replaces the base allowlist when non-empty), and <code>color</code> (the REPL prompt color, <code>orange</code> or <code>cyan</code>). The prompt marker and its continuation variant are colored by the active mode, an explicit <code>color</code> wins, and otherwise a mode that denies both <code>edit</code> and <code>bash</code> is treated as read-only and colored <code>cyan</code>, every other mode <code>orange</code>. An unknown <code>mode</code> falls back to <code>build</code>. Switch live with <code>/mode &lt;name&gt;</code> or <code>--mode &lt;name&gt;</code> on <code>polyglav run</code> / <code>polyglav serve</code>. The mode instruction and <code>system_prompt</code> are injected as a system message for every front-end, and the active mode is recorded on each turn in the session log.</p>
+<p>Access is classified by permission key. Any key not in <code>access.read_tools</code> is write-class, and an unknown key (a new plugin permission) defaults write, so read mode is fail-closed. The read cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The mode instruction and <code>system_prompt</code> are injected as a system message, and the active mode is recorded on each turn. Switch the current session with <code>/mode &lt;name&gt;</code> and persist with <code>/config mode &lt;value&gt;</code>. An unknown <code>mode</code> falls back to <code>read</code> with a warning. Full detail in <a href="../modes/">modes.md</a>.</p>
 <h3 id="tool_permission"><code>tool_permission</code><a class="headerlink" href="#tool_permission" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"ask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"bash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"bash_allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"pytest"</span><span class="p">,</span><span class="w"> </span><span class="s2">"python -m unittest"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ruff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"git"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"catalog"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"handoff"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"mcp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"offload"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"read"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"team"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"vcs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>delegate</code> category gates the <code>delegate</code> tool. On top of the category action, delegation resolves its permission from the target role: a configured role uses its own <code>tool_permission</code> overrides (category <code>delegate</code> defaulting to <code>allow</code>), while a role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>team</code> category gates the <code>team</code> tool (default <code>allow</code>), separate from <code>delegate</code> so a role can be a delegation target yet be barred from running pipelines. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the human or the lead agent, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>handoff</code> category gates the <code>handoff</code> tool (default <code>allow</code>). It only moves the REPL's focus between runs (see <a href="../tools/#handing-off-control">tools.md</a>). The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
+<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target role: a configured role uses its own <code>tool_permission</code> overrides (category <code>call</code> defaulting to <code>allow</code>), while a role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> category gates the team pipeline tool (default <code>allow</code>), separate from <code>call</code> so a role can be a call target yet be barred from running pipelines. The <code>offload</code> category gates the <code>offload</code> tool (default <code>allow</code>, read-class). The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the human or the lead agent, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>handoff</code> category gates the <code>handoff</code> tool (default <code>allow</code>). It only moves the REPL's focus between runs (see <a href="../tools/#handing-off-control">tools.md</a>). The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
 <h3 id="ask_policy"><code>ask_policy</code><a class="headerlink" href="#ask_policy" title="Permanent link">&para;</a></h3>
 <p>Routes the <code>ask</code> tool by kind:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1812,7 +1843,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="p">}</span>
 </code></pre></div>
 <ul>
-<li><code>permission</code> - a sub-agent's request for a tool or category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). <code>auto</code> has the lead agent decide and grants one use, <code>human</code> routes to the operator, <code>deny</code> disables grants. A request above the engine's <code>grant_permission</code> ceiling is always denied; when the ceiling itself is <code>ask</code> for that category, the request is routed to the operator, because the lead may not grant above an operator-gated category. To let the calling agent authorize a category without asking you, widen the ceiling with <code>grant_permission</code> (for example <code>{"bash": "allow"}</code>). The operator may grant <code>always</code> (reusable for the rest of that sub-agent's run), the lead only ever grants <code>once</code>. A human-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
+<li><code>permission</code> - a sub-agent's request for a tool or write category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). In <code>read</code> mode a write-category request is redirected to a mode switch (attended: the operator is asked to switch, headless: the agent is told to use <code>ask(kind="direction")</code>). In <code>write</code> mode <code>auto</code> has the lead decide and grants one use, <code>human</code> routes to the operator, <code>deny</code> disables grants. A request above the mode-derived ceiling is always denied; when the ceiling itself is <code>ask</code> for that category, the request is routed to the operator, because the lead may not grant above an operator-gated category. The operator may grant <code>always</code> (reusable for the rest of that sub-agent's run), the lead only ever grants <code>once</code>. A human-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
 <li><code>direction</code> - a decision or scope change. <code>human</code> (default) routes to the operator, <code>auto</code> to the lead.</li>
 </ul>
 <h3 id="permission-authority">Permission authority<a class="headerlink" href="#permission-authority" title="Permanent link">&para;</a></h3>
@@ -1821,8 +1852,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>tool_permission</code> - what the engine itself may use.</li>
 <li><code>grant_permission</code> - the ceiling on what it may hand down to sub-agents.</li>
 </ul>
-<p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the parent's <code>grant_permission</code>. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate. <code>grant_permission</code> defaults to a built-in allow set (<code>ask</code>, <code>bash</code>, <code>edit</code>, <code>list</code>, <code>read</code>, <code>web</code>), so the caller can hand the work categories down without holding them itself. Set it to <code>{}</code> to fall back to the engine's own <code>tool_permission</code>, where delegation never escalates unless a role or config explicitly widens the ceiling.</p>
-<p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them.</p>
+<p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the mode-derived ceiling. The mode sets that ceiling: <code>write</code> makes write keys grantable, <code>read</code> denies them, and <code>grant_permission</code> (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.</p>
+<p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them, as long as the session is in <code>write</code> mode.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The operator may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>
 <h3 id="unattended-mode">Unattended mode<a class="headerlink" href="#unattended-mode" title="Permanent link">&para;</a></h3>
 <p><code>unattended: true</code> guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:</p>

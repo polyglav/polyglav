@@ -700,6 +700,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -1299,8 +1327,8 @@
 <td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration</td>
 </tr>
 <tr>
-<td><code>test_delegate.py</code></td>
-<td><code>delegate</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>delegate_echo</code> on/off display + sub footer, <code>/tool delegate</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
+<td><code>test_call.py</code></td>
+<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>delegate_echo</code> on/off display + sub footer, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
 <tr>
 <td><code>test_delegation_permissions.py</code></td>
@@ -1352,7 +1380,11 @@
 </tr>
 <tr>
 <td><code>test_modes.py</code></td>
-<td>Mode resolution and policy merging: built-ins (<code>build</code>/<code>plan</code>), custom modes, unknown fallback, instruction composition</td>
+<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), prompt color</td>
+</tr>
+<tr>
+<td><code>test_offload.py</code></td>
+<td><code>offload</code> tool: read-class registration, role-less sibling run + <code>sub_*</code> session, <code>offload_depth</code> guard</td>
 </tr>
 <tr>
 <td><code>test_ollama_provider.py</code></td>
@@ -1392,7 +1424,7 @@
 </tr>
 <tr>
 <td><code>test_runs.py</code></td>
-<td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, task recording, unknown-run tolerance. Engine runs: root run registration, <code>bind_root_agent</code> updates the run role, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
+<td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, task recording, unknown-run tolerance. Engine runs: root run registration, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
 </tr>
 <tr>
 <td><code>test_server.py</code></td>
@@ -1416,15 +1448,15 @@
 </tr>
 <tr>
 <td><code>test_subagent.py</code></td>
-<td>In-process sub-engine: provider/plugin/worktree inheritance, role prompt/mode/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>BufferUI</code>, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
+<td>In-process sub-engine: provider/plugin/worktree inheritance, caller-mode inheritance, role prompt/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>BufferUI</code>, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
 </tr>
 <tr>
 <td><code>test_team_run.py</code></td>
-<td><code>Engine.run_team</code>: brief builder (task + prior results + handoff + memory + task hint, prior-result truncation), sequential stage execution with per-stage <code>sub_*</code> sessions + parent linkage + exact brief persistence, stage mode override + caller-mode inheritance, stop-on-failure, unknown-stage-role stop, zero stages, rolling team-memory write (summarized + prior-seeded + fallback), <code>/teams run</code> command output (stages + final result, unknown team, usage)</td>
+<td><code>Engine.run_team</code>: brief builder (task + prior results + handoff + memory + task hint, prior-result truncation), sequential stage execution with per-stage <code>sub_*</code> sessions + parent linkage + exact brief persistence, stage mode inheritance, stop-on-failure, unknown-stage-role stop, zero stages, rolling team-memory write (summarized + prior-seeded + fallback), <code>/teams run</code> command output (stages + final result, unknown team, usage)</td>
 </tr>
 <tr>
-<td><code>test_team_tool.py</code></td>
-<td><code>team</code> tool: schema/registration (<code>category delegate</code>, <code>loop</code>), pipeline run + final result + sub-sessions, unknown team / no stages / unknown stage role errors, resolver allow/deny/ask per stage role, clamped-stage note, <code>run_team</code> cycle + depth guards, <code>_team_depth</code>/<code>_team_stack</code> propagation, full agent-loop team call</td>
+<td><code>test_delegate_tool.py</code></td>
+<td><code>delegate</code> tool: schema/registration (<code>category delegate</code>, <code>loop</code>), pipeline run + final result + sub-sessions, unknown team / no stages / unknown stage role errors, resolver allow/deny/ask per stage role, clamped-stage note, <code>run_team</code> cycle + depth guards, <code>_team_depth</code>/<code>_team_stack</code> propagation, full agent-loop team call</td>
 </tr>
 <tr>
 <td><code>test_teams.py</code></td>
@@ -1436,7 +1468,7 @@
 </tr>
 <tr>
 <td><code>test_tool_policy.py</code></td>
-<td><code>ToolPolicy</code>: allow/ask/deny, worktree escalation, deny/allowlist precedence, per-invocation resolver (refines non-deny base, skipped without args, cannot override deny list)</td>
+<td><code>ToolPolicy</code>: allow/ask/deny, worktree escalation, deny/allowlist precedence, per-invocation resolver (refines non-deny base, skipped without args, cannot override deny list), read-mode cap (listed key allowed, unlisted/unknown denied, deny beats grant)</td>
 </tr>
 <tr>
 <td><code>test_tool_registry.py</code></td>

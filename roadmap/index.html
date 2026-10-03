@@ -361,17 +361,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#modes-first-redesign" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Modes-first redesign
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1009,6 +998,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/plugins/" class="md-nav__link">
         
   
@@ -1411,17 +1428,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#modes-first-redesign" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Modes-first redesign
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1688,51 +1694,8 @@
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
-<h2 id="modes-first-redesign">Modes-first redesign<a class="headerlink" href="#modes-first-redesign" title="Permanent link">&para;</a></h2>
-<p>Modes become the only posture: <code>read</code> by default, <code>write</code> on request. A simple prompt-based chat can read, search, and offload context to read-only siblings, while writing, named-role calls, teams, and permission grants sit behind an explicit mode switch. Root roles and the assistant persona are removed, and tool access is classified by permission key, fail-closed.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Access classification - config <code>access.read_tools</code> by permission key (unknown key is write), <code>free</code>/<code>read</code>/<code>write</code> classes, mode cap applied last and inherited by sub-agents</td>
-<td>M</td>
-<td>a fail-closed, plugin-safe access model</td>
-</tr>
-<tr>
-<td><code>read</code>/<code>write</code> modes + rename - hard rename of <code>plan</code>/<code>build</code>, default <code>read</code>, any unknown mode value falls back to <code>read</code>; prompt color and <code>/mode</code> switch</td>
-<td>M</td>
-<td>one posture switch</td>
-</tr>
-<tr>
-<td>Mode-capped grants - clamp the grant ceiling by the mode cap, deny a permission ask in <code>read</code>, redirect to a <code>direction</code> ask for a mode switch</td>
-<td>M</td>
-<td>no grant cascade, one operator decision</td>
-</tr>
-<tr>
-<td>Tool taxonomy - <code>offload</code> (sibling), <code>call</code> (named role), <code>delegate</code> (named team); <code>offload_depth</code>; role-less sub-engine</td>
-<td>M-L</td>
-<td>clear delegation vocabularies</td>
-</tr>
-<tr>
-<td>Drop root roles - remove <code>assistant</code>/<code>assistant_role</code>/<code>bind_root_agent</code>; the root is <code>system_prompt</code> + mode</td>
-<td>M</td>
-<td>no opaque root authority</td>
-</tr>
-<tr>
-<td>Headless default - jobs/<code>run</code>/<code>serve</code> default <code>read</code> and set their mode explicitly</td>
-<td>S</td>
-<td>batch runs stay explicit</td>
-</tr>
-</tbody>
-</table>
 <h2 id="run-control-and-sub-run-visibility">Run control and sub-run visibility<a class="headerlink" href="#run-control-and-sub-run-visibility" title="Permanent link">&para;</a></h2>
-<p>A running team or delegate blocks the terminal. The status line is now interruptible (Enter pauses, interactive prompts are never hidden), so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.</p>
+<p>A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.</p>
 <table>
 <thead>
 <tr>

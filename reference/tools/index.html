@@ -700,6 +700,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -1454,6 +1482,13 @@
 <td>Ask the human or the lead agent for a decision, pausing until answered</td>
 </tr>
 <tr>
+<td><code>call</code></td>
+<td>core</td>
+<td><code>call</code></td>
+<td><code>call</code></td>
+<td>Run a task under a named role as a sub-agent</td>
+</tr>
+<tr>
 <td><code>catalog</code></td>
 <td>core</td>
 <td><code>catalog</code></td>
@@ -1486,7 +1521,7 @@
 <td>core</td>
 <td><code>delegate</code></td>
 <td><code>delegate</code></td>
-<td>Run a task under a role as a sub-agent</td>
+<td>Run a named team (an ordered chain of role stages) and return the final stage's answer</td>
 </tr>
 <tr>
 <td><code>file_edit</code></td>
@@ -1552,18 +1587,18 @@
 <td>List a directory (<code>depth</code> for trees, alias <code>ls</code>)</td>
 </tr>
 <tr>
+<td><code>offload</code></td>
+<td>core</td>
+<td><code>offload</code></td>
+<td><code>offload</code></td>
+<td>Hand a self-contained sub-task to an anonymous read-only sibling</td>
+</tr>
+<tr>
 <td><code>run_command</code></td>
 <td>polyglav-core-exec</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run a shell command with timeout (aliases <code>bash</code>, <code>exec</code>). Restricted by <code>tool_permission.bash_allow</code></td>
-</tr>
-<tr>
-<td><code>team</code></td>
-<td>core</td>
-<td><code>delegate</code></td>
-<td><code>team</code></td>
-<td>Run a named team (an ordered chain of agent-type stages) and return the final stage's answer</td>
 </tr>
 <tr>
 <td><code>web_fetch</code></td>
@@ -1583,7 +1618,7 @@
 </table>
 <p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>noise_tools</code>, and session logging. See <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="asking-the-human-or-the-lead">Asking the human or the lead<a class="headerlink" href="#asking-the-human-or-the-lead" title="Permanent link">&para;</a></h2>
-<p>The <code>ask</code> tool (core, like <code>delegate</code>) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>target</code>, <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
+<p>The <code>ask</code> tool (core, like <code>call</code>) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>target</code>, <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
 <ul>
 <li><code>target='human'</code> (default) - the operator answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its <code>sub_&lt;...&gt;</code> session name so the operator knows who is asking (delegation and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues.</li>
 <li><code>target='lead'</code> - the role or engine that delegated this run decides. The lead answers through a lightweight non-streaming consultation (a bounded prompt with the question, context, options, and the sub-agent's delegated task), not a full parent turn. A root engine has no lead, so <code>target='lead'</code> falls back to <code>human</code>, and <code>human</code> falls back to <code>lead</code> when no terminal is reachable.</li>
@@ -1620,15 +1655,15 @@
 </tr>
 <tr>
 <td><code>category</code></td>
-<td><code>ask</code> / <code>catalog</code> / <code>delegate</code> / <code>exec</code> / <code>handoff</code> / <code>mcp</code> / <code>read</code> / <code>search</code> / <code>todo</code> / <code>write</code> - drives the default activity glyph and verb</td>
+<td><code>ask</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>exec</code> / <code>handoff</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>search</code> / <code>todo</code> / <code>write</code> - drives the default activity glyph and verb</td>
 </tr>
 <tr>
 <td><code>permission</code></td>
-<td>The <code>tool_permission</code> key that gates the tool: <code>bash</code> / <code>catalog</code> / <code>edit</code> / <code>handoff</code> / <code>list</code> / <code>mcp</code> / <code>read</code> / <code>team</code> / <code>vcs</code> / <code>web</code></td>
+<td>The <code>tool_permission</code> key that gates the tool: <code>bash</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>edit</code> / <code>handoff</code> / <code>list</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>vcs</code> / <code>web</code></td>
 </tr>
 <tr>
 <td><code>permission_fn</code></td>
-<td>Optional <code>Callable[[dict], str]</code> resolving the action (<code>allow</code>/<code>ask</code>/<code>deny</code>) from the current arguments - refines a non-<code>deny</code> base action at call time, or returns <code>None</code> to defer to the category action (see <code>delegate</code>, <code>git_commit</code>)</td>
+<td>Optional <code>Callable[[dict], str]</code> resolving the action (<code>allow</code>/<code>ask</code>/<code>deny</code>) from the current arguments - refines a non-<code>deny</code> base action at call time, or returns <code>None</code> to defer to the category action (see <code>call</code>, <code>git_commit</code>)</td>
 </tr>
 <tr>
 <td><code>path_arg</code></td>
@@ -1664,7 +1699,7 @@
 </tr>
 <tr>
 <td><code>loop</code></td>
-<td>When true, <code>/tool &lt;name&gt;</code> runs the tool as a real agent-loop turn (<code>Engine.chat_tool</code>) - the tool call and result persist, then the model streams its final answer. Used by <code>delegate</code> so a <code>/tool delegate</code> plan, results, and answer land in the session and a later prompt can continue the work. Direct <code>ToolRegistry.execute()</code> calls are unaffected</td>
+<td>When true, <code>/tool &lt;name&gt;</code> runs the tool as a real agent-loop turn (<code>Engine.chat_tool</code>) - the tool call and result persist, then the model streams its final answer. Used by <code>call</code> so a <code>/tool call</code> plan, results, and answer land in the session and a later prompt can continue the work. Direct <code>ToolRegistry.execute()</code> calls are unaffected</td>
 </tr>
 <tr>
 <td><code>confirm</code></td>
@@ -1717,10 +1752,10 @@
 <ol>
 <li><strong>Name-level</strong> - <code>tools.deny</code> (always denied) and <code>tools.allow</code> (when non-empty, it is an allowlist, so everything else is denied).</li>
 <li><strong>Category action</strong> - the <code>tool_permission.&lt;key&gt;</code> action for the tool's <code>permission</code> key. <code>deny</code> here is final, skips the resolver, and filters the tool from the provider schema and from tool listings, not just direct calls.</li>
-<li><strong>Per-invocation resolver</strong> - a tool may declare a <code>permission_fn</code> that overrides a non-<code>deny</code> base action from its current arguments, and returning <code>None</code> defers to the category action. It is skipped when the base action is <code>deny</code> and when no arguments are available, so schema filtering (<code>allowed()</code>) keeps the tool visible for <code>ask</code>/<code>allow</code> categories. <code>delegate</code> resolves per role: a configured role uses its own <code>tool_permission</code> with <code>delegate</code> defaulting to <code>allow</code>, a role outside the registry is <code>deny</code>. <code>git_commit</code> defers to the <code>vcs</code> category except for <code>all=true</code>, which asks.</li>
+<li><strong>Per-invocation resolver</strong> - a tool may declare a <code>permission_fn</code> that overrides a non-<code>deny</code> base action from its current arguments, and returning <code>None</code> defers to the category action. It is skipped when the base action is <code>deny</code> and when no arguments are available, so schema filtering (<code>allowed()</code>) keeps the tool visible for <code>ask</code>/<code>allow</code> categories. <code>call</code> resolves per role: a configured role uses its own <code>tool_permission</code> with <code>call</code> defaulting to <code>allow</code>, a role outside the registry is <code>deny</code>. <code>git_commit</code> defers to the <code>vcs</code> category except for <code>all=true</code>, which asks.</li>
 <li><strong>Worktree escalation</strong> - <code>read</code> / <code>list</code> / <code>write</code> tools pointing outside the project worktree escalate from <code>allow</code> to <code>ask</code>.</li>
 </ol>
-<p>Modes (<a href="../config/">config.md</a>) layer over the base policy: a mode's <code>tool_permission</code> merges over the base (mode wins per key), its <code>tools.deny</code> appends, and its <code>tools.allow</code> replaces when non-empty. The built-in <code>plan</code> mode denies the <code>edit</code> and <code>bash</code> categories, so write and exec tools are filtered from the schema and refused on direct calls. Switch with <code>/mode &lt;name&gt;</code> in the REPL or <code>--mode &lt;name&gt;</code> on <code>polyglav run</code> / <code>polyglav serve</code>.</p>
+<p>The mode (<a href="../modes/">modes.md</a>) is the outermost bound, applied last, after grants and per-invocation resolvers. <code>read</code> (default) denies every permission key not listed in config <code>access.read_tools</code>, so write, exec, commit, MCP, and delegation tools are filtered from the schema and refused on direct calls. <code>write</code> leaves write keys to <code>tool_permission</code>, still bounded by each key's action. A mode may also set <code>system_prompt</code>/<code>color</code> and append <code>tools.deny</code> or replace <code>tools.allow</code> in its spec. An unknown <code>mode</code> falls back to <code>read</code>. Switch with <code>/mode &lt;name&gt;</code> in the REPL or <code>--mode &lt;name&gt;</code> on <code>polyglav run</code> / <code>polyglav serve</code>.</p>
 <h3 id="worktree">Worktree<a class="headerlink" href="#worktree" title="Permanent link">&para;</a></h3>
 <p>The worktree is the directory holding the local <code>.polyglav/</code>, which is the launch directory, or <code>--path</code>. Launching from <code>~</code> makes the whole home directory the worktree, so subdirectories (including other projects) do not escalate. Launch inside the project or pass <code>--path</code> for project-scoped prompting. <code>bash</code> defaults to <code>ask</code>, so every <code>run_command</code> confirms unless <code>tool_permission.bash = "allow"</code>.</p>
 <p>In headless mode (<code>run</code> / <code>serve</code>), <code>ask</code>-gated tools are denied outright (<code>--yes</code> / <code>--no</code> override), so an agent's reachable surface is exactly its <code>allow</code> tools on paths inside its worktree.</p>
@@ -1825,7 +1860,7 @@
 <p>Handlers read config at runtime via the <code>_config</code> keyword argument, passed only when declared.</p>
 <p>See <a href="../config/">config.md</a> for the <code>tools.allow</code>, <code>tools.deny</code>, and <code>tool_permission</code> keys, and <a href="../security/">security.md</a> for the threat model.</p>
 <h2 id="status-and-activity-lines">Status and activity lines<a class="headerlink" href="#status-and-activity-lines" title="Permanent link">&para;</a></h2>
-<p>Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, <code>&lt;glyph&gt; &lt;verb&gt; &lt;key_arg&gt;</code> (e.g. <code>← Read README.md</code>, <code>→ Write test.md</code>, <code>$ Run pytest</code>), gated by <code>glyph_lines</code> (default <code>true</code>). Category defaults map to glyphs: read <code>←</code> Read, write <code>→</code> Write, search <code>%</code> Search, exec <code>$</code> Run, ask <code>~</code> Ask, todo <code>-</code> Todo, delegate <code>↳</code> Call. Unmapped categories fall back to the <code>[tool: key_arg]</code> oneliner plus any <code>status</code> detail lines. Filesystem tools use the <code>*</code> glyph with distinct verbs: <code>* Glob</code>, <code>* List</code>, <code>* Grep</code>.</p>
+<p>Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, <code>&lt;glyph&gt; &lt;verb&gt; &lt;key_arg&gt;</code> (e.g. <code>← Read README.md</code>, <code>→ Write test.md</code>, <code>$ Run pytest</code>), gated by <code>glyph_lines</code> (default <code>true</code>). Category defaults map to glyphs: read <code>←</code> Read, write <code>→</code> Write, search <code>%</code> Search, exec <code>$</code> Run, ask <code>~</code> Ask, todo <code>-</code> Todo, call <code>↳</code> Call, delegate <code>↳</code> Delegate, offload <code>↳</code> Offload. Unmapped categories fall back to the <code>[tool: key_arg]</code> oneliner plus any <code>status</code> detail lines. Filesystem tools use the <code>*</code> glyph with distinct verbs: <code>* Glob</code>, <code>* List</code>, <code>* Grep</code>.</p>
 <p>When <code>glyph_params</code> is on (default <code>true</code>), the parameters the model passed (excluding the one already shown in the label) are appended: <code>← Read engine.py [offset=299, limit=85]</code>, <code>$ Run pytest [cwd=/workspace, timeout=600]</code>. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving.</p>
 <p>When a tool call fails, the first line of its <code>Error:</code> result is echoed as a dimmed <code>! Error: ...</code> line under the activity line (gated by <code>show_errors</code>, default <code>true</code>). This applies to every tool through the shared dispatch point: the agent loop, <code>/tool</code>, and policy-denied calls alike.</p>
 <p>Soft tool results (short one-line informational notes a tool returns instead of content, like <code>(empty file)</code>, <code>(empty directory)</code>, <code>(no matches for "x")</code>, <code>(end of content)</code>, or <code>No search results found.</code>) surface as a dimmed info line under the activity line (gated by <code>show_notes</code>, default <code>true</code>). A tool opts in by declaring a <code>note</code> predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.</p>

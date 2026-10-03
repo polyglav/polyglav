@@ -885,6 +885,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/" class="md-nav__link">
         
   
@@ -1495,7 +1523,7 @@
 <tr>
 <td><code>/mode</code></td>
 <td></td>
-<td>Show or switch the agent mode (<code>/mode plan</code> = read-only, <code>/mode build</code>, or a custom mode)</td>
+<td>Show or switch the agent mode for this session (<code>read</code> = read-only, <code>write</code>). Persist with <code>/config mode &lt;value&gt;</code>. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>/model</code></td>
@@ -1574,8 +1602,8 @@
 </tr>
 </tbody>
 </table>
-<p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so plan mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions.</p>
-<p>Delegation is a normal tool: the lead agent proposes it, or you run it directly, and <code>/tool delegate {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role delegates without prompting (<code>delegate</code> defaults to <code>allow</code>. Set a role's <code>delegate</code> to <code>ask</code> to confirm), and a role outside the registry is denied. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
+<p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions.</p>
+<p>Delegation is a normal tool: the lead agent proposes it, or you run it directly, and <code>/tool call {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool delegate {"name": "...", "task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
 </code></pre></div>
@@ -1630,7 +1658,7 @@
 </tr>
 <tr>
 <td><code>--mode</code></td>
-<td>Agent mode override (<code>plan</code>, <code>build</code>, or a custom mode)</td>
+<td>Agent mode override (<code>read</code> or <code>write</code>)</td>
 </tr>
 <tr>
 <td><code>--output</code></td>
@@ -1821,7 +1849,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span>reload<span class=
 <tr>
 <td><code>--mode</code></td>
 <td></td>
-<td>Agent mode override (<code>plan</code>, <code>build</code>, or a custom mode)</td>
+<td>Agent mode override (<code>read</code> or <code>write</code>)</td>
 </tr>
 </tbody>
 </table>

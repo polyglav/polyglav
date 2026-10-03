@@ -767,6 +767,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/plugins/" class="md-nav__link">
         
   
@@ -1254,12 +1282,6 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] Access classification - config <code>access.read_tools</code> keyed by permission key, unknown key defaults to write; <code>free</code>/<code>read</code>/<code>write</code> classes; the mode cap is applied last and inherited by sub-agents</li>
-<li>[ ] <code>read</code>/<code>write</code> modes - hard rename of <code>plan</code>/<code>build</code>, default <code>read</code>, any unknown mode value falls back to <code>read</code> with a warning; prompt color and <code>/mode</code> switch (session-scoped, <code>/config</code> persists)</li>
-<li>[ ] Mode-capped grants - clamp the grant ceiling by the mode cap; a permission ask in <code>read</code> is denied and redirected to a <code>direction</code> ask for a mode switch</li>
-<li>[ ] Tool taxonomy - <code>offload</code> (sibling, inherits the caller's cap), <code>call</code> (named role, write), <code>delegate</code> (named team, write); <code>offload_depth</code>; role-less sub-engine</li>
-<li>[ ] Drop root roles - remove <code>assistant</code>/<code>assistant_role</code>/<code>bind_root_agent</code>; the root is <code>system_prompt</code> + mode</li>
-<li>[ ] Headless default - jobs/<code>run</code>/<code>serve</code> default <code>read</code> and set their mode explicitly</li>
 <li>[ ] Dev tool fallback - <code>code_lint</code>/<code>code_format</code> report a clear setup hint when the configured linter/formatter (<code>ruff</code>) is absent, and honor the <code>dev.lint_cmd</code>/<code>dev.format_cmd</code> overrides</li>
 <li>[ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</li>
 <li>[ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate</li>
@@ -1365,6 +1387,15 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Headless modes - run/serve default read, jobs add records write unless set</li>
+<li>[x] Root roles dropped - root is <code>system_prompt</code> + mode, no assistant persona</li>
+<li>[x] Delegation taxonomy - <code>call</code> (named role), <code>delegate</code> (team), <code>offload</code> (role-less sibling)</li>
+<li>[x] Mode-capped grants - grants only in write, read asks redirect to a mode switch</li>
+<li>[x] Sub-agents inherit the caller mode, a stage cannot escalate it</li>
+<li>[x] Mode-gated catalog writes and MCP tools - read mode cannot mutate the catalog or reach MCP</li>
+<li>[x] Session-scoped mode switch - <code>/mode</code> per session, <code>/config mode</code> persists</li>
+<li>[x] Fail-closed access classification - <code>access.read_tools</code> by permission key, mode cap applied last</li>
+<li>[x] Read/write modes replace plan/build, read default, unknown falls back to read with a warning</li>
 <li>[x] Renamed sub-engine <code>_lead</code> reference to <code>_caller</code></li>
 <li>[x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash</li>
 <li>[x] Root role grant permission applied by <code>bind_root_agent</code></li>

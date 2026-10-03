@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0400-2026-10-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.40.0 - 2026-10-03
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0390-2026-10-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1174,6 +1185,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/plugins/" class="md-nav__link">
         
   
@@ -1563,6 +1602,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0400-2026-10-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.40.0 - 2026-10-03
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0390-2026-10-03" class="md-nav__link">
@@ -2011,6 +2061,17 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0400-2026-10-03">v0.40.0 - 2026-10-03<a class="headerlink" href="#v0400-2026-10-03" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Root without a persona - the root agent is <code>config.system_prompt</code> plus the mode. Removed <code>assistant</code>, <code>assistant_role</code>, <code>bind_root_agent</code>, and the bundled assistant role, so the REPL starts untyped and roles are delegation targets only. <code>prompt_role</code> still names the active role for a focused sub-run. Docs (<code>docs/modes.md</code>, <code>roles.md</code>, <code>architecture.md</code>, <code>config.md</code>). Tests: <code>tests/test_focus.py</code>, <code>tests/test_roles.py</code>, <code>tests/test_handoff.py</code></li>
+<li>Explicit headless modes - <code>polyglav run</code> and <code>polyglav serve</code> default to read, and <code>polyglav jobs add</code> records an explicit mode that defaults to write (as does a supervisor job), so scheduled work still acts. Docs (<code>docs/jobs.md</code>, <code>commands.md</code>, <code>config.md</code>). Tests: <code>tests/test_jobs.py</code></li>
+<li>Delegation vocabulary - the old <code>delegate</code> (a named role) is now <code>call</code>, the old <code>team</code> is now <code>delegate</code>, and a new <code>offload</code> hands a self-contained sub-task to an anonymous role-less sibling. <code>call</code> and <code>delegate</code> are write-class, <code>offload</code> is read-class. A sibling inherits the caller's mode and cannot exceed its cap, and <code>offload_depth</code> (default 1) stops an <code>offload</code> sibling from spawning another without asking. Docs (<code>docs/modes.md</code>, <code>tools.md</code>, <code>swarm.md</code>, <code>teams.md</code>, <code>roles.md</code>). Tests: <code>tests/test_call.py</code>, <code>tests/test_delegate_tool.py</code>, <code>tests/test_offload.py</code></li>
+<li>Grants only in write mode - permission grants are disabled in read mode, where a permission ask redirects to a session mode switch the operator approves (or, headless, points at <code>ask(kind='direction')</code>). The grant ceiling now derives from the mode: <code>write</code> makes write keys grantable, <code>read</code> denies them, and the config <code>grant_permission</code> default is now empty (a role or config may still narrow). Sub-agents inherit the caller's mode and a team stage can no longer escalate it. Docs (<code>docs/modes.md</code>, <code>config.md</code>, <code>security.md</code>). Tests: <code>tests/test_delegation_permissions.py</code>, <code>tests/test_ask.py</code>, <code>tests/test_subagent.py</code></li>
+<li>Read and write modes - <code>plan</code>/<code>build</code> are replaced by <code>read</code> (default) and <code>write</code>. <code>read</code> allows read-class tools only and denies writes, exec, commits, MCP, and delegation, while <code>write</code> gates write keys by <code>tool_permission</code>. Any unknown mode value resolves to <code>read</code> with a warning, and the prompt color still signals the posture (cyan read, orange write). Docs (<code>docs/modes.md</code>, <code>config.md</code>, <code>commands.md</code>). Tests: <code>tests/test_modes.py</code>, <code>tests/test_commands.py</code>, <code>tests/test_focus.py</code></li>
+<li>Fail-closed access classification - tools are classed by permission key from config <code>access.read_tools</code>, and any key not listed is write-class (unknown and new plugin keys included). The read cap is applied last, after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. Docs (<code>docs/modes.md</code>, <code>config.md</code>, <code>security.md</code>, <code>tools.md</code>). Tests: <code>tests/test_tool_policy.py</code>, <code>tests/test_modes.py</code></li>
+<li>Session-scoped mode switch - the active mode lives on the session and is recorded on every turn, so <code>/mode &lt;name&gt;</code> changes the current session's posture without rewriting the config, <code>/config mode &lt;value&gt;</code> persists it, and a loaded session keeps its mode. Docs (<code>session.md</code>, <code>commands.md</code>). Tests: <code>tests/test_session_log.py</code>, <code>tests/test_commands.py</code></li>
+<li>Catalog and MCP gating - catalog <code>save</code>/<code>remove</code>/<code>reload</code> and the MCP connect/disconnect tools plus the imported remote tools are write-class, while catalog <code>list</code>/<code>show</code> and <code>mcp_list</code> stay read, so read mode cannot mutate the catalog or reach MCP. Tests: <code>tests/test_catalog.py</code>, <code>plugins/polyglav-core-mcp/tests/test_mcp.py</code></li>
+</ul>
 <h2 id="v0390-2026-10-03">v0.39.0 - 2026-10-03<a class="headerlink" href="#v0390-2026-10-03" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Clearer caller reference - a sub-engine's back-reference to the engine that delegated it is now <code>_caller</code> (was <code>_lead</code>), so it does not collide with the <code>leader</code> role. The public <code>ask</code> target stays <code>'lead'</code>. Docs (<code>AGENTS.md</code>, <code>testing.md</code>). Tests: <code>tests/test_ask.py</code></li>
