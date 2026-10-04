@@ -29,30 +29,30 @@ Small operator-picked REPL changes, one commit each.
 
 ## Self-development team enablement
 
-The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the shipped team catalogs and the described workflow.
+The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the project catalogs and the described workflow.
 
 | Task | Effort | Provides |
 |------|--------|----------|
 | Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message | M | commits during a run |
 | Saved-session catalog in `/load` - `/load` lists and loads saved sessions, `/focus` stays live-runs-only, so an operator reattaches to a prior agent after a restart | S-M | switch to any prior agent |
 | Ask continuation - answering a parked ask resumes and continues its origin run in place, not only injecting the answer into the session | M | reply to stacked questions and continue |
-| Handoff from sub-agents - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root | M | automatic agent-to-agent handoff |
-| Researcher role with fresh context - a bundled researcher role with web access, started fresh per task | S | clean research per task |
+| Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, with onboarding asking whether to enable it | M | automatic agent-to-agent handoff |
+| Researcher role with fresh context - a researcher role template with web access, started fresh per task | S | clean research per task |
 | Docs writer commits each added task - commit the tasks right after the operator's prompt, then work one point at a time | S | tasks land as agreed |
 
 ## Memory and role instructions
 
-The leader remembers the operator's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.
+A delegated role remembers the user's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.
 
 | Task | Effort | Provides |
 |------|--------|----------|
 | Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
-| Root role memory - inject role memory in `bind_root_agent` through a shared compose helper | S | the leader remembers across runs |
+| Role memory for delegated roles - inject role memory in `_new_sub_engine` through a shared compose helper, with a refresh path | S | a role remembers across runs |
 | Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files | S-M | no duplicated reads |
 | `memorize` as a tool - memory writes through a tool an agent calls | S-M | memory the agent maintains |
 | Conclusion stage - a write-scoped stage that distills a finished run into role files, skills, or memory, and never commits | M | self-improvement loop |
 
-Known gap: `bind_root_agent` applies the role prompt only when `config.origin('system_prompt') == 'default'`, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with `_new_sub_engine`, respect the `origin` guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates. The modes-first redesign removes root roles entirely, so root-role memory folds into role memory for delegated roles only; land it after that redesign or re-scope it there.
+The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.
 
 ## Role boundaries, skills, and project knowledge
 
@@ -60,10 +60,22 @@ A role's file and folder access is a config rule, not a prompt, and a skill is t
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy | M | enforced role boundaries |
 | `.polyglav` directory layout - reserved subfolders and file names, documented | S-M | a predictable state layout |
 | Skill definition and catalog review - tool, language, or framework skills, with a `python` skill and a `polyglav` skill, project description moved to `AGENTS.md` | M | reusable skills |
 | Hidden files and allowed roots - hide secrets and config from tools by default, restrict visible paths | M | no accidental exposure |
+
+## Agent catalog, permissions, and presentation
+
+The catalog grows the fields and rule shapes an agent needs to be a first-class, self-describing profile: resource-scoped access, presentation, kind, durable approvals, and a Markdown catalogue for teams and skills.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Ordered resource-scoped permission rules - `{action, resource, effect}`, wildcards, last match wins, multi-file deny | M | policy-enforced boundaries |
+| Agent kind and default agent - root/delegated/both plus a default startup role | S-M | role selection by kind |
+| Agent presentation and limits - `color`, `hidden`, `disabled`, and a step cap | S | a first-class agent profile |
+| Durable approvals and a hard-deny layer - project-scoped `always` grants, exact-args, deny-only policy | M | approvals that outlive a run |
+| Markdown catalogue for teams and skills - JSON index plus Markdown body, migrated | M | portable, editable catalogs |
+| Per-agent request overlays - request headers and body overlay per role | S-M | per-agent request tuning |
 
 ## Output log and status legibility
 
