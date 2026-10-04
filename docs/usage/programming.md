@@ -265,7 +265,7 @@ git -C ~/polyglav-agents/workspace/repo worktree remove ~/polyglav-agents/worksp
 
 The fleet above isolates roles by process, worktree, and container. A lighter setup needs no Docker at all: one REPL caller agent delegates tasks to role sub-agents, and the sub-agent's final answer is handed back.
 
-The bundled `programming` team (`planner`, `programmer`, `tester`, `code-reviewer`) ships with system prompts and per-role permissions (see [roles.md](../roles.md) and [swarm.md](../swarm.md)). Delegation defaults to `allow`, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific type (for example, to keep write-heavy work gated), override only its `delegate` field in the local role catalog (`.polyglav/roles.json`):
+A `programming` team (`planner`, `programmer`, `tester`, `code-reviewer`) carries system prompts and per-role permissions (see [roles.md](../roles.md) and [swarm.md](../swarm.md)). Delegation defaults to `allow`, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific type (for example, to keep write-heavy work gated), override only its `delegate` field in the local role catalog (`.polyglav/roles.json`):
 
 ```json
 {

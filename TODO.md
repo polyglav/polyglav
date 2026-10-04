@@ -12,7 +12,7 @@
 - One runtime, many agents - position Polyglav as an agent harness for fleets, not a single assistant
 - ACP inward and outward - speak the Agent Client Protocol so Polyglav can host and be hosted by other harnesses, alongside MCP
 - Commands as tools - expose slash commands to the model as permission-gated tools to configure roles, teams, and skills, with command access limited per permission
-- Markdown catalogue - store roles, teams, and skills as Markdown files (front matter) referenced from JSON, and move the bundled data files (`src/polyglav/*.json`) into one catalogue directory near `src`
+- Markdown catalogue for teams and skills - store them as Markdown (front matter) referenced from JSON, with roles already done, in one catalogue directory
 - Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots
 - Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.polyglav/tmp/` referenced from the session log
 - Context UI polish - auto-compaction, context trim, highlighting, and context desaturation
@@ -56,6 +56,12 @@
 
 ## Open
 
+- [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
+- [ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a `default_agent` config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called
+- [ ] Agent presentation and limits - a role carries `color` (prompt and status accent), `hidden` (omit from listings and the delegation catalog), and `disabled` (remove a lower-layer role), plus a per-role step cap that drops the tool schema on the final step and asks the model to summarize
+- [ ] Durable approvals and a hard-deny layer - a confirm offers once/always/reject, `always` saves a project-scoped rule that survives the sub-agent run, an exact-args approval records the specific command or path rather than the whole tool, and a policy layer can turn any allow/ask into deny but never grant
+- [ ] Markdown catalogue for teams and skills - extend the JSON-index plus Markdown-body model to teams and skills, with one catalogue directory and migration from the JSON files
+- [ ] Per-agent request overlays - a role sets request headers and a JSON body overlay applied to its provider calls, for per-agent temperature or routing, with providers that ignore them degrading gracefully
 - [ ] Dev tool fallback - `code_lint`/`code_format` report a clear setup hint when the configured linter/formatter (`ruff`) is absent, and honor the `dev.lint_cmd`/`dev.format_cmd` overrides
 - [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files
 - [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
@@ -68,20 +74,19 @@
 - [ ] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden
 - [ ] Batched structured asks - `ask` handles one question at a time, so several decisions cannot be asked in one call
 - [ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work
-- [ ] Researcher role with fresh context - a bundled researcher role with web access, started fresh for every task so research never inherits stale context
-- [ ] Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy rather than by a prompt
+- [ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context
 - [ ] `.polyglav` directory layout - decide and document the reserved subfolders and file names under `.polyglav/`
 - [ ] Skill definition - a skill holds tool, language, or framework instructions, not a project description
-- [ ] Skill catalog review - rework the bundled and local skills against that definition, add a `python` skill and a `polyglav` skill, and move project-description text into `AGENTS.md`
+- [ ] Skill catalog review - rework the project and local skills against that definition, add a `python` skill and a `polyglav` skill, and move project-description text into `AGENTS.md`
 - [ ] `AGENTS.md` as the project description - keep it the single project description and update it when the structure, conventions, or extension points change
 - [ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing
 - [ ] `memorize` as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
 - [ ] Root role memory - inject `.polyglav/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
-- [ ] Conclusion stage - a bundled stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
+- [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/focus` stays live-runs-only
 - [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
-- [ ] Handoff from sub-agents - a team stage or delegated agent can hand focus to the next agent (composer > planner > developer), not only the REPL root
+- [ ] Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it; onboarding asks whether to enable auto-focus
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
@@ -100,8 +105,8 @@
 - [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
 - [ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs
 - [ ] Assistant-roles track docs - record the assistant, composer, and manager architecture and the work packages in VISION, PLAN, and TODO
-- [ ] Core dev team configuration - a bundled development team with the review loop plus the project lead/support teams and their skills
-- [ ] Manager role - a bundled role that runs one or many teams and reports, sequential first
+- [ ] Core dev team configuration - a development team with the review loop plus the project lead/support teams and their skills
+- [ ] Manager role - a role that runs one or many teams and reports, sequential first
 - [ ] Per-job report destination - a `report_url` (or connector list) on a job so different jobs report to different endpoints, instead of one global `report.webhook`
 - [ ] Per-task decide-vs-park for `direction` asks - a task class (or per-run switch) that lets the supervisor auto-resolve a direction ask after a timeout instead of always parking it for the operator
 - [ ] Full `file_*` namespace extension - if `file_glob`/`file_grep` prove better with most models, extend the prefix to `list_dir`/`glob`/`grep` (old names stay aliases)
