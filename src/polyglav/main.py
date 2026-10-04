@@ -170,7 +170,7 @@ def _add_jobs_parser(sub):
                     help='Max seconds for a run (0 = no cap)')
     ga.add_argument('--require-approval', action='store_true',
                     help='Arm only one run per approve - each run parks in waiting_approval '
-                         'until a human approves it')
+                         'until a user approves it')
     ga.add_argument('--approve-model', action='store_true',
                     help='Approve the model referenced by --role (or --model) '
                          'without prompting')
@@ -182,7 +182,7 @@ def _add_jobs_parser(sub):
                              'runs teams, parks questions, and reports back')
     gsup.add_argument('name')
     gsup.add_argument('--task', default='',
-                      help='Task prompt (default: lead the work and report back)')
+                      help='Task prompt (default: direct the work and report back)')
     gsup.add_argument('--file', help='Task file (default .polyglav/jobs/<name>.md, '
                       'created from a supervisor template)')
     gsup_sched = gsup.add_mutually_exclusive_group()
@@ -274,7 +274,7 @@ def main(argv=None):
     parser.add_argument('--path', '-p', help='Project path (default: current directory)')
     parser.add_argument('--unattended', action='store_true',
                         help='Run the REPL without touching stdin from any depth '
-                             '(confirms auto-deny, human asks route to the lead or '
+                             '(confirms auto-deny, user asks route to the caller or '
                              'return without pausing)')
     parser.add_argument('--version', '-v', action='version',
                         help='Print version and exit', version=_version())

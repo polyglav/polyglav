@@ -95,7 +95,7 @@ polyglav fleet config code-agent \
   --role programmer
 ```
 
-`--role` resolves the role (bundled + global + local registry) and inlines its `system_prompt`, `model`, and `tool_permission` into the generated keys, so the running agent needs no roles registry of its own. An unknown role aborts the write. `--approve-model` pre-approves the model referenced by `--role` or `--model` in the global models registry, so the headless serve agent can use it without prompting. Agent config is operator-managed: `polyglav fleet config` is the only intended writer, and a `serve` process has no config-write CLI path today. An engine-level guard making served agents immutable is an open TODO (see TODO).
+`--role` resolves the role (bundled + global + local registry) and inlines its `system_prompt`, `model`, and `tool_permission` into the generated keys, so the running agent needs no roles registry of its own. An unknown role aborts the write. `--approve-model` pre-approves the model referenced by `--role` or `--model` in the global models registry, so the headless serve agent can use it without prompting. Agent config is user-managed: `polyglav fleet config` is the only intended writer, and a `serve` process has no config-write CLI path today. An engine-level guard making served agents immutable is an open TODO (see TODO).
 
 ### Deployment
 

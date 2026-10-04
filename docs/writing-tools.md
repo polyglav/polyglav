@@ -56,7 +56,7 @@ Registration metadata drives more than the schema. It shapes confirmation, displ
 | `refine` | Rewrites a short `query` via a lightweight model call before `web_search` runs, so vague queries still work |
 | `permission` / `permission_fn` | Gates the call with `allow` (no prompt), `ask` (Y/n confirm), or `deny`. `permission_fn` resolves per invocation from the arguments, overriding a non-`deny` category action or returning `None` to defer to it (see `delegate`, `git_commit`) |
 | `path_arg` | Marks the filesystem path parameter so worktree escalation applies |
-| `key_arg` | The argument shown in confirm prompts and activity lines, so the human sees what will happen |
+| `key_arg` | The argument shown in confirm prompts and activity lines, so the user sees what will happen |
 | `aliases` / `param_aliases` | Absorb model-dialect tool and argument names at call time without advertising them |
 | `note` | A predicate marking soft one-line results (`(no matches)`, `(empty file)`) so they render as a dimmed note, not an error |
 | `status` / `echo` / `glyph` / `verb` | Ephemeral REPL activity lines (`* Grep`, `↓ Fetch`) and result previews that never reach the session log |
@@ -68,7 +68,7 @@ Full reference in [tools.md](tools.md). The policy and worktree rules that gate 
 Error responses are guidance, not telemetry. When a call fails, tell the model what to do instead.
 
 - Start with `Error:` and a one-line actionable message. Polyglav's filesystem tools set the pattern: `Error: X is a directory (use list_dir instead)`, `Error: X is not a directory (use file_read instead)`, `Error: file not found: X`. Each suggests the correct tool.
-- Do not return tracebacks or opaque codes. The first line of an `Error:` result echoes dimmed in the REPL, so the model and the human see the same guidance.
+- Do not return tracebacks or opaque codes. The first line of an `Error:` result echoes dimmed in the REPL, so the model and the user see the same guidance.
 - Use a `note` predicate for informational one-liners that are not failures. `(no matches for "x")`, `(empty file)`, `(end of content)`, and `No search results found.` are normal outcomes. A dimmed note beats a red error line.
 
 ## Evaluating your tools

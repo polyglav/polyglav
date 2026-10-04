@@ -1,6 +1,6 @@
 # Sessions
 
-Sessions are complete, append-only conversation logs. Every turn (the operator prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's `.polyglav/sessions/` directory. Entries are never removed. Compaction only trims the provider context, never the log.
+Sessions are complete, append-only conversation logs. Every turn (the user prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's `.polyglav/sessions/` directory. Entries are never removed. Compaction only trims the provider context, never the log.
 
 ## Where sessions live
 
@@ -18,7 +18,7 @@ Session files carry a kind prefix so the kinds stay distinguishable at a glance:
 
 The trailing `<id>` is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The `session_id` is the stable run handle: each run mirrors it as `Run.session_id`, `/focus` and `/history` show it, and commands accept it as `#<id>` (`/focus #ab12cd`, `handoff` target `#ab12cd`, `/history --run #ab12cd`, `/print --run #ab12cd`). Resolution is a direct filename glob for `*_<id>.json`, so an id is found without reading every session. The `ses_`, `job_`, and `sub_` kinds carry an id. Explicit names carry no id and are referenced by `session:<name>`. Files written before the `session_name`/`session_id` fields were introduced no longer load (the file is left on disk and stays listed).
 
-Delegation writes each sub-agent's log as its own session: `sub_<ts>_<id>` (`sub_20260817_120100_cd34ef`), with the calling session recorded as `parent_id` rather than in the filename. Job runs use `job_<ts>_<id>`, with the job name still recorded in the job registry and each run's `JobRun.session`. A caller may resume a run or session explicitly with `delegate`/`team` `resume=...` and `context=continue|compact|new`, which appends to that run's own log instead of minting a new one. These live in the same `.polyglav/sessions/` directory and are regular sessions, listed by `/sessions` (annotated with their parent), exportable, and loadable, so lead and sub-agent logs stay separate and complete.
+Delegation writes each sub-agent's log as its own session: `sub_<ts>_<id>` (`sub_20260817_120100_cd34ef`), with the calling session recorded as `parent_id` rather than in the filename. Job runs use `job_<ts>_<id>`, with the job name still recorded in the job registry and each run's `JobRun.session`. A caller may resume a run or session explicitly with `delegate`/`team` `resume=...` and `context=continue|compact|new`, which appends to that run's own log instead of minting a new one. These live in the same `.polyglav/sessions/` directory and are regular sessions, listed by `/sessions` (annotated with their parent), exportable, and loadable, so caller and sub-agent logs stay separate and complete.
 
 Each session also records the agent `role` that owns it (the bound root role, the delegated role, the team-stage role, or the job role), stamped at creation. That makes a run reconstructable from its log even after the process exits. A plain root or a headless run with no `--role` leaves `role` empty.
 
@@ -48,7 +48,7 @@ The current session auto-saves after every turn and command, so nothing is lost 
 
 `/history` lists the active session's turns as a numbered index, one line per turn: `#<index>  [<status>]  <duration>  <tool count>  <prompt>`. The index is the turn's absolute `index`, so a turn can be named later regardless of the listing limit. `/history 3` shows the last three turns, `/history all` every turn, and `--thoughts` adds a dim first-line excerpt of the turn's thinking (`--thoughts all` prints the full thinking text). `/history --run <#id|#run|role|session:name|name>` reads another run's session without switching focus or the current session: a session id (`#ab12cd`) resolves to a live run first, otherwise the saved `ses_` session, a numeric run id (`#3`) resolves to the live focused run when present, otherwise the saved session, a role resolves to the live run with that role or the saved session, and a name resolves to the saved session (files without the current turn format read as not found).
 
-`/print <n>` reprints the turn with that absolute index: the full turn metadata block (`#index`, status, duration, tool count, `started`/`ended`, model, provider, mode, reasoning, with empty values shown as `-`, so even a command turn is self-describing), then each part: the operator prompt, thinking (dim), every tool call with `input` JSON, `output`, `is_error`, and `analysis`, the answer, command records (a compaction summary included), and system notes. `/print <n>.<m>` prints only the m-th part of turn n. Each part's text is capped at `print_max_chars` characters (default 4000) with `... (N more chars, use --full)` appended, and `--full` (or `print_max_chars: 0`) removes the cap. `/print` takes the same `--run <#id|#run|role|session:name|name>` selector as `/history`, resolving through the same rules without switching focus or the current session.
+`/print <n>` reprints the turn with that absolute index: the full turn metadata block (`#index`, status, duration, tool count, `started`/`ended`, model, provider, mode, reasoning, with empty values shown as `-`, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with `input` JSON, `output`, `is_error`, and `analysis`, the answer, command records (a compaction summary included), and system notes. `/print <n>.<m>` prints only the m-th part of turn n. Each part's text is capped at `print_max_chars` characters (default 4000) with `... (N more chars, use --full)` appended, and `--full` (or `print_max_chars: 0`) removes the cap. `/print` takes the same `--run <#id|#run|role|session:name|name>` selector as `/history`, resolving through the same rules without switching focus or the current session.
 
 ## Exporting to Markdown
 
@@ -98,7 +98,7 @@ The headless CLI `polyglav export <name> [--out <file>]` reuses the same rendere
 
 ## Turn and part schema
 
-A turn is one operator prompt (or one slash command) and the agent's response to it. It holds the turn-level context and an ordered list of parts:
+A turn is one user prompt (or one slash command) and the agent's response to it. It holds the turn-level context and an ordered list of parts:
 
 | Turn field | Description |
 |------------|-------------|
@@ -114,7 +114,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 
 | Part type | Fields | Description |
 |-----------|--------|-------------|
-| `user` | `text` | An operator prompt |
+| `user` | `text` | An user prompt |
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
 | `tool` | `name`, `input`, `output`, `is_error`, `analysis` | One tool call and its result, co-located. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is the optional one-line model insight (`tool_analysis` config) |
@@ -168,7 +168,7 @@ A command and a compaction record:
 
 A `command` part with a `summary` is a compaction record: `summary` holds the text and `compact_from` the turn `index` where the kept portion starts. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
 
-Answering a parked ask (`/asks answer <id> <text>` or `POST /asks/<id>/answer` on `polyglav serve`) appends a `user` part `[answer to parked ask #<id>] <answer>` to the ask's origin session, so the next turn on that session resumes with the operator's decision in context. See [config.md](config.md#unattended-mode).
+Answering a parked ask (`/asks answer <id> <text>` or `POST /asks/<id>/answer` on `polyglav serve`) appends a `user` part `[answer to parked ask #<id>] <answer>` to the ask's origin session, so the next turn on that session resumes with the user's decision in context. See [config.md](config.md#unattended-mode).
 
 ## Errors
 

@@ -63,12 +63,12 @@ Imported tools are named `<prefix>.<tool>` (e.g. `github.list_issues`) and inher
 - Treat server-provided tool descriptions and schemas as untrusted metadata.
 - stdio spawns arbitrary commands from your config. Only configure servers you trust.
 - HTTP servers are contacted over the network. Credentials in `headers` are sent as-is.
-- Every imported tool call routes through `ToolPolicy` (`mcp: ask` by default), giving a human confirmation in the REPL before the remote call runs.
+- Every imported tool call routes through `ToolPolicy` (`mcp: ask` by default), giving a user confirmation in the REPL before the remote call runs.
 - Tool results are logged to the session like any tool result.
 
 ## Server
 
-The server exposes Polyglav's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows `ToolPolicy`. `ask` tools run directly (the external MCP client is the human-in-the-loop and shows its own confirmations) unless `mcp_server.allow_ask` is `false`, which refuses them.
+The server exposes Polyglav's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows `ToolPolicy`. `ask` tools run directly (the external MCP client is the user-in-the-loop and shows its own confirmations) unless `mcp_server.allow_ask` is `false`, which refuses them.
 
 ### stdio (`polyglav mcp`)
 

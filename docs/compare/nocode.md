@@ -6,7 +6,7 @@ A **no-code** tool is turnkey: you install it or open it, configure agents and p
 
 Polyglav is a terminal harness, and it is designed to feel simple from the first keystroke. The `assistant` root is a single conversational entry point: it introduces itself on first run, answers small tasks inline, and takes on bigger work by delegating to sub-agents and teams. You talk to one assistant, and the machinery stays out of sight.
 
-For operators who want control, Polyglav stays open and local. Everything runs on your machine, the configuration is plain text, and every action is recorded in an auditable session log. That is the trade no-code products cannot offer: the same friendly conversation, but with a self-hosted, inspectable, scriptable runtime behind it.
+For users who want control, Polyglav stays open and local. Everything runs on your machine, the configuration is plain text, and every action is recorded in an auditable session log. That is the trade no-code products cannot offer: the same friendly conversation, but with a self-hosted, inspectable, scriptable runtime behind it.
 
 ## Representatives
 

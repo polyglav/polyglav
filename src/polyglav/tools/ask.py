@@ -2,14 +2,14 @@ from typing import Callable
 
 
 _ASK_SYSTEM = (
-    'You are the lead agent coordinating delegated agents. A sub-agent asks you '
+    'You are the caller agent coordinating delegated agents. A sub-agent asks you '
     'for a decision or permission. Answer concisely with just the decision, and '
     'add a one-line reason only if it helps. Do not ask questions back; commit '
     'to the decision the sub-agent needs.'
 )
 
 _PERMISSION_SYSTEM = (
-    'You are the lead agent coordinating delegated agents. A sub-agent asks for '
+    'You are the caller agent coordinating delegated agents. A sub-agent asks for '
     'permission to use a tool. Decide whether to grant one use. Answer with '
     '"yes" or "no" as the first word, and add a one-line reason only if it '
     'helps. Do not ask questions back; commit to the decision.'
@@ -17,7 +17,7 @@ _PERMISSION_SYSTEM = (
 
 _NO_ANSWER = ('[cancelled] No answer given - decide autonomously or return the '
               'question as an open item')
-_NO_ONE = ('Error: ask has no one to answer (no lead agent and no interactive '
+_NO_ONE = ('Error: ask has no one to answer (no caller agent and no interactive '
            'terminal) - decide autonomously or return the question as an open item')
 
 _PERMISSION_OPTIONS = ['Approve once', 'Approve always', 'Deny']
@@ -53,7 +53,7 @@ def _park(engine, question: str, context: str, options: list,
                         kind=kind, permission=permission)
     except Exception:
         return _NO_ONE
-    return (f'[parked] Ask #{ask.id} parked for the operator '
+    return (f'[parked] Ask #{ask.id} parked for the user '
             f'(session {ask.origin}); continue or return the question '
             'as an open item')
 
@@ -145,7 +145,7 @@ def _ask_permission(engine, question: str, context: str, options: list,
                 return (f'[granted] Write mode enabled for this session - '
                         f'retry "{permission}".')
             return (f'[denied] Permission "{permission}" needs write mode, '
-                    'which the operator declined.')
+                    'which the user declined.')
         if engine._is_unattended():
             return _park(engine, prompt, context or '',
                          ['Approve (switch to write)', 'Deny'],
@@ -160,10 +160,10 @@ def _ask_permission(engine, question: str, context: str, options: list,
     ask_policy = engine.config.get('ask_policy') or {}
     route = str(ask_policy.get('permission', 'auto'))
     if cap == 'ask':
-        route = 'human'
+        route = 'user'
     if route == 'deny':
         return f'[denied] Permission "{permission}" grants are disabled.'
-    if route == 'human':
+    if route == 'user':
         ui = getattr(engine, '_ask_ui', None)
         if ui is not None:
             answer = ui.ask(question, context=context or '',
@@ -174,11 +174,11 @@ def _ask_permission(engine, question: str, context: str, options: list,
             scope = _permission_scope(answer)
             if scope in ('once', 'always'):
                 engine.grant_permission(permission, key, scope=scope,
-                                        origin='human')
+                                        origin='user')
                 return f'[granted] Permission "{permission}" approved ({scope}).'
             if scope == 'deny':
                 return (f'[denied] Permission "{permission}" declined by the '
-                        'operator.')
+                        'user.')
             return _NO_ANSWER
         if engine._is_unattended():
             return _park(engine, question, context or '', options or [],
@@ -194,7 +194,7 @@ def _ask_permission(engine, question: str, context: str, options: list,
                                     origin='supervisor')
             return (f'[granted] Permission "{permission}" approved for one '
                     'use.')
-        return f'[denied] Permission "{permission}" not approved by the lead.'
+        return f'[denied] Permission "{permission}" not approved by the caller.'
     return _NO_ONE
 
 
@@ -203,12 +203,12 @@ def register_ask_tool(registry, engine) -> Callable:
         name='ask',
         description=(
             "Ask a question and pause until it is answered, to get a decision or "
-            "permission mid-run instead of leaving it open. With target='human' "
-            "the operator answers at the terminal. With target='lead' the agent "
+            "permission mid-run instead of leaving it open. With target='user' "
+            "the user answers at the terminal. With target='caller' the agent "
             "type or engine that delegated this run decides. For a permission "
             "request set kind='permission' and name the tool or category in "
             "permission; an approved request grants one use (or the rest of the "
-            "run when the operator grants it). Use it when a choice cannot be "
+            "run when the user grants it). Use it when a choice cannot be "
             "resolved from the task alone, then continue from the answer."
         ),
         parameters={
@@ -234,9 +234,9 @@ def register_ask_tool(registry, engine) -> Callable:
                 },
                 'target': {
                     'type': 'string',
-                    'enum': ['human', 'lead'],
-                    'description': "'human' asks the operator at the terminal (or the "
-                                   "lead agent when headless). 'lead' asks the agent "
+                    'enum': ['user', 'caller'],
+                    'description': "'user' asks the user at the terminal (or the "
+                                   "caller agent when headless). 'caller' asks the agent "
                                    "type or engine that delegated this run to decide.",
                 },
                 'kind': {
@@ -257,18 +257,18 @@ def register_ask_tool(registry, engine) -> Callable:
         category='ask',
         permission='ask',
         key_arg='question',
-        short='Ask the human or the lead agent for a decision',
+        short='Ask the user or the caller agent for a decision',
         confirm=False,
     )
     def ask(question: str, context: str = '', options: list | None = None,
-            target: str = 'human', kind: str = 'direction',
+            target: str = 'user', kind: str = 'direction',
             permission: str = '', _config=None) -> str:
         if kind == 'permission' and permission:
             return _ask_permission(engine, question, context or '',
                                    options or [], permission)
         ui = getattr(engine, '_ask_ui', None)
         caller = getattr(engine, '_caller', None)
-        if target == 'lead':
+        if target == 'caller':
             if caller is not None:
                 answer = _caller_answer(engine, question, context or '', options or [])
                 if answer is not None:

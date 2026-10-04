@@ -32,7 +32,7 @@ A Python framework for role-based agent teams, where each agent has a role, goal
 A broad framework for composing LLM calls, tools, retrievers, and memory, with a large integration surface. It is a toolkit for assembling exactly the pipeline you need.
 
 ### LangGraph
-LangChain's low-level orchestration runtime built on a state graph, with durable checkpointers, interrupts for human-in-the-loop, and long-running execution. It gives fine-grained control over every step.
+LangChain's low-level orchestration runtime built on a state graph, with durable checkpointers, interrupts for user-in-the-loop, and long-running execution. It gives fine-grained control over every step.
 
 ### LlamaIndex
 A data framework for connecting LLMs to data, with indexes, retrievers, and RAG pipelines. It is the tool for retrieval-heavy applications.

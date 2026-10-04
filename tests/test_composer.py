@@ -18,7 +18,7 @@ class TestComposerType(unittest.TestCase):
                              'edit': 'deny', 'delegate': 'deny',
                              'list': 'allow', 'read': 'allow',
                              'web': 'allow'},
-            ask_policy={'permission': 'auto', 'direction': 'human'}))
+            ask_policy={'permission': 'auto', 'direction': 'user'}))
 
     def tearDown(self):
         self.chat._tmp.cleanup()

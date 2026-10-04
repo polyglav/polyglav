@@ -176,7 +176,7 @@ class TestNoEscalation(unittest.TestCase):
                            scope='local')
             sup = chat._new_sub_engine('supervisor')
             sup._init_tooling()
-            sup.grant_permission('bash', 'bash', scope='always', origin='human')
+            sup.grant_permission('bash', 'bash', scope='always', origin='user')
             child = sup._new_sub_engine('worker')
             child._init_tooling()
             self.assertFalse(child._tool_policy.has_grant('run_command', 'bash'))
@@ -260,7 +260,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_grants_once(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='yes'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -275,7 +275,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_grants_always_and_reuses(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='yes always'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -288,7 +288,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_declined(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='no'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -300,7 +300,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_numbered_approve_grants_once(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='1'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -313,7 +313,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_numbered_approve_always(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='2'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -325,7 +325,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_numbered_deny(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='3'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -337,7 +337,7 @@ class TestAskPermission(unittest.TestCase):
     def test_human_route_approve_phrase_grants(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            sub = self._worker(chat, ask_policy={'permission': 'human'})
+            sub = self._worker(chat, ask_policy={'permission': 'user'})
             with patch('builtins.input', return_value='Approve bash for this run'):
                 out = sub._run_tool('ask', {
                     'question': 'q', 'kind': 'permission', 'permission': 'bash'})
@@ -387,7 +387,7 @@ class TestGrantLifecycle(unittest.TestCase):
             names = [s['function']['name'] for s in engine._tool_schema()]
             self.assertNotIn('run_command', names)
             engine.grant_permission('run_command', 'bash', scope='once',
-                                    origin='human')
+                                    origin='user')
             names = [s['function']['name'] for s in engine._tool_schema()]
             self.assertIn('run_command', names)
             out = engine._run_tool('run_command', {'command': 'echo hi'})
@@ -403,12 +403,12 @@ class TestGrantLifecycle(unittest.TestCase):
         try:
             engine._init_tooling()
             engine.grant_permission('run_command', 'bash', scope='once',
-                                    origin='human')
+                                    origin='user')
             engine._run_tool('run_command', {'command': 'echo hi'})
             grants = [p for p in engine.current_session.permissions
                       if p.get('action') == 'grant']
             self.assertTrue(any(p.get('scope') == 'once' for p in grants))
-            self.assertTrue(any(p.get('granted_by') == 'human' for p in grants))
+            self.assertTrue(any(p.get('granted_by') == 'user' for p in grants))
         finally:
             engine._tmp.cleanup()
 
@@ -417,7 +417,7 @@ class TestGrantLifecycle(unittest.TestCase):
         try:
             engine._init_tooling()
             engine.grant_permission('run_command', 'bash', scope='always',
-                                    origin='human')
+                                    origin='user')
             engine._run_tool('run_command', {'command': 'echo one'})
             engine._run_tool('run_command', {'command': 'echo two'})
             self.assertTrue(engine._tool_policy.has_grant('run_command', 'bash'))

@@ -38,7 +38,7 @@ curl localhost:8787/sessions
 
 ## GET /asks
 
-Lists parked asks. Unattended runs park `ask target='human'` instead of blocking or erroring, see [config.md](config.md#unattended-mode). Each entry carries `id`, `question`, `context`, `options`, `origin` (the session that parked it), `kind` (`direction`/`permission`), `permission`, `status` (`pending`/`answered`), `answer`, and timestamps.
+Lists parked asks. Unattended runs park `ask target='user'` instead of blocking or erroring, see [config.md](config.md#unattended-mode). Each entry carries `id`, `question`, `context`, `options`, `origin` (the session that parked it), `kind` (`direction`/`permission`), `permission`, `status` (`pending`/`answered`), `answer`, and timestamps.
 
 ```bash
 curl localhost:8787/asks

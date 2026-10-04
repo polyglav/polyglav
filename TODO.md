@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] User/caller terminology - ask targets `user`/`caller`, direction `user`, `user` wording
 - [x] Markdown role instructions - JSON index plus `.polyglav/roles/<name>.md` body prompt
 - [x] Onboarding plugin and startup hook - first-run setup writes config; /onboard reruns
 - [x] Bundled roles and teams removed - no catalog ships, layers are plugin/global/local only

@@ -128,7 +128,7 @@ class TestAskTool(unittest.TestCase):
             'content': 'Proceed with B'}
         sub._init_tooling()
         out = sub._run_tool('ask', {'question': 'which option?',
-                                    'target': 'lead'})
+                                    'target': 'caller'})
         self.assertEqual(out, 'Proceed with B')
         self.chat.provider.chat_nonstreaming.assert_called_once()
         msgs = self.chat.provider.chat_nonstreaming.call_args.args[0]
@@ -141,17 +141,17 @@ class TestAskTool(unittest.TestCase):
         self.chat.provider.chat_nonstreaming.return_value = {'content': None}
         sub._init_tooling()
         with patch('builtins.input', return_value='from human'):
-            out = sub._run_tool('ask', {'question': 'q', 'target': 'lead'})
+            out = sub._run_tool('ask', {'question': 'q', 'target': 'caller'})
         self.assertEqual(out, 'from human')
 
     def test_lead_target_at_root_falls_back_to_human(self):
         self.chat._init_tooling()
         self.assertIsNone(self.chat._caller)
-        with patch('builtins.input', return_value='operator decision'):
-            out = self.chat._run_tool('ask', {'question': 'q', 'target': 'lead'})
-        self.assertEqual(out, 'operator decision')
+        with patch('builtins.input', return_value='user decision'):
+            out = self.chat._run_tool('ask', {'question': 'q', 'target': 'caller'})
+        self.assertEqual(out, 'user decision')
 
-    def test_subagent_human_ask_reaches_operator(self):
+    def test_subagent_user_ask_reaches_user(self):
         self.chat.roles.put(
             Role(name='w', system_prompt='Writer agent'), scope='local')
         sub = self.chat._new_sub_engine('w')

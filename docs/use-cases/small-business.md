@@ -1,4 +1,4 @@
-# Small business and solo operators
+# Small business and solo users
 
 Small companies get the core properties an enterprise pays a lot for: complete audit logging, data on your own machine, and no vendor lock-in, with no IT department required. One process runs on the office PC or a single small server and serves the whole team over the HTTP API. The shared foundation is in [index.md](index.md).
 
@@ -13,9 +13,9 @@ Small companies get the core properties an enterprise pays a lot for: complete a
 
 - **Small manufacturers and workshops**. Quality documentation, layered process audit checklists, batch and deviation records, and work instructions searchable in plain language. The audit-first design in [enterprise.md](enterprise.md) applies at any scale: start read-only and gate any write.
 - **Service businesses**. Recurring client reports, job summaries, and documentation drafted from your own records, with sources cited. `polyglav run` schedules these headlessly and is cron-friendly, so reporting stops eating the week.
-- **Consultants and solo operators**. Research, proposal and deliverable drafting, and a complete client-facing paper trail. Sessions double as the project history you can hand over.
+- **Consultants and solo users**. Research, proposal and deliverable drafting, and a complete client-facing paper trail. Sessions double as the project history you can hand over.
 - **Startups**. Internal knowledge, onboarding docs, and support and release notes generated from the codebase and history. The developer guide covers team-specific patterns in [developer.md](developer.md).
-- **Back office**. Admin queries against spreadsheets and documents, standard letters, and filing summaries, with write actions kept human-approved.
+- **Back office**. Admin queries against spreadsheets and documents, standard letters, and filing summaries, with write actions kept user-approved.
 
 ## Gaps and planned
 

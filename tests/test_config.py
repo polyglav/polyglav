@@ -195,10 +195,10 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(modes['write'], DEFAULT_CONFIG['modes']['write'])
 
     def test_partial_ask_policy_keeps_default_keys(self):
-        self.write_local({'ask_policy': {'direction': 'lead'}})
+        self.write_local({'ask_policy': {'direction': 'user'}})
         c = Config(path=str(self.project))
         self.assertEqual(c.get('ask_policy'),
-                         {'permission': 'auto', 'direction': 'lead'})
+                         {'permission': 'auto', 'direction': 'user'})
 
     def test_partial_memory_scopes_keeps_default_keys(self):
         self.write_local({'memory_scopes': {'job': False}})

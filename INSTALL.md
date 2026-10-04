@@ -85,7 +85,7 @@ curl localhost:8787/chat -X POST -d '{"prompt": "Hi"}'
 
 ### Swarm - roles, skills, and teams
 
-A lead agent (or you) hands a task to a specialized role, or runs a named team stage-by-stage. Each sub-agent runs in-process, writes its own session log, and returns its final answer. The REPL shows its dimmed activity and a duration footer while it works. Roles are model- and permission-scoped: a researcher is read-only, a programmer may run shell. A team adds order, per-stage skills, a shared memory file, and an optional review loop.
+A caller agent (or you) hands a task to a specialized role, or runs a named team stage-by-stage. Each sub-agent runs in-process, writes its own session log, and returns its final answer. The REPL shows its dimmed activity and a duration footer while it works. Roles are model- and permission-scoped: a researcher is read-only, a programmer may run shell. A team adds order, per-stage skills, a shared memory file, and an optional review loop.
 
 ```
 >>> /roles list
@@ -99,7 +99,7 @@ See [docs/swarm.md](docs/swarm.md), [docs/teams.md](docs/teams.md), and [docs/ro
 
 ### Jobs - scheduled durable work
 
-Jobs are human-gated workflows: `add` proposes, `approve` arms it, and the daemon fires it on schedule. The task lives in a Markdown file edited in `$EDITOR`. A rolling memory summary carries context between runs.
+Jobs are user-gated workflows: `add` proposes, `approve` arms it, and the daemon fires it on schedule. The task lives in a Markdown file edited in `$EDITOR`. A rolling memory summary carries context between runs.
 
 ```bash
 polyglav jobs add nightly --file tasks/nightly.md --cron "0 2 * * *"

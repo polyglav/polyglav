@@ -30,12 +30,12 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/tool`                 |                | Run a tool directly (`/tool <name> {"key": "value"}`)          |
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `show <name>`, `new <name> [prompt]`, `remove <name>`. See [roles.md](roles.md) |
-| `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, human asks route to the lead or return without pausing. See [config.md](config.md#unattended-mode) |
+| `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, user asks route to the caller or return without pausing. See [config.md](config.md#unattended-mode) |
 | `/version`              | `/v`           | Show the Polyglav version                                       |
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions.
 
-Delegation is a normal tool: the lead agent proposes it, or you run it directly, and `/tool call {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role is called without prompting (`call` defaults to `allow`. Set a role's `call` to `ask` to confirm), and a role outside the registry is denied. A named team runs with `/tool delegate {"name": "...", "task": "..."}`. See [roles.md](roles.md) and [swarm.md](swarm.md).
+Delegation is a normal tool: the caller agent proposes it, or you run it directly, and `/tool call {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role is called without prompting (`call` defaults to `allow`. Set a role's `call` to `ask` to confirm), and a role outside the registry is denied. A named team runs with `/tool delegate {"name": "...", "task": "..."}`. See [roles.md](roles.md) and [swarm.md](swarm.md).
 
 ## CLI
 
@@ -150,7 +150,7 @@ Run polyglav as an MCP server over stdio (newline-delimited JSON-RPC). See [mcp.
 
 ### `polyglav jobs`
 
-Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, a human-in-the-loop approval gate, and recorded run history. See [jobs.md](jobs.md).
+Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, a user-in-the-loop approval gate, and recorded run history. See [jobs.md](jobs.md).
 
 | Subcommand    | Description                                                              |
 |---------------|--------------------------------------------------------------------------|

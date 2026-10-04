@@ -645,7 +645,7 @@ class Engine:
             limit = int(self.config.get('offload_depth', 1) or 0)
             if limit and getattr(self, '_offload_depth', 0) >= limit:
                 raise ValueError(
-                    'offload depth limit reached - ask the operator before '
+                    'offload depth limit reached - ask the user before '
                     'spawning another sibling')
         if agent_role is not None and agent_role.model:
             ref = self.unfold_ref(agent_role.model)
