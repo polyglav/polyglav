@@ -73,7 +73,7 @@ class ChatHandler(BaseHTTPRequestHandler):
         server = self.server
         with server.lock:
             server.engine.load_or_create_session(session_name)
-            result = server.engine.chat(prompt)
+            result = server.engine.chat(prompt, origin='api')
         self._send(200, result.to_dict())
 
     def do_GET(self):

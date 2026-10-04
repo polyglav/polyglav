@@ -277,7 +277,7 @@ class ScriptedEngine:
         self.current_session = SimpleNamespace(session_name=session)
         self.prompts = []
 
-    def chat(self, prompt):
+    def chat(self, prompt, origin=''):
         self.prompts.append(prompt)
         if not self.outcomes:
             return TurnResult(status='ok', content='', session=self.current_session.session_name)
@@ -412,7 +412,7 @@ class TestScheduler(unittest.TestCase):
                 self.current_session = SimpleNamespace(session_name='job.t')
                 self.prompts = []
 
-            def chat(self, prompt):
+            def chat(self, prompt, origin=''):
                 self.prompts.append(prompt)
                 time.sleep(5)
                 return TurnResult(status='ok', content='late', session='job.t')

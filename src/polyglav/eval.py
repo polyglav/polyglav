@@ -158,7 +158,7 @@ def run_fixture(fixture: EvalFixture, source: Config | None = None,
         engine = Engine(Config(path=str(worktree)), ui=ui, provider=provider)
         try:
             os.chdir(worktree)
-            result = engine.chat(fixture.task)
+            result = engine.chat(fixture.task, origin='eval')
         finally:
             os.chdir(cwd)
         trace = list(result.tool_calls or [])

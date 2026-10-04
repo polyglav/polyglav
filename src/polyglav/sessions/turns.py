@@ -44,8 +44,12 @@ def _part(kind: str, timestamp: str | None = None, **fields) -> dict:
     return {'type': kind, 'timestamp': timestamp or _now(), **fields}
 
 
-def user_part(text: str, timestamp: str | None = None) -> dict:
-    return _part('user', text=text, timestamp=timestamp)
+def user_part(text: str, timestamp: str | None = None,
+              origin: str = '') -> dict:
+    part = _part('user', text=text, timestamp=timestamp)
+    if origin and origin != 'user':
+        part['origin'] = origin
+    return part
 
 
 def text_part(text: str, timestamp: str | None = None) -> dict:
