@@ -12,6 +12,13 @@ DIM = '\033[90m'
 RESET = '\033[0m'
 
 
+def prompt_origin(part: dict) -> str:
+    origin = str(part.get('origin') or '').strip()
+    if not origin or origin == 'user':
+        return 'User'
+    return origin[:1].upper() + origin[1:]
+
+
 def turn_summary(turn: dict, thoughts: bool | str = False) -> str:
     lines = [_turn_line(turn)]
     if thoughts:
@@ -62,7 +69,8 @@ def _render_part(part: dict, turn: dict) -> list[str]:
     kind = part.get('type')
     ts = part.get('timestamp', '')
     if kind == 'user':
-        return [f'### User - {ts}', '', str(part.get('text') or '')]
+        return [f'### {prompt_origin(part)} - {ts}', '',
+                str(part.get('text') or '')]
     if kind == 'text':
         return _render_text(part, turn, ts)
     if kind == 'thinking':
@@ -228,7 +236,8 @@ def _meta(value) -> str:
 def _part_lines(part: dict, full: bool, cap: int) -> list[str]:
     kind = part.get('type')
     if kind == 'user':
-        return ['[user]', *_body(str(part.get('text') or ''), full, cap)]
+        return [f'[{prompt_origin(part).lower()}]',
+                *_body(str(part.get('text') or ''), full, cap)]
     if kind == 'text':
         return ['[assistant]', *_body(str(part.get('text') or ''), full, cap)]
     if kind == 'system':

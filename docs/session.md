@@ -114,7 +114,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 
 | Part type | Fields | Description |
 |-----------|--------|-------------|
-| `user` | `text` | An user prompt |
+| `user` | `text`, `origin` | A user prompt. `origin` records who sent it: absent or `user` for the person, a role name for a delegated prompt |
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
 | `tool` | `name`, `input`, `output`, `is_error`, `analysis` | One tool call and its result, co-located. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is the optional one-line model insight (`tool_analysis` config) |

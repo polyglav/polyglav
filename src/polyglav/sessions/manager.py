@@ -101,9 +101,10 @@ class Session:
         self._touch()
         return part
 
-    def add_user(self, text: str, timestamp: str | None = None, **meta) -> dict:
+    def add_user(self, text: str, timestamp: str | None = None,
+                 origin: str = '', **meta) -> dict:
         self.start_turn(**meta)
-        return self.add_part(turns.user_part(text, timestamp))
+        return self.add_part(turns.user_part(text, timestamp, origin))
 
     def add_system(self, text: str, timestamp: str | None = None) -> dict:
         return self.add_part(turns.system_part(text, timestamp))

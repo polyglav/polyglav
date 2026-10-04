@@ -676,7 +676,7 @@ class Engine:
             label = f'{stack[-1]}: {role_name}'
         self.ui.status_begin(f'{label}...')
         try:
-            result = sub.chat(task)
+            result = sub.chat(task, origin=self.role or 'root')
         except Exception:
             self.ui.status_end()
             self.runs.finish(sub.current_run.id, 'error')
@@ -1023,14 +1023,15 @@ class Engine:
             'reasoning': self.config.get('reasoning'),
         }
 
-    def chat(self, text: str) -> TurnResult:
+    def chat(self, text: str, origin: str = '') -> TurnResult:
         if getattr(self, '_provider_error', None):
             return TurnResult(status='error',
                               errors=[{'code': '', 'message': self._provider_error}],
                               session=self.current_session.session_name)
         now = datetime.now(timezone.utc)
         self.current_session.add_user(
-            text, timestamp=now.isoformat(timespec='seconds'), **self._turn_meta()
+            text, timestamp=now.isoformat(timespec='seconds'), origin=origin,
+            **self._turn_meta()
         )
         self.session_auto_save()
 
