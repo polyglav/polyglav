@@ -54,6 +54,10 @@ Fields:
 - `tool_permission` - optional per-agent overrides of `tool_permission` categories. The per-agent permission profile.
 - `grant_permission` - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in `write`, denied in `read`), and this only narrows it. See [Delegation and permissions](#delegation-and-permissions).
 - `ask_policy` - optional per-role override of the `ask` routing by kind (`permission`/`direction`), merged over the config `ask_policy`. See [config.md](config.md#ask_policy).
+- `description` - optional short summary, shown by `/roles show` and the `catalog` tool.
+- `instructions` - optional Markdown file name under `.polyglav/roles/` (or `~/.config/polyglav/roles/`) that holds the role's long system prompt. It defaults to `<name>.md` when that file exists. The file body becomes `system_prompt`, and its YAML-like frontmatter can fill any field the JSON entry leaves unset. Frontmatter values are JSON (`tags: ["writing"]`, `tool_permission: {"bash": "deny"}`). The JSON entry stays authoritative: a `system_prompt` or field set there wins over the file.
+
+Writing a role through `/roles new` or the `catalog` tool stores the prompt in `.polyglav/roles/<name>.md` and leaves a short entry (with an `instructions` reference) in `roles.json`.
 
 ## Command
 

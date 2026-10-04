@@ -46,7 +46,6 @@ The leader remembers the operator's instructions across runs, long role instruct
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Role instruction files - `.polyglav/roles/<name>.md` referenced from the JSON entry and appended verbatim | M | full-length role instructions |
 | Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
 | Root role memory - inject role memory in `bind_root_agent` through a shared compose helper | S | the leader remembers across runs |
 | Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files | S-M | no duplicated reads |
