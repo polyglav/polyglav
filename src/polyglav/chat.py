@@ -58,6 +58,16 @@ class ChatLoop(Engine):
         self.focus = FocusManager(self)
         self._load_history(config)
         self._setup_readline()
+        self._run_startup()
+
+    def _run_startup(self):
+        hooks: list = []
+        self._plugin_manager.register_startup(hooks)
+        for hook in hooks:
+            try:
+                hook(self)
+            except Exception:
+                pass
 
     def active(self) -> Engine:
         focus = getattr(self, 'focus', None)

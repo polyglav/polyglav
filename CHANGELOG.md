@@ -2,6 +2,7 @@
 
 ## v0.41.0
 
+- Added first-run onboarding - a new `register_startup` plugin hook runs a `callable(chat)` once when the REPL starts, and the bundled `polyglav-core-onboarding` plugin uses it to ask about the project and the assistant, then writes the local config (`system_prompt`, `focus_on_delegate`, `prompt_role`). It runs only when `.polyglav/config.json` is absent, skips unattended and non-interactive runs, and re-runs on demand through `/onboard`. Docs (`plugins.md`, `AGENTS.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`, `test_bundled_plugins.py`
 - Removed bundled roles and teams - the package ships no role or team catalog, so a fresh install starts with an empty one that the operator or an agent fills through the `catalog` tool or `/roles new` and `/teams new`. Roles and teams now merge from plugin, global, and local layers only (`roles.py`, `teams.py`), `/roles` and `/teams` no longer report a `bundled` origin, and the `catalog` tool no longer special-cases bundled entries. A project keeps its tuned catalog under `.polyglav/` (the Polyglav repo tracks its own for self-development). Docs (`roles.md`, `teams.md`, `swarm.md`, `architecture.md`, `AGENTS.md`). Tests: `test_roles.py`, `test_teams.py`, `test_catalog.py`, `test_composer.py`, plus shared role fixtures in the delegation, focus, and handoff suites
 
 ## v0.40.0 - 2026-10-03

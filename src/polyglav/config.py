@@ -112,6 +112,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-groq',
         'polyglav-core-mcp',
         'polyglav-core-ollama',
+        'polyglav-core-onboarding',
         'polyglav-core-openai',
         'polyglav-core-opencode',
         'polyglav-core-web',

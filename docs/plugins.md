@@ -10,7 +10,7 @@ Plugins extend Polyglav with **tools**, **providers**, **slash commands**, and *
 | `~/.config/polyglav/plugins/` | global, all projects | middle |
 | `.polyglav/plugins/` | local to a project | highest (wins on name collision) |
 
-First-party plugins ship with polyglav and are listed in the default `plugins` config, so they are active out of the box. `polyglav-core-web` provides `web_search` and `web_fetch`. `polyglav-core-webhook` provides the job report-back connector (`report.webhook`). `polyglav-core-fs` provides `file_read`, `list_dir`, `file_write`, `glob`, and `grep`. `polyglav-core-exec` provides `run_command`. `polyglav-core-mcp` provides the MCP client (`mcp_connect`/`mcp_list`/`mcp_disconnect`) and server (`polyglav mcp` and `POST /mcp`). See [mcp.md](mcp.md). `polyglav-core-eval` provides the eval fixture catalog for `polyglav eval`. See [eval.md](eval.md). `polyglav-core-edit` provides `file_edit`, `polyglav-core-git` provides `git`/`git_commit`, and `polyglav-core-dev` provides `code_test`/`code_lint`/`code_format`. The vendor providers ship as bundled plugins too (`polyglav-core-ollama`, `polyglav-core-openai`, `polyglav-core-groq`, `polyglav-core-anthropic`, `polyglav-core-opencode`). See [providers.md](providers.md). They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from `plugins` (or `/plugins disable`) to stop one loading. A global or local plugin with the same name overrides the bundled one.
+First-party plugins ship with polyglav and are listed in the default `plugins` config, so they are active out of the box. `polyglav-core-web` provides `web_search` and `web_fetch`. `polyglav-core-webhook` provides the job report-back connector (`report.webhook`). `polyglav-core-fs` provides `file_read`, `list_dir`, `file_write`, `glob`, and `grep`. `polyglav-core-exec` provides `run_command`. `polyglav-core-mcp` provides the MCP client (`mcp_connect`/`mcp_list`/`mcp_disconnect`) and server (`polyglav mcp` and `POST /mcp`). See [mcp.md](mcp.md). `polyglav-core-eval` provides the eval fixture catalog for `polyglav eval`. See [eval.md](eval.md). `polyglav-core-edit` provides `file_edit`, `polyglav-core-git` provides `git`/`git_commit`, `polyglav-core-dev` provides `code_test`/`code_lint`/`code_format`, and `polyglav-core-onboarding` runs first-run project setup (`/onboard`). The vendor providers ship as bundled plugins too (`polyglav-core-ollama`, `polyglav-core-openai`, `polyglav-core-groq`, `polyglav-core-anthropic`, `polyglav-core-opencode`). See [providers.md](providers.md). They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from `plugins` (or `/plugins disable`) to stop one loading. A global or local plugin with the same name overrides the bundled one.
 
 ## Plugin layout
 
@@ -58,7 +58,7 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 
 ## Entry contract
 
-The entry module may define any of eight hooks (all optional):
+The entry module may define any of nine hooks (all optional):
 
 ```python
 def register_tools(registry) -> None: ...        # @registry.register(...) - same as core tools
@@ -69,6 +69,7 @@ def register_roles(registry) -> None: ...     # registry.add_plugin({...}) - plu
 def register_teams(teams) -> None: ...           # register into the TeamRegistry (see swarm.md)
 def register_skills(skills) -> None: ...         # skills.add_plugin({...}) - see skills.md
 def register_fixtures(fixtures) -> None: ...     # fixtures["id"] = fixture data - see eval.md
+def register_startup(hooks) -> None: ...         # hooks.append(callable(chat)) - run once when the REPL starts
 ```
 
 Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement, `noise_tools`, and session logging. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
@@ -83,11 +84,15 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Roles, teams, and skills
 
-`register_roles(registry)` contributes roles to the `RoleRegistry` via `registry.add_plugin(entry)` (same entry shape as `roles.json`). Plugin roles form an in-memory layer between bundled and global, so precedence is `bundled < plugin < global < local`, and a `roles.json` entry can always override or replace a plugin-provided role. `register_teams(teams)` and `register_skills(skills)` register into the team and skills registries the same way (`teams.add_plugin(...)` / `skills.add_plugin(...)`, entry shapes in [teams.md](teams.md) and [skills.md](skills.md)). The `/roles` list marks plugin roles `(plugin)`. After `/plugins install`/`update`/`uninstall` the running REPL re-applies all three hooks immediately. Tools and commands still activate on the next start.
+`register_roles(registry)` contributes roles to the `RoleRegistry` via `registry.add_plugin(entry)` (same entry shape as `roles.json`). Plugin roles form an in-memory layer below global and local, so precedence is `plugin < global < local`, and a `roles.json` entry can always override or replace a plugin-provided role. `register_teams(teams)` and `register_skills(skills)` register into the team and skills registries the same way (`teams.add_plugin(...)` / `skills.add_plugin(...)`, entry shapes in [teams.md](teams.md) and [skills.md](skills.md)). The `/roles` list marks plugin roles `(plugin)`. After `/plugins install`/`update`/`uninstall` the running REPL re-applies all three hooks immediately. Tools and commands still activate on the next start.
 
 ### Eval fixtures
 
 `register_fixtures(fixtures)` contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture `id` to fixture data (same shape as the JSON fixtures under `.polyglav/eval/`, see [eval.md](eval.md)). Local and global fixture files override plugin fixtures by `id`. The bundled `polyglav-core-eval` plugin ships the default catalog this way.
+
+### Startup
+
+`register_startup(hooks)` appends a `callable(chat)` that the REPL runs once when it starts, after plugins load and before the first prompt. It is the first-run hook: the bundled `polyglav-core-onboarding` plugin uses it to detect an unconfigured project and ask about its purpose and assistant, then writes the local config. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only `ChatLoop` runs startup hooks, so headless `run`/`serve` engines never prompt.
 
 ### Lazy dependencies
 

@@ -330,6 +330,9 @@ class PluginManager:
     def register_fixtures(self, fixtures):
         self._run_hook('register_fixtures', fixtures)
 
+    def register_startup(self, hooks: list) -> None:
+        self._run_hook('register_startup', hooks)
+
     def provider_classes(self) -> dict[str, type]:
         return dict(self._provider_classes)
 
