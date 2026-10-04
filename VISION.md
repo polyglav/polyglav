@@ -49,11 +49,11 @@ Interop is part of the same idea. MCP connects tools and sessions today. ACP, in
 
 The end-to-end shape of a bigger task:
 
-1. **Ask** - the operator states an outcome to the `assistant`, in one sentence.
+1. **Ask** - the user states an outcome to the `assistant`, in one sentence.
 2. **Compose** - for work beyond one task, the assistant engages the `composer` role, which designs a team: the specialists, the skills each needs, the stage order, and an optional review loop. The team is saved to the catalog, so it can be reused and extended.
 3. **Run** - the assistant starts the team. Stages run in order, each with its own role, skills, and permission carve, and each writing its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.
 4. **Hand off** - as phases change, control moves from one run to the next. The assistant hands focus to the composer, the composer to a planning agent, the planning agent to a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.
-5. **Watch or stay out** - the operator can follow progress, jump into any run with `/focus`, or let it run silently. A status line shows what each agent is doing.
+5. **Watch or stay out** - the user can follow progress, jump into any run with `/focus`, or let it run silently. A status line shows what each agent is doing.
 6. **Remember** - after the run, the team and its members update bounded memory. The next run continues from the change, not from a replayed transcript.
 7. **Report** - finished and failed runs surface a summary, and recurring work reports out of band.
 
@@ -67,16 +67,16 @@ A few ways people use Polyglav:
 - **A library of specialists** - define roles and skills once, then reuse them across tasks, teams, and jobs, extending a role per task with additional skills.
 - **A scripted agent** - drive the same loop from the CLI or the HTTP API for automation and CI.
 
-This is the operator-facing half of the runtime, and it is what the phases turn on.
+This is the user-facing half of the runtime, and it is what the phases turn on.
 
 ## Decisions
 
-- **Assistant is the single point of contact** - the main agent is the operator's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).
+- **Assistant is the single point of contact** - the main agent is the user's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).
 - **Modes are the posture** - the root agent is `config.system_prompt` plus the active mode, not a bound role. `read` is the default (read, search, and role-less read-only sibling offload; no writes, no named-role calls, no grants), and `write` is opt-in (filesystem writes, named-role `call`, team `delegate`, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).
 - **Run-owned sessions** - a session belongs to a run. Whoever starts a run creates its session: the root at startup, `delegate`/`team` at delegation, the scheduler per job run. A role is an identity a run borrows, never a session owner, so there is no `agent_<role>` and no `sub_<key>`.
 - **Focus navigates, handoff moves** - `/focus` shows the run tree and jumps into existing runs, and never creates a session. `handoff` moves focus between runs and pauses or finishes the current one, without creating or naming a session.
 - **Memory, not replay** - continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per role, team, and job, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.
-- **Sequential-first** - team stages run one member after another via `run_subagent` (existing, battle-tested). In-process threaded concurrency is the later milestone for watching and joining a live run (cuts wall-clock and lets the operator jump in, not tokens).
+- **Sequential-first** - team stages run one member after another via `run_subagent` (existing, battle-tested). In-process threaded concurrency is the later milestone for watching and joining a live run (cuts wall-clock and lets the user jump in, not tokens).
 - **No pre-saved run prompts** - briefs, handoff, and memory are generated per run. Stored artifacts are roles, teams, and skills in the registries.
 - **Core stays thin and publishable** - registries plus the sequential runner plus plugin hooks. Everything customer-specific lives in local `roles.json`, `teams.json`, `skills/`, or plugins, and moves toward plugins entirely.
 

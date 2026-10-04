@@ -47,8 +47,8 @@ def register_handoff_tool(registry, engine) -> Callable:
             "current one. Use it when the next step belongs to a different run: "
             "target is 'parent', 'child', 'sibling', 'root', a run id like '#3', "
             "a session id like '#ab12cd', or a session name. Set done=true to "
-            "finish this run, otherwise it is left paused so the operator can "
-            "resume it. The operator's focus follows the target run."
+            "finish this run, otherwise it is left paused so the user can "
+            "resume it. The user's focus follows the target run."
         ),
         parameters={
             'type': 'object',
@@ -96,5 +96,5 @@ def register_handoff_tool(registry, engine) -> Callable:
         focus.root._pending_handoff = {'run': run.id}
         state = 'finished' if done else 'paused'
         return (f'[handoff] Control handed to {label}. This run is {state}; '
-                'the operator is now focused there.')
+                'the user is now focused there.')
     return handoff

@@ -14,7 +14,7 @@ The audience guides in this folder assess how that core fits a specific context.
 | Home lab | Makers, self-hosters, and personal servers | [homelab.md](homelab.md) |
 | Personal | Private and personal use, local models, privacy-first | [personal.md](personal.md) |
 | Research | Academia and sensitive research data | [research.md](research.md) |
-| Small business | Small companies, solo operators, and startups | [small-business.md](small-business.md) |
+| Small business | Small companies, solo users, and startups | [small-business.md](small-business.md) |
 
 ## What Polyglav provides today
 
@@ -67,4 +67,4 @@ Users / shift lead / web / TUI / API
 - **Control plane**. Agents, configuration, policies, tool approvals, versions, and deployments. Agents must never be able to change their own configuration, permissions, or tool list.
 - **Data plane**. Production data, documents, events, tool execution, and local connectors.
 - **Fleet and swarm**. [fleet.md](../fleet.md) and [swarm.md](../swarm.md) describe the two composable layers: a fleet of scoped `polyglav serve` processes, and a swarm of cooperating agents (types, `delegate`, auditors) that runs on top of the fleet or in-process. For enterprise use the research recommends a bounded, hierarchical multi-agent system, with a coordinator delegating to specialized agents that have clear responsibilities, minimal tool sets, and defined output formats, rather than a freely communicating swarm.
-- **Human-in-the-loop**. Write and control actions flow through `propose -> policy check -> human approval -> execute -> verify -> audit`, so "autonomous agents" become an auditable business process.
+- **User-in-the-loop**. Write and control actions flow through `propose -> policy check -> user approval -> execute -> verify -> audit`, so "autonomous agents" become an auditable business process.

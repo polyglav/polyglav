@@ -1,6 +1,6 @@
 # Scheduled and durable jobs
 
-`polyglav jobs` turns the one-shot agent loop into a durable workflow engine. `polyglav run` is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a human-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.
+`polyglav jobs` turns the one-shot agent loop into a durable workflow engine. `polyglav run` is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a user-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.
 
 ## Job store
 
@@ -35,7 +35,7 @@ Jobs live in `.polyglav/jobs.json` next to the sessions, one register per worktr
 
 ## Status model
 
-A job is a human-gated workflow, not a blind timer. `waiting_approval` is the parked state of `require_approval` jobs (see below):
+A job is a user-gated workflow, not a blind timer. `waiting_approval` is the parked state of `require_approval` jobs (see below):
 
 ```text
 proposed > approved > executing > verified | failed
@@ -117,19 +117,19 @@ polyglav jobs daemon [--tick 15] [--quiet]        # scheduler loop, Ctrl-C to st
 | `--retries N` | Retries after a failed attempt. Default `3` |
 | `--backoff SECONDS` | Base backoff, doubled per retry. Default `60` |
 | `--timeout SECONDS` | Max seconds for one attempt. `0` (default) = no cap |
-| `--require-approval` | Arm one run per approve, so every run parks in `waiting_approval` until a human approves it |
+| `--require-approval` | Arm one run per approve, so every run parks in `waiting_approval` until a user approves it |
 | `--approve-model` | Approve the model referenced by `--role` (or `--model`) so the headless job may use it without prompting |
 | `--approval auto` | Start `approved` instead of `proposed` |
 
-## Human in the loop
+## User in the loop
 
 There are three distinct gates, from coarsest to finest:
 
 1. **Arm / disarm (before any run)** - `add` starts `proposed`. `approve` arms it once, `stop`/`disable` disarms it. This is the baseline gate everyone uses.
 2. **Per-run approval (`--require-approval`)** - for when "something has to be decided" about *this* run, not arm-or-disarm for all time. Each run parks in `waiting_approval`: the daemon will not fire it, `polyglav jobs status` shows `WAITING for approve`, and `polyglav jobs approve <name>` (or `/jobs approve`) arms exactly the next run. It parks again after the run. `reject` clears the grant. `run` still overrides and executes now.
-3. **Mid-run blocking approval (tool-level, planned)** - an `ask` tool inside a running job pauses the run in place and waits for a human reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in [TODO.md](../../TODO.md): it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same operator API).
+3. **Mid-run blocking approval (tool-level, planned)** - an `ask` tool inside a running job pauses the run in place and waits for a user reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in [TODO.md](../../TODO.md): it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same user API).
 
-A job runs with `HeadlessUI(auto='deny')` on an unattended engine, the same posture as `polyglav serve`, plus parking. So until mid-run blocking is implemented, an `ask target='human'` inside a run is not paused and does not hang: it parks as a pending request in `.polyglav/asks.json` (returned to the agent as `[parked] Ask #<id> ...`), the run continues or finishes, and the operator answers later with `/asks answer <id> <text>` or `POST /asks/<id>/answer` on `polyglav serve`, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (`--tool-permission bash=allow`, a role carve, or a `--tools-deny` list) and it will not need mid-run interruption. A sub-agent inside a job can still use `ask target='lead'` for a decision from the job's model mid-run. `timeout` runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with `polyglav jobs show <name>` before a manual retry.
+A job runs with `HeadlessUI(auto='deny')` on an unattended engine, the same posture as `polyglav serve`, plus parking. So until mid-run blocking is implemented, an `ask target='user'` inside a run is not paused and does not hang: it parks as a pending request in `.polyglav/asks.json` (returned to the agent as `[parked] Ask #<id> ...`), the run continues or finishes, and the user answers later with `/asks answer <id> <text>` or `POST /asks/<id>/answer` on `polyglav serve`, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (`--tool-permission bash=allow`, a role carve, or a `--tools-deny` list) and it will not need mid-run interruption. A sub-agent inside a job can still use `ask target='caller'` for a decision from the job's model mid-run. `timeout` runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with `polyglav jobs show <name>` before a manual retry.
 
 ## Report-back
 
@@ -142,7 +142,7 @@ A finished or failed run is surfaced in-band and, optionally, out-of-band, so an
 
 ## Supervisor overnight run
 
-A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park human questions as asks, and report back. One command scaffolds it:
+A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park user questions as asks, and report back. One command scaffolds it:
 
 ```bash
 polyglav jobs add-supervisor night --interval 86400 --task "Lead the work."
@@ -151,7 +151,7 @@ polyglav jobs daemon            # runs it on schedule
 polyglav jobs run night         # or run it once now
 ```
 
-The job role is `leader`, whose `grant_permission` lets it delegate categories it denies itself (bash, web) to team stages, and whose `ask_policy` routes decisions to the operator (parking them under unattended mode). The task file (`.polyglav/jobs/<name>.md`) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (`/model`, or `--approve-model` when a role or team references a model).
+The job role is `leader`, whose `grant_permission` lets it delegate categories it denies itself (bash, web) to team stages, and whose `ask_policy` routes decisions to the user (parking them under unattended mode). The task file (`.polyglav/jobs/<name>.md`) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (`/model`, or `--approve-model` when a role or team references a model).
 
 While it runs:
 

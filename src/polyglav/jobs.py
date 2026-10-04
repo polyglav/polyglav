@@ -359,7 +359,7 @@ SUPERVISOR_TASK_TEMPLATE = """# {name}
 
 ## Task
 Describe the standing goal the supervisor owns. On each run it plans, runs the
-right teams or agents, parks any question it cannot decide for the operator, and
+right teams or agents, parks any question it cannot decide for the user, and
 finishes with a short summary.
 
 ## Done when
@@ -368,7 +368,7 @@ How we know this run succeeded.
 ## Notes
 - The supervisor is the `leader` type: it coordinates and delegates, it does not
   implement. It may call `team`/`delegate` and `ask`.
-- Under unattended mode a human question parks in .polyglav/asks.json. Answer it
+- Under unattended mode a user question parks in .polyglav/asks.json. Answer it
   with /asks or POST /asks/<id>/answer, then resume the run's session.
 """
 

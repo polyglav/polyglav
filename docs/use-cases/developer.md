@@ -20,7 +20,7 @@ Polyglav is native to the terminal, so developers are the most natural first aud
 
 ## Hands-on setup
 
-A complete step-by-step recipe for a lead, implementer, tester, and reviewer fleet with git worktree isolation and human gates between hand-offs is in [usage/programming.md](../usage/programming.md).
+A complete step-by-step recipe for a lead, implementer, tester, and reviewer fleet with git worktree isolation and user gates between hand-offs is in [usage/programming.md](../usage/programming.md).
 
 ## What is live and what is planned
 

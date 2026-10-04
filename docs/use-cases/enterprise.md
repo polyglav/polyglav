@@ -28,7 +28,7 @@ Polyglav's combination of auditability, local control, and low footprint applies
 - **Operations reporting** - automated shift, day, and deviation reports across lines, plants, and sites.
 - **Maintenance support** - fault analysis against asset history, drafting work orders, spare-part queries. With CMMS integration, preparing and (with approval) raising work orders.
 - **Production analysis** - OEE, downtime, scrap, and energy analysis, capacity and bottleneck questions in natural language.
-- **Layered Process Audit (LPA) support** - checklist-driven audits of high-risk process steps, run at operator, supervisor, and management layers on different frequencies. Build and manage checklists, capture findings into corrective actions, and generate LPA summaries. The append-only session log doubles as the audit trail for the audits themselves.
+- **Layered Process Audit (LPA) support** - checklist-driven audits of high-risk process steps, run at user, supervisor, and management layers on different frequencies. Build and manage checklists, capture findings into corrective actions, and generate LPA summaries. The append-only session log doubles as the audit trail for the audits themselves.
 - **Planning assistance** - plan variants, conflict detection, what-if scenarios for delays or outages.
 
 ### Food & beverage
@@ -41,7 +41,7 @@ The food industry is highly regulated (HACCP, IFS Food, BRCGS, ISO 22000, EU Reg
 - **Recipe and allergen management** - versioned recipes, allergen cross-contamination risk awareness in line sequencing and cleaning cycles.
 - **Supplier and quality scorecards** - aggregate quality data, delivery reliability, and complaint rates.
 
-As elsewhere, food safety decisions (release of a batch, recall, setpoint changes) must stay human-gated. The agent prepares and evidences them.
+As elsewhere, food safety decisions (release of a batch, recall, setpoint changes) must stay user-gated. The agent prepares and evidences them.
 
 ### Pharmaceuticals & life sciences
 
@@ -53,7 +53,7 @@ Continuous process data, alarm floods, energy and media consumption, safety docu
 
 ### Automotive & discrete manufacturing
 
-Line-side quality, andon/poka-yoke deviations, supplier quality, maintenance and tooling management, and production planning across variants. High value in reporting and analysis. Layered Process Audit (LPA) originated here: the same standard-work checklists run at operator, supervisor, and management layers on different frequencies, so coverage, findings, and corrective actions are a natural reporting and analysis workload. Control stays with the PLC / line control layer.
+Line-side quality, andon/poka-yoke deviations, supplier quality, maintenance and tooling management, and production planning across variants. High value in reporting and analysis. Layered Process Audit (LPA) originated here: the same standard-work checklists run at user, supervisor, and management layers on different frequencies, so coverage, findings, and corrective actions are a natural reporting and analysis workload. Control stays with the PLC / line control layer.
 
 ### Aerospace & defense
 
@@ -64,7 +64,7 @@ The automotive pattern with tighter certification and traceability: AS9100/AS910
 - **Supplier quality** - supplier performance, certification status, and delivery reliability scorecards.
 - **Audit preparation** - compliance evidence assembled for AS9100, customer, and regulatory audits.
 
-Engineering release and disposition decisions stay human-gated.
+Engineering release and disposition decisions stay user-gated.
 
 ### Electronics & semiconductor
 
@@ -86,7 +86,7 @@ Like pharma, but the regulated artifact is the device: ISO 13485, 21 CFR Part 82
 - **Sterilization and batch records** - sterilization cycles and lot records traced and reconciled.
 - **Audit readiness** - evidence prepared for notified-body and FDA inspections.
 
-Release decisions and field actions stay human-gated.
+Release decisions and field actions stay user-gated.
 
 ### Metals, plastics & heavy industry
 
@@ -161,7 +161,7 @@ The research and the roadmap ([TODO.md](../../TODO.md)) agree on what an enterpr
 - **MCP support** - an MCP client plugin (connect to external MCP servers and register their tools into the ToolRegistry) and an MCP server (expose Polyglav's tools and sessions to external agents). Planned in [TODO.md](../../TODO.md).
 - **Connectors** - data ingestion and write channels for the systems of record: OPC UA / MQTT for machine and sensor data, and adapters for MES, ERP, LIMS, CMMS, WMS, and document management. The enterprise plugin list in [TODO.md](../../TODO.md) covers `read_stream`/`write_stream`, time-series analysis, model inference, scheduling optimization, SCADA commands, and reporting.
 - **Tool gateway and policy engine** - a controlled layer between the agent and target systems: whitelisted tools, strict input schemas, read/write separation, value ranges, rate limits, idempotency, four-eyes approval, dry run, and full logging. Write tools must never carry the same rights as read tools.
-- **Durable workflows** - scheduled jobs, retries with backoff, timeouts, resumability, and the human-in-the-loop status model (`proposed`, `approved`, `executing`, `verified`, `failed`) landed as `polyglav jobs` (see [jobs.md](../jobs.md)). Dead-letter queues remain planned, and the workflow engine is now a first-class command.
+- **Durable workflows** - scheduled jobs, retries with backoff, timeouts, resumability, and the user-in-the-loop status model (`proposed`, `approved`, `executing`, `verified`, `failed`) landed as `polyglav jobs` (see [jobs.md](../jobs.md)). Dead-letter queues remain planned, and the workflow engine is now a first-class command.
 - **Central audit aggregation** - Polyglav's per-agent session logs are complete, but enterprise compliance wants a central, tamper-evident view: aggregated audit with correlation IDs across agents and target systems, retention policies, and export for compliance and forensics. Options are a lightweight audit proxy in front of `polyglav serve`, or a dedicated store.
 - **Observability** - metrics for latency, cost, errors, and tool usage, tracing across agent, MCP, and target systems, alerting on misbehavior, prompt and model versioning, rate and budget limits.
 - **Edge deployment** - offline-capable agents with local buffering and store-and-forward for plants with limited or unreliable connectivity.

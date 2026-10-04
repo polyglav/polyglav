@@ -4,7 +4,7 @@ A team is a named, ordered chain of delegated stages, where each runs under a ro
 
 ## Storage
 
-No teams ship with the package. A fresh install has an empty catalog, and the operator or an agent creates teams as a project needs them (the `catalog` tool and `/teams new`). A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
+No teams ship with the package. A fresh install has an empty catalog, and the user or an agent creates teams as a project needs them (the `catalog` tool and `/teams new`). A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
 
 Teams come from three layers, merged exactly like roles: plugin, then global, then local, local winning per field:
 
@@ -109,7 +109,7 @@ Each loop iteration starts a fresh producer run seeded by the findings, rather t
 
 ## The `delegate` tool
 
-`delegate(name, task)` is the model-facing entry point (core, like `call` and `ask`), so a lead agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs `Engine.run_team` and returns the final stage's answer (or `Error: team "<name>" failed: <reason>`).
+`delegate(name, task)` is the model-facing entry point (core, like `call` and `ask`), so a caller agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs `Engine.run_team` and returns the final stage's answer (or `Error: team "<name>" failed: <reason>`).
 
 - **Permission**: the `delegate` category gates the tool (default `allow`), separate from `call` so a role can be a call target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like `call`: a stage role that sets `delegate: "deny"` disables the team, `"ask"` confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.
 - **Ceiling**: each stage's carve is still capped by the caller's `grant_permission` (see [config.md](config.md#permission-authority)). When a stage's requested permissions get clamped, the result carries a `(reduced permissions for: <role>)` note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque `unknown error`.

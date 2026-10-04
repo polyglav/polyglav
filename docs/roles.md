@@ -15,7 +15,7 @@ A role is a single reusable profile carrying several distinct axes of an agent.
 | **Expertise** | The domains it is tagged for, used for grouping and filtering | `tags` |
 | **Archetype** | A stored, reusable pattern that teams reference as a stage | the registry entry itself |
 
-No roles ship with the package. A fresh install has an empty catalog, and the operator or an agent creates roles as a project needs them (the `catalog` tool and `/roles new`). Typical patterns a project builds are a `researcher` that gathers web sources, a `writer` that turns a findings brief into a document, a `code-reviewer` that reviews a change, and a `composer` that designs teams into the catalog. A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
+No roles ship with the package. A fresh install has an empty catalog, and the user or an agent creates roles as a project needs them (the `catalog` tool and `/roles new`). Typical patterns a project builds are a `researcher` that gathers web sources, a `writer` that turns a findings brief into a document, a `code-reviewer` that reviews a change, and a `composer` that designs teams into the catalog. A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
 
 A role carve only needs to declare the write keys it wants to narrow, because read keys are allowed by default and the mode sets the outer bound. For example, a document `writer` might set `edit: allow`, `bash: deny`, `web: deny`, while a `researcher` sets `web: allow` and `edit: deny`.
 
@@ -40,7 +40,7 @@ Schema (per entry):
   "tags": ["research", "writing"],
   "tool_permission": { "web": "allow", "delegate": "allow" },
   "grant_permission": { "web": "allow", "delegate": "allow" },
-  "ask_policy": { "permission": "auto", "direction": "human" }
+  "ask_policy": { "permission": "auto", "direction": "user" }
 }
 ```
 
@@ -77,10 +77,10 @@ Writing a role through `/roles new` or the `catalog` tool stores the prompt in `
 - A configured role uses its own `tool_permission` overrides. The default for the `call` category is `allow` (a call runs without a prompt). Set `call: "ask"` on a role to confirm each call to it. A role with `call: "deny"` is refused as a call target and is not offered the `call` tool itself. To bar a role from running team pipelines without blocking calls to it, set `delegate: "deny"` instead (the `delegate` category gates only the team pipeline tool).
 - A temporary role created only to run a task in parallel defaults to `deny` until you opt in.
 
-Sub-agent permissions are bounded by the caller: the effective carve is the caller's `tool_permission`, narrowed by the role's carve and capped by the caller's `grant_permission` ceiling (see [config.md](config.md#permission-authority)). The ceiling comes from the mode: `write` makes write keys grantable, `read` denies them, and a role or config `grant_permission` can only narrow the result. A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor that denies `edit`/`bash` for itself but allows them in its ceiling can hand them to an `implementer` while never running them. An approved `ask(kind="permission")` request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The operator may grant `always` for the rest of that sub-agent's run.
+Sub-agent permissions are bounded by the caller: the effective carve is the caller's `tool_permission`, narrowed by the role's carve and capped by the caller's `grant_permission` ceiling (see [config.md](config.md#permission-authority)). The ceiling comes from the mode: `write` makes write keys grantable, `read` denies them, and a role or config `grant_permission` can only narrow the result. A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor that denies `edit`/`bash` for itself but allows them in its ceiling can hand them to an `implementer` while never running them. An approved `ask(kind="permission")` request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may grant `always` for the rest of that sub-agent's run.
 
 ## Relationship to /agent, skills, and fleets
 
-- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `call` tool (the lead model proposes it, or `/tool call {"role": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
+- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `call` tool (the caller model proposes it, or `/tool call {"role": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
 - Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.
 - A role runs either in-process as a sub-engine (the default for delegation) or as a scoped `polyglav serve` process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and `tool_permission` (see [fleet.md](fleet.md)).

@@ -7,7 +7,7 @@ PROMPT_FOLLOW = 'Follow delegated runs automatically? [Y/n] '
 PROMPT_LABEL = 'Show the active role in the prompt? [y/N] '
 
 DEFAULT_PERSONA = ("You are the assistant for this project and the "
-                   "operator's single point of contact.")
+                   "user's single point of contact.")
 OPERATING = ('Delegate work bigger than one step: create the roles, teams, and '
              'skills you need with the catalog tool, hand the task off, and '
              'report back. Keep answers short.')

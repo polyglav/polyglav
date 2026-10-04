@@ -1,6 +1,6 @@
 # Home lab, makers, and self-hosters
 
-For home-lab operators the appeal is a small, standard-library agent that runs on a Raspberry Pi, keeps its data local, has no telemetry, and composes with the rest of your stack over a plain HTTP API. The shared foundation is in [index.md](index.md).
+For home-lab users the appeal is a small, standard-library agent that runs on a Raspberry Pi, keeps its data local, has no telemetry, and composes with the rest of your stack over a plain HTTP API. The shared foundation is in [index.md](index.md).
 
 ## Why it fits
 

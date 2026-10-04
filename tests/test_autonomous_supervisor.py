@@ -49,7 +49,7 @@ class TestAutonomousSupervisor(unittest.TestCase):
                 'grant_permission': {
                     'bash': 'allow', 'edit': 'allow', 'read': 'allow',
                     'list': 'allow', 'web': 'allow', 'ask': 'allow'},
-                'ask_policy': {'permission': 'auto', 'direction': 'human'},
+                'ask_policy': {'permission': 'auto', 'direction': 'user'},
             },
             'worker': {
                 'system_prompt': 'You do the work.',

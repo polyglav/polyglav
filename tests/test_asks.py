@@ -134,7 +134,7 @@ class TestParking(unittest.TestCase):
         try:
             chat._init_tooling()
             with patch('builtins.input', side_effect=self._no_input):
-                out = chat._run_tool('ask', {'question': 'q', 'target': 'lead'})
+                out = chat._run_tool('ask', {'question': 'q', 'target': 'caller'})
             self.assertIn('[parked]', out)
             self.assertEqual(len(chat.asks.list()), 1)
         finally:
@@ -153,7 +153,7 @@ class TestParking(unittest.TestCase):
 
     def test_permission_human_route_parks_when_unattended(self):
         chat = make_chat({'unattended': True,
-                          'ask_policy': {'permission': 'human'}})
+                          'ask_policy': {'permission': 'user'}})
         try:
             chat.roles.put(Role(name='w', system_prompt='Writer'),
                            scope='local')
