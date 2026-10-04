@@ -76,7 +76,6 @@
 - [ ] `AGENTS.md` as the project description - keep it the single project description and update it when the structure, conventions, or extension points change
 - [ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing
 - [ ] `memorize` as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command
-- [ ] Role instruction files - a role's long instructions live in `.polyglav/roles/<name>.md`, referenced from the short JSON entry and appended verbatim
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
 - [ ] Root role memory - inject `.polyglav/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
 - [ ] Conclusion stage - a bundled stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
@@ -160,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Markdown role instructions - JSON index plus `.polyglav/roles/<name>.md` body prompt
 - [x] Onboarding plugin and startup hook - first-run setup writes config; /onboard reruns
 - [x] Bundled roles and teams removed - no catalog ships, layers are plugin/global/local only
 - [x] Headless modes - run/serve default read, jobs add records write unless set

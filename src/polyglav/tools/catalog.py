@@ -5,8 +5,9 @@ from ..skills import Skill
 from ..teams import Team
 from ..roles import Role
 
-_ROLE_FIELDS = ('system_prompt', 'model', 'skills', 'tags',
-                'tool_permission', 'grant_permission', 'ask_policy')
+_ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
+                'tool_permission', 'grant_permission', 'ask_policy',
+                'instructions')
 
 _CATALOG_WRITE_ACTIONS = ('save', 'remove', 'reload')
 
@@ -47,7 +48,11 @@ def _show_role(engine, name: str) -> str:
     if agent_role is None:
         return f'Error: unknown role "{name}"'
     lines = [f'{agent_role.name} ({engine.roles.origin(name)})']
+    if agent_role.description:
+        lines.append(f'description: {agent_role.description}')
     lines.append(f'system_prompt: {agent_role.system_prompt or "(empty)"}')
+    if agent_role.instructions:
+        lines.append(f'instructions: {agent_role.instructions}')
     if agent_role.model:
         lines.append(f'model: {agent_role.model}')
     if agent_role.skills:

@@ -49,30 +49,90 @@ def resolve_grant_ceiling(parent_self: dict, parent_grant: dict, role_grant: dic
 class Role:
     name: str
     system_prompt: str = ''
+    description: str = ''
     model: str = ''
     skills: list = field(default_factory=list)
     tags: list = field(default_factory=list)
     tool_permission: dict = field(default_factory=dict)
     grant_permission: dict = field(default_factory=dict)
     ask_policy: dict = field(default_factory=dict)
+    instructions: str = ''
 
     @classmethod
     def from_dict(cls, d: dict) -> 'Role':
         return cls(
             name=d.get('name', ''),
             system_prompt=d.get('system_prompt', ''),
+            description=d.get('description', ''),
             model=d.get('model', ''),
             skills=list(d.get('skills') or []),
             tags=list(d.get('tags') or []),
             tool_permission=dict(d.get('tool_permission') or {}),
             grant_permission=dict(d.get('grant_permission') or {}),
             ask_policy=dict(d.get('ask_policy') or {}),
+            instructions=d.get('instructions', ''),
         )
 
     def to_body(self) -> dict:
         body = asdict(self)
         body.pop('name', None)
         return {k: v for k, v in body.items() if v not in ('', [], {})}
+
+
+def _parse_value(raw: str):
+    raw = raw.strip()
+    if raw == '':
+        return ''
+    try:
+        return json.loads(raw)
+    except (TypeError, ValueError):
+        return raw
+
+
+def parse_frontmatter(text: str) -> tuple[dict, str]:
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != '---':
+        return {}, text
+    end = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == '---':
+            end = i
+            break
+    if end is None:
+        return {}, text
+    meta: dict[str, Any] = {}
+    for line in lines[1:end]:
+        if not line.strip() or line.lstrip().startswith('#'):
+            continue
+        key, sep, raw = line.partition(':')
+        if not sep:
+            continue
+        meta[key.strip()] = _parse_value(raw)
+    body = '\n'.join(lines[end + 1:]).strip('\n')
+    return meta, body
+
+
+def _instructions_dir(path: Path) -> Path:
+    return path.parent / path.stem
+
+
+def _apply_instructions(entry: dict, name: str, base: Path) -> None:
+    ref = str(entry.get('instructions') or '').strip()
+    if ref and Path(ref).name != ref:
+        return
+    path = base / (ref or f'{name}.md')
+    if not path.is_file():
+        return
+    try:
+        text = path.read_text(encoding='utf-8')
+    except OSError:
+        return
+    meta, body = parse_frontmatter(text)
+    for key, value in meta.items():
+        entry.setdefault(key, value)
+    body = body.strip('\n')
+    if body and not entry.get('system_prompt'):
+        entry['system_prompt'] = body
 
 
 def _load_scope(path: Path) -> dict[str, dict[str, Any]]:
@@ -94,6 +154,9 @@ def _load_scope(path: Path) -> dict[str, dict[str, Any]]:
         for d in data:
             if isinstance(d, dict) and d.get('name'):
                 out[str(d['name'])] = dict(d)
+    base = _instructions_dir(path)
+    for name, entry in out.items():
+        _apply_instructions(entry, name, base)
     return out
 
 
@@ -173,16 +236,42 @@ class RoleRegistry:
             return 'plugin'
         return 'merged'
 
+    def _scope_path(self, scope: str) -> Path:
+        return self.global_path if scope == 'global' else self.local_path
+
+    def _write_instructions(self, name: str, prompt: str, scope: str) -> None:
+        base = _instructions_dir(self._scope_path(scope))
+        base.mkdir(parents=True, exist_ok=True)
+        path = base / f'{name}.md'
+        tmp = path.with_suffix('.md.tmp')
+        tmp.write_text(prompt.rstrip() + '\n', encoding='utf-8')
+        os.replace(tmp, path)
+
+    def _remove_instructions(self, name: str, scope: str) -> None:
+        path = _instructions_dir(self._scope_path(scope)) / f'{name}.md'
+        try:
+            path.unlink()
+        except OSError:
+            pass
+
     def put(self, agent_role: Role, scope: str = 'local') -> Role:
         raw = self._local if scope == 'local' else self._global
-        raw[agent_role.name] = agent_role.to_body()
+        body = agent_role.to_body()
+        prompt = body.pop('system_prompt', '')
+        if prompt:
+            self._write_instructions(agent_role.name, prompt, scope)
+            body.setdefault('instructions', f'{agent_role.name}.md')
+        raw[agent_role.name] = body
         self._save_scope(scope)
+        self._load()
         return agent_role
 
     def remove(self, name: str, scope: str = 'local') -> bool:
         raw = self._local if scope == 'local' else self._global
         if name in raw:
             del raw[name]
+            self._remove_instructions(name, scope)
             self._save_scope(scope)
+            self._load()
             return True
         return False

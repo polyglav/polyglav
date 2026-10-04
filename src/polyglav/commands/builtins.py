@@ -731,7 +731,11 @@ def register_builtins(registry):
                 print(f'Role not found: {name}')
                 return
             print(f'{t.name} ({tr.origin(t.name)})')
+            if t.description:
+                print(f'  description: {t.description}')
             print(f'  system_prompt: {t.system_prompt or "(empty)"}')
+            if t.instructions:
+                print(f'  instructions: {t.instructions}')
             if t.tags:
                 print(f'  tags: {", ".join(t.tags)}')
             if t.model:
@@ -752,11 +756,13 @@ def register_builtins(registry):
             existing = tr.find(name)
             prev_origin = tr.origin(name)
             tr.put(Role(name=name, system_prompt=prompt), scope='local')
+            target = (tr.local_path.parent / 'roles' / f'{name}.md'
+                      if prompt else tr.local_path)
             if existing is not None:
                 print(f'Overrode role: {name} (was {prev_origin}) - '
-                      f'edit {tr.local_path}')
+                      f'edit {target}')
             else:
-                print(f'Created role: {name} (local) - edit {tr.local_path}')
+                print(f'Created role: {name} (local) - edit {target}')
             return
         if action == 'remove':
             name = parts[1].strip() if len(parts) > 1 else ''
