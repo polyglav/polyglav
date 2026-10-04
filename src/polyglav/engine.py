@@ -622,7 +622,10 @@ class Engine:
         token = text[1:] if explicit else text
         if token.isdigit():
             run = self.runs.get(int(token))
-            return run, run.session if run is not None else ''
+            if run is not None:
+                return run, run.session
+            if not explicit:
+                return None, ''
         if explicit:
             run = self.runs.find_by_session_id(token)
             if run is not None:
