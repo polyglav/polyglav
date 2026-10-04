@@ -14,6 +14,9 @@ class TestSubAgentEngine(unittest.TestCase):
     def setUp(self):
         self.tmp = MagicMock()
         self.chat = make_chat()
+        self.chat.roles.put(Role(
+            name='writer', system_prompt='You are the writer.',
+            tool_permission={'edit': 'allow', 'bash': 'deny', 'web': 'deny'}))
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
 
     def tearDown(self):

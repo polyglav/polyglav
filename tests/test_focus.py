@@ -5,13 +5,14 @@ from unittest.mock import MagicMock, patch
 from polyglav.chat import MAIN_PROMPT
 from polyglav.focus import FocusManager
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestFocusManager(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'editor')
         self.focus = self.chat.focus
 
     def tearDown(self):
@@ -92,6 +93,7 @@ class TestFocusRouting(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'editor')
 
     def tearDown(self):
         self.chat._tmp.cleanup()
@@ -155,6 +157,7 @@ class TestFocusCommand(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'editor')
 
     def tearDown(self):
         self.chat._tmp.cleanup()

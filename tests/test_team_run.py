@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 from polyglav.teams import Team, TeamRegistry, TeamStage, team_memory_path
 from polyglav.roles import Role
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestTeamRun(unittest.TestCase):
@@ -197,9 +197,10 @@ class TestTeamRunCommand(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.chat = make_chat()
-        self.chat.roles.put(
-            Role(name='writer', system_prompt='You are the writer.'),
-            scope='local')
+        seed_roles(self.chat, 'researcher', 'writer', 'referencer', 'editor')
+        self.chat.teams.put(Team(name='writing', stages=[
+            TeamStage(role='researcher'), TeamStage(role='writer'),
+            TeamStage(role='referencer'), TeamStage(role='editor')]))
 
     def tearDown(self):
         self.chat._tmp.cleanup()

@@ -5,13 +5,14 @@ from unittest.mock import MagicMock, patch
 
 from polyglav.engine import TurnResult
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestFocusOnDelegate(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer')
         self.chat.config.set('mode', 'write')
         self.chat._init_tooling()
         self.run = self.chat.runs.start(role='writer', session='sub_1')
@@ -81,6 +82,7 @@ class TestFocusOnDelegateLoop(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer')
         self.chat.config.set('mode', 'write')
         self.chat.config.set('delegate_echo', False)
 

@@ -7,13 +7,14 @@ from unittest.mock import MagicMock, patch
 from polyglav.roles import Role
 from polyglav.sessions import turns as session_turns
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestDelegateTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'programmer')
         self.chat.config.set('mode', 'write')
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
 

@@ -62,25 +62,18 @@ class Team:
 
 
 class TeamRegistry:
-    BUNDLED_FILENAME = 'bundled_teams.json'
-
     def __init__(self, global_dir: Path | None = None,
-                 local_path: Path | None = None,
-                 bundled_path: Path | None = None):
+                 local_path: Path | None = None):
         base = global_dir if global_dir is not None else (Config.GLOBAL_DIR or Path.home())
         self.global_path = base / '.config' / 'polyglav' / 'teams.json'
         self.local_path = Path(local_path) if local_path is not None else (
             Path.cwd() / '.polyglav' / 'teams.json')
-        self.bundled_path = Path(bundled_path) if bundled_path is not None else (
-            Path(__file__).with_name(self.BUNDLED_FILENAME))
-        self._bundled: dict[str, dict[str, Any]] = {}
         self._plugins: dict[str, dict[str, Any]] = {}
         self._global: dict[str, dict[str, Any]] = {}
         self._local: dict[str, dict[str, Any]] = {}
         self._load()
 
     def _load(self):
-        self._bundled = _load_scope(self.bundled_path)
         self._global = _load_scope(self.global_path)
         self._local = _load_scope(self.local_path)
 
@@ -106,12 +99,10 @@ class TeamRegistry:
         os.replace(tmp, path)
 
     def _merged_entries(self) -> dict[str, dict[str, Any]]:
-        names = (set(self._bundled) | set(self._plugins)
-                 | set(self._global) | set(self._local))
+        names = self._plugins.keys() | self._global.keys() | self._local.keys()
         merged: dict[str, dict[str, Any]] = {}
         for name in names:
             entry: dict[str, Any] = {}
-            entry.update(self._bundled.get(name, {}))
             entry.update(self._plugins.get(name, {}))
             entry.update(self._global.get(name, {}))
             entry.update(self._local.get(name, {}))
@@ -134,23 +125,17 @@ class TeamRegistry:
     def origin(self, name: str) -> str:
         has_local = name in self._local
         has_global = name in self._global
-        has_bundled = name in self._bundled
         has_plugin = name in self._plugins
-        if not any((has_local, has_global, has_bundled, has_plugin)):
+        if not any((has_local, has_global, has_plugin)):
             return ''
-        layers = sum((has_local, has_global, has_bundled, has_plugin))
+        layers = sum((has_local, has_global, has_plugin))
         if layers == 1:
             if has_local:
                 return 'local'
             if has_global:
                 return 'global'
-            if has_plugin:
-                return 'plugin'
-            return 'bundled'
+            return 'plugin'
         return 'merged'
-
-    def is_bundled(self, name: str) -> bool:
-        return name in self._bundled
 
     def put(self, team: Team, scope: str = 'local') -> Team:
         raw = self._local if scope == 'local' else self._global

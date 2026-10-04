@@ -144,8 +144,7 @@ class TestTeamLoop(unittest.TestCase):
             def registry():
                 return TeamRegistry(
                     global_dir=Path(tmp.name),
-                    local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
-                    bundled_path=Path(tmp.name) / 'none.json')
+                    local_path=Path(tmp.name) / '.polyglav' / 'teams.json')
             registry().put(Team(name='x', loop={'from': 'writer',
                                                 'until': 'reviewer',
                                                 'max_iterations': 4},

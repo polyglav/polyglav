@@ -10,7 +10,7 @@
       "read": "allow",
       "web": "deny",
       "delegate": "allow",
-      "team": "allow",
+      "call": "allow",
       "catalog": "allow"
     },
     "grant_permission": {
@@ -132,7 +132,7 @@
       "read": "allow",
       "web": "deny",
       "delegate": "allow",
-      "team": "allow",
+      "call": "allow",
       "catalog": "allow"
     },
     "grant_permission": {

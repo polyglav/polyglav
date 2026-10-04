@@ -383,8 +383,7 @@ class TestRegistration(PluginTestBase):
         from polyglav.roles import RoleRegistry
         return RoleRegistry(
             global_dir=self.root,
-            local_path=self.root / '.polyglav' / 'roles.json',
-            bundled_path=self.root / 'nobundled' / 'roles.json')
+            local_path=self.root / '.polyglav' / 'roles.json')
 
     def test_register_roles_hook(self):
         write_plugin(self.plugins_dir, 'pers', TYPE_PLUGIN, {'name': 'pers'})
@@ -410,8 +409,7 @@ class TestRegistration(PluginTestBase):
         self.pm.load()
         from polyglav.teams import TeamRegistry
         reg = TeamRegistry(global_dir=self.root,
-                           local_path=self.root / '.polyglav' / 'teams.json',
-                           bundled_path=self.root / 'nobundled' / 'teams.json')
+                           local_path=self.root / '.polyglav' / 'teams.json')
         self.pm.register_teams(reg)
         t = reg.find('sme')
         self.assertIsNotNone(t)

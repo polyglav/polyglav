@@ -50,8 +50,8 @@ Polyglav/
 │   ├── cli.py               # `polyglav run` / `polyglav serve` / `polyglav eval` headless entry points
 │   ├── config.py            # JSON config (global + local merge)
 │   ├── models.py            # global model registry - models.json (connections + keys)
-│   ├── roles.py             # RoleRegistry - bundled/global/local roles.json merge + tags
-│   ├── bundled_roles.json  # bundled default roles (10, leader + two pre-carved teams)
+│   ├── roles.py             # RoleRegistry - plugin/global/local roles.json merge + tags
+│   ├── teams.py             # TeamRegistry - plugin/global/local teams.json merge + memory
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 │   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser

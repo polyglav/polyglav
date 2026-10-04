@@ -4,9 +4,10 @@ A team is a named, ordered chain of delegated stages, where each runs under a ro
 
 ## Storage
 
-Teams come from four layers, merged exactly like roles: bundled, then plugin, then global, then local, local winning per field. Precedence is `bundled < plugin < global < local`:
+No teams ship with the package. A fresh install has an empty catalog, and the operator or an agent creates teams as a project needs them (the `catalog` tool and `/teams new`). A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
 
-- **Bundled** - the read-only default roster shipped in the package (`src/polyglav/bundled_teams.json`, the `writing` and `programming` pipelines above).
+Teams come from three layers, merged exactly like roles: plugin, then global, then local, local winning per field:
+
 - **Plugin** - teams contributed by plugins via the `register_teams` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to any `teams.json`, refreshed on `/plugins install`/`update`/`uninstall`.
 - **Global** - `~/.config/polyglav/teams.json`.
 - **Local** - `.polyglav/teams.json`.
@@ -28,7 +29,7 @@ Merging is field-by-field for the same `name`: an entry overrides only the field
       },
       {
         "role": "writer",
-        "mode": "build",
+        "mode": "write",
         "task_hint": "Write the document from the findings list.",
         "handoff_note": "Hand the document path to the referencer."
       }
@@ -47,7 +48,7 @@ Team fields:
 
 Stage fields:
 
-- `role` - required, the role name (must exist in the [roles registry](roles.md) at run time, resolved against the same four-layer merge).
+- `role` - required, the role name (must exist in the [roles registry](roles.md) at run time, resolved against the same three-layer merge).
 - `mode` - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.
 - `task_hint` - optional guidance folded into the delegated brief for this stage.
 - `handoff_note` - optional note passed with the previous stage's result into the next stage's brief.
@@ -55,10 +56,10 @@ Stage fields:
 
 ## Managing teams
 
-- `/teams` - list teams, marking each one's origin (`bundled` / `plugin` / `local` / `global` / `merged`) and tags, with the stage chain on the next line.
+- `/teams` - list teams, marking each one's origin (`plugin` / `local` / `global` / `merged`) and tags, with the stage chain on the next line.
 - `/teams list <tag>` - list only teams carrying the tag (e.g. `/teams list programming`).
 - `/teams new <name> [description]` - create a team in the local catalog (edit the JSON for stages, tags, and per-stage fields). Using an existing name overrides that team.
-- `/teams remove <name>` - remove a team from the local catalog. Bundled teams cannot be removed (override them instead).
+- `/teams remove <name>` - remove a team from the local catalog. A plugin team cannot be removed (override it with a local entry instead).
 - `/teams show <name>` - show a team's full definition (stages, task hints, handoff notes).
 
 Plugins contribute teams through the same `register_teams` entry hook the kit machine (templates, recipes) uses. See [plugins.md](plugins.md).
