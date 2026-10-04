@@ -1593,7 +1593,7 @@
 <tr>
 <td><code>/unattended</code></td>
 <td></td>
-<td>Show or toggle unattended mode (<code>/unattended on</code>/<code>off</code>): no stdin at any depth, confirms auto-deny, human asks route to the lead or return without pausing. See <a href="../config/#unattended-mode">config.md</a></td>
+<td>Show or toggle unattended mode (<code>/unattended on</code>/<code>off</code>): no stdin at any depth, confirms auto-deny, user asks route to the caller or return without pausing. See <a href="../config/#unattended-mode">config.md</a></td>
 </tr>
 <tr>
 <td><code>/version</code></td>
@@ -1603,7 +1603,7 @@
 </tbody>
 </table>
 <p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions.</p>
-<p>Delegation is a normal tool: the lead agent proposes it, or you run it directly, and <code>/tool call {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool delegate {"name": "...", "task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
+<p>Delegation is a normal tool: the caller agent proposes it, or you run it directly, and <code>/tool call {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool delegate {"name": "...", "task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
 </code></pre></div>
@@ -1872,7 +1872,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span>reload<span class=
 </tbody>
 </table>
 <h3 id="polyglav-jobs"><code>polyglav jobs</code><a class="headerlink" href="#polyglav-jobs" title="Permanent link">&para;</a></h3>
-<p>Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, a human-in-the-loop approval gate, and recorded run history. See <a href="../jobs/">jobs.md</a>.</p>
+<p>Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, a user-in-the-loop approval gate, and recorded run history. See <a href="../jobs/">jobs.md</a>.</p>
 <table>
 <thead>
 <tr>

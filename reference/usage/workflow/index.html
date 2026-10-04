@@ -1375,11 +1375,11 @@
 <h2 id="the-shape-of-a-run">The shape of a run<a class="headerlink" href="#the-shape-of-a-run" title="Permanent link">&para;</a></h2>
 <p>A larger task moves through the same steps every time:</p>
 <ol>
-<li><strong>Ask</strong> - the operator tells the <code>assistant</code> what they want, in a sentence. Small tasks are answered inline. Bigger ones move on.</li>
+<li><strong>Ask</strong> - the user tells the <code>assistant</code> what they want, in a sentence. Small tasks are answered inline. Bigger ones move on.</li>
 <li><strong>Compose</strong> - the <code>composer</code> role designs a team for the task: which specialists, which skills each one needs, the order of stages, and whether a review loop should run. The team is saved to the catalog and can be reused.</li>
 <li><strong>Run</strong> - the team runs stage by stage. Each stage is its own sub-agent with its own role, skills, and permission carve, and it writes its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.</li>
 <li><strong>Hand off</strong> - as the work changes shape, control moves between runs. One agent finishes and hands focus to the next, which continues with its own session intact.</li>
-<li><strong>Watch or stay out</strong> - the operator can follow along, jump into any run, or leave it running in the background.</li>
+<li><strong>Watch or stay out</strong> - the user can follow along, jump into any run, or leave it running in the background.</li>
 <li><strong>Remember</strong> - after the run, the team and its members refresh their memory, so the next run continues from the change instead of replaying a whole transcript.</li>
 <li><strong>Report</strong> - a summary surfaces when the run finishes or fails, and recurring work reports out of band.</li>
 </ol>
@@ -1389,7 +1389,7 @@
 <p>The lead team leads and the support team serves. Each stage is a role with its own prompt and permissions, and each writer can carry more than one skill, so the same writer drafts an expose and later the full work by switching skills per task.</p>
 <h3 id="focus-and-handoff">Focus and handoff<a class="headerlink" href="#focus-and-handoff" title="Permanent link">&para;</a></h3>
 <p>Agents hand control to one another as the work moves through phases. The assistant does not have the permissions to build a team itself, so it hands focus to the composer. The composer builds the team, starts it, and finishes. A planning agent picks up, creates the task list, and starts a developer. The developer works, and when it reports a task done, the planner can hand it another one, because the developer still has its session and remembers what it just did.</p>
-<p>The operator can watch this flow, stay out of it, or jump in with <code>/focus</code>, which shows the run tree and lets them attach to any run. Handoff moves focus and stops the current run, and never disturbs the target's session.</p>
+<p>The user can watch this flow, stay out of it, or jump in with <code>/focus</code>, which shows the run tree and lets them attach to any run. Handoff moves focus and stops the current run, and never disturbs the target's session.</p>
 <h3 id="scheduled-maintainer">Scheduled maintainer<a class="headerlink" href="#scheduled-maintainer" title="Permanent link">&para;</a></h3>
 <p>Recurring work is a job. A job carries its own role and skills, so a convention like "keep the docs in sync with AGENTS.md" lives in a skill rather than in every prompt. The scheduler runs it unattended, and a run memory carries context from one run to the next.</p>
 <h3 id="supervised-fleet">Supervised fleet<a class="headerlink" href="#supervised-fleet" title="Permanent link">&para;</a></h3>

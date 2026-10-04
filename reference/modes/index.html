@@ -1315,7 +1315,7 @@
 
 
 <h1 id="modes-and-access">Modes and access<a class="headerlink" href="#modes-and-access" title="Permanent link">&para;</a></h1>
-<p>An agent has one posture at a time: <code>read</code> or <code>write</code>. <code>read</code> is the default. The mode decides which tools the model can call, so a plain chat is read-only until the operator switches to <code>write</code>.</p>
+<p>An agent has one posture at a time: <code>read</code> or <code>write</code>. <code>read</code> is the default. The mode decides which tools the model can call, so a plain chat is read-only until the user switches to <code>write</code>.</p>
 <h2 id="read-and-write">Read and write<a class="headerlink" href="#read-and-write" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>read</code> allows read-class tools only. Writes, edits, shell commands, commits, MCP tools, and delegation are denied.</li>
@@ -1331,7 +1331,7 @@
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Any key not listed is write-class, and an unknown key (for example a permission a new plugin introduces) defaults to write. This is fail-closed: a plugin cannot make a write tool readable by accident, the operator has to add its key to <code>read_tools</code>.</p>
+<p>Any key not listed is write-class, and an unknown key (for example a permission a new plugin introduces) defaults to write. This is fail-closed: a plugin cannot make a write tool readable by accident, the user has to add its key to <code>read_tools</code>.</p>
 <p>Default write keys include <code>edit</code>, <code>bash</code>, <code>vcs</code>, <code>mcp</code>, <code>call</code>, and <code>delegate</code>. Mixed tools gate per action: <code>catalog</code> allows <code>list</code>/<code>show</code> in read mode and denies <code>save</code>/<code>remove</code>/<code>reload</code>, <code>git</code> is read while <code>git_commit</code> is write (<code>vcs</code>), and the MCP management tools allow <code>mcp_list</code> in read mode while <code>mcp_connect</code>/<code>mcp_disconnect</code> and the imported remote tools are write (<code>mcp</code>).</p>
 <h2 id="the-mode-cap">The mode cap<a class="headerlink" href="#the-mode-cap" title="Permanent link">&para;</a></h2>
 <p>The mode is the outermost bound, applied last. It is enforced in <code>ToolPolicy</code> after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. A sub-agent inherits its caller's mode, and <code>read</code> clamps the delegation ceiling, so a granted <code>bash</code> still cannot run in read mode.</p>
@@ -1348,7 +1348,7 @@
 <p>A role carve only needs to declare write keys, because read keys are allowed by default. Use the permission key (<code>bash</code>, <code>edit</code>, <code>read</code>, <code>vcs</code>), not the tool name. A role can narrow a read key, but it can never widen past the mode cap.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Read mode cannot run tests or lint (<code>run_command</code> and <code>code_test</code> are <code>bash</code>), commit (<code>vcs</code>), or use MCP until the operator switches to <code>write</code>.</li>
+<li>Read mode cannot run tests or lint (<code>run_command</code> and <code>code_test</code> are <code>bash</code>), commit (<code>vcs</code>), or use MCP until the user switches to <code>write</code>.</li>
 <li>Existing configs and scripts that relied on the old <code>build</code> default now run read-only until they set <code>mode: "write"</code>.</li>
 <li>A new plugin write key stays denied in read mode until it is added to <code>access.read_tools</code>.</li>
 </ul>

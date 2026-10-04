@@ -1463,11 +1463,11 @@
 <h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
 <p>The end-to-end shape of a bigger task:</p>
 <ol>
-<li><strong>Ask</strong> - the operator states an outcome to the <code>assistant</code>, in one sentence.</li>
+<li><strong>Ask</strong> - the user states an outcome to the <code>assistant</code>, in one sentence.</li>
 <li><strong>Compose</strong> - for work beyond one task, the assistant engages the <code>composer</code> role, which designs a team: the specialists, the skills each needs, the stage order, and an optional review loop. The team is saved to the catalog, so it can be reused and extended.</li>
 <li><strong>Run</strong> - the assistant starts the team. Stages run in order, each with its own role, skills, and permission carve, and each writing its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.</li>
 <li><strong>Hand off</strong> - as phases change, control moves from one run to the next. The assistant hands focus to the composer, the composer to a planning agent, the planning agent to a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.</li>
-<li><strong>Watch or stay out</strong> - the operator can follow progress, jump into any run with <code>/focus</code>, or let it run silently. A status line shows what each agent is doing.</li>
+<li><strong>Watch or stay out</strong> - the user can follow progress, jump into any run with <code>/focus</code>, or let it run silently. A status line shows what each agent is doing.</li>
 <li><strong>Remember</strong> - after the run, the team and its members update bounded memory. The next run continues from the change, not from a replayed transcript.</li>
 <li><strong>Report</strong> - finished and failed runs surface a summary, and recurring work reports out of band.</li>
 </ol>
@@ -1480,15 +1480,15 @@
 <li><strong>A library of specialists</strong> - define roles and skills once, then reuse them across tasks, teams, and jobs, extending a role per task with additional skills.</li>
 <li><strong>A scripted agent</strong> - drive the same loop from the CLI or the HTTP API for automation and CI.</li>
 </ul>
-<p>This is the operator-facing half of the runtime, and it is what the phases turn on.</p>
+<p>This is the user-facing half of the runtime, and it is what the phases turn on.</p>
 <h2 id="decisions">Decisions<a class="headerlink" href="#decisions" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Assistant is the single point of contact</strong> - the main agent is the operator's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).</li>
-<li><strong>Modes are the posture</strong> - the root agent is <code>config.system_prompt</code> plus the active mode, not a bound role. <code>read</code> is the default (read, search, and role-less read-only sibling offload; no writes, no named-role calls, no grants), and <code>write</code> is opt-in (filesystem writes, named-role <code>call</code>, team <code>delegate</code>, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).</li>
+<li><strong>Assistant is the single point of contact</strong> - the main agent is the user's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).</li>
+<li><strong>Modes are the posture</strong> - the root agent is <code>config.system_prompt</code> plus the active mode, not a bound role. <code>read</code> is the default (read, search, and role-less read-only sibling offload, no writes, no named-role calls, and no grants), and <code>write</code> is opt-in (filesystem writes, named-role <code>call</code>, team <code>delegate</code>, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).</li>
 <li><strong>Run-owned sessions</strong> - a session belongs to a run. Whoever starts a run creates its session: the root at startup, <code>delegate</code>/<code>team</code> at delegation, the scheduler per job run. A role is an identity a run borrows, never a session owner, so there is no <code>agent_&lt;role&gt;</code> and no <code>sub_&lt;key&gt;</code>.</li>
 <li><strong>Focus navigates, handoff moves</strong> - <code>/focus</code> shows the run tree and jumps into existing runs, and never creates a session. <code>handoff</code> moves focus between runs and pauses or finishes the current one, without creating or naming a session.</li>
 <li><strong>Memory, not replay</strong> - continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per role, team, and job, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.</li>
-<li><strong>Sequential-first</strong> - team stages run one member after another via <code>run_subagent</code> (existing, battle-tested). In-process threaded concurrency is the later milestone for watching and joining a live run (cuts wall-clock and lets the operator jump in, not tokens).</li>
+<li><strong>Sequential-first</strong> - team stages run one member after another via <code>run_subagent</code> (existing, battle-tested). In-process threaded concurrency is the later milestone for watching and joining a live run (cuts wall-clock and lets the user jump in, not tokens).</li>
 <li><strong>No pre-saved run prompts</strong> - briefs, handoff, and memory are generated per run. Stored artifacts are roles, teams, and skills in the registries.</li>
 <li><strong>Core stays thin and publishable</strong> - registries plus the sequential runner plus plugin hooks. Everything customer-specific lives in local <code>roles.json</code>, <code>teams.json</code>, <code>skills/</code>, or plugins, and moves toward plugins entirely.</li>
 </ul>

@@ -1354,7 +1354,7 @@
 <span class="c1"># {"sessions": ["ses_20260814_192251_ab12cd", "api"]}</span>
 </code></pre></div>
 <h2 id="get-asks">GET /asks<a class="headerlink" href="#get-asks" title="Permanent link">&para;</a></h2>
-<p>Lists parked asks. Unattended runs park <code>ask target='human'</code> instead of blocking or erroring, see <a href="../config/#unattended-mode">config.md</a>. Each entry carries <code>id</code>, <code>question</code>, <code>context</code>, <code>options</code>, <code>origin</code> (the session that parked it), <code>kind</code> (<code>direction</code>/<code>permission</code>), <code>permission</code>, <code>status</code> (<code>pending</code>/<code>answered</code>), <code>answer</code>, and timestamps.</p>
+<p>Lists parked asks. Unattended runs park <code>ask target='user'</code> instead of blocking or erroring, see <a href="../config/#unattended-mode">config.md</a>. Each entry carries <code>id</code>, <code>question</code>, <code>context</code>, <code>options</code>, <code>origin</code> (the session that parked it), <code>kind</code> (<code>direction</code>/<code>permission</code>), <code>permission</code>, <code>status</code> (<code>pending</code>/<code>answered</code>), <code>answer</code>, and timestamps.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/asks
 <span class="c1"># {"asks": [{"id": 1, "question": "which port?", "origin": "sub_20260910_...", "kind": "direction", "status": "pending", ...}]}</span>
 </code></pre></div>

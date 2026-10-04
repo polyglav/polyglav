@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0410-2026-10-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.41.0 - 2026-10-04
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0400-2026-10-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1604,6 +1615,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0410-2026-10-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.41.0 - 2026-10-04
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0400-2026-10-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2061,6 +2083,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0410-2026-10-04">v0.41.0 - 2026-10-04<a class="headerlink" href="#v0410-2026-10-04" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed focus and handoff for numeric session ids - an explicit <code>#&lt;id&gt;</code> that looks like a run number now falls back to a session-id lookup when no run has that id, so a session id that happens to be all digits is no longer misread as a run number in <code>/focus</code>, <code>resolve_target</code>, and the <code>handoff</code> tool. Tests: <code>test_focus.py</code></li>
+<li>Added the caller name to the focused-run prompt - with <code>prompt_role</code> on, a focused sub-run shows <code>Manager &gt;&gt;&gt;</code> in the default text color so the caller is visible, while the root prompt keeps the mode color (<code>&gt;&gt;&gt;</code> cyan in <code>read</code>, orange in <code>write</code>). Docs (<code>config.md</code>, <code>architecture.md</code>). Tests: <code>test_focus.py</code></li>
+<li>Added prompt origin to session logs - each <code>user</code> part records who sent it: absent or <code>user</code> for the person, the delegating role (<code>root</code>, <code>manager</code>, ...) for a prompt from a sub-agent, and <code>job</code>/<code>api</code>/<code>cli</code>/<code>eval</code> for the headless entry points. <code>Engine.chat(text, origin=...)</code> threads it, sub-agents pass their caller's role, and <code>/print</code>, the Markdown transcript, and the serve API show the origin instead of always <code>user</code>. The provider context is unchanged. Docs (<code>session.md</code>). Tests: <code>test_prompt_origin.py</code></li>
+<li>Changed the ask targets and terminology to user/caller - the <code>ask</code> tool takes <code>target='user'</code> for the person and <code>target='caller'</code> for the delegating agent (was <code>human</code> and <code>lead</code>), <code>ask_policy.direction</code> defaults to <code>user</code>, grant origin is <code>user</code>, and the operator/human wording across code and docs is now <code>user</code>. No aliases, since this is pre-release. Docs (<code>tools.md</code>, <code>config.md</code>, <code>security.md</code>, <code>swarm.md</code>, <code>session.md</code>, <code>testing.md</code>, <code>AGENTS.md</code>). Tests: <code>test_ask.py</code>, <code>test_asks.py</code>, <code>test_delegation_permissions.py</code>, <code>test_config.py</code></li>
+<li>Added Markdown role instructions - a role's long system prompt can live in <code>.polyglav/roles/&lt;name&gt;.md</code> (or the global roles directory) and be referenced from the JSON entry, whose short <code>description</code> and structured fields stay authoritative. The registry reads the file body as <code>system_prompt</code> and its JSON-valued frontmatter as field fallbacks, <code>/roles new</code> and the <code>catalog</code> tool write the prompt to the Markdown file and a short index entry, and <code>/roles show</code> prints the reference. Docs (<code>roles.md</code>). Tests: <code>test_role_files.py</code></li>
+<li>Added first-run onboarding - a new <code>register_startup</code> plugin hook runs a <code>callable(chat)</code> once when the REPL starts, and the bundled <code>polyglav-core-onboarding</code> plugin uses it to ask about the project and the assistant, then writes the local config (<code>system_prompt</code>, <code>focus_on_delegate</code>, <code>prompt_role</code>). It runs only when <code>.polyglav/config.json</code> is absent, skips unattended and non-interactive runs, and re-runs on demand through <code>/onboard</code>. Docs (<code>plugins.md</code>, <code>AGENTS.md</code>). Tests: <code>plugins/polyglav-core-onboarding/tests/test_onboarding.py</code>, <code>test_bundled_plugins.py</code></li>
+<li>Removed bundled roles and teams - the package ships no role or team catalog, so a fresh install starts with an empty one that the operator or an agent fills through the <code>catalog</code> tool or <code>/roles new</code> and <code>/teams new</code>. Roles and teams now merge from plugin, global, and local layers only (<code>roles.py</code>, <code>teams.py</code>), <code>/roles</code> and <code>/teams</code> no longer report a <code>bundled</code> origin, and the <code>catalog</code> tool no longer special-cases bundled entries. A project keeps its tuned catalog under <code>.polyglav/</code> (the Polyglav repo tracks its own for self-development). Docs (<code>roles.md</code>, <code>teams.md</code>, <code>swarm.md</code>, <code>architecture.md</code>, <code>AGENTS.md</code>). Tests: <code>test_roles.py</code>, <code>test_teams.py</code>, <code>test_catalog.py</code>, <code>test_composer.py</code>, plus shared role fixtures in the delegation, focus, and handoff suites</li>
+</ul>
 <h2 id="v0400-2026-10-03">v0.40.0 - 2026-10-03<a class="headerlink" href="#v0400-2026-10-03" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Root without a persona - the root agent is <code>config.system_prompt</code> plus the mode. Removed <code>assistant</code>, <code>assistant_role</code>, <code>bind_root_agent</code>, and the bundled assistant role, so the REPL starts untyped and roles are delegation targets only. <code>prompt_role</code> still names the active role for a focused sub-run. Docs (<code>docs/modes.md</code>, <code>roles.md</code>, <code>architecture.md</code>, <code>config.md</code>). Tests: <code>tests/test_focus.py</code>, <code>tests/test_roles.py</code>, <code>tests/test_handoff.py</code></li>

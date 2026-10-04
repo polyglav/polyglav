@@ -416,6 +416,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-catalog-permissions-and-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent catalog, permissions, and presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#output-log-and-status-legibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1483,6 +1494,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-catalog-permissions-and-presentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent catalog, permissions, and presentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#output-log-and-status-legibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1741,7 +1763,7 @@
 </tbody>
 </table>
 <h2 id="self-development-team-enablement">Self-development team enablement<a class="headerlink" href="#self-development-team-enablement" title="Permanent link">&para;</a></h2>
-<p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the shipped team catalogs and the described workflow.</p>
+<p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the project catalogs and the described workflow.</p>
 <table>
 <thead>
 <tr>
@@ -1767,12 +1789,12 @@
 <td>reply to stacked questions and continue</td>
 </tr>
 <tr>
-<td>Handoff from sub-agents - a team stage or delegated agent hands focus to the next agent (composer &gt; planner &gt; developer), not only the REPL root</td>
+<td>Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer &gt; planner &gt; developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, with onboarding asking whether to enable it</td>
 <td>M</td>
 <td>automatic agent-to-agent handoff</td>
 </tr>
 <tr>
-<td>Researcher role with fresh context - a bundled researcher role with web access, started fresh per task</td>
+<td>Researcher role with fresh context - a researcher role template with web access, started fresh per task</td>
 <td>S</td>
 <td>clean research per task</td>
 </tr>
@@ -1784,7 +1806,7 @@
 </tbody>
 </table>
 <h2 id="memory-and-role-instructions">Memory and role instructions<a class="headerlink" href="#memory-and-role-instructions" title="Permanent link">&para;</a></h2>
-<p>The leader remembers the operator's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.</p>
+<p>A delegated role remembers the user's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.</p>
 <table>
 <thead>
 <tr>
@@ -1795,19 +1817,14 @@
 </thead>
 <tbody>
 <tr>
-<td>Role instruction files - <code>.polyglav/roles/&lt;name&gt;.md</code> referenced from the JSON entry and appended verbatim</td>
-<td>M</td>
-<td>full-length role instructions</td>
-</tr>
-<tr>
 <td>Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard</td>
 <td>S-M</td>
 <td>recall without replay</td>
 </tr>
 <tr>
-<td>Root role memory - inject role memory in <code>bind_root_agent</code> through a shared compose helper</td>
+<td>Role memory for delegated roles - inject role memory in <code>_new_sub_engine</code> through a shared compose helper, with a refresh path</td>
 <td>S</td>
-<td>the leader remembers across runs</td>
+<td>a role remembers across runs</td>
 </tr>
 <tr>
 <td>Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</td>
@@ -1826,7 +1843,7 @@
 </tr>
 </tbody>
 </table>
-<p>Known gap: <code>bind_root_agent</code> applies the role prompt only when <code>config.origin('system_prompt') == 'default'</code>, it runs once at startup, and it never refreshes, so the root-memory change alone is incomplete. It must share one prompt-composition helper with <code>_new_sub_engine</code>, respect the <code>origin</code> guard, and ship with a refresh path (the conclusion stage), otherwise the injected memory never updates. The modes-first redesign removes root roles entirely, so root-role memory folds into role memory for delegated roles only; land it after that redesign or re-scope it there.</p>
+<p>The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.</p>
 <h2 id="role-boundaries-skills-and-project-knowledge">Role boundaries, skills, and project knowledge<a class="headerlink" href="#role-boundaries-skills-and-project-knowledge" title="Permanent link">&para;</a></h2>
 <p>A role's file and folder access is a config rule, not a prompt, and a skill is tool or framework centered while the project description lives in <code>AGENTS.md</code>.</p>
 <table>
@@ -1838,11 +1855,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy</td>
-<td>M</td>
-<td>enforced role boundaries</td>
-</tr>
 <tr>
 <td><code>.polyglav</code> directory layout - reserved subfolders and file names, documented</td>
 <td>S-M</td>
@@ -1857,6 +1869,49 @@
 <td>Hidden files and allowed roots - hide secrets and config from tools by default, restrict visible paths</td>
 <td>M</td>
 <td>no accidental exposure</td>
+</tr>
+</tbody>
+</table>
+<h2 id="agent-catalog-permissions-and-presentation">Agent catalog, permissions, and presentation<a class="headerlink" href="#agent-catalog-permissions-and-presentation" title="Permanent link">&para;</a></h2>
+<p>The catalog grows the fields and rule shapes an agent needs to be a first-class, self-describing profile: resource-scoped access, presentation, kind, durable approvals, and a Markdown catalogue for teams and skills.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ordered resource-scoped permission rules - <code>{action, resource, effect}</code>, wildcards, last match wins, multi-file deny</td>
+<td>M</td>
+<td>policy-enforced boundaries</td>
+</tr>
+<tr>
+<td>Agent kind and default agent - root/delegated/both plus a default startup role</td>
+<td>S-M</td>
+<td>role selection by kind</td>
+</tr>
+<tr>
+<td>Agent presentation and limits - <code>color</code>, <code>hidden</code>, <code>disabled</code>, and a step cap</td>
+<td>S</td>
+<td>a first-class agent profile</td>
+</tr>
+<tr>
+<td>Durable approvals and a hard-deny layer - project-scoped <code>always</code> grants, exact-args, deny-only policy</td>
+<td>M</td>
+<td>approvals that outlive a run</td>
+</tr>
+<tr>
+<td>Markdown catalogue for teams and skills - JSON index plus Markdown body, migrated</td>
+<td>M</td>
+<td>portable, editable catalogs</td>
+</tr>
+<tr>
+<td>Per-agent request overlays - request headers and body overlay per role</td>
+<td>S-M</td>
+<td>per-agent request tuning</td>
 </tr>
 </tbody>
 </table>

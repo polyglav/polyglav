@@ -1238,7 +1238,7 @@
 <li>One runtime, many agents - position Polyglav as an agent harness for fleets, not a single assistant</li>
 <li>ACP inward and outward - speak the Agent Client Protocol so Polyglav can host and be hosted by other harnesses, alongside MCP</li>
 <li>Commands as tools - expose slash commands to the model as permission-gated tools to configure roles, teams, and skills, with command access limited per permission</li>
-<li>Markdown catalogue - store roles, teams, and skills as Markdown files (front matter) referenced from JSON, and move the bundled data files (<code>src/polyglav/*.json</code>) into one catalogue directory near <code>src</code></li>
+<li>Markdown catalogue for teams and skills - store them as Markdown (front matter) referenced from JSON, with roles already done, in one catalogue directory</li>
 <li>Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots</li>
 <li>Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to <code>.polyglav/tmp/</code> referenced from the session log</li>
 <li>Context UI polish - auto-compaction, context trim, highlighting, and context desaturation</li>
@@ -1282,6 +1282,12 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of <code>{action, resource, effect}</code> rules. <code>action</code> is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), <code>resource</code> is a path, command prefix, URL, query, skill id, or role id, <code>effect</code> is allow/ask/deny, resources accept <code>*</code>/<code>?</code> wildcards, and the last matching rule wins so a broad rule precedes its exceptions. <code>ToolPolicy</code> evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt</li>
+<li>[ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a <code>default_agent</code> config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called</li>
+<li>[ ] Agent presentation and limits - a role carries <code>color</code> (prompt and status accent), <code>hidden</code> (omit from listings and the delegation catalog), and <code>disabled</code> (remove a lower-layer role), plus a per-role step cap that drops the tool schema on the final step and asks the model to summarize</li>
+<li>[ ] Durable approvals and a hard-deny layer - a confirm offers once/always/reject, <code>always</code> saves a project-scoped rule that survives the sub-agent run, an exact-args approval records the specific command or path rather than the whole tool, and a policy layer can turn any allow/ask into deny but never grant</li>
+<li>[ ] Markdown catalogue for teams and skills - extend the JSON-index plus Markdown-body model to teams and skills, with one catalogue directory and migration from the JSON files</li>
+<li>[ ] Per-agent request overlays - a role sets request headers and a JSON body overlay applied to its provider calls, for per-agent temperature or routing, with providers that ignore them degrading gracefully</li>
 <li>[ ] Dev tool fallback - <code>code_lint</code>/<code>code_format</code> report a clear setup hint when the configured linter/formatter (<code>ruff</code>) is absent, and honor the <code>dev.lint_cmd</code>/<code>dev.format_cmd</code> overrides</li>
 <li>[ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</li>
 <li>[ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate</li>
@@ -1294,21 +1300,19 @@
 <li>[ ] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden</li>
 <li>[ ] Batched structured asks - <code>ask</code> handles one question at a time, so several decisions cannot be asked in one call</li>
 <li>[ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work</li>
-<li>[ ] Researcher role with fresh context - a bundled researcher role with web access, started fresh for every task so research never inherits stale context</li>
-<li>[ ] Per-role path scoping - a role declares the files and folders it may touch, enforced by the tool policy rather than by a prompt</li>
+<li>[ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context</li>
 <li>[ ] <code>.polyglav</code> directory layout - decide and document the reserved subfolders and file names under <code>.polyglav/</code></li>
 <li>[ ] Skill definition - a skill holds tool, language, or framework instructions, not a project description</li>
-<li>[ ] Skill catalog review - rework the bundled and local skills against that definition, add a <code>python</code> skill and a <code>polyglav</code> skill, and move project-description text into <code>AGENTS.md</code></li>
+<li>[ ] Skill catalog review - rework the project and local skills against that definition, add a <code>python</code> skill and a <code>polyglav</code> skill, and move project-description text into <code>AGENTS.md</code></li>
 <li>[ ] <code>AGENTS.md</code> as the project description - keep it the single project description and update it when the structure, conventions, or extension points change</li>
 <li>[ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing</li>
 <li>[ ] <code>memorize</code> as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command</li>
-<li>[ ] Role instruction files - a role's long instructions live in <code>.polyglav/roles/&lt;name&gt;.md</code>, referenced from the short JSON entry and appended verbatim</li>
 <li>[ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone</li>
 <li>[ ] Root role memory - inject <code>.polyglav/memory/roles/&lt;role&gt;.md</code> in <code>bind_root_agent</code> through a shared prompt-composition helper, with a refresh path</li>
-<li>[ ] Conclusion stage - a bundled stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits</li>
+<li>[ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits</li>
 <li>[ ] Saved-session catalog in <code>/load</code> - <code>/load</code> lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while <code>/focus</code> stays live-runs-only</li>
 <li>[ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session</li>
-<li>[ ] Handoff from sub-agents - a team stage or delegated agent can hand focus to the next agent (composer &gt; planner &gt; developer), not only the REPL root</li>
+<li>[ ] Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer &gt; planner &gt; developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, and onboarding asks whether to enable auto-focus</li>
 <li>[ ] Fix the PyPI long-description screenshot - the image fails to load on the package page</li>
 <li>[ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing</li>
 <li>[ ] Exact-args permission grants - approve the specific command (not just the tool), and let an <code>always</code> grant live beyond the current sub-agent run</li>
@@ -1327,8 +1331,8 @@
 <li>[ ] Relocate job run sessions under <code>.polyglav/jobs/&lt;name&gt;/</code> (kept in <code>sessions/</code> for now)</li>
 <li>[ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs</li>
 <li>[ ] Assistant-roles track docs - record the assistant, composer, and manager architecture and the work packages in VISION, PLAN, and TODO</li>
-<li>[ ] Core dev team configuration - a bundled development team with the review loop plus the project lead/support teams and their skills</li>
-<li>[ ] Manager role - a bundled role that runs one or many teams and reports, sequential first</li>
+<li>[ ] Core dev team configuration - a development team with the review loop plus the project lead/support teams and their skills</li>
+<li>[ ] Manager role - a role that runs one or many teams and reports, sequential first</li>
 <li>[ ] Per-job report destination - a <code>report_url</code> (or connector list) on a job so different jobs report to different endpoints, instead of one global <code>report.webhook</code></li>
 <li>[ ] Per-task decide-vs-park for <code>direction</code> asks - a task class (or per-run switch) that lets the supervisor auto-resolve a direction ask after a timeout instead of always parking it for the operator</li>
 <li>[ ] Full <code>file_*</code> namespace extension - if <code>file_glob</code>/<code>file_grep</code> prove better with most models, extend the prefix to <code>list_dir</code>/<code>glob</code>/<code>grep</code> (old names stay aliases)</li>
@@ -1387,6 +1391,13 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Numeric session ids resolve in /focus and handoff - fall back when no run has that id</li>
+<li>[x] Focused-run prompt shows the caller name in default text color (<code>Manager &gt;&gt;&gt;</code>)</li>
+<li>[x] Prompt origin in logs - user part records the caller role, job, api, cli, or user</li>
+<li>[x] User/caller terminology - ask targets <code>user</code>/<code>caller</code>, direction <code>user</code>, <code>user</code> wording</li>
+<li>[x] Markdown role instructions - JSON index plus <code>.polyglav/roles/&lt;name&gt;.md</code> body prompt</li>
+<li>[x] Onboarding plugin and startup hook - first-run setup writes config, and /onboard reruns</li>
+<li>[x] Bundled roles and teams removed - no catalog ships, layers are plugin/global/local only</li>
 <li>[x] Headless modes - run/serve default read, jobs add records write unless set</li>
 <li>[x] Root roles dropped - root is <code>system_prompt</code> + mode, no assistant persona</li>
 <li>[x] Delegation taxonomy - <code>call</code> (named role), <code>delegate</code> (team), <code>offload</code> (role-less sibling)</li>

@@ -1444,7 +1444,7 @@
 </tr>
 <tr>
 <td><code>key_arg</code></td>
-<td>The argument shown in confirm prompts and activity lines, so the human sees what will happen</td>
+<td>The argument shown in confirm prompts and activity lines, so the user sees what will happen</td>
 </tr>
 <tr>
 <td><code>aliases</code> / <code>param_aliases</code></td>
@@ -1465,7 +1465,7 @@
 <p>Error responses are guidance, not telemetry. When a call fails, tell the model what to do instead.</p>
 <ul>
 <li>Start with <code>Error:</code> and a one-line actionable message. Polyglav's filesystem tools set the pattern: <code>Error: X is a directory (use list_dir instead)</code>, <code>Error: X is not a directory (use file_read instead)</code>, <code>Error: file not found: X</code>. Each suggests the correct tool.</li>
-<li>Do not return tracebacks or opaque codes. The first line of an <code>Error:</code> result echoes dimmed in the REPL, so the model and the human see the same guidance.</li>
+<li>Do not return tracebacks or opaque codes. The first line of an <code>Error:</code> result echoes dimmed in the REPL, so the model and the user see the same guidance.</li>
 <li>Use a <code>note</code> predicate for informational one-liners that are not failures. <code>(no matches for "x")</code>, <code>(empty file)</code>, <code>(end of content)</code>, and <code>No search results found.</code> are normal outcomes. A dimmed note beats a red error line.</li>
 </ul>
 <h2 id="evaluating-your-tools">Evaluating your tools<a class="headerlink" href="#evaluating-your-tools" title="Permanent link">&para;</a></h2>

@@ -1296,11 +1296,11 @@
 </tr>
 <tr>
 <td><code>test_ask.py</code></td>
-<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), human answer / empty-cancelled / context+options rendering, no-channel error (headless), <code>target='lead'</code> lead-model consultation (question + delegated task in the prompt) + silent-lead fallback to human + root-fallback, sub-engine <code>_caller</code>/<code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
+<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), <code>target='caller'</code> caller-model consultation (question + delegated task in the prompt) + silent-caller fallback to the user + root-fallback, sub-engine <code>_caller</code>/<code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
 </tr>
 <tr>
 <td><code>test_asks.py</code></td>
-<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root/sub-agent human ask -&gt; <code>[parked]</code> + record with no stdin, <code>target='lead'</code> lead-less root parks, attended still prompts, permission-ask <code>human</code> route parks with <code>kind=permission</code> while <code>auto</code> route still grants <code>once</code> to the lead), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
+<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root/sub-agent user ask -&gt; <code>[parked]</code> + record with no stdin, <code>target='caller'</code> caller-less root parks, attended still prompts, permission-ask <code>user</code> route parks with <code>kind=permission</code> while <code>auto</code> route still grants <code>once</code> to the caller), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
 </tr>
 <tr>
 <td><code>test_autonomous_supervisor.py</code></td>
@@ -1332,7 +1332,7 @@
 </tr>
 <tr>
 <td><code>test_delegation_permissions.py</code></td>
-<td>Permission ceiling + grants: <code>clamp_action</code>/<code>resolve_permissions</code>/<code>resolve_grant_ceiling</code>, <code>ToolPolicy</code> one-shot/always grants + consume + category/tool matching, no-escalation (a role carve cannot widen above the caller's <code>grant_permission</code>), supervisor grants a category it cannot use itself, one-shot grants do not propagate to children, <code>ask(kind='permission')</code> routing (<code>auto</code>/<code>human</code>/<code>deny</code>, ceiling denial, lead grants <code>once</code> only, operator grants <code>once</code>/<code>always</code>), granted tool appears then is consumed from the schema, audit entries</td>
+<td>Permission ceiling + grants: <code>clamp_action</code>/<code>resolve_permissions</code>/<code>resolve_grant_ceiling</code>, <code>ToolPolicy</code> one-shot/always grants + consume + category/tool matching, no-escalation (a role carve cannot widen above the caller's <code>grant_permission</code>), supervisor grants a category it cannot use itself, one-shot grants do not propagate to children, <code>ask(kind='permission')</code> routing (<code>auto</code>/<code>user</code>/<code>deny</code>, ceiling denial, the caller grants <code>once</code> only, the user grants <code>once</code>/<code>always</code>), granted tool appears then is consumed from the schema, audit entries</td>
 </tr>
 <tr>
 <td><code>test_engine.py</code></td>
@@ -1480,7 +1480,7 @@
 </tr>
 <tr>
 <td><code>test_unattended.py</code></td>
-<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root human ask non-blocking / sub-agent human ask routes to the lead (no <code>input</code>), full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
+<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root user ask non-blocking / sub-agent user ask routes to the caller (no <code>input</code>), full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
 </tr>
 <tr>
 <td><code>test_roles.py</code></td>

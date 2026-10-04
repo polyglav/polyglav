@@ -770,10 +770,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#human-in-the-loop" class="md-nav__link">
+  <a href="#user-in-the-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Human in the loop
+        User in the loop
       
     </span>
   </a>
@@ -1375,10 +1375,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#human-in-the-loop" class="md-nav__link">
+  <a href="#user-in-the-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Human in the loop
+        User in the loop
       
     </span>
   </a>
@@ -1469,7 +1469,7 @@
 
 
 <h1 id="scheduled-and-durable-jobs">Scheduled and durable jobs<a class="headerlink" href="#scheduled-and-durable-jobs" title="Permanent link">&para;</a></h1>
-<p><code>polyglav jobs</code> turns the one-shot agent loop into a durable workflow engine. <code>polyglav run</code> is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a human-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.</p>
+<p><code>polyglav jobs</code> turns the one-shot agent loop into a durable workflow engine. <code>polyglav run</code> is a single turn. A job is a named task that adds scheduling, retries with backoff, approvals, a user-in-the-loop status model, and an append-only run history, stored as a file so it survives daemon restarts.</p>
 <h2 id="job-store">Job store<a class="headerlink" href="#job-store" title="Permanent link">&para;</a></h2>
 <p>Jobs live in <code>.polyglav/jobs.json</code> next to the sessions, one register per worktree (same rule as roles). The file is plain JSON and the last writer wins, so run one scheduler per <code>.polyglav</code>. Removing a job removes only its definition, while its sessions stay as the append-only log of every run. The register keeps the most recent 100 runs. The full transcript stays in the session file.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1498,7 +1498,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="status-model">Status model<a class="headerlink" href="#status-model" title="Permanent link">&para;</a></h2>
-<p>A job is a human-gated workflow, not a blind timer. <code>waiting_approval</code> is the parked state of <code>require_approval</code> jobs (see below):</p>
+<p>A job is a user-gated workflow, not a blind timer. <code>waiting_approval</code> is the parked state of <code>require_approval</code> jobs (see below):</p>
 <div class="highlight"><pre><span></span><code>proposed &gt; approved &gt; executing &gt; verified | failed
 </code></pre></div>
 <ul>
@@ -1613,7 +1613,7 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 </tr>
 <tr>
 <td><code>--require-approval</code></td>
-<td>Arm one run per approve, so every run parks in <code>waiting_approval</code> until a human approves it</td>
+<td>Arm one run per approve, so every run parks in <code>waiting_approval</code> until a user approves it</td>
 </tr>
 <tr>
 <td><code>--approve-model</code></td>
@@ -1625,14 +1625,14 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 </tr>
 </tbody>
 </table>
-<h2 id="human-in-the-loop">Human in the loop<a class="headerlink" href="#human-in-the-loop" title="Permanent link">&para;</a></h2>
+<h2 id="user-in-the-loop">User in the loop<a class="headerlink" href="#user-in-the-loop" title="Permanent link">&para;</a></h2>
 <p>There are three distinct gates, from coarsest to finest:</p>
 <ol>
 <li><strong>Arm / disarm (before any run)</strong> - <code>add</code> starts <code>proposed</code>. <code>approve</code> arms it once, <code>stop</code>/<code>disable</code> disarms it. This is the baseline gate everyone uses.</li>
 <li><strong>Per-run approval (<code>--require-approval</code>)</strong> - for when "something has to be decided" about <em>this</em> run, not arm-or-disarm for all time. Each run parks in <code>waiting_approval</code>: the daemon will not fire it, <code>polyglav jobs status</code> shows <code>WAITING for approve</code>, and <code>polyglav jobs approve &lt;name&gt;</code> (or <code>/jobs approve</code>) arms exactly the next run. It parks again after the run. <code>reject</code> clears the grant. <code>run</code> still overrides and executes now.</li>
-<li><strong>Mid-run blocking approval (tool-level, planned)</strong> - an <code>ask</code> tool inside a running job pauses the run in place and waits for a human reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in <a href="../../TODO.md">TODO.md</a>: it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same operator API).</li>
+<li><strong>Mid-run blocking approval (tool-level, planned)</strong> - an <code>ask</code> tool inside a running job pauses the run in place and waits for a user reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in <a href="../../TODO.md">TODO.md</a>: it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same user API).</li>
 </ol>
-<p>A job runs with <code>HeadlessUI(auto='deny')</code> on an unattended engine, the same posture as <code>polyglav serve</code>, plus parking. So until mid-run blocking is implemented, an <code>ask target='human'</code> inside a run is not paused and does not hang: it parks as a pending request in <code>.polyglav/asks.json</code> (returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code>), the run continues or finishes, and the operator answers later with <code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list) and it will not need mid-run interruption. A sub-agent inside a job can still use <code>ask target='lead'</code> for a decision from the job's model mid-run. <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>polyglav jobs show &lt;name&gt;</code> before a manual retry.</p>
+<p>A job runs with <code>HeadlessUI(auto='deny')</code> on an unattended engine, the same posture as <code>polyglav serve</code>, plus parking. So until mid-run blocking is implemented, an <code>ask target='user'</code> inside a run is not paused and does not hang: it parks as a pending request in <code>.polyglav/asks.json</code> (returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code>), the run continues or finishes, and the user answers later with <code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list) and it will not need mid-run interruption. A sub-agent inside a job can still use <code>ask target='caller'</code> for a decision from the job's model mid-run. <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>polyglav jobs show &lt;name&gt;</code> before a manual retry.</p>
 <h2 id="report-back">Report-back<a class="headerlink" href="#report-back" title="Permanent link">&para;</a></h2>
 <p>A finished or failed run is surfaced in-band and, optionally, out-of-band, so an unattended supervisor does not have to be watched:</p>
 <ul>
@@ -1642,13 +1642,13 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 <li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty <code>report.webhook</code> is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
 </ul>
 <h2 id="supervisor-overnight-run">Supervisor overnight run<a class="headerlink" href="#supervisor-overnight-run" title="Permanent link">&para;</a></h2>
-<p>A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park human questions as asks, and report back. One command scaffolds it:</p>
+<p>A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park user questions as asks, and report back. One command scaffolds it:</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add-supervisor<span class="w"> </span>night<span class="w"> </span>--interval<span class="w"> </span><span class="m">86400</span><span class="w"> </span>--task<span class="w"> </span><span class="s2">"Lead the work."</span>
 <span class="c1"># creates .polyglav/jobs/night.md from a supervisor template, role=leader, approved</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w">            </span><span class="c1"># runs it on schedule</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>night<span class="w">         </span><span class="c1"># or run it once now</span>
 </code></pre></div>
-<p>The job role is <code>leader</code>, whose <code>grant_permission</code> lets it delegate categories it denies itself (bash, web) to team stages, and whose <code>ask_policy</code> routes decisions to the operator (parking them under unattended mode). The task file (<code>.polyglav/jobs/&lt;name&gt;.md</code>) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (<code>/model</code>, or <code>--approve-model</code> when a role or team references a model).</p>
+<p>The job role is <code>leader</code>, whose <code>grant_permission</code> lets it delegate categories it denies itself (bash, web) to team stages, and whose <code>ask_policy</code> routes decisions to the user (parking them under unattended mode). The task file (<code>.polyglav/jobs/&lt;name&gt;.md</code>) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (<code>/model</code>, or <code>--approve-model</code> when a role or team references a model).</p>
 <p>While it runs:</p>
 <ul>
 <li><code>/asks</code> (or <code>GET /asks</code> on <code>polyglav serve</code>) lists parked asks. <code>/asks answer &lt;id&gt; &lt;text&gt;</code> (or <code>POST /asks/&lt;id&gt;/answer</code>) marks one answered and injects the answer into its origin session.</li>

@@ -1229,117 +1229,11 @@
 </tr>
 </tbody>
 </table>
-<p>The bundled catalog ships two pre-carved teams plus a <code>composer</code> and a <code>leader</code> role, useful as delegation targets and as templates (see <a href="../teams/">teams.md</a>). The composer designs and persists teams, and the leader supervises them. All leave <code>model</code> and <code>skills</code> empty (inheriting the caller's model) and differ mainly in <code>tool_permission</code> (<code>leader</code> also sets <code>grant_permission</code>/<code>ask_policy</code>, <code>composer</code> sets <code>ask_policy</code>):</p>
-<table>
-<thead>
-<tr>
-<th>role</th>
-<th>function</th>
-<th>tags</th>
-<th>edit</th>
-<th>bash</th>
-<th>web</th>
-<th>read</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>code-reviewer</code></td>
-<td>auditor: reviews a change, returns findings</td>
-<td>programming, review</td>
-<td>deny</td>
-<td>allow</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>composer</code></td>
-<td>team composer: designs and persists a team (<code>catalog</code> allow, <code>delegate</code> deny)</td>
-<td>management</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>editor</code></td>
-<td>auditor: checks a document against the prompt and sources</td>
-<td>writing, review</td>
-<td>deny</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>leader</code></td>
-<td>supervisor: coordinates teams and agents, delegates, grants, parks asks</td>
-<td>research, writing, programming, review</td>
-<td>deny</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>planner</code></td>
-<td>decomposes a task into an ordered, verifiable plan</td>
-<td>programming</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>programmer</code></td>
-<td>implements a change and runs the tests until green</td>
-<td>programming</td>
-<td>allow</td>
-<td>allow</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>referencer</code></td>
-<td>resolves citations into a <code>.bib</code> file</td>
-<td>writing</td>
-<td>allow</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>researcher</code></td>
-<td>gathers and evaluates web sources, returns findings</td>
-<td>research, writing</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>tester</code></td>
-<td>writes and runs tests, reports failures</td>
-<td>programming</td>
-<td>allow</td>
-<td>allow</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-<tr>
-<td><code>writer</code></td>
-<td>turns a findings brief into a document, returns file path</td>
-<td>writing</td>
-<td>allow</td>
-<td>deny</td>
-<td>deny</td>
-<td>allow</td>
-</tr>
-</tbody>
-</table>
-<p><code>allow</code> echoes the caller's category default, <code>deny</code> is explicit, and <code>-</code> sets no carve (the caller's config applies unchanged). Override any role by creating a local (or global) entry with the same <code>name</code>.</p>
+<p>No roles ship with the package. A fresh install has an empty catalog, and the user or an agent creates roles as a project needs them (the <code>catalog</code> tool and <code>/roles new</code>). Typical patterns a project builds are a <code>researcher</code> that gathers web sources, a <code>writer</code> that turns a findings brief into a document, a <code>code-reviewer</code> that reviews a change, and a <code>composer</code> that designs teams into the catalog. A project that keeps a tuned catalog can commit it under <code>.polyglav/</code> so it travels with the repository.</p>
+<p>A role carve only needs to declare the write keys it wants to narrow, because read keys are allowed by default and the mode sets the outer bound. For example, a document <code>writer</code> might set <code>edit: allow</code>, <code>bash: deny</code>, <code>web: deny</code>, while a <code>researcher</code> sets <code>web: allow</code> and <code>edit: deny</code>.</p>
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
-<p>Roles come from four layers, merged exactly like config: bundled, then plugin, then global, then local, local winning per field. Precedence mirrors bundled plugins (<code>bundled &lt; plugin &lt; global &lt; local</code>):</p>
+<p>Roles come from three layers, merged exactly like config: plugin, then global, then local, local winning per field:</p>
 <ul>
-<li><strong>Bundled</strong> - the read-only default catalog shipped in the package (<code>src/polyglav/bundled_roles.json</code>). Always present, never writable, overridable by any other layer.</li>
 <li><strong>Plugin</strong> - roles contributed by plugins via the <code>register_roles</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to any <code>roles.json</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
 <li><strong>Global</strong> - <code>~/.config/polyglav/roles.json</code>.</li>
 <li><strong>Local</strong> - <code>.polyglav/roles.json</code>.</li>
@@ -1354,7 +1248,7 @@
 <span class="w">  </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"research"</span><span class="p">,</span><span class="w"> </span><span class="s2">"writing"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">"grant_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">"ask_policy"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"permission"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w"> </span><span class="nt">"direction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"human"</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">"ask_policy"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"permission"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w"> </span><span class="nt">"direction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Fields:</p>
@@ -1363,18 +1257,21 @@
 <li><code>system_prompt</code> - the role's system prompt, injected when it runs.</li>
 <li><code>model</code> - optional. Overrides the caller's model when the role runs, falls back to the caller's when empty. Accepts a <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) to pin provider and model together. The model must be approved before the role runs (<code>delegate</code>/<code>/teams run</code> ask interactively, or pass <code>--approve-model</code> headlessly, see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>).</li>
 <li><code>skills</code> - optional list of standing skill names from the <a href="../skills/">skills registry</a>, resolved and injected into the role's sub-agent system prompt (and jobs with <code>--role</code>). A caller may layer additional skills per run through <code>call</code>/<code>delegate</code> or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.</li>
-<li><code>tags</code> - optional list of tags for grouping and filtering (<code>/roles list &lt;tag&gt;</code>). The bundled set uses a controlled vocabulary: <code>management</code>, <code>research</code>, <code>writing</code>, <code>programming</code>, <code>review</code>.</li>
+<li><code>tags</code> - optional list of tags for grouping and filtering (<code>/roles list &lt;tag&gt;</code>). A common vocabulary is <code>management</code>, <code>research</code>, <code>writing</code>, <code>programming</code>, <code>review</code>.</li>
 <li><code>tool_permission</code> - optional per-agent overrides of <code>tool_permission</code> categories. The per-agent permission profile.</li>
 <li><code>grant_permission</code> - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in <code>write</code>, denied in <code>read</code>), and this only narrows it. See <a href="#delegation-and-permissions">Delegation and permissions</a>.</li>
 <li><code>ask_policy</code> - optional per-role override of the <code>ask</code> routing by kind (<code>permission</code>/<code>direction</code>), merged over the config <code>ask_policy</code>. See <a href="../config/#ask_policy">config.md</a>.</li>
+<li><code>description</code> - optional short summary, shown by <code>/roles show</code> and the <code>catalog</code> tool.</li>
+<li><code>instructions</code> - optional Markdown file name under <code>.polyglav/roles/</code> (or <code>~/.config/polyglav/roles/</code>) that holds the role's long system prompt. It defaults to <code>&lt;name&gt;.md</code> when that file exists. The file body becomes <code>system_prompt</code>, and its YAML-like frontmatter can fill any field the JSON entry leaves unset. Frontmatter values are JSON (<code>tags: ["writing"]</code>, <code>tool_permission: {"bash": "deny"}</code>). The JSON entry stays authoritative: a <code>system_prompt</code> or field set there wins over the file.</li>
 </ul>
+<p>Writing a role through <code>/roles new</code> or the <code>catalog</code> tool stores the prompt in <code>.polyglav/roles/&lt;name&gt;.md</code> and leaves a short entry (with an <code>instructions</code> reference) in <code>roles.json</code>.</p>
 <h2 id="command">Command<a class="headerlink" href="#command" title="Permanent link">&para;</a></h2>
 <p><code>/roles</code> manages the registry, and <code>/role</code> reports the active role:</p>
 <ul>
-<li><code>/roles</code> - list roles, marking each one's origin (<code>bundled</code> / <code>plugin</code> / <code>local</code> / <code>global</code> / <code>merged</code>) and tags.</li>
+<li><code>/roles</code> - list roles, marking each one's origin (<code>plugin</code> / <code>local</code> / <code>global</code> / <code>merged</code>) and tags.</li>
 <li><code>/roles list &lt;tag&gt;</code> - list only roles carrying the tag (e.g. <code>/roles list programming</code>). Unknown tags print the known tags.</li>
 <li><code>/roles new &lt;name&gt; [system prompt]</code> - create a role in the local catalog (edit the JSON for full fields, including tags). Using an existing name overrides that role.</li>
-<li><code>/roles remove &lt;name&gt;</code> - remove a role from the local catalog. Bundled roles cannot be removed (override them instead).</li>
+<li><code>/roles remove &lt;name&gt;</code> - remove a role from the local catalog. A plugin role cannot be removed (override it with a local entry instead).</li>
 <li><code>/roles show &lt;name&gt;</code> - show a role's full definition.</li>
 <li><code>/role</code> - show the active run's role and session, so a focused or delegated run is identifiable at a glance.</li>
 </ul>
@@ -1384,10 +1281,10 @@
 <li>A configured role uses its own <code>tool_permission</code> overrides. The default for the <code>call</code> category is <code>allow</code> (a call runs without a prompt). Set <code>call: "ask"</code> on a role to confirm each call to it. A role with <code>call: "deny"</code> is refused as a call target and is not offered the <code>call</code> tool itself. To bar a role from running team pipelines without blocking calls to it, set <code>delegate: "deny"</code> instead (the <code>delegate</code> category gates only the team pipeline tool).</li>
 <li>A temporary role created only to run a task in parallel defaults to <code>deny</code> until you opt in.</li>
 </ul>
-<p>Sub-agent permissions are bounded by the caller: the effective carve is the caller's <code>tool_permission</code>, narrowed by the role's carve and capped by the caller's <code>grant_permission</code> ceiling (see <a href="../config/#permission-authority">config.md</a>). The ceiling comes from the mode: <code>write</code> makes write keys grantable, <code>read</code> denies them, and a role or config <code>grant_permission</code> can only narrow the result. A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor that denies <code>edit</code>/<code>bash</code> for itself but allows them in its ceiling can hand them to an <code>implementer</code> while never running them. An approved <code>ask(kind="permission")</code> request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The operator may grant <code>always</code> for the rest of that sub-agent's run.</p>
+<p>Sub-agent permissions are bounded by the caller: the effective carve is the caller's <code>tool_permission</code>, narrowed by the role's carve and capped by the caller's <code>grant_permission</code> ceiling (see <a href="../config/#permission-authority">config.md</a>). The ceiling comes from the mode: <code>write</code> makes write keys grantable, <code>read</code> denies them, and a role or config <code>grant_permission</code> can only narrow the result. A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor that denies <code>edit</code>/<code>bash</code> for itself but allows them in its ceiling can hand them to an <code>implementer</code> while never running them. An approved <code>ask(kind="permission")</code> request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may grant <code>always</code> for the rest of that sub-agent's run.</p>
 <h2 id="relationship-to-agent-skills-and-fleets">Relationship to /agent, skills, and fleets<a class="headerlink" href="#relationship-to-agent-skills-and-fleets" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>/agent</code> is the planned interactive way to pick a role and run with it. Today a role runs directly through the <code>call</code> tool (the lead model proposes it, or <code>/tool call {"role": ..., "task": ...}</code>), which builds the in-process sub-engine from this catalog.</li>
+<li><code>/agent</code> is the planned interactive way to pick a role and run with it. Today a role runs directly through the <code>call</code> tool (the caller model proposes it, or <code>/tool call {"role": ..., "task": ...}</code>), which builds the in-process sub-engine from this catalog.</li>
 <li>Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.</li>
 <li>A role runs either in-process as a sub-engine (the default for delegation) or as a scoped <code>polyglav serve</code> process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and <code>tool_permission</code> (see <a href="../fleet/">fleet.md</a>).</li>
 </ul>

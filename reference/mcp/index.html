@@ -1547,11 +1547,11 @@
 <li>Treat server-provided tool descriptions and schemas as untrusted metadata.</li>
 <li>stdio spawns arbitrary commands from your config. Only configure servers you trust.</li>
 <li>HTTP servers are contacted over the network. Credentials in <code>headers</code> are sent as-is.</li>
-<li>Every imported tool call routes through <code>ToolPolicy</code> (<code>mcp: ask</code> by default), giving a human confirmation in the REPL before the remote call runs.</li>
+<li>Every imported tool call routes through <code>ToolPolicy</code> (<code>mcp: ask</code> by default), giving a user confirmation in the REPL before the remote call runs.</li>
 <li>Tool results are logged to the session like any tool result.</li>
 </ul>
 <h2 id="server">Server<a class="headerlink" href="#server" title="Permanent link">&para;</a></h2>
-<p>The server exposes Polyglav's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows <code>ToolPolicy</code>. <code>ask</code> tools run directly (the external MCP client is the human-in-the-loop and shows its own confirmations) unless <code>mcp_server.allow_ask</code> is <code>false</code>, which refuses them.</p>
+<p>The server exposes Polyglav's currently registered tools (policy-filtered) and its saved sessions as resources, without mutating the active session. Tool execution follows <code>ToolPolicy</code>. <code>ask</code> tools run directly (the external MCP client is the user-in-the-loop and shows its own confirmations) unless <code>mcp_server.allow_ask</code> is <code>false</code>, which refuses them.</p>
 <h3 id="stdio-polyglav-mcp">stdio (<code>polyglav mcp</code>)<a class="headerlink" href="#stdio-polyglav-mcp" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>mcp<span class="w">                </span><span class="c1"># read JSON-RPC from stdin, write to stdout</span>
 </code></pre></div>

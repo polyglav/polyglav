@@ -1339,9 +1339,9 @@
 <h1 id="teams">Teams<a class="headerlink" href="#teams" title="Permanent link">&para;</a></h1>
 <p>A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the <code>delegate</code> primitive into a repeatable pipeline: "writing" = researcher &gt; writer &gt; referencer &gt; editor for documents, "programming" = planner &gt; programmer &gt; tester &gt; code-reviewer. The registry stores the definition and the sequential stage loop (<code>Engine.run_team</code>) executes it, reachable from the REPL (<code>/teams run</code>), the model (the <code>delegate</code> tool), and the CLI.</p>
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
-<p>Teams come from four layers, merged exactly like roles: bundled, then plugin, then global, then local, local winning per field. Precedence is <code>bundled &lt; plugin &lt; global &lt; local</code>:</p>
+<p>No teams ship with the package. A fresh install has an empty catalog, and the user or an agent creates teams as a project needs them (the <code>catalog</code> tool and <code>/teams new</code>). A project that keeps a tuned catalog can commit it under <code>.polyglav/</code> so it travels with the repository.</p>
+<p>Teams come from three layers, merged exactly like roles: plugin, then global, then local, local winning per field:</p>
 <ul>
-<li><strong>Bundled</strong> - the read-only default roster shipped in the package (<code>src/polyglav/bundled_teams.json</code>, the <code>writing</code> and <code>programming</code> pipelines above).</li>
 <li><strong>Plugin</strong> - teams contributed by plugins via the <code>register_teams</code> entry hook (<code>registry.add_plugin(...)</code>, see <a href="../plugins/">plugins.md</a>). An in-memory layer: never written to any <code>teams.json</code>, refreshed on <code>/plugins install</code>/<code>update</code>/<code>uninstall</code>.</li>
 <li><strong>Global</strong> - <code>~/.config/polyglav/teams.json</code>.</li>
 <li><strong>Local</strong> - <code>.polyglav/teams.json</code>.</li>
@@ -1360,7 +1360,7 @@
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"writer"</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"write"</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"task_hint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Write the document from the findings list."</span><span class="p">,</span>
 <span class="w">        </span><span class="nt">"handoff_note"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hand the document path to the referencer."</span>
 <span class="w">      </span><span class="p">}</span>
@@ -1378,7 +1378,7 @@
 </ul>
 <p>Stage fields:</p>
 <ul>
-<li><code>role</code> - required, the role name (must exist in the <a href="../roles/">roles registry</a> at run time, resolved against the same four-layer merge).</li>
+<li><code>role</code> - required, the role name (must exist in the <a href="../roles/">roles registry</a> at run time, resolved against the same three-layer merge).</li>
 <li><code>mode</code> - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.</li>
 <li><code>task_hint</code> - optional guidance folded into the delegated brief for this stage.</li>
 <li><code>handoff_note</code> - optional note passed with the previous stage's result into the next stage's brief.</li>
@@ -1386,10 +1386,10 @@
 </ul>
 <h2 id="managing-teams">Managing teams<a class="headerlink" href="#managing-teams" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>/teams</code> - list teams, marking each one's origin (<code>bundled</code> / <code>plugin</code> / <code>local</code> / <code>global</code> / <code>merged</code>) and tags, with the stage chain on the next line.</li>
+<li><code>/teams</code> - list teams, marking each one's origin (<code>plugin</code> / <code>local</code> / <code>global</code> / <code>merged</code>) and tags, with the stage chain on the next line.</li>
 <li><code>/teams list &lt;tag&gt;</code> - list only teams carrying the tag (e.g. <code>/teams list programming</code>).</li>
 <li><code>/teams new &lt;name&gt; [description]</code> - create a team in the local catalog (edit the JSON for stages, tags, and per-stage fields). Using an existing name overrides that team.</li>
-<li><code>/teams remove &lt;name&gt;</code> - remove a team from the local catalog. Bundled teams cannot be removed (override them instead).</li>
+<li><code>/teams remove &lt;name&gt;</code> - remove a team from the local catalog. A plugin team cannot be removed (override it with a local entry instead).</li>
 <li><code>/teams show &lt;name&gt;</code> - show a team's full definition (stages, task hints, handoff notes).</li>
 </ul>
 <p>Plugins contribute teams through the same <code>register_teams</code> entry hook the kit machine (templates, recipes) uses. See <a href="../plugins/">plugins.md</a>.</p>
@@ -1427,7 +1427,7 @@
 </ul>
 <p>Each loop iteration starts a fresh producer run seeded by the findings, rather than replaying a standing session.</p>
 <h2 id="the-delegate-tool">The <code>delegate</code> tool<a class="headerlink" href="#the-delegate-tool" title="Permanent link">&para;</a></h2>
-<p><code>delegate(name, task)</code> is the model-facing entry point (core, like <code>call</code> and <code>ask</code>), so a lead agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs <code>Engine.run_team</code> and returns the final stage's answer (or <code>Error: team "&lt;name&gt;" failed: &lt;reason&gt;</code>).</p>
+<p><code>delegate(name, task)</code> is the model-facing entry point (core, like <code>call</code> and <code>ask</code>), so a caller agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs <code>Engine.run_team</code> and returns the final stage's answer (or <code>Error: team "&lt;name&gt;" failed: &lt;reason&gt;</code>).</p>
 <ul>
 <li><strong>Permission</strong>: the <code>delegate</code> category gates the tool (default <code>allow</code>), separate from <code>call</code> so a role can be a call target but not run pipelines. On top of that, a per-invocation resolver reads the stage roles like <code>call</code>: a stage role that sets <code>delegate: "deny"</code> disables the team, <code>"ask"</code> confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.</li>
 <li><strong>Ceiling</strong>: each stage's carve is still capped by the caller's <code>grant_permission</code> (see <a href="../config/#permission-authority">config.md</a>). When a stage's requested permissions get clamped, the result carries a <code>(reduced permissions for: &lt;role&gt;)</code> note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque <code>unknown error</code>.</li>
