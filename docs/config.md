@@ -73,7 +73,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
-| `prompt_role`               | `false`                | Prefix the REPL prompt with the active role when focus is not the root (e.g. `Assistant >>>`). `false` keeps the plain `>>>` |
+| `prompt_role`               | `false`                | Prefix the REPL prompt with the active role when focus is not the root (e.g. `Assistant >>>`) in the default text color, so the caller is visible. `false` keeps the plain `>>>` in the mode color |
 | `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
 | `query_refine`              | `false`                | Auto-refine short web-search queries via a lightweight model call      |
 | `query_refine_context`      | `4`                    | Recent-message context to inject into refinement                       |
