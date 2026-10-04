@@ -93,7 +93,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `stream_retries`            | `2`                    | Extra attempts (after the first) when a provider stream ends before a completion event without content |
 | `stream_retry_delay`        | `0.5`                  | Seconds to wait between stream retries                                  |
 | `subrun_verbosity`          | `"quiet"`              | How much of a delegated sub-run reaches the terminal while the caller waits. `quiet` buffers the whole run (read it with `/focus log`), `summary` forwards only the sub-run's write and edit activity lines, `full` forwards every activity line. The run's own `✓ <stage> (Ns, N tokens)` line always prints on completion |
-| `system_prompt`             | `""`                   | The root instruction, injected for every front-end (REPL, `run`, `serve`) and composed with the active mode. Onboarding sets it later; empty means no root persona |
+| `system_prompt`             | `""`                   | The root instruction, injected for every front-end (REPL, `run`, `serve`) and composed with the active mode. Onboarding sets it later, and empty means no root persona |
 | `temperature`               | `0.7`                  | Sampling temperature                                                   |
 | `tool_analysis`             | `false`                | Model-generated one-line analysis of each tool result (log-only)      |
 | `tool_calling`              | `true`                 | Enable OpenAI-compatible function calling                              |
@@ -164,7 +164,7 @@ Routes the `ask` tool by kind:
 }
 ```
 
-- `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). In `read` mode a write-category request is redirected to a mode switch (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` has the caller decide and grants one use, `user` routes to the user, `deny` disables grants. A request above the mode-derived ceiling is always denied; when the ceiling itself is `ask` for that category, the request is routed to the user, because the caller may not grant above a user-gated category. The user may grant `always` (reusable for the rest of that sub-agent's run), the caller only ever grants `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
+- `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). In `read` mode a write-category request is redirected to a mode switch (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` has the caller decide and grants one use, `user` routes to the user, `deny` disables grants. A request above the mode-derived ceiling is always denied. When the ceiling itself is `ask` for that category, the request is routed to the user, because the caller may not grant above a user-gated category. The user may grant `always` (reusable for the rest of that sub-agent's run), the caller only ever grants `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
 - `direction` - a decision or scope change. `user` (default) routes to the user, `auto` to the caller.
 
 ### Permission authority

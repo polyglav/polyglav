@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.41.0
+## v0.41.0 - 2026-10-04
 
 - Fixed focus and handoff for numeric session ids - an explicit `#<id>` that looks like a run number now falls back to a session-id lookup when no run has that id, so a session id that happens to be all digits is no longer misread as a run number in `/focus`, `resolve_target`, and the `handoff` tool. Tests: `test_focus.py`
 - Added the caller name to the focused-run prompt - with `prompt_role` on, a focused sub-run shows `Manager >>>` in the default text color so the caller is visible, while the root prompt keeps the mode color (`>>>` cyan in `read`, orange in `write`). Docs (`config.md`, `architecture.md`). Tests: `test_focus.py`
