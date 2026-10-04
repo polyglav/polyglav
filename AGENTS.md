@@ -98,6 +98,7 @@ Polyglav/
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
     ├── polyglav-core-ollama/      # OllamaProvider
+    ├── polyglav-core-onboarding/  # first-run project setup (/onboard)
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-web/         # web_search, web_fetch + search service
@@ -187,7 +188,7 @@ The chat() event contract and full provider reference are in `docs/providers.md`
 ### Adding a Plugin
 Plugins are external repositories, so never modify the core to add optional functionality:
 1. Create a plugin directory with a `manifest.json` (`name`, `version`, `polyglav_version` semver range, `python` range, `entry` default `plugin.py` (may point into `src/`), `requires` third-party deps, `provides`), an entry module under `src/`, and an optional `tests/` unit suite (stdlib `unittest`, found by `polyglav plugins test` and the core suite)
-2. The entry module may define `register_tools(registry)`, `register_providers(providers: dict)`, `register_commands(commands)`, `register_services(services)`, `register_roles`/`register_teams`/`register_skills`, and `register_fixtures(fixtures)` (eval fixture catalog, see `docs/eval.md`), using the same decorators as core builtins
+2. The entry module may define `register_tools(registry)`, `register_providers(providers: dict)`, `register_commands(commands)`, `register_services(services)`, `register_roles`/`register_teams`/`register_skills`, `register_fixtures(fixtures)` (eval fixture catalog, see `docs/eval.md`), and `register_startup(hooks)` (append a `callable(chat)` run once when the REPL starts, e.g. first-run onboarding), using the same decorators as core builtins
 3. Import third-party deps lazily **inside** tool functions, the core never imports them
 4. Install via `/plugins install <git-url|path>` or `polyglav plugins install`. Activation is the `plugins` config list (empty = all), and `install`/`uninstall`/`enable`/`disable` maintain it automatically
 5. See `docs/plugins.md` for the full manifest schema, compatibility contract, and management commands

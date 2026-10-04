@@ -160,6 +160,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Onboarding plugin and startup hook - first-run setup writes config; /onboard reruns
 - [x] Bundled roles and teams removed - no catalog ships, layers are plugin/global/local only
 - [x] Headless modes - run/serve default read, jobs add records write unless set
 - [x] Root roles dropped - root is `system_prompt` + mode, no assistant persona

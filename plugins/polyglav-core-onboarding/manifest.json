@@ -1,0 +1,14 @@
+{
+  "name": "polyglav-core-onboarding",
+  "version": "0.1.0",
+  "description": "First-run setup - asks about the project and the assistant, then writes the local config",
+  "polyglav_version": ">=0.41.0,<1.0",
+  "python": ">=3.10",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [],
+    "providers": [],
+    "commands": ["onboard"],
+    "services": []
+  }
+}
