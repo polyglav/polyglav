@@ -138,7 +138,11 @@ class TestFocusRouting(unittest.TestCase):
         self.assertEqual(self.chat._prompt(), MAIN_PROMPT)
         child = self._child()
         self.chat.focus.enter(child.id)
-        self.assertIn('Writer >>>', self.chat._prompt())
+        prompt = self.chat._prompt()
+        self.assertIn('Writer >>>', prompt)
+        self.assertIn('\033[0m', prompt)
+        self.assertNotIn('\033[1;36m', prompt)
+        self.assertNotIn('\033[1;38;5;208m', prompt)
 
     def test_prompt_default_has_no_role(self):
         child = self._child()

@@ -236,8 +236,11 @@ class ChatLoop(Engine):
 
     def _make_prompt(self, marker: str, role: str) -> str:
         engine = self.active() if hasattr(self, 'active') else self
-        spec, _ = resolve_mode(self.config, engine._mode())
-        color = mode_color(spec)
+        if role:
+            color = '\033[0m'
+        else:
+            spec, _ = resolve_mode(self.config, engine._mode())
+            color = mode_color(spec)
         label = f'{role[:1].upper() + role[1:]} {marker}' if role else marker
         return f'\001{color}\002{label}{_RST} '
 

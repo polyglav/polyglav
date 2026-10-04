@@ -159,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Focused-run prompt shows the caller name in default text color (`Manager >>>`)
 - [x] Prompt origin in logs - user part records the caller role, job, api, cli, or user
 - [x] User/caller terminology - ask targets `user`/`caller`, direction `user`, `user` wording
 - [x] Markdown role instructions - JSON index plus `.polyglav/roles/<name>.md` body prompt
