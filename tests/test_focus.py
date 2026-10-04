@@ -215,6 +215,12 @@ class TestFocusCommand(unittest.TestCase):
         self._dispatch(f'/focus #{self.chat.current_run.session_id}')
         self.assertIs(self.chat.active(), self.chat)
 
+    def test_focus_by_numeric_session_id(self):
+        run = self.chat.runs.start(role='writer', session='sub_num',
+                                   session_id='123456')
+        self._dispatch('/focus #123456')
+        self.assertEqual(self.chat.active().current_run.id, run.id)
+
     def test_focus_by_session_selects_run(self):
         res = self._draft('writer')
         self._dispatch('/focus root')

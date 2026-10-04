@@ -164,6 +164,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Numeric session ids resolve in /focus and handoff - fall back when no run has that id
 - [x] Focused-run prompt shows the caller name in default text color (`Manager >>>`)
 - [x] Prompt origin in logs - user part records the caller role, job, api, cli, or user
 - [x] User/caller terminology - ask targets `user`/`caller`, direction `user`, `user` wording

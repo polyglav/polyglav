@@ -30,7 +30,11 @@ def _target_run(runs, current, target: str):
     explicit = target.startswith('#')
     token = target[1:] if explicit else target
     if token.isdigit():
-        return runs.get(int(token))
+        run = runs.get(int(token))
+        if run is not None:
+            return run
+        if not explicit:
+            return None
     if explicit:
         return runs.find_by_session_id(token)
     for run in runs.runs():

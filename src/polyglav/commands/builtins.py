@@ -129,7 +129,11 @@ def _focus_target(focus, runs, arg):
     explicit = arg.startswith('#')
     token = arg[1:] if explicit else arg
     if token.isdigit():
-        return 'run', runs.get(int(token))
+        run = runs.get(int(token))
+        if run is not None:
+            return 'run', run
+        if not explicit:
+            return None, None
     if explicit:
         return 'run', runs.find_by_session_id(token)
     if low.startswith('run:'):
