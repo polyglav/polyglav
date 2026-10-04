@@ -270,9 +270,6 @@ def register_catalog_tool(registry, engine) -> Callable:
             if registry.remove(name):
                 engine.touch_catalogs()
                 return f'Removed {kind}: {name} (local)'
-            if kind != 'skill' and registry.is_bundled(name):
-                return (f'Error: {kind} "{name}" is bundled - override it with '
-                        f'save instead of remove')
             if registry.find(name) is not None:
                 return (f'Error: {kind} "{name}" is not local - override it with '
                         f'save instead of remove')

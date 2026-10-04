@@ -15,28 +15,14 @@ A role is a single reusable profile carrying several distinct axes of an agent.
 | **Expertise** | The domains it is tagged for, used for grouping and filtering | `tags` |
 | **Archetype** | A stored, reusable pattern that teams reference as a stage | the registry entry itself |
 
-The bundled catalog ships two pre-carved teams plus a `composer` and a `leader` role, useful as delegation targets and as templates (see [teams.md](teams.md)). The composer designs and persists teams, and the leader supervises them. All leave `model` and `skills` empty (inheriting the caller's model) and differ mainly in `tool_permission` (`leader` also sets `grant_permission`/`ask_policy`, `composer` sets `ask_policy`):
+No roles ship with the package. A fresh install has an empty catalog, and the operator or an agent creates roles as a project needs them (the `catalog` tool and `/roles new`). Typical patterns a project builds are a `researcher` that gathers web sources, a `writer` that turns a findings brief into a document, a `code-reviewer` that reviews a change, and a `composer` that designs teams into the catalog. A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.
 
-| role | function | tags | edit | bash | web | read |
-|---|---|---|---|---|---|---|
-| `code-reviewer` | auditor: reviews a change, returns findings | programming, review | deny | allow | deny | allow |
-| `composer` | team composer: designs and persists a team (`catalog` allow, `delegate` deny) | management | deny | deny | allow | allow |
-| `editor` | auditor: checks a document against the prompt and sources | writing, review | deny | deny | deny | allow |
-| `leader` | supervisor: coordinates teams and agents, delegates, grants, parks asks | research, writing, programming, review | deny | deny | deny | allow |
-| `planner` | decomposes a task into an ordered, verifiable plan | programming | deny | deny | allow | allow |
-| `programmer` | implements a change and runs the tests until green | programming | allow | allow | deny | allow |
-| `referencer` | resolves citations into a `.bib` file | writing | allow | deny | deny | allow |
-| `researcher` | gathers and evaluates web sources, returns findings | research, writing | deny | deny | allow | allow |
-| `tester` | writes and runs tests, reports failures | programming | allow | allow | deny | allow |
-| `writer` | turns a findings brief into a document, returns file path | writing | allow | deny | deny | allow |
-
-`allow` echoes the caller's category default, `deny` is explicit, and `-` sets no carve (the caller's config applies unchanged). Override any role by creating a local (or global) entry with the same `name`.
+A role carve only needs to declare the write keys it wants to narrow, because read keys are allowed by default and the mode sets the outer bound. For example, a document `writer` might set `edit: allow`, `bash: deny`, `web: deny`, while a `researcher` sets `web: allow` and `edit: deny`.
 
 ## Storage
 
-Roles come from four layers, merged exactly like config: bundled, then plugin, then global, then local, local winning per field. Precedence mirrors bundled plugins (`bundled < plugin < global < local`):
+Roles come from three layers, merged exactly like config: plugin, then global, then local, local winning per field:
 
-- **Bundled** - the read-only default catalog shipped in the package (`src/polyglav/bundled_roles.json`). Always present, never writable, overridable by any other layer.
 - **Plugin** - roles contributed by plugins via the `register_roles` entry hook (`registry.add_plugin(...)`, see [plugins.md](plugins.md)). An in-memory layer: never written to any `roles.json`, refreshed on `/plugins install`/`update`/`uninstall`.
 - **Global** - `~/.config/polyglav/roles.json`.
 - **Local** - `.polyglav/roles.json`.
@@ -64,7 +50,7 @@ Fields:
 - `system_prompt` - the role's system prompt, injected when it runs.
 - `model` - optional. Overrides the caller's model when the role runs, falls back to the caller's when empty. Accepts a `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) to pin provider and model together. The model must be approved before the role runs (`delegate`/`/teams run` ask interactively, or pass `--approve-model` headlessly, see [Model refs and approval](providers.md#model-refs-and-approval)).
 - `skills` - optional list of standing skill names from the [skills registry](skills.md), resolved and injected into the role's sub-agent system prompt (and jobs with `--role`). A caller may layer additional skills per run through `call`/`delegate` or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.
-- `tags` - optional list of tags for grouping and filtering (`/roles list <tag>`). The bundled set uses a controlled vocabulary: `management`, `research`, `writing`, `programming`, `review`.
+- `tags` - optional list of tags for grouping and filtering (`/roles list <tag>`). A common vocabulary is `management`, `research`, `writing`, `programming`, `review`.
 - `tool_permission` - optional per-agent overrides of `tool_permission` categories. The per-agent permission profile.
 - `grant_permission` - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in `write`, denied in `read`), and this only narrows it. See [Delegation and permissions](#delegation-and-permissions).
 - `ask_policy` - optional per-role override of the `ask` routing by kind (`permission`/`direction`), merged over the config `ask_policy`. See [config.md](config.md#ask_policy).
@@ -73,10 +59,10 @@ Fields:
 
 `/roles` manages the registry, and `/role` reports the active role:
 
-- `/roles` - list roles, marking each one's origin (`bundled` / `plugin` / `local` / `global` / `merged`) and tags.
+- `/roles` - list roles, marking each one's origin (`plugin` / `local` / `global` / `merged`) and tags.
 - `/roles list <tag>` - list only roles carrying the tag (e.g. `/roles list programming`). Unknown tags print the known tags.
 - `/roles new <name> [system prompt]` - create a role in the local catalog (edit the JSON for full fields, including tags). Using an existing name overrides that role.
-- `/roles remove <name>` - remove a role from the local catalog. Bundled roles cannot be removed (override them instead).
+- `/roles remove <name>` - remove a role from the local catalog. A plugin role cannot be removed (override it with a local entry instead).
 - `/roles show <name>` - show a role's full definition.
 - `/role` - show the active run's role and session, so a focused or delegated run is identifiable at a glance.
 

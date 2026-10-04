@@ -765,10 +765,6 @@ def register_builtins(registry):
                 return
             if tr.remove(name):
                 print(f'Removed role: {name} (local)')
-            elif tr.is_bundled(name):
-                print(f'{name} is bundled with polyglav - override it with '
-                      '/roles new <name>, or edit the local roles file, '
-                      'instead of removing')
             else:
                 print(f'No local role to remove: {name}')
             return
@@ -875,10 +871,6 @@ def register_builtins(registry):
                 return
             if tr.remove(name):
                 print(f'Removed team: {name} (local)')
-            elif tr.is_bundled(name):
-                print(f'{name} is bundled with polyglav - override it with '
-                      '/teams new <name>, or edit the local teams file, '
-                      'instead of removing')
             else:
                 print(f'No local team to remove: {name}')
             return

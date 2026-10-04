@@ -3,13 +3,14 @@ import json
 import unittest
 from unittest.mock import patch
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestHandoffTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'editor')
         self.chat._init_tooling()
 
     def tearDown(self):
@@ -133,6 +134,7 @@ class TestHandoffApply(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer', 'editor')
 
     def tearDown(self):
         self.chat._tmp.cleanup()

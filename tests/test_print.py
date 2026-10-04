@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from polyglav.sessions import turns
 from polyglav.sessions.manager import Session
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 def add_turn(session, user='hello', answer='hi', thinking=None, tools=None,
@@ -25,6 +25,7 @@ class TestPrintCommand(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'researcher', 'writer')
 
     def tearDown(self):
         self.chat._tmp.cleanup()

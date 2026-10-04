@@ -1,6 +1,7 @@
 import json
 import unittest
 
+from polyglav.roles import Role
 from tests.helpers import make_chat
 
 
@@ -9,11 +10,20 @@ class TestComposerType(unittest.TestCase):
     def setUp(self):
         self.chat = make_chat()
         self.chat.config.set('mode', 'write')
+        self.chat.roles.put(Role(
+            name='composer',
+            system_prompt='You are the composer. Design teams.',
+            tags=['management'],
+            tool_permission={'bash': 'deny', 'catalog': 'allow',
+                             'edit': 'deny', 'delegate': 'deny',
+                             'list': 'allow', 'read': 'allow',
+                             'web': 'allow'},
+            ask_policy={'permission': 'auto', 'direction': 'human'}))
 
     def tearDown(self):
         self.chat._tmp.cleanup()
 
-    def test_bundled_definition(self):
+    def test_composer_definition(self):
         composer = self.chat.roles.find('composer')
         self.assertIsNotNone(composer)
         self.assertIn('composer', composer.system_prompt.lower())

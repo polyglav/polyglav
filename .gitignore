@@ -1,7 +1,13 @@
 __pycache__/
 .agents/
 .opencode/
-.polyglav/
+.polyglav/*
+!.polyglav/roles.json
+!.polyglav/teams.json
+!.polyglav/roles/
+!.polyglav/skills/
+.polyglav/skills/*
+!.polyglav/skills/polyglav.md
 .venv/
 *.egg-info/
 *.pyc

@@ -136,6 +136,8 @@ class TestRunResume(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs.get('context'), 'compact')
 
     def test_team_tool_forwards_resume(self):
+        self.chat.teams.put(Team(name='writing',
+                                 stages=[TeamStage(role='writer')]))
         with patch.object(self.chat, 'run_team',
                           return_value=TeamRunResult(name='writing',
                                                      status='ok')) as run:
@@ -155,13 +157,11 @@ class TestRunResume(unittest.TestCase):
         try:
             reg = TeamRegistry(
                 global_dir=Path(tmp.name),
-                local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
-                bundled_path=Path(tmp.name) / 'none.json')
+                local_path=Path(tmp.name) / '.polyglav' / 'teams.json')
             reg.put(Team(name='x', stages=[TeamStage(role='w')]))
             fresh = TeamRegistry(
                 global_dir=Path(tmp.name),
-                local_path=Path(tmp.name) / '.polyglav' / 'teams.json',
-                bundled_path=Path(tmp.name) / 'none.json')
+                local_path=Path(tmp.name) / '.polyglav' / 'teams.json')
             team = fresh.find('x')
             self.assertFalse(hasattr(team, 'warm_sessions'))
             self.assertFalse(hasattr(team.stages[0], 'session_key'))

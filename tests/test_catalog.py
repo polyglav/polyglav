@@ -1,6 +1,7 @@
 import unittest
 
 from polyglav.roles import Role
+from polyglav.teams import Team, TeamStage
 
 from tests.helpers import make_chat
 
@@ -9,6 +10,12 @@ class TestCatalogTool(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        self.chat.roles.put(Role(name='leader',
+                                 system_prompt='Coordinate the work.'))
+        self.chat.teams.put(Team(
+            name='writing', description='Document pipeline',
+            stages=[TeamStage(role='researcher', task_hint='gather'),
+                    TeamStage(role='writer')]))
         self.chat._init_tooling()
 
     def tearDown(self):
@@ -109,10 +116,11 @@ class TestCatalogTool(unittest.TestCase):
         self.assertIn('Removed team: tmp', out)
         self.assertIsNone(self.chat.teams.find('tmp'))
 
-    def test_remove_bundled_rejected(self):
-        out = self._catalog(action='remove', kind='team', name='writing')
-        self.assertIn('bundled', out)
-        self.assertIsNotNone(self.chat.teams.find('writing'))
+    def test_remove_plugin_team_rejected(self):
+        self.chat.teams.add_plugin({'name': 'plug', 'stages': []})
+        out = self._catalog(action='remove', kind='team', name='plug')
+        self.assertIn('not local', out)
+        self.assertIsNotNone(self.chat.teams.find('plug'))
 
     def test_remove_non_local_skill_rejected(self):
         self.chat.skills.add_plugin({'name': 'plug', 'content': 'x'})

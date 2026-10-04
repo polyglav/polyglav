@@ -14,6 +14,12 @@ from polyglav.plugins.manager import PluginManager
 from polyglav.ui import ReplUI
 
 
+def seed_roles(chat: ChatLoop, *names: str) -> None:
+    from polyglav.roles import Role
+    for name in names:
+        chat.roles.put(Role(name=name, system_prompt=f'You are the {name}.'))
+
+
 def make_chat(config_data: dict | None = None) -> ChatLoop:
     temp_dir = tempfile.TemporaryDirectory()
     Config.GLOBAL_DIR = Path(temp_dir.name) / 'global-home'

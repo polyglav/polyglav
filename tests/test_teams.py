@@ -5,13 +5,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from polyglav import teams as teams_mod
 from polyglav.teams import Team, TeamRegistry, TeamStage
 from polyglav.config import Config
 
 from tests.helpers import make_chat
-
-BUNDLED = Path(teams_mod.__file__).with_name(TeamRegistry.BUNDLED_FILENAME)
 
 
 class StubPluginManager:
@@ -33,17 +30,9 @@ class TestTeamRegistry(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def reg(self, global_dir=None, local_path=None, bundled_path=None):
-        if bundled_path is None:
-            bundled_path = self.base / 'nobundled' / 'teams.json'
+    def reg(self, global_dir=None, local_path=None):
         return TeamRegistry(global_dir=global_dir or self.base,
-                            local_path=local_path or self.local,
-                            bundled_path=bundled_path)
-
-    def bundled(self, local_path=None):
-        return TeamRegistry(global_dir=self.base,
-                            local_path=local_path or self.local,
-                            bundled_path=BUNDLED)
+                            local_path=local_path or self.local)
 
     def test_paths(self):
         reg = self.reg()
@@ -155,23 +144,6 @@ class TestTeamRegistry(unittest.TestCase):
         self.local.write_text('{invalid')
         self.assertEqual(self.reg().all(), [])
 
-    def test_bundled_defaults_loaded(self):
-        reg = self.bundled()
-        names = reg.names()
-        self.assertEqual(len(names), 2)
-        self.assertIn('writing', names)
-        self.assertIn('programming', names)
-        self.assertEqual(reg.origin('writing'), 'bundled')
-        self.assertEqual([s.role for s in reg.find('writing').stages],
-                         ['researcher', 'writer', 'referencer', 'editor'])
-        self.assertEqual(
-            [s.role for s in reg.find('programming').stages],
-            ['planner', 'programmer', 'tester', 'code-reviewer'])
-        self.assertEqual(reg.find('writing').tags, ['research', 'writing'])
-        self.assertEqual(reg.find('programming').tags, ['programming'])
-        self.assertTrue(reg.find('writing').stages[0].task_hint)
-        self.assertTrue(reg.find('writing').stages[0].handoff_note)
-
     def test_add_plugin_team(self):
         reg = self.reg()
         reg.add_plugin({'name': 'plug', 'stages': [{'role': 'writer'}],
@@ -195,15 +167,6 @@ class TestTeamRegistry(unittest.TestCase):
         reg.put(Team(name='mine'), scope='local')
         saved = json.loads(self.local.read_text())
         self.assertEqual(list(saved), ['mine'])
-
-    def test_plugin_overrides_bundled(self):
-        reg = self.bundled()
-        reg.add_plugin({'name': 'writing', 'description': 'plugin variant'})
-        t = reg.find('writing')
-        self.assertEqual(t.description, 'plugin variant')
-        self.assertEqual([s.role for s in t.stages],
-                         ['researcher', 'writer', 'referencer', 'editor'])
-        self.assertEqual(reg.origin('writing'), 'merged')
 
     def test_global_overrides_plugin(self):
         reg = self.reg()
@@ -252,19 +215,36 @@ class TestTeamCommand(unittest.TestCase):
             self.chat.registry.dispatch('/teams ' + arg)
         return buf.getvalue()
 
-    def test_list_shows_bundled(self):
+    def _seed(self):
+        self.chat.teams.put(Team(
+            name='writing', description='Document pipeline',
+            tags=['research', 'writing'],
+            stages=[TeamStage(role='researcher', task_hint='gather',
+                              handoff_note='pass to writer'),
+                    TeamStage(role='writer')]))
+        self.chat.teams.put(Team(name='programming', tags=['programming'],
+                                 stages=[TeamStage(role='planner')]))
+
+    def test_list_empty(self):
+        out = self._team()
+        self.assertIn('no teams configured', out)
+
+    def test_list_shows_local(self):
+        self._seed()
         out = self._team()
         self.assertIn('2 teams', out)
         self.assertIn('writing', out)
-        self.assertIn('(bundled)', out)
-        self.assertIn('researcher > writer > referencer > editor', out)
+        self.assertIn('(local)', out)
+        self.assertIn('researcher > writer', out)
 
     def test_list_shows_tags(self):
+        self._seed()
         out = self._team()
         self.assertIn('tags=research,writing', out)
         self.assertIn('tags=programming', out)
 
     def test_list_filter_by_tag(self):
+        self._seed()
         out = self._team('list programming')
         self.assertIn('programming', out)
         self.assertNotIn('writing', out)
@@ -272,6 +252,7 @@ class TestTeamCommand(unittest.TestCase):
         self.assertIn('writing', out)
 
     def test_list_unknown_tag(self):
+        self._seed()
         out = self._team('list nonexistent')
         self.assertIn('no teams tagged "nonexistent"', out)
         self.assertIn('known tags', out)
@@ -287,7 +268,8 @@ class TestTeamCommand(unittest.TestCase):
         self.assertIn('doc team', out)
         self.assertIn('stages: (none)', out)
 
-    def test_show_bundled_stages(self):
+    def test_show_stages(self):
+        self._seed()
         out = self._team('show writing')
         self.assertIn('1. researcher', out)
         self.assertIn('task_hint:', out)
@@ -305,18 +287,19 @@ class TestTeamCommand(unittest.TestCase):
         out = self._team('remove x')
         self.assertIn('Removed team: x', out)
 
-    def test_remove_bundled_rejected(self):
+    def test_remove_unknown(self):
         out = self._team('remove writing')
-        self.assertIn('bundled with polyglav', out)
+        self.assertIn('No local team to remove: writing', out)
 
-    def test_override_bundled_then_remove(self):
+    def test_override_then_remove(self):
+        self._seed()
         self._team('new writing local variant')
         out = self._team('show writing')
         self.assertIn('local variant', out)
         out = self._team('remove writing')
         self.assertIn('Removed team: writing', out)
         out = self._team('show writing')
-        self.assertIn('Document pipeline', out)
+        self.assertIn('Team not found', out)
 
 
 if __name__ == '__main__':

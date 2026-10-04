@@ -2,7 +2,7 @@ import unittest
 
 from polyglav.runs import RunRegistry
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestRunRegistry(unittest.TestCase):
@@ -57,6 +57,7 @@ class TestEngineRuns(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        seed_roles(self.chat, 'writer')
 
     def tearDown(self):
         self.chat._tmp.cleanup()

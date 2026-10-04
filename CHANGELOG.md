@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.41.0
+
+- Removed bundled roles and teams - the package ships no role or team catalog, so a fresh install starts with an empty one that the operator or an agent fills through the `catalog` tool or `/roles new` and `/teams new`. Roles and teams now merge from plugin, global, and local layers only (`roles.py`, `teams.py`), `/roles` and `/teams` no longer report a `bundled` origin, and the `catalog` tool no longer special-cases bundled entries. A project keeps its tuned catalog under `.polyglav/` (the Polyglav repo tracks its own for self-development). Docs (`roles.md`, `teams.md`, `swarm.md`, `architecture.md`, `AGENTS.md`). Tests: `test_roles.py`, `test_teams.py`, `test_catalog.py`, `test_composer.py`, plus shared role fixtures in the delegation, focus, and handoff suites
+
 ## v0.40.0 - 2026-10-03
 
 - Root without a persona - the root agent is `config.system_prompt` plus the mode. Removed `assistant`, `assistant_role`, `bind_root_agent`, and the bundled assistant role, so the REPL starts untyped and roles are delegation targets only. `prompt_role` still names the active role for a focused sub-run. Docs (`docs/modes.md`, `roles.md`, `architecture.md`, `config.md`). Tests: `tests/test_focus.py`, `tests/test_roles.py`, `tests/test_handoff.py`
