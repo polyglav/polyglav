@@ -86,7 +86,7 @@
 - [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/focus` stays live-runs-only
 - [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
-- [ ] Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it; onboarding asks whether to enable auto-focus
+- [ ] Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, and onboarding asks whether to enable auto-focus
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
@@ -169,7 +169,7 @@
 - [x] Prompt origin in logs - user part records the caller role, job, api, cli, or user
 - [x] User/caller terminology - ask targets `user`/`caller`, direction `user`, `user` wording
 - [x] Markdown role instructions - JSON index plus `.polyglav/roles/<name>.md` body prompt
-- [x] Onboarding plugin and startup hook - first-run setup writes config; /onboard reruns
+- [x] Onboarding plugin and startup hook - first-run setup writes config, and /onboard reruns
 - [x] Bundled roles and teams removed - no catalog ships, layers are plugin/global/local only
 - [x] Headless modes - run/serve default read, jobs add records write unless set
 - [x] Root roles dropped - root is `system_prompt` + mode, no assistant persona
