@@ -10,7 +10,10 @@ DEFAULT_PERSONA = ("You are the assistant for this project and the "
                    "user's single point of contact.")
 OPERATING = ('Delegate work bigger than one step: create the roles, teams, and '
              'skills you need with the catalog tool, hand the task off, and '
-             'report back. Keep answers short.')
+             'report back. Before composing a team, confirm the design with the '
+             'user: the deliverable, whether the manager is a sequential stage '
+             'or a hierarchical orchestrator that calls roles, and the per-role '
+             'permissions. Keep answers short.')
 
 
 def compose_prompt(purpose: str, persona: str) -> str:

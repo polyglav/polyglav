@@ -9,7 +9,7 @@ A team has two shapes:
 - **Sequential** (the default) - the stages run in order, and each stage's result is handed to the next. This is what `delegate` and `Engine.run_team` execute.
 - **Hierarchical** - a manager allocates tasks to roles, validates the outcomes, and re-assigns until the work is done. There is no built-in manager yet. Two patterns approximate it today: make the manager stage 1 and let it call the worker roles with the `call` tool, or call the manager role directly and let it call the roles. The stage pipeline stays the sequential fallback.
 
-A composing agent can check a definition before saving it with `catalog action=validate`, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog.
+A composing agent can check a definition before saving it with `catalog action=validate`, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog. The assistant confirms the design with the user (the deliverable, the manager pattern, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.
 
 ## Storage
 

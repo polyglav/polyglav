@@ -53,6 +53,11 @@ class TestOnboarding(unittest.TestCase):
         prompt = plugin.compose_prompt('', '')
         self.assertIn(plugin.DEFAULT_PERSONA, prompt)
 
+    def test_compose_prompt_guides_team_confirmation(self):
+        prompt = plugin.compose_prompt('a CLI', 'You are Assistant.')
+        self.assertIn('confirm the design', prompt)
+        self.assertIn('hierarchical', prompt.lower())
+
     def test_should_run_without_config(self):
         self.assertTrue(plugin.should_run(self._chat()))
 
