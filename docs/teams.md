@@ -2,6 +2,15 @@
 
 A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the `delegate` primitive into a repeatable pipeline: "writing" = researcher > writer > referencer > editor for documents, "programming" = planner > programmer > tester > code-reviewer. The registry stores the definition and the sequential stage loop (`Engine.run_team`) executes it, reachable from the REPL (`/teams run`), the model (the `delegate` tool), and the CLI.
 
+## Team shapes
+
+A team has two shapes:
+
+- **Sequential** (the default) - the stages run in order, and each stage's result is handed to the next. This is what `delegate` and `Engine.run_team` execute.
+- **Hierarchical** - a manager allocates tasks to roles, validates the outcomes, and re-assigns until the work is done. There is no built-in manager yet. Two patterns approximate it today: make the manager stage 1 and let it call the worker roles with the `call` tool, or call the manager role directly and let it call the roles. The stage pipeline stays the sequential fallback.
+
+A composing agent can check a definition before saving it with `catalog action=validate`, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog.
+
 ## Storage
 
 No teams ship with the package. A fresh install has an empty catalog, and the user or an agent creates teams as a project needs them (the `catalog` tool and `/teams new`). A project that keeps a tuned catalog can commit it under `.polyglav/` so it travels with the repository.

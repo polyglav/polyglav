@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Catalog describes permission keys and team shapes
 - [x] Catalog permission keys validated and aliased (write/exec)
 - [x] Ask options render inline or numbered, selected by number or letter
 - [x] Direction ask clarity guard rejects a degenerate question

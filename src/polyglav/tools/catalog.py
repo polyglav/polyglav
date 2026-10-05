@@ -19,6 +19,9 @@ _PERMISSION_ALIASES = {
     'search': 'web',
 }
 
+_PERMISSION_KEY_LIST = ('bash, edit, read, list, web, catalog, ask, handoff, '
+                        'offload, call, delegate, mcp, vcs')
+
 
 def _normalize_permission_map(engine, value, field: str) -> tuple[dict | None, str | None]:
     if value is None:
@@ -167,25 +170,68 @@ def _save_skill(engine, name: str, values: dict) -> str:
     return f'Saved skill: {name} (local)'
 
 
+def _validate(engine, kind: str, name: str, tool_permission,
+              grant_permission, content, stages) -> str:
+    errors: list[str] = []
+    if not name:
+        errors.append('name is required')
+    if kind == 'role':
+        saved = engine.roles.find(name) if name else None
+        for field, value in (('tool_permission', tool_permission),
+                             ('grant_permission', grant_permission)):
+            if value is None and saved is not None:
+                value = getattr(saved, field)
+            _, error = _normalize_permission_map(engine, value, field)
+            if error:
+                errors.append(error)
+    elif kind == 'team':
+        stage_list = stages or []
+        if not stage_list:
+            errors.append('at least one stage is required')
+        for i, stage in enumerate(stage_list, 1):
+            role = str((stage or {}).get('role') or '')
+            if not role:
+                errors.append(f'stage {i} is missing a role')
+            elif engine.roles.find(role) is None:
+                errors.append(f'stage {i} role "{role}" is not in the catalog')
+    elif kind == 'skill':
+        if not content:
+            errors.append('content is required')
+    if errors:
+        return f'Invalid {kind}: ' + '. '.join(errors)
+    return f'{kind.capitalize()} "{name}" is valid.'
+
+
 def register_catalog_tool(registry, engine) -> Callable:
     @registry.register(
         name='catalog',
         description=(
             "Manage the agent catalog: roles, teams, and skills. Use it to "
             "compose a team for a task, create the specialist roles and skills it "
-            "needs, inspect what exists, or remove local entries. Saving writes to "
-            "the project catalog (.polyglav/) and reloads it, so a new role, team, "
-            "or skill is usable in the same run. A team stage's `role` names the "
-            "role to run and its `skills` extend that role for the stage."
+            "needs, inspect what exists, validate a definition before saving, or "
+            "remove local entries. Saving writes to the project catalog "
+            "(.polyglav/) and reloads it, so a new role, team, or skill is usable "
+            "in the same run. `tool_permission`/`grant_permission` take permission "
+            f"keys ({_PERMISSION_KEY_LIST}), not tool categories; the category "
+            "names write, exec, and search are accepted aliases for edit, bash, "
+            "and web, and any other unknown key is rejected. A team is either a "
+            "sequential pipeline whose stages run in order, or a hierarchical "
+            "team whose manager allocates tasks to roles and validates outcomes. "
+            "For a hierarchical team, make the manager stage 1 and let it call "
+            "the worker roles, or call the manager role directly and let it call "
+            "them. A stage's `role` names the role to run and its `skills` extend "
+            "it for the stage. `loop` is a generate, check, correct loop with "
+            "from, until, max_iterations, and verdict."
         ),
         parameters={
             'type': 'object',
             'properties': {
                 'action': {
                     'type': 'string',
-                    'enum': ['list', 'show', 'save', 'remove', 'reload'],
-                    'description': "list/show/save/remove a kind, or reload the "
-                                   "catalog from disk.",
+                    'enum': ['list', 'show', 'save', 'validate', 'remove',
+                             'reload'],
+                    'description': "list/show/save/validate/remove a kind, or "
+                                   "reload the catalog from disk.",
                 },
                 'kind': {
                     'type': 'string',
@@ -217,11 +263,13 @@ def register_catalog_tool(registry, engine) -> Callable:
                 },
                 'tool_permission': {
                     'type': 'object',
-                    'description': 'Role: per-category permission overrides.',
+                    'description': 'Role: per-category permission overrides by key '
+                                   '(' + _PERMISSION_KEY_LIST + ').',
                 },
                 'grant_permission': {
                     'type': 'object',
-                    'description': 'Role: delegation ceiling for sub-agents.',
+                    'description': 'Role: delegation ceiling for sub-agents, by the '
+                                   'same permission keys.',
                 },
                 'ask_policy': {
                     'type': 'object',
@@ -237,7 +285,9 @@ def register_catalog_tool(registry, engine) -> Callable:
                 },
                 'stages': {
                     'type': 'array',
-                    'description': 'Team: ordered stages.',
+                    'description': 'Team: ordered stages. A sequential team runs '
+                                   'them in order. For a hierarchical team make '
+                                   'stage 1 the manager and let it call the rest.',
                     'items': {
                         'type': 'object',
                         'properties': {
@@ -288,12 +338,15 @@ def register_catalog_tool(registry, engine) -> Callable:
         if action == 'reload':
             reloaded = engine.touch_catalogs()
             return f'Reloaded catalogs: {", ".join(reloaded) or "(none loaded)"}'
-        if action not in ('list', 'show', 'save', 'remove'):
-            return 'Error: action must be list, show, save, remove, or reload'
+        if action not in ('list', 'show', 'save', 'validate', 'remove'):
+            return 'Error: action must be list, show, save, validate, remove, or reload'
         if kind == 'type':
             kind = 'role'
         if kind not in ('role', 'team', 'skill'):
             return 'Error: kind must be role, team, or skill'
+        if action == 'validate':
+            return _validate(engine, kind, name, tool_permission,
+                             grant_permission, content, stages)
         if action == 'list':
             if kind == 'role':
                 return '\n'.join(_role_line(engine, t) for t in engine.roles.all())

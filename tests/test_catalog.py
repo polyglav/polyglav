@@ -110,6 +110,38 @@ class TestCatalogTool(unittest.TestCase):
         out = self._catalog(action='show', kind='role', name='legacy')
         self.assertIn('unknown permission key', out)
 
+    def test_description_lists_permission_keys_and_team_shapes(self):
+        desc = self.chat._tool_registry.info('catalog')['description']
+        self.assertIn('bash', desc)
+        self.assertIn('edit', desc)
+        self.assertIn('sequential', desc.lower())
+        self.assertIn('hierarchical', desc.lower())
+
+    def test_validate_action_in_schema(self):
+        params = self.chat._tool_registry.info('catalog')['parameters']['properties']
+        self.assertIn('validate', params['action']['enum'])
+
+    def test_validate_role_accepts_and_reports(self):
+        out = self._catalog(action='validate', kind='role', name='impl',
+                            tool_permission={'edit': 'deny', 'bash': 'deny'})
+        self.assertIn('is valid', out)
+        out = self._catalog(action='validate', kind='role', name='bad',
+                            tool_permission={'bogus': 'deny'})
+        self.assertIn('unknown permission key', out)
+        self.assertIsNone(self.chat.roles.find('bad'))
+
+    def test_validate_team_reports_unknown_role(self):
+        out = self._catalog(action='validate', kind='team', name='t',
+                            stages=[{'role': 'ghost'}])
+        self.assertIn('not in the catalog', out)
+        out = self._catalog(action='validate', kind='team', name='t',
+                            stages=[{'role': 'leader'}])
+        self.assertIn('is valid', out)
+
+    def test_validate_skill_requires_content(self):
+        out = self._catalog(action='validate', kind='skill', name='s')
+        self.assertIn('content is required', out)
+
     def test_save_team_with_stages(self):
         out = self._catalog(
             action='save', kind='team', name='thesis', description='writing',

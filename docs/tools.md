@@ -12,7 +12,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 |------|--------|----------|------------|---------|
 | `ask` | core | `ask` | `ask` | Ask the user or the caller agent for a decision, pausing until answered |
 | `call` | core | `call` | `call` | Run a task under a named role as a sub-agent |
-| `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/remove, plus reload |
+| `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/validate/remove, plus reload |
 | `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
 | `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
