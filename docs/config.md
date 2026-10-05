@@ -70,7 +70,8 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `noise_tools`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `offload_depth`             | `1`                    | Maximum nested `offload` siblings. `0` = unlimited. An `offload` sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
-| `output_log`                | `false`                | Write everything the REPL prints to a file, ANSI colors included, so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
+| `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
+| `output_log_ansi`           | `false`                | Keep ANSI colors in the output log file instead of stripping them |
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |

@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Changed the output log to plain text so the auto-created `.polyglav/output/<session>.txt` strips ANSI colors and screen control, with a new `output_log_ansi` to keep them when set. Docs (`config.md`). Tests: `test_repl_input.py`
 - Changed permission action values so a role's `tool_permission`/`grant_permission` accept `true`/`false` (`true` -> `allow`, `false` -> `deny`) and invalid actions are rejected, instead of a non-action value being silently coerced to `ask`. Booleans are also coerced in the read path for existing catalogs, and `catalog show role` flags an invalid action. Docs (`roles.md`, `config.md`). Tests: `test_catalog.py`, `test_delegation_permissions.py`
 - Fixed the prompt color on macOS so the root `>>>` shows the mode color (cyan read, orange write) on libedit as well as GNU readline, by leaving the reset after the label instead of bracketing it. Docs (`config.md`). Tests: `test_focus.py`
 - Added the onboarding output log question so setup asks whether to create a file with everything printed to the terminal, default off. Docs (`config.md`, `plugins.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`

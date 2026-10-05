@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Output log is plain text, no ANSI
 - [x] Permission action values accept true and false
 - [x] Prompt color on macos (libedit)
 - [x] Onboarding asks to create the terminal output log

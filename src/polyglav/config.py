@@ -63,6 +63,7 @@ DEFAULT_CONFIG = {
     'subrun_verbosity': 'quiet',
     'run_buffer_max_lines': 2000,
     'output_log': False,
+    'output_log_ansi': False,
     'output_log_dir': '.polyglav/output',
     'reasoning': 'auto',
     'markdown_streaming': False,

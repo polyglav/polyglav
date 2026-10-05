@@ -1,4 +1,5 @@
 import os
+import re
 import select
 import sys
 import threading
@@ -14,16 +15,21 @@ BLUE = '\033[94m'
 ORANGE = '\033[38;5;208m'
 RESET = '\033[0m'
 
+_ANSI_RE = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
+
 
 class TeeStream:
-    def __init__(self, stream, path):
+    def __init__(self, stream, path, ansi=False):
         self._stream = stream
         self._file = open(path, 'a', encoding='utf-8', errors='replace')
+        self._ansi = ansi
 
     def write(self, text):
         self._stream.write(text)
         if text and ('\r' not in text or '\n' in text):
             clean = text.replace('\001', '').replace('\002', '')
+            if not self._ansi:
+                clean = _ANSI_RE.sub('', clean)
             self._file.write(clean)
         return len(text)
 

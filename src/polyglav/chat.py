@@ -264,7 +264,9 @@ class ChatLoop(Engine):
             base.mkdir(parents=True, exist_ok=True)
             name = self.current_session.session_name or 'output'
             path = base / f'{name}.txt'
-            stream = TeeStream(sys.stdout, path)
+            stream = TeeStream(
+                sys.stdout, path,
+                ansi=bool(self.config.get('output_log_ansi', False)))
             stream.write(f'# Polyglav output log - {path.name}\n')
             return stream
         except OSError:

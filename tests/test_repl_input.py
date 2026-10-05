@@ -151,6 +151,18 @@ class TestOutputLog(unittest.TestCase):
         self.assertEqual(len(logs), 1)
         self.assertIn('Polyglav', logs[0].read_text())
 
+    def test_output_log_strips_ansi_by_default(self):
+        worktree = self._run({'output_log': True})
+        log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
+        text = log.read_text()
+        self.assertNotIn('\x1b', text)
+        self.assertIn('Polyglav', text)
+
+    def test_output_log_keeps_ansi_when_configured(self):
+        worktree = self._run({'output_log': True, 'output_log_ansi': True})
+        log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
+        self.assertIn('\x1b', log.read_text())
+
     def test_no_output_log_when_disabled(self):
         worktree = self._run({})
         self.assertFalse((worktree / '.polyglav' / 'output').exists())
