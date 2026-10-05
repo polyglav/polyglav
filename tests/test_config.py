@@ -54,6 +54,10 @@ class TestConfigScopes(_IsolatedConfigBase):
         self.assertFalse(self.global_path.exists())
         self.assertEqual(c.get('temperature'), 0.3)
 
+    def test_prompt_role_default_is_on(self):
+        c = Config(path=str(self.project))
+        self.assertTrue(c.get('prompt_role'))
+
     def test_set_global_writes_global_not_local(self):
         c = Config(path=str(self.project))
         c.set('max_tokens', 0, scope='global')

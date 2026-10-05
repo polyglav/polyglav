@@ -139,15 +139,21 @@ class TestFocusRouting(unittest.TestCase):
         child = self._child()
         self.chat.focus.enter(child.id)
         prompt = self.chat._prompt()
-        self.assertIn('Writer >>>', prompt)
+        self.assertIn('writer >>>', prompt)
         self.assertIn('\033[0m', prompt)
         self.assertNotIn('\033[1;36m', prompt)
         self.assertNotIn('\033[1;38;5;208m', prompt)
 
-    def test_prompt_default_has_no_role(self):
+    def test_prompt_role_off_hides_label(self):
+        self.chat.config.set('prompt_role', False)
         child = self._child()
         self.chat.focus.enter(child.id)
         self.assertEqual(self.chat._prompt(), MAIN_PROMPT)
+
+    def test_prompt_role_on_by_default(self):
+        child = self._child()
+        self.chat.focus.enter(child.id)
+        self.assertIn('writer >>>', self.chat._prompt())
 
     def test_prompt_color_tracks_mode(self):
         self.assertIn('\033[1;36m', self.chat._prompt())

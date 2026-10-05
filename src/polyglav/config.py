@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
     'confirm_timeout': 0,
     'hide_confirm_input': False,
     'system_prompt': '',
-    'prompt_role': False,
+    'prompt_role': True,
     'focus_on_delegate': 'on',
     'memory': True,
     'memory_scopes': {'role': True, 'team': True, 'job': True},

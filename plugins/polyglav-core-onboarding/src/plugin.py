@@ -4,7 +4,7 @@ WELCOME = 'Welcome to Polyglav. A few questions to set up this project.'
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
 PROMPT_FOLLOW = 'Follow delegated runs automatically? [Y/n] '
-PROMPT_LABEL = 'Show the active role in the prompt? [y/N] '
+PROMPT_LABEL = 'Show the active role in the prompt? [Y/n] '
 
 DEFAULT_PERSONA = ("You are the assistant for this project and the "
                    "user's single point of contact.")
@@ -69,7 +69,7 @@ def run(chat, force: bool = False, ask=input) -> bool:
     purpose = _ask(ask, PROMPT_PURPOSE)
     persona = _ask(ask, PROMPT_PERSONA)
     follow = _ask(ask, PROMPT_FOLLOW, 'y')
-    label = _ask(ask, PROMPT_LABEL, 'n')
+    label = _ask(ask, PROMPT_LABEL, 'y')
     config = chat.config
     config.set('system_prompt', compose_prompt(purpose, persona), scope='local')
     config.set('focus_on_delegate',

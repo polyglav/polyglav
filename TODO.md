@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Prompt label lower-case and on by default
 - [x] Team composition guidance confirms the design first
 - [x] Ask prompt prints on its own line, context before options
 - [x] Catalog describes permission keys and team shapes

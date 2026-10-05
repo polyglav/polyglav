@@ -241,7 +241,7 @@ class ChatLoop(Engine):
         else:
             spec, _ = resolve_mode(self.config, engine._mode())
             color = mode_color(spec)
-        label = f'{role[:1].upper() + role[1:]} {marker}' if role else marker
+        label = f'{role.lower()} {marker}' if role else marker
         return f'\001{color}\002{label}{_RST} '
 
     def _open_output_log(self):

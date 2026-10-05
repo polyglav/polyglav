@@ -82,6 +82,16 @@ class TestOnboarding(unittest.TestCase):
         self.assertIn('widget assistant', self.config.get('system_prompt'))
         self.assertTrue(self.config.local_path.exists())
 
+    def test_run_default_label_on(self):
+        answers = {
+            plugin.PROMPT_PURPOSE: '',
+            plugin.PROMPT_PERSONA: '',
+            plugin.PROMPT_FOLLOW: '',
+            plugin.PROMPT_LABEL: '',
+        }
+        self.assertTrue(plugin.run(self._chat(), ask=answers.get))
+        self.assertTrue(self.config.get('prompt_role'))
+
     def test_run_skips_when_configured(self):
         self.config.local_path.parent.mkdir(parents=True, exist_ok=True)
         self.config.local_path.write_text('{}')
