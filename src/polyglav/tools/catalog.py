@@ -11,6 +11,36 @@ _ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
 
 _CATALOG_WRITE_ACTIONS = ('save', 'remove', 'reload')
 
+_PERMISSION_ALIASES = {
+    'write': 'edit',
+    'exec': 'bash',
+    'shell': 'bash',
+    'cmd': 'bash',
+    'search': 'web',
+}
+
+
+def _normalize_permission_map(engine, value, field: str) -> tuple[dict | None, str | None]:
+    if value is None:
+        return None, None
+    if not isinstance(value, dict):
+        return None, f'Error: {field} must be an object of category: action pairs'
+    valid = engine.permission_keys()
+    out: dict = {}
+    unknown: list[str] = []
+    for key, action in value.items():
+        name = str(key)
+        canonical = _PERMISSION_ALIASES.get(name.strip().lower(), name)
+        if canonical not in valid:
+            unknown.append(name)
+            continue
+        out[canonical] = action
+    if unknown:
+        listed = ', '.join(sorted(valid))
+        return None, (f'Error: unknown permission key(s) in {field}: '
+                      f'{", ".join(sorted(unknown))}. Valid keys: {listed}')
+    return out, None
+
 
 def _catalog_action(engine, args: dict) -> str | None:
     action = str((args or {}).get('action') or '')
@@ -59,10 +89,16 @@ def _show_role(engine, name: str) -> str:
         lines.append(f'skills: {", ".join(agent_role.skills)}')
     if agent_role.tags:
         lines.append(f'tags: {", ".join(agent_role.tags)}')
+    valid = engine.permission_keys()
     for key in ('tool_permission', 'grant_permission', 'ask_policy'):
         value = getattr(agent_role, key)
         if value:
             lines.append(f'{key}: {json.dumps(value)}')
+            if key in ('tool_permission', 'grant_permission'):
+                unknown = [k for k in value if k not in valid]
+                if unknown:
+                    lines.append('  WARNING: unknown permission key(s): '
+                                 + ', '.join(sorted(unknown)))
     return '\n'.join(lines)
 
 
@@ -99,6 +135,12 @@ def _show_skill(engine, name: str) -> str:
 
 
 def _save_role(engine, name: str, values: dict) -> str:
+    for field in ('tool_permission', 'grant_permission'):
+        normalized, error = _normalize_permission_map(engine, values.get(field), field)
+        if error:
+            return error
+        if normalized is not None:
+            values[field] = normalized
     data = {'name': name}
     for field in _ROLE_FIELDS:
         if values.get(field) is not None:

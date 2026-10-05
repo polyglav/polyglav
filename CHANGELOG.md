@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Changed catalog permission keys so a role's `tool_permission`/`grant_permission` keys are validated against the permission vocabulary and category names are normalized (`write` -> `edit`, `exec` -> `bash`, `search` -> `web`). An unknown key is now rejected with the valid list instead of silently doing nothing, and `catalog show role` flags unknown keys. Docs (`roles.md`, `config.md`). Tests: `test_catalog.py`
 - Changed the ask options rendering to inline short options and accept a number or letter, while a long question prints first. Docs (`tools.md`, `config.md`). Tests: `test_ui.py`, `test_ask.py`
 - Added a direction ask clarity guard, so a degenerate question is rejected instead of reaching a person. Docs (`config.md`, `tools.md`). Tests: `test_ask.py`
 - Changed sub-agent asks to route to the caller, so a team runs fully automated once it starts while the root may still ask clarifying questions. An explicit `target='user'` still reaches the user, blocking when attended and parking when unattended. Docs (`config.md`, `tools.md`, `roles.md`). Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`

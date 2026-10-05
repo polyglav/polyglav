@@ -83,6 +83,33 @@ class TestCatalogTool(unittest.TestCase):
         self.assertEqual(saved.skills, ['composing'])
         self.assertEqual(self.chat.roles.origin('essayist'), 'local')
 
+    def test_save_role_normalizes_permission_aliases(self):
+        out = self._catalog(
+            action='save', kind='role', name='impl',
+            tool_permission={'write': 'deny', 'exec': 'deny', 'read': 'allow'},
+            grant_permission={'write': 'allow', 'exec': 'allow'})
+        self.assertIn('Saved role: impl', out)
+        saved = self.chat.roles.find('impl')
+        self.assertEqual(saved.tool_permission,
+                         {'edit': 'deny', 'bash': 'deny', 'read': 'allow'})
+        self.assertEqual(saved.grant_permission,
+                         {'edit': 'allow', 'bash': 'allow'})
+
+    def test_save_role_rejects_unknown_permission_key(self):
+        out = self._catalog(
+            action='save', kind='role', name='bad',
+            tool_permission={'bogus': 'deny'})
+        self.assertIn('unknown permission key', out)
+        self.assertIn('bash', out)
+        self.assertIsNone(self.chat.roles.find('bad'))
+
+    def test_show_role_flags_unknown_permission_key(self):
+        self.chat.roles.put(Role(name='legacy',
+                                 tool_permission={'bogus': 'deny'}),
+                            scope='local')
+        out = self._catalog(action='show', kind='role', name='legacy')
+        self.assertIn('unknown permission key', out)
+
     def test_save_team_with_stages(self):
         out = self._catalog(
             action='save', kind='team', name='thesis', description='writing',

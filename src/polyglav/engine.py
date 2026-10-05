@@ -468,14 +468,18 @@ class Engine:
         from .modes import merge_policy
         return dict(merge_policy(self.config, self._mode())[0])
 
-    def permission_categories(self) -> set:
+    def permission_keys(self) -> set:
         from .modes import DEFAULT_WRITE_KEYS, read_keys
         keys = set(read_keys(self.config)) | set(DEFAULT_WRITE_KEYS)
-        keys |= set((self.config.get('tool_permission') or {}).keys())
         registry = getattr(self, '_tool_registry', None)
         if registry is not None:
             for name in registry.primary_names():
                 keys.add(registry.permission_for(name))
+        return keys
+
+    def permission_categories(self) -> set:
+        keys = self.permission_keys()
+        keys |= set((self.config.get('tool_permission') or {}).keys())
         return keys
 
     def grant_permission(self, permission: str, permission_key: str,
