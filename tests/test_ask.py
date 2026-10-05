@@ -122,6 +122,18 @@ class TestAskTool(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
+    def test_read_mode_catalog_ask_offers_mode_switch(self):
+        self.chat._init_tooling()
+        with patch.object(self.chat._ask_ui, 'ask',
+                          return_value='Approve (switch to write)') as ask:
+            out = self.chat._run_tool('ask', {
+                'question': 'may I use the catalog?', 'kind': 'permission',
+                'permission': 'catalog'})
+        self.assertIn('Write mode enabled', out)
+        self.assertEqual(self.chat.current_session.mode, 'write')
+        self.assertIn('Approve (switch to write)',
+                      ask.call_args.kwargs['options'])
+
     def test_read_mode_permission_ask_switches_on_approval(self):
         self.chat._init_tooling()
         with patch('builtins.input', return_value='y'):

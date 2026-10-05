@@ -30,6 +30,8 @@ Default write keys include `edit`, `bash`, `vcs`, `mcp`, `call`, and `delegate`.
 
 The mode is the outermost bound, applied last. It is enforced in `ToolPolicy` after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. A sub-agent inherits its caller's mode, and `read` clamps the delegation ceiling, so a granted `bash` still cannot run in read mode.
 
+A permission request in `read` mode is redirected to a mode switch, because a grant cannot take effect under the read cap. This includes read-class categories whose write actions are gated by a resolver, such as `catalog save`.
+
 ## Switching
 
 - `/mode` shows the current mode and the available names.
