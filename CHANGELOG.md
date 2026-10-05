@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Added a direction ask clarity guard, so a degenerate question is rejected instead of reaching a person. Docs (`config.md`, `tools.md`). Tests: `test_ask.py`
 - Changed sub-agent asks to route to the caller, so a team runs fully automated once it starts while the root may still ask clarifying questions. An explicit `target='user'` still reaches the user, blocking when attended and parking when unattended. Docs (`config.md`, `tools.md`, `roles.md`). Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`
 - Fixed Markdown role prompts leaking into `roles.json`, so `.polyglav/roles/<name>.md` edits take effect after any number of saves and the index stays short. Docs (`roles.md`). Tests: `test_role_files.py`
 - Fixed team review loops to honor a full verdict marker such as `VERDICT: PASS`, so a passing review stops at the first iteration instead of running every allowed iteration. Docs (`teams.md`). Tests: `test_team_loop.py`

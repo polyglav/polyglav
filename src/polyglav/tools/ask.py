@@ -19,6 +19,9 @@ _NO_ANSWER = ('[cancelled] No answer given - decide autonomously or return the '
               'question as an open item')
 _NO_ONE = ('Error: ask has no one to answer (no caller agent and no interactive '
            'terminal) - decide autonomously or return the question as an open item')
+_CLARITY_ERROR = ('Error: the ask question is too short to answer without '
+                  'context. Ask a self-contained question, and include context '
+                  'or options when the answerer needs them.')
 
 _PERMISSION_OPTIONS = ['Approve once', 'Approve always', 'Deny']
 
@@ -216,6 +219,17 @@ def _ask_permission(engine, question: str, context: str, options: list,
     return _NO_ONE
 
 
+def _clarity_guard(engine, question: str, context: str,
+                   options: list) -> str | None:
+    limit = int(engine.config.get('ask_min_question_chars', 0) or 0)
+    if limit <= 0:
+        return None
+    text = str(question or '').strip()
+    if len(text) >= limit or context or options:
+        return None
+    return _CLARITY_ERROR
+
+
 def _direction_route(engine, target: str) -> str:
     if target in ('user', 'caller'):
         return target
@@ -335,6 +349,9 @@ def register_ask_tool(registry, engine) -> Callable:
         if kind == 'permission' and permission:
             return _ask_permission(engine, question, context or '',
                                    options or [], permission, target)
+        guard = _clarity_guard(engine, question, context or '', options or [])
+        if guard is not None:
+            return guard
         return _ask_direction(engine, question, context or '', options or [],
                               target)
     return ask

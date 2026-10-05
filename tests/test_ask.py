@@ -82,10 +82,34 @@ class TestAskTool(unittest.TestCase):
         engine = make_engine()
         try:
             engine._init_tooling()
-            out = engine._run_tool('ask', {'question': 'q'})
+            out = engine._run_tool('ask', {'question': 'which port?'})
             self.assertIn('Error: ask has no one to answer', out)
         finally:
             engine._tmp.cleanup()
+
+    def test_direction_ask_rejects_degenerate_question(self):
+        self.chat._init_tooling()
+        with patch.object(self.chat._ask_ui, 'ask',
+                          side_effect=AssertionError('user was asked')):
+            out = self.chat._run_tool('ask', {'question': 'probe'})
+        self.assertIn('too short', out)
+
+    def test_direction_ask_short_with_context_accepted(self):
+        self.chat._init_tooling()
+        with patch('builtins.input', return_value='answer'):
+            out = self.chat._run_tool('ask', {'question': 'probe',
+                                              'context': 'some context'})
+        self.assertEqual(out, 'answer')
+
+    def test_direction_ask_guard_disabled(self):
+        chat = make_chat({'ask_min_question_chars': 0})
+        try:
+            chat._init_tooling()
+            with patch('builtins.input', return_value='answer'):
+                out = chat._run_tool('ask', {'question': 'x'})
+            self.assertEqual(out, 'answer')
+        finally:
+            chat._tmp.cleanup()
 
     def test_permission_ask_user_target_prompts_root(self):
         self.chat.current_session.mode = 'write'
@@ -188,14 +212,16 @@ class TestAskTool(unittest.TestCase):
         self.chat.provider.chat_nonstreaming.return_value = {'content': None}
         sub._init_tooling()
         with patch('builtins.input', return_value='from human'):
-            out = sub._run_tool('ask', {'question': 'q', 'target': 'caller'})
+            out = sub._run_tool('ask', {'question': 'which port?',
+                                        'target': 'caller'})
         self.assertEqual(out, 'from human')
 
     def test_lead_target_at_root_falls_back_to_human(self):
         self.chat._init_tooling()
         self.assertIsNone(self.chat._caller)
         with patch('builtins.input', return_value='user decision'):
-            out = self.chat._run_tool('ask', {'question': 'q', 'target': 'caller'})
+            out = self.chat._run_tool('ask', {'question': 'which port?',
+                                              'target': 'caller'})
         self.assertEqual(out, 'user decision')
 
     def test_subagent_user_ask_reaches_user(self):

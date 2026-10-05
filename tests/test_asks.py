@@ -150,7 +150,8 @@ class TestParking(unittest.TestCase):
         try:
             chat._init_tooling()
             with patch('builtins.input', side_effect=self._no_input):
-                out = chat._run_tool('ask', {'question': 'q', 'target': 'caller'})
+                out = chat._run_tool('ask', {'question': 'which port?',
+                                             'target': 'caller'})
             self.assertIn('[parked]', out)
             self.assertEqual(len(chat.asks.list()), 1)
         finally:

@@ -83,6 +83,7 @@ DEFAULT_CONFIG = {
         'permission': 'auto',
         'direction': '',
     },
+    'ask_min_question_chars': 8,
     'tool_permission': {
         'ask': 'allow',
         'bash': 'ask',
