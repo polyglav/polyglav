@@ -164,6 +164,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Ask target honored for permission requests - user route and root fallback
 - [x] Category permission grants - an `edit` ask now reaches every edit tool
 - [x] Numeric session ids resolve in /focus and handoff - fall back when no run has that id
 - [x] Focused-run prompt shows the caller name in default text color (`Manager >>>`)

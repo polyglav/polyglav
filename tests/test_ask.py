@@ -87,6 +87,41 @@ class TestAskTool(unittest.TestCase):
         finally:
             engine._tmp.cleanup()
 
+    def test_permission_ask_user_target_prompts_root(self):
+        self.chat.current_session.mode = 'write'
+        self.chat._init_tooling()
+        with patch.object(self.chat._ask_ui, 'ask',
+                          return_value='Approve once') as ask:
+            out = self.chat._run_tool('ask', {
+                'question': 'may I use the catalog?', 'kind': 'permission',
+                'permission': 'catalog', 'target': 'user'})
+        self.assertIn('[granted]', out)
+        self.assertTrue(ask.called)
+
+    def test_permission_ask_root_falls_back_to_user(self):
+        self.chat.current_session.mode = 'write'
+        self.chat._init_tooling()
+        with patch.object(self.chat._ask_ui, 'ask',
+                          return_value='Approve once') as ask:
+            out = self.chat._run_tool('ask', {
+                'question': 'may I use the catalog?', 'kind': 'permission',
+                'permission': 'catalog'})
+        self.assertIn('[granted]', out)
+        self.assertTrue(ask.called)
+
+    def test_permission_ask_user_target_parks_when_unattended(self):
+        chat = make_chat({'unattended': True})
+        try:
+            chat._init_tooling()
+            with patch('builtins.input',
+                       side_effect=AssertionError('stdin must not be read')):
+                out = chat._run_tool('ask', {
+                    'question': 'may I use the catalog?', 'kind': 'permission',
+                    'permission': 'catalog', 'target': 'user'})
+            self.assertIn('[parked]', out)
+        finally:
+            chat._tmp.cleanup()
+
     def test_read_mode_permission_ask_switches_on_approval(self):
         self.chat._init_tooling()
         with patch('builtins.input', return_value='y'):

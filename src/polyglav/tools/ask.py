@@ -130,8 +130,27 @@ def _switch_write(engine) -> None:
         pass
 
 
+def _prompt_permission(engine, question: str, context: str,
+                       permission: str, key: str) -> str | None:
+    ui = getattr(engine, '_ask_ui', None)
+    if ui is None:
+        return None
+    answer = ui.ask(question, context=context or '',
+                    options=list(_PERMISSION_OPTIONS),
+                    origin=engine.current_session.session_name)
+    if not answer:
+        return _NO_ANSWER
+    scope = _permission_scope(answer)
+    if scope in ('once', 'always'):
+        engine.grant_permission(permission, key, scope=scope, origin='user')
+        return f'[granted] Permission "{permission}" approved ({scope}).'
+    if scope == 'deny':
+        return f'[denied] Permission "{permission}" declined by the user.'
+    return _NO_ANSWER
+
+
 def _ask_permission(engine, question: str, context: str, options: list,
-                    permission: str) -> str:
+                    permission: str, target: str = '') -> str:
     key = _permission_key(engine, permission)
     mode = engine._mode() if hasattr(engine, '_mode') else 'write'
     from ..modes import is_write_key
@@ -161,31 +180,20 @@ def _ask_permission(engine, question: str, context: str, options: list,
                 '(above the delegation ceiling).')
     ask_policy = engine.config.get('ask_policy') or {}
     route = str(ask_policy.get('permission', 'auto'))
-    if cap == 'ask':
+    if cap == 'ask' or target == 'user':
         route = 'user'
+    elif target == 'caller':
+        route = 'caller'
     if route == 'deny':
         return f'[denied] Permission "{permission}" grants are disabled.'
+    caller = getattr(engine, '_caller', None)
     if route == 'user':
-        ui = getattr(engine, '_ask_ui', None)
-        if ui is not None:
-            answer = ui.ask(question, context=context or '',
-                            options=list(_PERMISSION_OPTIONS),
-                            origin=engine.current_session.session_name)
-            if not answer:
-                return _NO_ANSWER
-            scope = _permission_scope(answer)
-            if scope in ('once', 'always'):
-                engine.grant_permission(permission, key, scope=scope,
-                                        origin='user')
-                return f'[granted] Permission "{permission}" approved ({scope}).'
-            if scope == 'deny':
-                return (f'[denied] Permission "{permission}" declined by the '
-                        'user.')
-            return _NO_ANSWER
+        result = _prompt_permission(engine, question, context, permission, key)
+        if result is not None:
+            return result
         if engine._is_unattended():
             return _park(engine, question, context or '', options or [],
                          'permission', permission)
-    caller = getattr(engine, '_caller', None)
     if caller is not None:
         answer = _caller_answer(engine, question, context, options,
                                 system=_PERMISSION_SYSTEM)
@@ -197,6 +205,12 @@ def _ask_permission(engine, question: str, context: str, options: list,
             return (f'[granted] Permission "{permission}" approved for one '
                     'use.')
         return f'[denied] Permission "{permission}" not approved by the caller.'
+    result = _prompt_permission(engine, question, context, permission, key)
+    if result is not None:
+        return result
+    if engine._is_unattended():
+        return _park(engine, question, context or '', options or [],
+                     'permission', permission)
     return _NO_ONE
 
 
@@ -239,7 +253,8 @@ def register_ask_tool(registry, engine) -> Callable:
                     'enum': ['user', 'caller'],
                     'description': "'user' asks the user at the terminal (or the "
                                    "caller agent when headless). 'caller' asks the agent "
-                                   "type or engine that delegated this run to decide.",
+                                   "type or engine that delegated this run to decide. "
+                                   "Omit to follow the configured ask_policy.",
                 },
                 'kind': {
                     'type': 'string',
@@ -263,11 +278,11 @@ def register_ask_tool(registry, engine) -> Callable:
         confirm=False,
     )
     def ask(question: str, context: str = '', options: list | None = None,
-            target: str = 'user', kind: str = 'direction',
+            target: str = '', kind: str = 'direction',
             permission: str = '', _config=None) -> str:
         if kind == 'permission' and permission:
             return _ask_permission(engine, question, context or '',
-                                   options or [], permission)
+                                   options or [], permission, target)
         ui = getattr(engine, '_ask_ui', None)
         caller = getattr(engine, '_caller', None)
         if target == 'caller':
