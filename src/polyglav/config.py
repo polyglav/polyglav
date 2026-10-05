@@ -81,7 +81,7 @@ DEFAULT_CONFIG = {
     'grant_permission': {},
     'ask_policy': {
         'permission': 'auto',
-        'direction': 'user',
+        'direction': '',
     },
     'tool_permission': {
         'ask': 'allow',

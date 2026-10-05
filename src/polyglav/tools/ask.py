@@ -216,6 +216,56 @@ def _ask_permission(engine, question: str, context: str, options: list,
     return _NO_ONE
 
 
+def _direction_route(engine, target: str) -> str:
+    if target in ('user', 'caller'):
+        return target
+    policy = engine.config.get('ask_policy') or {}
+    value = str(policy.get('direction') or '').strip().lower()
+    if value == 'user':
+        return 'user'
+    if value in ('caller', 'auto'):
+        return 'caller'
+    caller = getattr(engine, '_caller', None)
+    return 'caller' if caller is not None else 'user'
+
+
+def _prompt_direction(engine, question: str, context: str,
+                      options: list) -> str | None:
+    ui = getattr(engine, '_ask_ui', None)
+    if ui is None:
+        return None
+    answer = ui.ask(question, context=context or '', options=options or [],
+                    origin=engine.current_session.session_name)
+    return answer or _NO_ANSWER
+
+
+def _ask_direction(engine, question: str, context: str, options: list,
+                   target: str = '') -> str:
+    route = _direction_route(engine, target)
+    caller = getattr(engine, '_caller', None)
+    if route == 'caller':
+        if caller is not None:
+            answer = _caller_answer(engine, question, context or '', options or [])
+            if answer is not None:
+                return answer
+        if engine._is_unattended():
+            return _park(engine, question, context or '', options or [],
+                         'direction', '')
+        result = _prompt_direction(engine, question, context, options)
+        return result if result is not None else _NO_ONE
+    if engine._is_unattended():
+        return _park(engine, question, context or '', options or [],
+                     'direction', '')
+    result = _prompt_direction(engine, question, context, options)
+    if result is not None:
+        return result
+    if caller is not None:
+        answer = _caller_answer(engine, question, context or '', options or [])
+        if answer is not None:
+            return answer
+    return _NO_ONE
+
+
 def register_ask_tool(registry, engine) -> Callable:
     @registry.register(
         name='ask',
@@ -285,33 +335,6 @@ def register_ask_tool(registry, engine) -> Callable:
         if kind == 'permission' and permission:
             return _ask_permission(engine, question, context or '',
                                    options or [], permission, target)
-        ui = getattr(engine, '_ask_ui', None)
-        caller = getattr(engine, '_caller', None)
-        if target == 'caller':
-            if caller is not None:
-                answer = _caller_answer(engine, question, context or '', options or [])
-                if answer is not None:
-                    return answer
-            if engine._is_unattended():
-                return _park(engine, question, context or '', options or [],
-                             'direction', '')
-            if ui is not None:
-                answer = ui.ask(question, context=context or '',
-                                options=options or [],
-                                origin=engine.current_session.session_name)
-                return answer or _NO_ANSWER
-            return _NO_ONE
-        if engine._is_unattended():
-            return _park(engine, question, context or '', options or [],
-                         'direction', '')
-        if ui is not None:
-            answer = ui.ask(question, context=context or '',
-                            options=options or [],
-                            origin=engine.current_session.session_name)
-            return answer or _NO_ANSWER
-        if caller is not None:
-            answer = _caller_answer(engine, question, context or '', options or [])
-            if answer is not None:
-                return answer
-        return _NO_ONE
+        return _ask_direction(engine, question, context or '', options or [],
+                              target)
     return ask

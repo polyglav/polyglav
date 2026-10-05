@@ -385,13 +385,37 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_direction_ask_unchanged(self):
+    def test_direction_ask_defaults_to_caller(self):
         chat = make_chat()
         try:
             sub = self._worker(chat)
-            with patch('builtins.input', return_value='use port 9'):
-                out = sub._run_tool('ask', {'question': 'which port?'})
-            self.assertEqual(out, 'use port 9')
+            chat.provider.chat_nonstreaming.return_value = {
+                'content': 'caller answer'}
+            out = sub._run_tool('ask', {'question': 'which option?'})
+            self.assertEqual(out, 'caller answer')
+            chat.provider.chat_nonstreaming.assert_called_once()
+        finally:
+            chat._tmp.cleanup()
+
+    def test_direction_ask_policy_user_prompts(self):
+        chat = make_chat()
+        try:
+            sub = self._worker(chat, ask_policy={'direction': 'user'})
+            with patch('builtins.input', return_value='user answer'):
+                out = sub._run_tool('ask', {'question': 'which option?'})
+            self.assertEqual(out, 'user answer')
+            chat.provider.chat_nonstreaming.assert_not_called()
+        finally:
+            chat._tmp.cleanup()
+
+    def test_direction_ask_policy_caller(self):
+        chat = make_chat()
+        try:
+            sub = self._worker(chat, ask_policy={'direction': 'caller'})
+            chat.provider.chat_nonstreaming.return_value = {
+                'content': 'caller answer'}
+            out = sub._run_tool('ask', {'question': 'which option?'})
+            self.assertEqual(out, 'caller answer')
         finally:
             chat._tmp.cleanup()
 

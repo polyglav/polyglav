@@ -139,7 +139,7 @@ class TestUnattendedNonBlocking(unittest.TestCase):
             with patch('builtins.input', side_effect=self._no_input):
                 out = sub._run_tool('ask', {'question': 'which port?'})
             self.assertIn('[parked]', out)
-            chat.provider.chat_nonstreaming.assert_not_called()
+            chat.provider.chat_nonstreaming.assert_called_once()
         finally:
             chat._tmp.cleanup()
 

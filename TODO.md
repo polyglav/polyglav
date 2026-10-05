@@ -164,6 +164,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Sub-agent asks route to the caller by default, teams stay automated
 - [x] Markdown role prompts stop leaking into roles.json
 - [x] Team review loops honor a full verdict marker and stop on the first pass
 - [x] Read mode permission asks offer a mode switch for write actions

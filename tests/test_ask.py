@@ -205,8 +205,51 @@ class TestAskTool(unittest.TestCase):
         self.assertIs(sub._ask_ui, self.chat._ask_ui)
         sub._init_tooling()
         with patch('builtins.input', return_value='use port 1234'):
-            out = sub._run_tool('ask', {'question': 'which port?'})
+            out = sub._run_tool('ask', {'question': 'which port?',
+                                        'target': 'user'})
         self.assertEqual(out, 'use port 1234')
+
+    def test_subagent_default_ask_routes_to_caller(self):
+        self.chat.roles.put(
+            Role(name='w', system_prompt='Writer agent'), scope='local')
+        sub = self.chat._new_sub_engine('w')
+        self.chat.provider.chat_nonstreaming.return_value = {
+            'content': 'caller decision'}
+        sub._init_tooling()
+        with patch.object(self.chat._ask_ui, 'ask',
+                          side_effect=AssertionError('user was asked')):
+            out = sub._run_tool('ask', {'question': 'which option?'})
+        self.assertEqual(out, 'caller decision')
+        self.chat.provider.chat_nonstreaming.assert_called_once()
+
+    def test_subagent_direction_policy_user_prompts(self):
+        self.chat.roles.put(
+            Role(name='w', system_prompt='Writer agent',
+                 ask_policy={'direction': 'user'}), scope='local')
+        sub = self.chat._new_sub_engine('w')
+        sub._init_tooling()
+        with patch('builtins.input', return_value='from user'):
+            out = sub._run_tool('ask', {'question': 'which option?'})
+        self.assertEqual(out, 'from user')
+        self.chat.provider.chat_nonstreaming.assert_not_called()
+
+    def test_subagent_target_user_overrides_caller_policy(self):
+        self.chat.roles.put(
+            Role(name='w', system_prompt='Writer agent',
+                 ask_policy={'direction': 'caller'}), scope='local')
+        sub = self.chat._new_sub_engine('w')
+        sub._init_tooling()
+        with patch('builtins.input', return_value='from user'):
+            out = sub._run_tool('ask', {'question': 'which option?',
+                                        'target': 'user'})
+        self.assertEqual(out, 'from user')
+        self.chat.provider.chat_nonstreaming.assert_not_called()
+
+    def test_root_default_direction_prompts_user(self):
+        self.chat._init_tooling()
+        with patch('builtins.input', return_value='user decision'):
+            out = self.chat._run_tool('ask', {'question': 'which option?'})
+        self.assertEqual(out, 'user decision')
 
     def test_full_loop_persists_answer_and_continues(self):
         self.chat.provider.chat.side_effect = [
