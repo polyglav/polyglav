@@ -92,7 +92,7 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Startup
 
-`register_startup(hooks)` appends a `callable(chat)` that the REPL runs once when it starts, after plugins load and before the first prompt. It is the first-run hook: the bundled `polyglav-core-onboarding` plugin uses it to detect an unconfigured project and ask about its purpose, assistant, focus following, prompt label, and output log, then writes the local config. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only `ChatLoop` runs startup hooks, so headless `run`/`serve` engines never prompt.
+`register_startup(hooks)` appends a `callable(chat)` that the REPL runs once when it starts, after plugins load, after the banner, and before the first prompt. It is the first-run hook: the bundled `polyglav-core-onboarding` plugin uses it to detect an unconfigured project and ask about its purpose, assistant, focus following, prompt label, and output log, then writes the local config. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only `ChatLoop` runs startup hooks, so headless `run`/`serve` engines never prompt.
 
 ### Lazy dependencies
 

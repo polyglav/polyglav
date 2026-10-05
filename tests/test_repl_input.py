@@ -163,6 +163,22 @@ class TestOutputLog(unittest.TestCase):
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
         self.assertIn('\x1b', log.read_text())
 
+    def test_banner_precedes_startup_hooks(self):
+        self.chat = make_chat({})
+        out = io.StringIO()
+
+        def add_hook(hooks):
+            hooks.append(lambda chat: print('STARTUP-MARKER'))
+
+        with patch.object(self.chat._plugin_manager, 'register_startup',
+                          add_hook):
+            with patch('sys.stdout', new=out):
+                with patch('polyglav.chat.input', side_effect=EOFError):
+                    with patch('polyglav.chat.readline'):
+                        self.chat.run()
+        value = out.getvalue()
+        self.assertLess(value.index('Polyglav'), value.index('STARTUP-MARKER'))
+
     def test_no_output_log_when_disabled(self):
         worktree = self._run({})
         self.assertFalse((worktree / '.polyglav' / 'output').exists())

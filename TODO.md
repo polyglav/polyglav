@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Onboarding runs after the banner
 - [x] Output log is plain text, no ANSI
 - [x] Permission action values accept true and false
 - [x] Prompt color on macos (libedit)

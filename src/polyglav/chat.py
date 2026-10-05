@@ -65,7 +65,6 @@ class ChatLoop(Engine):
         self.focus = FocusManager(self)
         self._load_history(config)
         self._setup_readline()
-        self._run_startup()
 
     def _run_startup(self):
         hooks: list = []
@@ -304,6 +303,8 @@ class ChatLoop(Engine):
             print(f'Polyglav v{get_version()} ({provider_str}: {model_str}){suffix}  /help for commands')
         else:
             print(f'Polyglav ({provider_str}: {model_str}){suffix}  /help for commands')
+
+        self._run_startup()
 
         while True:
             line = self._read_line()
