@@ -2,7 +2,7 @@ import io
 import unittest
 from unittest.mock import MagicMock, patch
 
-from polyglav.chat import MAIN_PROMPT
+from polyglav.chat import MAIN_PROMPT, _prompt_text
 from polyglav.focus import FocusManager
 
 from tests.helpers import make_chat, seed_roles
@@ -161,6 +161,20 @@ class TestFocusRouting(unittest.TestCase):
         self.chat.config.set('mode', 'write')
         self.assertIn('\033[1;38;5;208m', self.chat._prompt())
         self.assertIn('\033[1;38;5;208m', self.chat._cont_prompt())
+
+    def test_prompt_text_libedit_reset_after_label(self):
+        with patch('polyglav.chat.readline') as rl:
+            rl.__doc__ = 'libedit readline'
+            text = _prompt_text('\033[1;36m', '>>>')
+        self.assertLess(text.index('\033[1;36m'), text.index('>>>'))
+        self.assertLess(text.index('>>>'), text.index('\033[0m'))
+        self.assertNotIn('\001\033[0m\002', text)
+
+    def test_prompt_text_gnu_brackets_reset(self):
+        with patch('polyglav.chat.readline') as rl:
+            rl.__doc__ = 'GNU readline'
+            text = _prompt_text('\033[1;36m', '>>>')
+        self.assertIn('\001\033[0m\002', text)
 
 
 class TestFocusCommand(unittest.TestCase):

@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Fixed the prompt color on macOS so the root `>>>` shows the mode color (cyan read, orange write) on libedit as well as GNU readline, by leaving the reset after the label instead of bracketing it. Docs (`config.md`). Tests: `test_focus.py`
 - Added the onboarding output log question so setup asks whether to create a file with everything printed to the terminal, default off. Docs (`config.md`, `plugins.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`
 - Changed the prompt label so the active role is lower-cased (for example `writer >>>`) and `prompt_role` defaults on, with the onboarding label question defaulting to yes. Docs (`config.md`, `architecture.md`). Tests: `test_focus.py`, `test_config.py`, `plugins/polyglav-core-onboarding/tests/test_onboarding.py`
 - Changed team composition guidance so the assistant confirms the design before composing a team, covering the deliverable, the manager pattern (sequential or hierarchical), and the per-role permissions. Docs (`teams.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`

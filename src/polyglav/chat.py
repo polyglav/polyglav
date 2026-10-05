@@ -14,8 +14,15 @@ HISTFILE = '.polyglav_history'
 _RST = '\001\033[0m\002'
 _DEFAULT = PROMPT_COLORS['cyan']
 
-MAIN_PROMPT = f'\001{_DEFAULT}\002>>>{_RST} '
-CONT_PROMPT = f'\001{_DEFAULT}\002...{_RST} '
+
+def _prompt_text(color: str, label: str) -> str:
+    if 'libedit' in (readline.__doc__ or ''):
+        return f'\001{color}\002{label}\033[0m '
+    return f'\001{color}\002{label}{_RST} '
+
+
+MAIN_PROMPT = _prompt_text(_DEFAULT, '>>>')
+CONT_PROMPT = _prompt_text(_DEFAULT, '...')
 
 
 def _open_delim(text: str) -> str | None:
@@ -242,7 +249,7 @@ class ChatLoop(Engine):
             spec, _ = resolve_mode(self.config, engine._mode())
             color = mode_color(spec)
         label = f'{role.lower()} {marker}' if role else marker
-        return f'\001{color}\002{label}{_RST} '
+        return _prompt_text(color, label)
 
     def _open_output_log(self):
         if not self.config.get('output_log', False):
