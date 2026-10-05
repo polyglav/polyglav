@@ -164,6 +164,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Ask options render inline or numbered, selected by number or letter
 - [x] Direction ask clarity guard rejects a degenerate question
 - [x] Sub-agent asks route to the caller by default, teams stay automated
 - [x] Markdown role prompts stop leaking into roles.json

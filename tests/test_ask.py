@@ -73,10 +73,10 @@ class TestAskTool(unittest.TestCase):
                                 options=['a', 'b'], origin=self.chat.current_session.session_name)
         self.assertEqual(result, 'b')
         out = buf.getvalue()
-        self.assertIn('Ask: which?', out)
+        self.assertIn('which?', out)
         self.assertIn('ctx', out)
-        self.assertIn('  1. a', out)
-        self.assertIn('  2. b', out)
+        self.assertIn('(a) a', out)
+        self.assertIn('(b) b', out)
 
     def test_ask_no_ui_no_lead_errors(self):
         engine = make_engine()

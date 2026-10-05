@@ -79,6 +79,24 @@ def _timed_input(prompt: str, timeout: float, hidden: bool = False) -> str | Non
     return input(prompt)
 
 
+def _select_option(text: str, options: list) -> str | None:
+    if not options:
+        return None
+    value = text.strip()
+    if not value:
+        return None
+    if value.isdigit():
+        index = int(value) - 1
+        if 0 <= index < len(options):
+            return options[index]
+        return None
+    if len(value) == 1 and value.isalpha():
+        index = ord(value.lower()) - ord('a')
+        if 0 <= index < len(options):
+            return options[index]
+    return None
+
+
 def _hidden_input(prompt: str, timeout: float) -> str | None:
     tty_file = _open_tty()
     if tty_file is None:
@@ -489,6 +507,16 @@ class ReplUI:
             return 0.0
         return max(0.0, float(config.get('confirm_timeout', 0) or 0))
 
+    def _ask_inline_limit(self) -> int:
+        loop = getattr(self, '_loop', None)
+        config = getattr(loop, 'config', None) if loop is not None else None
+        if config is None:
+            return 60
+        try:
+            return int(config.get('ask_options_inline_chars', 60) or 0)
+        except (TypeError, ValueError):
+            return 60
+
     def ask(self, question, context='', options=None, origin=''):
         self.flush()
         self._ensure_newline()
@@ -496,14 +524,25 @@ class ReplUI:
         prefix = ''
         if origin and origin != self._loop.current_session.session_name:
             prefix = f'[{origin}] '
-        self._emit(f'{prefix}Ask: {question}', ORANGE)
+        options = list(options or [])
+        inline = ''
+        if options:
+            parts = []
+            for i, opt in enumerate(options):
+                if i < 26:
+                    parts.append(f'({chr(ord("a") + i)}) {opt}')
+                else:
+                    parts.append(f'{i + 1}) {opt}')
+            inline = '  ' + '  '.join(parts)
+        limit = self._ask_inline_limit()
+        if options and limit > 0 and len(f'{prefix}{question}{inline}') <= limit:
+            self._emit(f'{prefix}{question}{inline}', ORANGE)
+        else:
+            self._emit(f'{prefix}{question}', ORANGE)
+            for i, opt in enumerate(options, 1):
+                self._emit(f'{i}) {opt}', DIM)
         if context:
             self._emit(context, DIM)
-        options = list(options or [])
-        for i, opt in enumerate(options, 1):
-            self._emit(f'  {i}. {opt}', DIM)
-        if options:
-            self._emit('  (pick a number, or type your own)', DIM)
         prompt = f'\001{ORANGE}\002? Answer: \001{RESET}\002'
         self._prompting.set()
         self._clear_spinner_line()
@@ -523,10 +562,9 @@ class ReplUI:
         text = answer.strip()
         if not text:
             return None
-        if options and text.isdigit():
-            index = int(text) - 1
-            if 0 <= index < len(options):
-                return options[index]
+        selected = _select_option(text, options)
+        if selected is not None:
+            return selected
         return text
 
 

@@ -596,12 +596,39 @@ class TestLinePrompts(unittest.TestCase):
                     'input must not be called on timeout')):
                 self.assertIsNone(self.ui.ask('which?', options=['a', 'b']))
 
-    def test_ask_options_rendered_as_numbered_list(self):
+    def test_ask_options_rendered_inline(self):
         with patch('polyglav.ui.input', return_value='1'):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
-        self.assertIn('  1. a', value)
-        self.assertIn('  2. b', value)
+        self.assertIn('which?  (a) a  (b) b', value)
+
+    def test_ask_letter_returns_option_text(self):
+        with patch('polyglav.ui.input', return_value='b'):
+            answer = self.ui.ask('which?', options=['a', 'b'])
+        self.assertEqual(answer, 'b')
+
+    def test_ask_long_question_renders_numbered_list(self):
+        question = 'x' * 70
+        with patch('polyglav.ui.input', return_value='2'):
+            value = self._capture(
+                lambda: self.ui.ask(question, options=['a', 'b']))
+        self.assertIn('1) a', value)
+        self.assertIn('2) b', value)
+        self.assertNotIn('(a) a', value)
+
+    def test_ask_inline_threshold_config_disables_inline(self):
+        self.chat.config.set('ask_options_inline_chars', 0)
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask('which?', options=['a', 'b']))
+        self.assertIn('1) a', value)
+
+    def test_ask_origin_prefix_present(self):
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask('which?', options=['a', 'b'],
+                                    origin='other-session'))
+        self.assertIn('[other-session] which?', value)
 
     def test_ask_uses_visible_input_even_when_confirm_hidden(self):
         self.chat.config.set('hide_confirm_input', True)
