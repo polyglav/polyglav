@@ -10,7 +10,15 @@ from .config import Config
 _ACTION_RANK = {'deny': 0, 'ask': 1, 'allow': 2}
 
 
+def _coerce_action(value):
+    if isinstance(value, bool):
+        return 'allow' if value else 'deny'
+    return value
+
+
 def clamp_action(action: str, cap: str) -> str:
+    action = _coerce_action(action)
+    cap = _coerce_action(cap)
     if not isinstance(action, str) or action not in _ACTION_RANK:
         return action
     if not isinstance(cap, str) or cap not in _ACTION_RANK:

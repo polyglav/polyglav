@@ -22,26 +22,47 @@ _PERMISSION_ALIASES = {
 _PERMISSION_KEY_LIST = ('bash, edit, read, list, web, catalog, ask, handoff, '
                         'offload, call, delegate, mcp, vcs')
 
+_VALID_ACTIONS = ('allow', 'ask', 'deny')
+_ACTION_ALIASES = {'true': 'allow', 'yes': 'allow',
+                   'false': 'deny', 'no': 'deny'}
+
+
+def _normalize_action(value):
+    if isinstance(value, bool):
+        return 'allow' if value else 'deny'
+    text = str(value).strip().lower()
+    if text in _VALID_ACTIONS:
+        return text
+    return _ACTION_ALIASES.get(text)
+
 
 def _normalize_permission_map(engine, value, field: str) -> tuple[dict | None, str | None]:
     if value is None:
         return None, None
     if not isinstance(value, dict):
-        return None, f'Error: {field} must be an object of category: action pairs'
+        return None, f'Error: {field} must be an object of key: action pairs'
     valid = engine.permission_keys()
     out: dict = {}
     unknown: list[str] = []
+    invalid: list[str] = []
     for key, action in value.items():
         name = str(key)
         canonical = _PERMISSION_ALIASES.get(name.strip().lower(), name)
         if canonical not in valid:
             unknown.append(name)
             continue
-        out[canonical] = action
+        normalized = _normalize_action(action)
+        if normalized is None:
+            invalid.append(f'{canonical}={action!r}')
+            continue
+        out[canonical] = normalized
     if unknown:
         listed = ', '.join(sorted(valid))
         return None, (f'Error: unknown permission key(s) in {field}: '
                       f'{", ".join(sorted(unknown))}. Valid keys: {listed}')
+    if invalid:
+        return None, (f'Error: invalid action in {field}: {", ".join(invalid)}. '
+                      'Use allow, ask, or deny (true/false are accepted)')
     return out, None
 
 
@@ -102,6 +123,11 @@ def _show_role(engine, name: str) -> str:
                 if unknown:
                     lines.append('  WARNING: unknown permission key(s): '
                                  + ', '.join(sorted(unknown)))
+                bad = [k for k, v in value.items()
+                       if _normalize_action(v) is None]
+                if bad:
+                    lines.append('  WARNING: invalid action value(s): '
+                                 + ', '.join(sorted(bad)))
     return '\n'.join(lines)
 
 

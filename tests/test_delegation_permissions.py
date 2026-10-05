@@ -87,6 +87,15 @@ class TestPolicyGrants(unittest.TestCase):
         self.assertEqual(policy.action('run_command', 'bash'), 'allow')
         self.assertEqual(policy.action('other_bash_tool', 'bash'), 'deny')
 
+    def test_boolean_action_values(self):
+        policy = ToolPolicy({'bash': False, 'edit': True})
+        self.assertEqual(policy.action('run_command', 'bash'), 'deny')
+        self.assertEqual(policy.action('file_write', 'edit'), 'allow')
+
+    def test_clamp_action_coerces_boolean(self):
+        self.assertEqual(clamp_action(False, 'allow'), 'deny')
+        self.assertEqual(clamp_action(True, 'deny'), 'deny')
+
 
 class TestNoEscalation(unittest.TestCase):
 

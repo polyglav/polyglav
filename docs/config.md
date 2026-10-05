@@ -176,7 +176,7 @@ Every engine has two permission axes:
 - `tool_permission` - what the engine itself may use.
 - `grant_permission` - the ceiling on what it may hand down to sub-agents.
 
-Both take permission keys, not tool categories: `bash`, `edit`, `read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`, `call`, `delegate`, `mcp`, `vcs`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`) and rejects an unknown key with the valid list.
+Both take permission keys, not tool categories: `bash`, `edit`, `read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`, `call`, `delegate`, `mcp`, `vcs`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), rejects an unknown key with the valid list, and accepts an action of `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`).
 
 A sub-agent's effective permissions are the parent's `tool_permission`, narrowed by the role's `tool_permission` carve and capped by the mode-derived ceiling. The mode sets that ceiling: `write` makes write keys grantable, `read` denies them, and `grant_permission` (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.
 

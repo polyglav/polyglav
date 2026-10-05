@@ -454,7 +454,8 @@ class Engine:
             out[key] = self_perms.get(key, 'ask')
         for key in DEFAULT_WRITE_KEYS:
             out[key] = 'allow' if mode == 'write' else 'deny'
-        out.update(role_grant)
+        for key, value in role_grant.items():
+            out[key] = 'allow' if value is True else 'deny' if value is False else value
         if mode != 'write':
             for key in DEFAULT_WRITE_KEYS:
                 out[key] = 'deny'

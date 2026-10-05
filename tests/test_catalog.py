@@ -103,6 +103,30 @@ class TestCatalogTool(unittest.TestCase):
         self.assertIn('bash', out)
         self.assertIsNone(self.chat.roles.find('bad'))
 
+    def test_save_role_normalizes_boolean_actions(self):
+        out = self._catalog(
+            action='save', kind='role', name='booly',
+            tool_permission={'bash': False, 'edit': True, 'read': True},
+            grant_permission={'bash': False})
+        self.assertIn('Saved role: booly', out)
+        saved = self.chat.roles.find('booly')
+        self.assertEqual(saved.tool_permission,
+                         {'bash': 'deny', 'edit': 'allow', 'read': 'allow'})
+        self.assertEqual(saved.grant_permission, {'bash': 'deny'})
+
+    def test_save_role_rejects_invalid_action(self):
+        out = self._catalog(action='save', kind='role', name='badact',
+                            tool_permission={'bash': 'maybe'})
+        self.assertIn('invalid action', out)
+        self.assertIsNone(self.chat.roles.find('badact'))
+
+    def test_show_role_flags_invalid_action(self):
+        self.chat.roles.put(Role(name='badval',
+                                 tool_permission={'bash': 'maybe'}),
+                            scope='local')
+        out = self._catalog(action='show', kind='role', name='badval')
+        self.assertIn('invalid action value', out)
+
     def test_show_role_flags_unknown_permission_key(self):
         self.chat.roles.put(Role(name='legacy',
                                  tool_permission={'bogus': 'deny'}),

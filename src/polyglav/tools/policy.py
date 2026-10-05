@@ -63,6 +63,8 @@ class ToolPolicy:
         if self._mode_denies(permission_key):
             return 'deny'
         action = self.permissions.get(permission_key, 'ask')
+        if isinstance(action, bool):
+            action = 'allow' if action else 'deny'
         return action if action in ('allow', 'ask', 'deny') else 'ask'
 
     def _outside_worktree(self, path: str) -> bool:
