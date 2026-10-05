@@ -168,7 +168,7 @@ class TestFocusRouting(unittest.TestCase):
             text = _prompt_text('\033[1;36m', '>>>')
         self.assertLess(text.index('\033[1;36m'), text.index('>>>'))
         self.assertLess(text.index('>>>'), text.index('\033[0m'))
-        self.assertNotIn('\001\033[0m\002', text)
+        self.assertNotIn('\001', text)
 
     def test_prompt_text_gnu_brackets_reset(self):
         with patch('polyglav.chat.readline') as rl:

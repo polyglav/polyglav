@@ -17,7 +17,7 @@ _DEFAULT = PROMPT_COLORS['cyan']
 
 def _prompt_text(color: str, label: str) -> str:
     if 'libedit' in (readline.__doc__ or ''):
-        return f'\001{color}\002{label}\033[0m '
+        return f'{color}{label}\033[0m '
     return f'\001{color}\002{label}{_RST} '
 
 
