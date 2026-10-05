@@ -30,6 +30,7 @@ class ToolRegistry:
                  param_aliases: dict | None = None,
                  note: Callable[[str], bool] | None = None,
                  permission_fn: Callable[[dict], str] | None = None,
+                 write_actions: list | None = None,
                  loop: bool = False, confirm: bool = True,
                  error: Callable[[str], bool] | None = None):
         def wrapper(fn):
@@ -59,6 +60,7 @@ class ToolRegistry:
                 'param_aliases': dict(param_aliases or {}),
                 'note': note,
                 'permission_fn': permission_fn,
+                'write_actions': list(write_actions or []),
                 'loop': loop,
                 'confirm': confirm,
                 'error': error,
@@ -163,6 +165,15 @@ class ToolRegistry:
     def resolver_for(self, name: str) -> Callable | None:
         canon, tool = self._canonical(name)
         return tool.get('permission_fn') if tool else None
+
+    def write_action_keys(self) -> set:
+        keys = set()
+        for name, tool in self._tools.items():
+            if 'alias_of' in tool:
+                continue
+            if tool.get('write_actions'):
+                keys.add(tool['permission'])
+        return keys
 
     def path_arg_for(self, name: str) -> str | None:
         canon, tool = self._canonical(name)

@@ -232,6 +232,7 @@ def register_catalog_tool(registry, engine) -> Callable:
         glyph='+',
         verb='Catalog',
         permission_fn=lambda args: _catalog_action(engine, args),
+        write_actions=list(_CATALOG_WRITE_ACTIONS),
     )
     def catalog(action: str, kind: str = '', name: str = '',
                 system_prompt: str | None = None, model: str | None = None,

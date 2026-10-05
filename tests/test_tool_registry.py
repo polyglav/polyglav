@@ -314,6 +314,23 @@ class TestToolRegistry(unittest.TestCase):
         self.assertEqual(value, 'p')
         self.assertEqual(body, ['+ c'])
 
+    def test_write_actions_metadata(self):
+        reg = ToolRegistry()
+
+        @reg.register('catalog_like', 'C',
+                      {'type': 'object', 'properties': {}},
+                      category='catalog', permission='catalog',
+                      write_actions=['save', 'remove'])
+        def catalog_like():
+            return 'ok'
+
+        @reg.register('reader', 'R', {'type': 'object', 'properties': {}},
+                      permission='read')
+        def reader():
+            return 'ok'
+
+        self.assertEqual(reg.write_action_keys(), {'catalog'})
+
 
 if __name__ == '__main__':
     unittest.main()

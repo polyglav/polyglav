@@ -153,7 +153,10 @@ def _ask_permission(engine, question: str, context: str, options: list,
                     permission: str, target: str = '') -> str:
     key = _permission_key(engine, permission)
     mode = engine._mode() if hasattr(engine, '_mode') else 'write'
-    if mode != 'write':
+    from ..modes import is_write_key
+    registry = getattr(engine, '_tool_registry', None)
+    write_gated = registry is not None and key in registry.write_action_keys()
+    if mode != 'write' and (is_write_key(engine.config, key) or write_gated):
         prompt = (f'Allow "{permission}"? This run needs write mode. {question}')
         ui = getattr(engine, '_ask_ui', None)
         if ui is not None:

@@ -72,6 +72,7 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `handoff` / `mcp` / `offload` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
 | `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `handoff` / `list` / `mcp` / `offload` / `read` / `vcs` / `web` |
 | `permission_fn` | Optional `Callable[[dict], str]` resolving the action (`allow`/`ask`/`deny`) from the current arguments - refines a non-`deny` base action at call time, or returns `None` to defer to the category action (see `call`, `git_commit`) |
+| `write_actions` | Optional list of argument-level actions that count as write-class even under a read-class `permission` key (for example the `catalog` tool's `save`/`remove`/`reload`), so a read-mode permission ask is redirected to a mode switch |
 | `path_arg` | Which parameter is a filesystem path, for worktree scope checks |
 | `key_arg` | Which argument appears in status/confirm labels and glyph activity lines |
 | `glyph` / `verb` | Per-tool activity-line overrides (e.g. `glob` uses `* Glob`, `web_fetch` uses `↓ Fetch`) |
