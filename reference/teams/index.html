@@ -956,6 +956,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#team-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Team shapes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#storage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1243,6 +1254,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#team-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Team shapes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#storage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1338,6 +1360,13 @@
 
 <h1 id="teams">Teams<a class="headerlink" href="#teams" title="Permanent link">&para;</a></h1>
 <p>A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the <code>delegate</code> primitive into a repeatable pipeline: "writing" = researcher &gt; writer &gt; referencer &gt; editor for documents, "programming" = planner &gt; programmer &gt; tester &gt; code-reviewer. The registry stores the definition and the sequential stage loop (<code>Engine.run_team</code>) executes it, reachable from the REPL (<code>/teams run</code>), the model (the <code>delegate</code> tool), and the CLI.</p>
+<h2 id="team-shapes">Team shapes<a class="headerlink" href="#team-shapes" title="Permanent link">&para;</a></h2>
+<p>A team has two shapes:</p>
+<ul>
+<li><strong>Sequential</strong> (the default) - the stages run in order, and each stage's result is handed to the next. This is what <code>delegate</code> and <code>Engine.run_team</code> execute.</li>
+<li><strong>Hierarchical</strong> - a manager allocates tasks to roles, validates the outcomes, and re-assigns until the work is done. There is no built-in manager yet. Two patterns approximate it today: make the manager stage 1 and let it call the worker roles with the <code>call</code> tool, or call the manager role directly and let it call the roles. The stage pipeline stays the sequential fallback.</li>
+</ul>
+<p>A composing agent can check a definition before saving it with <code>catalog action=validate</code>, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog. The assistant confirms the design with the user (the deliverable, the manager pattern, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.</p>
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>No teams ship with the package. A fresh install has an empty catalog, and the user or an agent creates teams as a project needs them (the <code>catalog</code> tool and <code>/teams new</code>). A project that keeps a tuned catalog can commit it under <code>.polyglav/</code> so it travels with the repository.</p>
 <p>Teams come from three layers, merged exactly like roles: plugin, then global, then local, local winning per field:</p>
@@ -1421,7 +1450,7 @@
 </code></pre></div>
 <ul>
 <li>Stages before <code>from</code> run once, then the <code>from..until</code> block repeats, then stages after <code>until</code> run once.</li>
-<li>The <code>until</code> stage is the review. It passes when its result contains the verdict marker followed by <code>PASS</code> (case-insensitive). The default marker is <code>VERDICT:</code>, configurable through <code>loop.verdict</code>. A reviewer stage should be told to end with <code>VERDICT: PASS</code> or <code>VERDICT: CHANGES</code>.</li>
+<li>The <code>until</code> stage is the review. It passes when its result contains the verdict marker followed by <code>PASS</code> (case-insensitive). The default marker is <code>VERDICT:</code>, configurable through <code>loop.verdict</code>. A marker that already names the outcome (<code>VERDICT: PASS</code>) is honored as-is, while a bare prefix (<code>VERDICT:</code>) has <code>PASS</code> appended. A reviewer stage should be told to end with <code>VERDICT: PASS</code> or <code>VERDICT: CHANGES</code>.</li>
 <li>On the next iteration the producer's brief carries a <code>## Findings from the previous review</code> block, so it revises with the review context even though each iteration starts a fresh run.</li>
 <li><code>max_iterations</code> (default 3) caps the block. Reaching it without a pass is still a successful run, with the last review as the result.</li>
 </ul>

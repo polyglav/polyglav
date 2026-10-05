@@ -1282,6 +1282,8 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today <code>delegate</code> is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option</li>
+<li>[ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md</li>
 <li>[ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of <code>{action, resource, effect}</code> rules. <code>action</code> is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), <code>resource</code> is a path, command prefix, URL, query, skill id, or role id, <code>effect</code> is allow/ask/deny, resources accept <code>*</code>/<code>?</code> wildcards, and the last matching rule wins so a broad rule precedes its exceptions. <code>ToolPolicy</code> evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt</li>
 <li>[ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a <code>default_agent</code> config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called</li>
 <li>[ ] Agent presentation and limits - a role carries <code>color</code> (prompt and status accent), <code>hidden</code> (omit from listings and the delegation catalog), and <code>disabled</code> (remove a lower-layer role), plus a per-role step cap that drops the tool schema on the final step and asks the model to summarize</li>
@@ -1391,6 +1393,25 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Output log raw option keeps special characters</li>
+<li>[x] Onboarding runs after the banner</li>
+<li>[x] Output log is plain text, no ANSI</li>
+<li>[x] Permission action values accept true and false</li>
+<li>[x] Prompt color on macos (libedit)</li>
+<li>[x] Onboarding asks to create the terminal output log</li>
+<li>[x] Prompt label lower-case and on by default</li>
+<li>[x] Team composition guidance confirms the design first</li>
+<li>[x] Ask prompt prints on its own line, context before options</li>
+<li>[x] Catalog describes permission keys and team shapes</li>
+<li>[x] Catalog permission keys validated and aliased (write/exec)</li>
+<li>[x] Ask options render inline or numbered, selected by number or letter</li>
+<li>[x] Direction ask clarity guard rejects a degenerate question</li>
+<li>[x] Sub-agent asks route to the caller by default, teams stay automated</li>
+<li>[x] Markdown role prompts stop leaking into roles.json</li>
+<li>[x] Team review loops honor a full verdict marker and stop on the first pass</li>
+<li>[x] Read mode permission asks offer a mode switch for write actions</li>
+<li>[x] Ask target honored for permission requests - user route and root fallback</li>
+<li>[x] Category permission grants - an <code>edit</code> ask now reaches every edit tool</li>
 <li>[x] Numeric session ids resolve in /focus and handoff - fall back when no run has that id</li>
 <li>[x] Focused-run prompt shows the caller name in default text color (<code>Manager &gt;&gt;&gt;</code>)</li>
 <li>[x] Prompt origin in logs - user part records the caller role, job, api, cli, or user</li>

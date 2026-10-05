@@ -1296,11 +1296,11 @@
 </tr>
 <tr>
 <td><code>test_ask.py</code></td>
-<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), <code>target='caller'</code> caller-model consultation (question + delegated task in the prompt) + silent-caller fallback to the user + root-fallback, sub-engine <code>_caller</code>/<code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
+<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), <code>target='caller'</code> caller-model consultation (question + delegated task in the prompt) + silent-caller fallback to the user + root-fallback, direction routing (<code>ask_policy.direction</code> caller/user, a sub-agent defaults to its caller, explicit target overrides, the root defaults to the user), the clarity guard (a short question with no context or options is rejected), ask options rendering (inline letters vs multiline numbers, number/letter/free-text selection), permission-request target routing (explicit <code>user</code> prompts the root, an omitted target falls back to the terminal user, unattended parks, a read-mode catalog ask offers a mode switch), sub-engine <code>_caller</code>/<code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
 </tr>
 <tr>
 <td><code>test_asks.py</code></td>
-<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root/sub-agent user ask -&gt; <code>[parked]</code> + record with no stdin, <code>target='caller'</code> caller-less root parks, attended still prompts, permission-ask <code>user</code> route parks with <code>kind=permission</code> while <code>auto</code> route still grants <code>once</code> to the caller), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
+<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root ask -&gt; <code>[parked]</code> + record with no stdin, an unattended sub-agent ask consults its caller then parks when the caller is silent, <code>target='user'</code> parks without consulting the caller, <code>target='caller'</code> caller-less root parks, attended still prompts, permission-ask <code>user</code> route parks with <code>kind=permission</code> while <code>auto</code> route still grants <code>once</code> to the caller), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
 </tr>
 <tr>
 <td><code>test_autonomous_supervisor.py</code></td>
@@ -1324,15 +1324,19 @@
 </tr>
 <tr>
 <td><code>test_config.py</code></td>
-<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration</td>
+<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration. <code>prompt_role</code> defaults on</td>
 </tr>
 <tr>
 <td><code>test_call.py</code></td>
 <td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>delegate_echo</code> on/off display + sub footer, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
 <tr>
+<td><code>test_catalog.py</code></td>
+<td><code>catalog</code> tool: registration + default allow, read/write action gating, list/show/save/remove/reload, team stages, skill file write, permission-key validation (valid keys pass, <code>write</code>/<code>exec</code>/<code>search</code> normalize to <code>edit</code>/<code>bash</code>/<code>web</code>, an unknown key is rejected with the valid list, <code>true</code>/<code>false</code> actions normalize to <code>allow</code>/<code>deny</code>, an invalid action is rejected, <code>show</code> flags unknown keys and invalid actions), <code>validate</code> action (role permission keys, team stage roles against the catalog, skill content), description lists the permission keys and team shapes</td>
+</tr>
+<tr>
 <td><code>test_delegation_permissions.py</code></td>
-<td>Permission ceiling + grants: <code>clamp_action</code>/<code>resolve_permissions</code>/<code>resolve_grant_ceiling</code>, <code>ToolPolicy</code> one-shot/always grants + consume + category/tool matching, no-escalation (a role carve cannot widen above the caller's <code>grant_permission</code>), supervisor grants a category it cannot use itself, one-shot grants do not propagate to children, <code>ask(kind='permission')</code> routing (<code>auto</code>/<code>user</code>/<code>deny</code>, ceiling denial, the caller grants <code>once</code> only, the user grants <code>once</code>/<code>always</code>), granted tool appears then is consumed from the schema, audit entries</td>
+<td>Permission ceiling + grants: <code>clamp_action</code>/<code>resolve_permissions</code>/<code>resolve_grant_ceiling</code> (including boolean action coercion), <code>ToolPolicy</code> one-shot/always grants + consume + category/tool matching, boolean action values (<code>false</code> denies, <code>true</code> allows), no-escalation (a role carve cannot widen above the caller's <code>grant_permission</code>), supervisor grants a category it cannot use itself, one-shot grants do not propagate to children, <code>ask(kind='permission')</code> routing (<code>auto</code>/<code>user</code>/<code>deny</code>, ceiling denial, the caller grants <code>once</code> only, the user grants <code>once</code>/<code>always</code>), <code>ask(kind='direction')</code> routing (a sub-agent defaults to the caller, <code>ask_policy.direction</code> user/caller), a category ask reaches every tool in the category while a tool ask stays scoped, granted tool appears then is consumed from the schema, audit entries</td>
 </tr>
 <tr>
 <td><code>test_engine.py</code></td>
@@ -1348,7 +1352,7 @@
 </tr>
 <tr>
 <td><code>test_focus.py</code></td>
-<td><code>FocusManager</code>: root start, run-keyed attach to a run's own session and role (<code>agent_&lt;role&gt;</code> removed), re-enter identity, <code>back</code>/<code>reset</code> stack walking, root-run reset, unknown-run error, <code>engines</code> listing, <code>run_engine</code> resume of a saved run, <code>focus_session</code> by session name. REPL routing to the active engine for turns and slash commands, role prompt (<code>prompt_role</code>) gating. <code>/focus</code> command: show, <code>#id</code>/<code>#run</code>/<code>#&lt;session_id&gt;</code>/<code>session:&lt;name&gt;</code>/<code>root</code> attach, <code>back</code>/<code>child</code>/<code>parent</code>/<code>sibling</code>/<code>next</code>/<code>prev</code>, role no longer a target, unknown target, absent manager</td>
+<td><code>FocusManager</code>: root start, run-keyed attach to a run's own session and role (<code>agent_&lt;role&gt;</code> removed), re-enter identity, <code>back</code>/<code>reset</code> stack walking, root-run reset, unknown-run error, <code>engines</code> listing, <code>run_engine</code> resume of a saved run, <code>focus_session</code> by session name. REPL routing to the active engine for turns and slash commands, role prompt (<code>prompt_role</code>, default on, lower-cased label) gating, and the prompt builder (libedit keeps the reset after the label, GNU readline brackets it). <code>/focus</code> command: show, <code>#id</code>/<code>#run</code>/<code>#&lt;session_id&gt;</code>/<code>session:&lt;name&gt;</code>/<code>root</code> attach, <code>back</code>/<code>child</code>/<code>parent</code>/<code>sibling</code>/<code>next</code>/<code>prev</code>, role no longer a target, unknown target, absent manager</td>
 </tr>
 <tr>
 <td><code>test_focus_on_delegate.py</code></td>
@@ -1412,7 +1416,7 @@
 </tr>
 <tr>
 <td><code>test_repl_input.py</code></td>
-<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line</td>
+<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks</td>
 </tr>
 <tr>
 <td><code>test_run_buffer.py</code></td>
@@ -1455,6 +1459,10 @@
 <td><code>Engine.run_team</code>: brief builder (task + prior results + handoff + memory + task hint, prior-result truncation), sequential stage execution with per-stage <code>sub_*</code> sessions + parent linkage + exact brief persistence, stage mode inheritance, stop-on-failure, unknown-stage-role stop, zero stages, rolling team-memory write (summarized + prior-seeded + fallback), <code>/teams run</code> command output (stages + final result, unknown team, usage)</td>
 </tr>
 <tr>
+<td><code>test_team_loop.py</code></td>
+<td>Team review loop: <code>_review_passed</code> (<code>VERDICT:</code> prefix and a full <code>VERDICT: PASS</code> marker, case-insensitive, custom marker), <code>_team_loop_plan</code> (name/index resolution, invalid <code>from</code>/<code>until</code>), pass on first iteration, changes-then-pass iteration with the prior review in the producer brief, a full verdict marker stopping on the first pass, cap reached without pass, pre/post-loop stages run once, stage error stops the loop, <code>loop</code> round-trip</td>
+</tr>
+<tr>
 <td><code>test_delegate_tool.py</code></td>
 <td><code>delegate</code> tool: schema/registration (<code>category delegate</code>, <code>loop</code>), pipeline run + final result + sub-sessions, unknown team / no stages / unknown stage role errors, resolver allow/deny/ask per stage role, clamped-stage note, <code>run_team</code> cycle + depth guards, <code>_team_depth</code>/<code>_team_stack</code> propagation, full agent-loop team call</td>
 </tr>
@@ -1472,7 +1480,7 @@
 </tr>
 <tr>
 <td><code>test_tool_registry.py</code></td>
-<td>Tool registration metadata, schema, refine flags, note-result predicates, <code>_config</code> pass-through, activity params strings, fs tool glyphs (<code>* List</code> / <code>* Grep</code>), <code>permission_fn</code> storage + <code>resolver_for</code></td>
+<td>Tool registration metadata, schema, refine flags, note-result predicates, <code>_config</code> pass-through, activity params strings, fs tool glyphs (<code>* List</code> / <code>* Grep</code>), <code>permission_fn</code> storage + <code>resolver_for</code>, <code>write_actions</code> storage + <code>write_action_keys</code></td>
 </tr>
 <tr>
 <td><code>test_turns.py</code></td>
@@ -1480,15 +1488,19 @@
 </tr>
 <tr>
 <td><code>test_unattended.py</code></td>
-<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root user ask non-blocking / sub-agent user ask routes to the caller (no <code>input</code>), full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
+<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root user ask non-blocking / sub-agent ask consults the caller then parks when unattended (no <code>input</code>), full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
 </tr>
 <tr>
 <td><code>test_roles.py</code></td>
 <td><code>RoleRegistry</code>: bundled/plugin/global/local merge and precedence, origins (bundled/plugin/local/global origin), tags roundtrip + merge, put/remove/reload (disk re-read + plugin-manager re-apply), <code>/roles</code> command (list/show/new override/remove, <code>list &lt;tag&gt;</code> filter, bundled remove rejected)</td>
 </tr>
 <tr>
+<td><code>test_role_files.py</code></td>
+<td>Markdown role instructions: frontmatter parsing (present/absent), file body as <code>system_prompt</code>, JSON <code>system_prompt</code> wins over the file, frontmatter fills missing fields, JSON wins frontmatter, explicit <code>instructions</code> reference, path traversal ignored, <code>put</code> writes a short index + Markdown, a second save does not leak the prompt into the index, editing the Markdown after two saves takes effect on reload, <code>remove</code> deletes the Markdown</td>
+</tr>
+<tr>
 <td><code>test_ui.py</code></td>
-<td>UI sinks: glyph activity lines, status oneliner fallback, headless verbose rendering, <code>!</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner, delegation status spinner (<code>status_begin</code>/<code>status_end</code> label, <code>status_spinner</code> off, Null no-op, <code>run_subagent</code> wraps it), confirm <code>?</code> glyph at line start, confirm re-raises KeyboardInterrupt / returns False on EOF</td>
+<td>UI sinks: glyph activity lines, status oneliner fallback, headless verbose rendering, <code>!</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner, delegation status spinner (<code>status_begin</code>/<code>status_end</code> label, <code>status_spinner</code> off, Null no-op, <code>run_subagent</code> wraps it), confirm <code>?</code> glyph at line start, confirm re-raises KeyboardInterrupt / returns False on EOF, ask options inline vs numbered layout, number/letter/free-text selection, origin prefix, inline threshold config, ask prompt layout (question on its own line, plain color, context before options)</td>
 </tr>
 </tbody>
 </table>

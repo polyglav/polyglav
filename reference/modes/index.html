@@ -1335,6 +1335,7 @@
 <p>Default write keys include <code>edit</code>, <code>bash</code>, <code>vcs</code>, <code>mcp</code>, <code>call</code>, and <code>delegate</code>. Mixed tools gate per action: <code>catalog</code> allows <code>list</code>/<code>show</code> in read mode and denies <code>save</code>/<code>remove</code>/<code>reload</code>, <code>git</code> is read while <code>git_commit</code> is write (<code>vcs</code>), and the MCP management tools allow <code>mcp_list</code> in read mode while <code>mcp_connect</code>/<code>mcp_disconnect</code> and the imported remote tools are write (<code>mcp</code>).</p>
 <h2 id="the-mode-cap">The mode cap<a class="headerlink" href="#the-mode-cap" title="Permanent link">&para;</a></h2>
 <p>The mode is the outermost bound, applied last. It is enforced in <code>ToolPolicy</code> after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. A sub-agent inherits its caller's mode, and <code>read</code> clamps the delegation ceiling, so a granted <code>bash</code> still cannot run in read mode.</p>
+<p>A request in <code>read</code> mode for a write key, or for a read-class category with declared write actions such as <code>catalog save</code>, is redirected to a mode switch, because the action cannot take effect under the read cap.</p>
 <h2 id="switching">Switching<a class="headerlink" href="#switching" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>/mode</code> shows the current mode and the available names.</li>

@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0420-2026-10-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.42.0 - 2026-10-05
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0410-2026-10-04" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1615,6 +1626,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0420-2026-10-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.42.0 - 2026-10-05
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0410-2026-10-04" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2083,6 +2105,27 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0420-2026-10-05">v0.42.0 - 2026-10-05<a class="headerlink" href="#v0420-2026-10-05" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Changed onboarding order so the setup questions run after the startup banner and before the first prompt, so the version line shows first and setup is captured in the output log. Docs (<code>plugins.md</code>). Tests: <code>test_repl_input.py</code></li>
+<li>Changed the output log to plain text so the auto-created <code>.polyglav/output/&lt;session&gt;.txt</code> strips ANSI colors and screen control, with <code>output_log_ansi</code> writing the raw stream instead (special characters kept) for manual inspection. Docs (<code>config.md</code>). Tests: <code>test_repl_input.py</code></li>
+<li>Changed permission action values so a role's <code>tool_permission</code>/<code>grant_permission</code> accept <code>true</code>/<code>false</code> (<code>true</code> -&gt; <code>allow</code>, <code>false</code> -&gt; <code>deny</code>) and invalid actions are rejected, instead of a non-action value being silently coerced to <code>ask</code>. Booleans are also coerced in the read path for existing catalogs, and <code>catalog show role</code> flags an invalid action. Docs (<code>roles.md</code>, <code>config.md</code>). Tests: <code>test_catalog.py</code>, <code>test_delegation_permissions.py</code></li>
+<li>Fixed the prompt color on macOS so the root <code>&gt;&gt;&gt;</code> shows the mode color (cyan read, orange write) on libedit as well as GNU readline, without leaving the typed input cyan after a redraw. Docs (<code>config.md</code>). Tests: <code>test_focus.py</code></li>
+<li>Added the onboarding output log question so setup asks whether to create a file with everything printed to the terminal, default off. Docs (<code>config.md</code>, <code>plugins.md</code>). Tests: <code>plugins/polyglav-core-onboarding/tests/test_onboarding.py</code></li>
+<li>Changed the prompt label so the active role is lower-cased (for example <code>writer &gt;&gt;&gt;</code>) and <code>prompt_role</code> defaults on, with the onboarding label question defaulting to yes. Docs (<code>config.md</code>, <code>architecture.md</code>). Tests: <code>test_focus.py</code>, <code>test_config.py</code>, <code>plugins/polyglav-core-onboarding/tests/test_onboarding.py</code></li>
+<li>Changed team composition guidance so the assistant confirms the design before composing a team, covering the deliverable, the manager pattern (sequential or hierarchical), and the per-role permissions. Docs (<code>teams.md</code>). Tests: <code>plugins/polyglav-core-onboarding/tests/test_onboarding.py</code></li>
+<li>Fixed the ask prompt layout so the question prints on its own line after the spinner stops, with the context before the options, so a sub-agent ask no longer merges with the status line. Docs (<code>tools.md</code>). Tests: <code>test_ui.py</code></li>
+<li>Changed catalog descriptions so the <code>catalog</code> tool lists the permission keys and describes the sequential and hierarchical team shapes, and added a <code>validate</code> action that checks a role, team, or skill before saving. Docs (<code>teams.md</code>, <code>tools.md</code>). Tests: <code>test_catalog.py</code></li>
+<li>Changed catalog permission keys so a role's <code>tool_permission</code>/<code>grant_permission</code> keys are validated against the permission vocabulary and category names are normalized (<code>write</code> -&gt; <code>edit</code>, <code>exec</code> -&gt; <code>bash</code>, <code>search</code> -&gt; <code>web</code>). An unknown key is now rejected with the valid list instead of silently doing nothing, and <code>catalog show role</code> flags unknown keys. Docs (<code>roles.md</code>, <code>config.md</code>). Tests: <code>test_catalog.py</code></li>
+<li>Changed the ask options rendering to inline short options and accept a number or letter, while a long question prints first. Docs (<code>tools.md</code>, <code>config.md</code>). Tests: <code>test_ui.py</code>, <code>test_ask.py</code></li>
+<li>Added a direction ask clarity guard, so a degenerate question is rejected instead of reaching a person. Docs (<code>config.md</code>, <code>tools.md</code>). Tests: <code>test_ask.py</code></li>
+<li>Changed sub-agent asks to route to the caller, so a team runs fully automated once it starts while the root may still ask clarifying questions. An explicit <code>target='user'</code> still reaches the user, blocking when attended and parking when unattended. Docs (<code>config.md</code>, <code>tools.md</code>, <code>roles.md</code>). Tests: <code>test_ask.py</code>, <code>test_asks.py</code>, <code>test_delegation_permissions.py</code>, <code>test_unattended.py</code></li>
+<li>Fixed Markdown role prompts leaking into <code>roles.json</code>, so <code>.polyglav/roles/&lt;name&gt;.md</code> edits take effect after any number of saves and the index stays short. Docs (<code>roles.md</code>). Tests: <code>test_role_files.py</code></li>
+<li>Fixed team review loops to honor a full verdict marker such as <code>VERDICT: PASS</code>, so a passing review stops at the first iteration instead of running every allowed iteration. Docs (<code>teams.md</code>). Tests: <code>test_team_loop.py</code></li>
+<li>Changed read mode permission asks to offer a session mode switch for write keys and for read-class categories with declared write actions, such as <code>catalog save</code>. Docs (<code>modes.md</code>, <code>config.md</code>, <code>tools.md</code>). Tests: <code>test_ask.py</code>, <code>test_tool_registry.py</code></li>
+<li>Fixed ask target handling for permission requests, so <code>target='user'</code> reaches the terminal and an omitted target falls back to the user when there is no caller. Docs (<code>tools.md</code>, <code>config.md</code>). Tests: <code>test_ask.py</code></li>
+<li>Fixed category permission grants to cover the whole category, so a category permission ask now reaches every tool in it. Docs (<code>roles.md</code>, <code>tools.md</code>). Tests: <code>test_delegation_permissions.py</code></li>
+</ul>
 <h2 id="v0410-2026-10-04">v0.41.0 - 2026-10-04<a class="headerlink" href="#v0410-2026-10-04" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed focus and handoff for numeric session ids - an explicit <code>#&lt;id&gt;</code> that looks like a run number now falls back to a session-id lookup when no run has that id, so a session id that happens to be all digits is no longer misread as a run number in <code>/focus</code>, <code>resolve_target</code>, and the <code>handoff</code> tool. Tests: <code>test_focus.py</code></li>
