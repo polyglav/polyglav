@@ -101,7 +101,7 @@ A team can iterate a producer/reviewer block until the review passes or a cap is
 ```
 
 - Stages before `from` run once, then the `from..until` block repeats, then stages after `until` run once.
-- The `until` stage is the review. It passes when its result contains the verdict marker followed by `PASS` (case-insensitive). The default marker is `VERDICT:`, configurable through `loop.verdict`. A reviewer stage should be told to end with `VERDICT: PASS` or `VERDICT: CHANGES`.
+- The `until` stage is the review. It passes when its result contains the verdict marker followed by `PASS` (case-insensitive). The default marker is `VERDICT:`, configurable through `loop.verdict`. A marker that already names the outcome (`VERDICT: PASS`) is honored as-is, while a bare prefix (`VERDICT:`) has `PASS` appended. A reviewer stage should be told to end with `VERDICT: PASS` or `VERDICT: CHANGES`.
 - On the next iteration the producer's brief carries a `## Findings from the previous review` block, so it revises with the review context even though each iteration starts a fresh run.
 - `max_iterations` (default 3) caps the block. Reaching it without a pass is still a successful run, with the last review as the result.
 

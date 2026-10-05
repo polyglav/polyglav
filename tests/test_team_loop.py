@@ -22,6 +22,12 @@ class TestReviewPassed(unittest.TestCase):
         self.assertTrue(_review_passed('REVIEW: PASS', 'REVIEW:'))
         self.assertFalse(_review_passed('VERDICT: PASS', 'REVIEW:'))
 
+    def test_full_verdict_marker(self):
+        self.assertTrue(_review_passed('VERDICT: PASS', 'VERDICT: PASS'))
+        self.assertTrue(_review_passed('verdict: pass', 'VERDICT: PASS'))
+        self.assertFalse(_review_passed('VERDICT: REWORK', 'VERDICT: PASS'))
+        self.assertFalse(_review_passed('', 'VERDICT: PASS'))
+
 
 class TestTeamLoop(unittest.TestCase):
 
@@ -71,6 +77,17 @@ class TestTeamLoop(unittest.TestCase):
         self.assertEqual([s.content for s in result.stages],
                          ['draft', 'VERDICT: PASS'])
         self.assertEqual(result.content, 'VERDICT: PASS')
+        self.assertEqual(result.status, 'ok')
+
+    def test_full_verdict_marker_stops_early(self):
+        team = self._team(TeamStage(role='writer'), TeamStage(role='reviewer'),
+                          loop={'from': 'writer', 'until': 'reviewer',
+                                'verdict': 'VERDICT: PASS', 'max_iterations': 3})
+        self.chat.provider.chat.side_effect = [
+            self._result('draft'), self._result('VERDICT: PASS'),
+        ]
+        result = self.chat.run_team(team, 'write it')
+        self.assertEqual(len(result.stages), 2)
         self.assertEqual(result.status, 'ok')
 
     def test_changes_then_pass_iterates(self):

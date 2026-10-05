@@ -81,7 +81,11 @@ _SUB_PERMISSION_NOTE = (
 def _review_passed(content: str | None, marker: str) -> bool:
     if not content:
         return False
-    return f'{marker} PASS'.lower() in content.lower()
+    text = content.lower()
+    base = (marker or 'VERDICT:').strip().lower() or 'verdict:'
+    if base.endswith('pass'):
+        return base in text
+    return f'{base} pass' in text
 
 
 def _stage_errors(role: str, result: TurnResult) -> list:
