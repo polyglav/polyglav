@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Ask prompt prints on its own line, context before options
 - [x] Catalog describes permission keys and team shapes
 - [x] Catalog permission keys validated and aliased (write/exec)
 - [x] Ask options render inline or numbered, selected by number or letter

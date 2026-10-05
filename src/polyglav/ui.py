@@ -519,6 +519,8 @@ class ReplUI:
 
     def ask(self, question, context='', options=None, origin=''):
         self.flush()
+        self._prompting.set()
+        self._clear_spinner_line()
         self._ensure_newline()
         timeout = self._confirm_timeout()
         prefix = ''
@@ -535,17 +537,18 @@ class ReplUI:
                     parts.append(f'{i + 1}) {opt}')
             inline = '  ' + '  '.join(parts)
         limit = self._ask_inline_limit()
-        if options and limit > 0 and len(f'{prefix}{question}{inline}') <= limit:
-            self._emit(f'{prefix}{question}{inline}', ORANGE)
-        else:
-            self._emit(f'{prefix}{question}', ORANGE)
-            for i, opt in enumerate(options, 1):
-                self._emit(f'{i}) {opt}', DIM)
+        inline_ok = bool(options) and limit > 0 and len(
+            f'{prefix}{question}{inline}') <= limit
+        line = f'{prefix}{question}'
+        if inline_ok:
+            line += inline
+        self._emit(line)
         if context:
             self._emit(context, DIM)
+        if options and not inline_ok:
+            for i, opt in enumerate(options, 1):
+                self._emit(f'{i}) {opt}', DIM)
         prompt = f'\001{ORANGE}\002? Answer: \001{RESET}\002'
-        self._prompting.set()
-        self._clear_spinner_line()
         try:
             answer = _timed_input(prompt, timeout)
         except EOFError:

@@ -630,6 +630,26 @@ class TestLinePrompts(unittest.TestCase):
                                     origin='other-session'))
         self.assertIn('[other-session] which?', value)
 
+    def test_ask_question_on_own_line(self):
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask('which?', options=['a', 'b']))
+        self.assertTrue(value.startswith('which?  (a) a'))
+
+    def test_ask_context_precedes_options(self):
+        question = 'x' * 70
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask(question, context='CTX', options=['a', 'b']))
+        self.assertLess(value.index('CTX'), value.index('1) a'))
+
+    def test_ask_question_not_status_colored(self):
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask('which?', options=['a', 'b']))
+        first = value.splitlines()[0]
+        self.assertNotIn('\033[38;5;208m', first)
+
     def test_ask_uses_visible_input_even_when_confirm_hidden(self):
         self.chat.config.set('hide_confirm_input', True)
         with patch('polyglav.ui._hidden_input', side_effect=AssertionError(
