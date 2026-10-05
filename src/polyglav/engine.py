@@ -464,6 +464,16 @@ class Engine:
         from .modes import merge_policy
         return dict(merge_policy(self.config, self._mode())[0])
 
+    def permission_categories(self) -> set:
+        from .modes import DEFAULT_WRITE_KEYS, read_keys
+        keys = set(read_keys(self.config)) | set(DEFAULT_WRITE_KEYS)
+        keys |= set((self.config.get('tool_permission') or {}).keys())
+        registry = getattr(self, '_tool_registry', None)
+        if registry is not None:
+            for name in registry.primary_names():
+                keys.add(registry.permission_for(name))
+        return keys
+
     def grant_permission(self, permission: str, permission_key: str,
                          scope: str = 'once', origin: str = 'supervisor') -> bool:
         policy = getattr(self, '_tool_policy', None)
@@ -471,7 +481,8 @@ class Engine:
             return False
         registry = getattr(self, '_tool_registry', None)
         name = ''
-        if registry is not None and registry.is_registered(permission):
+        if (registry is not None and registry.is_registered(permission)
+                and permission not in self.permission_categories()):
             name = registry.canonical_name(permission)
         policy.grant(name, permission_key, scope=scope, origin=origin)
         self.current_session.add_permission(

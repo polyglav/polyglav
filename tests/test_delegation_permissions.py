@@ -234,6 +234,46 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
+    def test_category_ask_grants_whole_category(self):
+        chat = make_chat({'mode': 'write',
+                          'grant_permission': {'read': 'allow', 'edit': 'allow'}})
+        try:
+            chat.roles.put(Role(name='worker', tool_permission={'edit': 'ask'},
+                                ask_policy={'permission': 'caller'}), scope='local')
+            sub = chat._new_sub_engine('worker')
+            sub._init_tooling()
+            chat.provider.chat_nonstreaming.return_value = {'content': 'yes'}
+            out = sub._run_tool('ask', {
+                'question': 'q', 'kind': 'permission', 'permission': 'edit'})
+            self.assertIn('[granted]', out)
+            grant = sub._tool_policy.grant_for('file_write', 'edit')
+            self.assertIsNotNone(grant)
+            self.assertEqual(grant['name'], '')
+            target = str(chat.config.local_path.parent.parent / 'notes.txt')
+            result = sub._run_tool('file_write', {'path': target, 'content': 'hi'})
+            self.assertFalse(result.startswith('Error'))
+        finally:
+            chat._tmp.cleanup()
+
+    def test_tool_ask_grants_only_that_tool(self):
+        chat = make_chat({'mode': 'write',
+                          'grant_permission': {'read': 'allow', 'edit': 'allow'}})
+        try:
+            chat.roles.put(Role(name='worker', tool_permission={'edit': 'ask'},
+                                ask_policy={'permission': 'caller'}), scope='local')
+            sub = chat._new_sub_engine('worker')
+            sub._init_tooling()
+            chat.provider.chat_nonstreaming.return_value = {'content': 'yes'}
+            out = sub._run_tool('ask', {
+                'question': 'q', 'kind': 'permission', 'permission': 'file_write'})
+            self.assertIn('[granted]', out)
+            grant = sub._tool_policy.grant_for('file_write', 'edit')
+            self.assertIsNotNone(grant)
+            self.assertEqual(grant['name'], 'file_write')
+            self.assertIsNone(sub._tool_policy.grant_for('file_edit', 'edit'))
+        finally:
+            chat._tmp.cleanup()
+
     def test_denied_above_ceiling(self):
         chat = make_chat({'mode': 'write',
                           'grant_permission': {'bash': 'deny', 'read': 'allow'}})

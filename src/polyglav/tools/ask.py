@@ -98,6 +98,8 @@ def _caller_answer(engine, question: str, context: str, options,
 
 
 def _permission_key(engine, permission: str) -> str:
+    if permission in engine.permission_categories():
+        return permission
     registry = getattr(engine, '_tool_registry', None)
     if registry is not None and registry.is_registered(permission):
         return registry.permission_for(permission)

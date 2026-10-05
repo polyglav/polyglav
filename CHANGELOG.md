@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.42.0
+
+- Fixed category permission grants to cover the whole category, so a category permission ask now reaches every tool in it. Docs (`roles.md`, `tools.md`). Tests: `test_delegation_permissions.py`
+
 ## v0.41.0 - 2026-10-04
 
 - Fixed focus and handoff for numeric session ids - an explicit `#<id>` that looks like a run number now falls back to a session-id lookup when no run has that id, so a session id that happens to be all digits is no longer misread as a run number in `/focus`, `resolve_target`, and the `handoff` tool. Tests: `test_focus.py`
