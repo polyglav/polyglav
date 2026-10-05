@@ -27,10 +27,11 @@ class TeeStream:
     def write(self, text):
         self._stream.write(text)
         if text and ('\r' not in text or '\n' in text):
-            clean = text.replace('\001', '').replace('\002', '')
-            if not self._ansi:
-                clean = _ANSI_RE.sub('', clean)
-            self._file.write(clean)
+            if self._ansi:
+                self._file.write(text)
+            else:
+                clean = text.replace('\001', '').replace('\002', '')
+                self._file.write(_ANSI_RE.sub('', clean))
         return len(text)
 
     def flush(self):

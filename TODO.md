@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Output log raw option keeps special characters
 - [x] Onboarding runs after the banner
 - [x] Output log is plain text, no ANSI
 - [x] Permission action values accept true and false
