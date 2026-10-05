@@ -154,9 +154,17 @@ def _load_scope(path: Path) -> dict[str, dict[str, Any]]:
         for d in data:
             if isinstance(d, dict) and d.get('name'):
                 out[str(d['name'])] = dict(d)
+    return out
+
+
+def _resolved_scope(raw: dict[str, dict[str, Any]],
+                    path: Path) -> dict[str, dict[str, Any]]:
     base = _instructions_dir(path)
-    for name, entry in out.items():
-        _apply_instructions(entry, name, base)
+    out: dict[str, dict[str, Any]] = {}
+    for name, entry in raw.items():
+        resolved = dict(entry)
+        _apply_instructions(resolved, name, base)
+        out[name] = resolved
     return out
 
 
@@ -169,12 +177,16 @@ class RoleRegistry:
             Path.cwd() / '.polyglav' / 'roles.json')
         self._global: dict[str, dict[str, Any]] = {}
         self._local: dict[str, dict[str, Any]] = {}
+        self._global_view: dict[str, dict[str, Any]] = {}
+        self._local_view: dict[str, dict[str, Any]] = {}
         self._plugins: dict[str, dict[str, Any]] = {}
         self._load()
 
     def _load(self):
         self._global = _load_scope(self.global_path)
         self._local = _load_scope(self.local_path)
+        self._global_view = _resolved_scope(self._global, self.global_path)
+        self._local_view = _resolved_scope(self._local, self.local_path)
 
     def add_plugin(self, entry: dict) -> None:
         if not isinstance(entry, dict) or not entry.get('name'):
@@ -198,13 +210,13 @@ class RoleRegistry:
         os.replace(tmp, path)
 
     def _merged_entries(self) -> dict[str, dict[str, Any]]:
-        names = self._plugins.keys() | self._global.keys() | self._local.keys()
+        names = self._plugins.keys() | self._global_view.keys() | self._local_view.keys()
         merged: dict[str, dict[str, Any]] = {}
         for name in names:
             entry: dict[str, Any] = {}
             entry.update(self._plugins.get(name, {}))
-            entry.update(self._global.get(name, {}))
-            entry.update(self._local.get(name, {}))
+            entry.update(self._global_view.get(name, {}))
+            entry.update(self._local_view.get(name, {}))
             entry['name'] = name
             merged[name] = entry
         return merged

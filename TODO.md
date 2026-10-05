@@ -164,6 +164,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Markdown role prompts stop leaking into roles.json
 - [x] Team review loops honor a full verdict marker and stop on the first pass
 - [x] Read mode permission asks offer a mode switch for every request
 - [x] Ask target honored for permission requests - user route and root fallback

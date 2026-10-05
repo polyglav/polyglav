@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Fixed Markdown role prompts leaking into `roles.json`, so `.polyglav/roles/<name>.md` edits take effect after any number of saves and the index stays short. Docs (`roles.md`). Tests: `test_role_files.py`
 - Fixed team review loops to honor a full verdict marker such as `VERDICT: PASS`, so a passing review stops at the first iteration instead of running every allowed iteration. Docs (`teams.md`). Tests: `test_team_loop.py`
 - Changed read mode permission asks to offer a session mode switch for every request, including read-class categories whose write actions are gated by a resolver. Docs (`modes.md`, `config.md`). Tests: `test_ask.py`
 - Fixed ask target handling for permission requests, so `target='user'` reaches the terminal and an omitted target falls back to the user when there is no caller. Docs (`tools.md`, `config.md`). Tests: `test_ask.py`

@@ -92,6 +92,25 @@ class TestRoleFiles(unittest.TestCase):
         self.assertEqual(reg.find('writer').system_prompt,
                          'Long detailed prompt.')
 
+    def test_second_save_does_not_leak_prompt(self):
+        reg = self.reg()
+        reg.put(Role(name='r1', system_prompt='R1 prompt'))
+        reg.put(Role(name='r2', system_prompt='R2 prompt'))
+        index = json.loads(self.local.read_text())
+        self.assertNotIn('system_prompt', index['r1'])
+        self.assertNotIn('system_prompt', index['r2'])
+        self.assertEqual(index['r1']['instructions'], 'r1.md')
+        self.assertEqual(index['r2']['instructions'], 'r2.md')
+
+    def test_markdown_edit_after_two_saves(self):
+        reg = self.reg()
+        reg.put(Role(name='r1', system_prompt='R1 prompt'))
+        reg.put(Role(name='r2', system_prompt='R2 prompt'))
+        (self.roles_dir / 'r1.md').write_text('R1 edited\n')
+        reg.reload()
+        self.assertEqual(reg.find('r1').system_prompt, 'R1 edited')
+        self.assertEqual(reg.find('r2').system_prompt, 'R2 prompt')
+
     def test_remove_deletes_markdown(self):
         reg = self.reg()
         reg.put(Role(name='writer', system_prompt='p'))

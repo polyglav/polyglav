@@ -57,7 +57,7 @@ Fields:
 - `description` - optional short summary, shown by `/roles show` and the `catalog` tool.
 - `instructions` - optional Markdown file name under `.polyglav/roles/` (or `~/.config/polyglav/roles/`) that holds the role's long system prompt. It defaults to `<name>.md` when that file exists. The file body becomes `system_prompt`, and its YAML-like frontmatter can fill any field the JSON entry leaves unset. Frontmatter values are JSON (`tags: ["writing"]`, `tool_permission: {"bash": "deny"}`). The JSON entry stays authoritative: a `system_prompt` or field set there wins over the file.
 
-Writing a role through `/roles new` or the `catalog` tool stores the prompt in `.polyglav/roles/<name>.md` and leaves a short entry (with an `instructions` reference) in `roles.json`.
+Writing a role through `/roles new` or the `catalog` tool stores the prompt in `.polyglav/roles/<name>.md` and leaves a short entry (with an `instructions` reference) in `roles.json`. The prompt is not copied back into the index, so editing the Markdown body takes effect on the next catalog reload.
 
 ## Command
 
