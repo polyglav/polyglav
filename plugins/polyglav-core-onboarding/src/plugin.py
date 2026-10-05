@@ -5,6 +5,7 @@ PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
 PROMPT_FOLLOW = 'Follow delegated runs automatically? [Y/n] '
 PROMPT_LABEL = 'Show the active role in the prompt? [Y/n] '
+PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
 
 DEFAULT_PERSONA = ("You are the assistant for this project and the "
                    "user's single point of contact.")
@@ -70,6 +71,7 @@ def run(chat, force: bool = False, ask=input) -> bool:
     persona = _ask(ask, PROMPT_PERSONA)
     follow = _ask(ask, PROMPT_FOLLOW, 'y')
     label = _ask(ask, PROMPT_LABEL, 'y')
+    output = _ask(ask, PROMPT_OUTPUT, 'n')
     config = chat.config
     config.set('system_prompt', compose_prompt(purpose, persona), scope='local')
     config.set('focus_on_delegate',
@@ -77,6 +79,8 @@ def run(chat, force: bool = False, ask=input) -> bool:
                scope='local')
     config.set('prompt_role',
                str(label).strip().lower().startswith('y'), scope='local')
+    config.set('output_log',
+               str(output).strip().lower().startswith('y'), scope='local')
     _info(chat, f'Saved project setup to {config.local_path}')
     return True
 
@@ -91,4 +95,4 @@ def register_commands(registry) -> None:
 
     registry.register(
         'onboard', handler=onboard_cmd,
-        description='Set up this project (purpose, assistant, focus)')
+        description='Set up this project (purpose, assistant, focus, prompt, output log)')

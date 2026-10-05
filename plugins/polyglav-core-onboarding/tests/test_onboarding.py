@@ -75,12 +75,25 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_PERSONA: 'You are the widget assistant.',
             plugin.PROMPT_FOLLOW: 'n',
             plugin.PROMPT_LABEL: 'y',
+            plugin.PROMPT_OUTPUT: 'y',
         }
         self.assertTrue(plugin.run(self._chat(), ask=answers.get))
         self.assertEqual(self.config.get('focus_on_delegate'), 'off')
         self.assertTrue(self.config.get('prompt_role'))
+        self.assertTrue(self.config.get('output_log'))
         self.assertIn('widget assistant', self.config.get('system_prompt'))
         self.assertTrue(self.config.local_path.exists())
+
+    def test_run_output_log_default_off(self):
+        answers = {
+            plugin.PROMPT_PURPOSE: '',
+            plugin.PROMPT_PERSONA: '',
+            plugin.PROMPT_FOLLOW: '',
+            plugin.PROMPT_LABEL: '',
+            plugin.PROMPT_OUTPUT: '',
+        }
+        self.assertTrue(plugin.run(self._chat(), ask=answers.get))
+        self.assertFalse(self.config.get('output_log'))
 
     def test_run_default_label_on(self):
         answers = {
@@ -88,6 +101,7 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_PERSONA: '',
             plugin.PROMPT_FOLLOW: '',
             plugin.PROMPT_LABEL: '',
+            plugin.PROMPT_OUTPUT: '',
         }
         self.assertTrue(plugin.run(self._chat(), ask=answers.get))
         self.assertTrue(self.config.get('prompt_role'))

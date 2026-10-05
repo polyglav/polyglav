@@ -2,6 +2,7 @@
 
 ## v0.42.0
 
+- Added the onboarding output log question so setup asks whether to create a file with everything printed to the terminal, default off. Docs (`config.md`, `plugins.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`
 - Changed the prompt label so the active role is lower-cased (for example `writer >>>`) and `prompt_role` defaults on, with the onboarding label question defaulting to yes. Docs (`config.md`, `architecture.md`). Tests: `test_focus.py`, `test_config.py`, `plugins/polyglav-core-onboarding/tests/test_onboarding.py`
 - Changed team composition guidance so the assistant confirms the design before composing a team, covering the deliverable, the manager pattern (sequential or hierarchical), and the per-role permissions. Docs (`teams.md`). Tests: `plugins/polyglav-core-onboarding/tests/test_onboarding.py`
 - Fixed the ask prompt layout so the question prints on its own line after the spinner stops, with the context before the options, so a sub-agent ask no longer merges with the status line. Docs (`tools.md`). Tests: `test_ui.py`
