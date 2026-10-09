@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.43.0
+
+- Fixed the macOS/libedit prompt redraw so the color and reset escapes are bracketed as zero-width (`\001`/`\002`) on libedit as well as GNU readline, so recalling history or completing a slash command no longer leaves stale text on the line. Docs (`testing.md`). Tests: `test_focus.py`
+
 ## v0.42.0 - 2026-10-05
 
 - Changed onboarding order so the setup questions run after the startup banner and before the first prompt, so the version line shows first and setup is captured in the output log. Docs (`plugins.md`). Tests: `test_repl_input.py`

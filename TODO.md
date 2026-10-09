@@ -166,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Prompt escapes bracketed so libedit redraw leaves no stale text
 - [x] Output log raw option keeps special characters
 - [x] Onboarding runs after the banner
 - [x] Output log is plain text, no ANSI

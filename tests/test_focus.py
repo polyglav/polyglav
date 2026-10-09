@@ -162,19 +162,17 @@ class TestFocusRouting(unittest.TestCase):
         self.assertIn('\033[1;38;5;208m', self.chat._prompt())
         self.assertIn('\033[1;38;5;208m', self.chat._cont_prompt())
 
-    def test_prompt_text_libedit_reset_after_label(self):
+    def test_prompt_text_wraps_escapes_on_libedit(self):
         with patch('polyglav.chat.readline') as rl:
             rl.__doc__ = 'libedit readline'
             text = _prompt_text('\033[1;36m', '>>>')
-        self.assertLess(text.index('\033[1;36m'), text.index('>>>'))
-        self.assertLess(text.index('>>>'), text.index('\033[0m'))
-        self.assertNotIn('\001', text)
+        self.assertEqual(text, '\001\033[1;36m\002>>>\001\033[0m\002 ')
 
-    def test_prompt_text_gnu_brackets_reset(self):
+    def test_prompt_text_wraps_escapes_on_gnu(self):
         with patch('polyglav.chat.readline') as rl:
             rl.__doc__ = 'GNU readline'
             text = _prompt_text('\033[1;36m', '>>>')
-        self.assertIn('\001\033[0m\002', text)
+        self.assertEqual(text, '\001\033[1;36m\002>>>\001\033[0m\002 ')
 
 
 class TestFocusCommand(unittest.TestCase):
