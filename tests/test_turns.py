@@ -23,6 +23,19 @@ class TestTurnBuilders(unittest.TestCase):
         self.assertEqual(turn['status'], 'error')
         self.assertTrue(turn['ended_at'])
 
+    def test_finish_turn_persists_telemetry(self):
+        turn = turns.new_turn(1)
+        turns.finish_turn(turn, 'ok', usage={'prompt_tokens': 5},
+                          context_tokens=7)
+        self.assertEqual(turn['usage'], {'prompt_tokens': 5})
+        self.assertEqual(turn['context_tokens'], 7)
+
+    def test_finish_turn_without_telemetry_omits_keys(self):
+        turn = turns.new_turn(1)
+        turns.finish_turn(turn, 'ok')
+        self.assertNotIn('usage', turn)
+        self.assertNotIn('context_tokens', turn)
+
     def test_part_builders(self):
         for part, kind in (
             (turns.user_part('hi'), 'user'),

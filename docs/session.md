@@ -108,6 +108,8 @@ A turn is one user prompt (or one slash command) and the agent's response to it.
 | `model` / `provider` | Model and provider that served the turn |
 | `mode` | Agent `mode` in effect (`read` or `write`) |
 | `reasoning` | The `reasoning` config value in effect (`false`/`"off"` or an effort value) |
+| `usage` | Provider usage for the turn (`prompt_tokens`, `completion_tokens`, cache details) when the provider reported it. Recorded on agent turns |
+| `context_tokens` | Context/input token count the turn ran with (`prompt_tokens`, else a chars/4 fallback). Recorded on agent turns |
 | `parts` | Ordered list of parts (below) |
 
 Every part has `type` and `timestamp`. Fields beyond those depend on the type:

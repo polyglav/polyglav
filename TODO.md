@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Per-turn context telemetry - persist provider `usage` and `context_tokens` on each session turn and return them on `TurnResult`, so a session log carries usage and the context size per turn
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
@@ -167,6 +166,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Per-turn context telemetry in session logs
 - [x] Prompt escapes bracketed so libedit redraw leaves no stale text
 - [x] Output log raw option keeps special characters
 - [x] Onboarding runs after the banner

@@ -2,6 +2,7 @@
 
 ## v0.43.0
 
+- Added per-turn context telemetry - `usage` and `context_tokens` are persisted on each turn and returned on `TurnResult`, so a session log carries provider usage and the context size per turn. Docs (`session.md`). Tests: `test_turns.py`, `test_session_log.py`
 - Fixed the macOS/libedit prompt redraw so the color and reset escapes are bracketed as zero-width (`\001`/`\002`) on libedit as well as GNU readline, so recalling history or completing a slash command no longer leaves stale text on the line. Docs (`testing.md`). Tests: `test_focus.py`
 
 ## v0.42.0 - 2026-10-05

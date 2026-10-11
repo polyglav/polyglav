@@ -23,6 +23,7 @@ class TurnResult:
     errors: list = field(default_factory=list)
     duration: float = 0.0
     usage: dict | None = None
+    context_tokens: int = 0
     model: str = ''
     provider: str = ''
     session: str = ''
@@ -37,6 +38,7 @@ class TurnResult:
             'errors': self.errors,
             'duration': self.duration,
             'usage': self.usage,
+            'context_tokens': self.context_tokens,
             'model': self.model,
             'provider': self.provider,
             'session': self.session,
@@ -1311,7 +1313,9 @@ class Engine:
                 if content:
                     self.current_session.add_text(content, stamp)
                 self.ui.footer(duration, self._usage_counts(usage))
-            self.current_session.end_turn(status)
+            self.current_session.end_turn(
+                status, usage=usage,
+                context_tokens=self._context_tokens(usage))
             self.session_auto_save()
 
         duration = round((datetime.now(timezone.utc) - turn_start).total_seconds(), 1)
@@ -1322,6 +1326,7 @@ class Engine:
             errors=self.current_session.errors[err_base:],
             duration=duration,
             usage=usage,
+            context_tokens=self._context_tokens(usage),
             model=self.config.get('model'),
             provider=self.config.get('provider'),
             session=self.current_session.session_name,

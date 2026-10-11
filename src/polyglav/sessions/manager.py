@@ -88,9 +88,12 @@ class Session:
         self._touch()
         return turn
 
-    def end_turn(self, status: str = 'ok', ended_at: str | None = None):
+    def end_turn(self, status: str = 'ok', ended_at: str | None = None,
+                 usage: dict | None = None,
+                 context_tokens: int | None = None):
         if self._open is not None:
-            turns.finish_turn(self._open, status, ended_at)
+            turns.finish_turn(self._open, status, ended_at,
+                              usage=usage, context_tokens=context_tokens)
             self._open = None
             self._touch()
 

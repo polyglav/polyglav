@@ -23,6 +23,14 @@ class TestSessionModel(unittest.TestCase):
         self.assertEqual([p['type'] for p in parts], ['user', 'tool'])
         self.assertEqual(parts[1]['output'], 'results here')
 
+    def test_end_turn_persists_telemetry(self):
+        s = Session('s1')
+        s.add_user('hi')
+        s.end_turn('ok', usage={'prompt_tokens': 9}, context_tokens=11)
+        turn = s.to_dict()['turns'][0]
+        self.assertEqual(turn['usage'], {'prompt_tokens': 9})
+        self.assertEqual(turn['context_tokens'], 11)
+
     def test_tool_max_chars_truncates_persisted_only(self):
         s = Session('s1')
         s.add_user('hi')
