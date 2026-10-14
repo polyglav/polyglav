@@ -56,6 +56,14 @@
 
 ## Open
 
+- [ ] Persist the raw stop reason on the turn - store the provider `finish_reason` beside `status`, so a truncated or empty turn is diagnosed from the recorded reason instead of a derived status
+- [ ] Tool call provenance - store a `call_id` and `started`/`ended` timing on each `tool` part, and build the provider context from those ids instead of the synthesized `call_<index>_<i>`
+- [ ] Truncation provenance in logs - record a structured `reason` and `original_chars` when a tool result is dropped by `noise_tools` or the `session_tool_max_chars` cap, so the log stays auditable after filtering
+- [ ] Session IO error log - record an unreadable or unwritable session file in a small operational log beside `sessions/` instead of reading a corrupt file as "not found"
+- [ ] Derived session metadata - compute `title`, `outcome`, and `idle_at` on read from the first prompt, the worst turn status, and the last part timestamp, so `/sessions` and recall are informative without opening every file
+- [ ] Richer Markdown session header - add session id, role, mode, version, and turn or message count to the exported transcript header
+- [ ] JSON session export - `polyglav export --json` and `/sessions export --json` emit an `info` plus `turns` document that round-trips with the planned JSON import
+- [ ] Standalone compaction summary - write the `/compact` summary as a Markdown artifact beside the session, for `handoff`, memory, and other-agent consumption
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt

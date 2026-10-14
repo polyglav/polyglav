@@ -40,6 +40,28 @@ The selfdev teams run unattended, land their work, and can be reattached from th
 | Researcher role with fresh context - a researcher role template with web access, started fresh per task | S | clean research per task |
 | Docs writer commits each added task - commit the tasks right after the operator's prompt, then work one point at a time | S | tasks land as agreed |
 
+## Session log observability
+
+A session log records provider telemetry and tool provenance, so a turn is diagnosable from the log itself and a filtered log stays auditable. Per-turn `usage` and `context_tokens` already landed. Tool outputs stay filtered at write time (`noise_tools`, `session_tool_max_chars`), never inlined, so the log stays small.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Persist the raw stop reason on the turn next to `status` | S | stop reasons recorded, not inferred |
+| Tool call provenance - a stored `call_id` and `started`/`ended` timing on each tool part, used when building the provider context | S-M | clean replay and slow-tool visibility |
+| Truncation provenance - a structured `reason` and `original_chars` when a result is dropped by `noise_tools` or the size cap | S | an auditable log after filtering |
+| Session IO error log - record an unreadable or unwritable session file beside `sessions/` | S | visible session failures |
+
+## Session catalog and portability
+
+A session becomes informative in a listing and portable as an artifact, without a separate index file. Derived metadata is computed on read, so the per-file log stays the single source of truth.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Derived session metadata - `title`, `outcome`, `idle_at` computed on read | S-M | a listing without opening every file |
+| Richer Markdown session header - id, role, mode, version, counts | S | navigable transcripts |
+| JSON session export - `info` plus `turns`, round-tripping with the planned import | S-M | tooling and interchange |
+| Standalone compaction summary - the `/compact` summary as a Markdown artifact | S-M | a hand-off brief |
+
 ## Memory and role instructions
 
 A delegated role remembers the user's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.
