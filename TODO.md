@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Richer Markdown session header - add session id, role, mode, version, and turn or message count to the exported transcript header
 - [ ] JSON session export - `polyglav export --json` and `/sessions export --json` emit an `info` plus `turns` document that round-trips with the planned JSON import
 - [ ] Standalone compaction summary - write the `/compact` summary as a Markdown artifact beside the session, for `handoff`, memory, and other-agent consumption
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
@@ -169,6 +168,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added session metadata to the Markdown header
 - [x] Added derived session metadata
 - [x] Added a session IO error log
 - [x] Added truncation provenance

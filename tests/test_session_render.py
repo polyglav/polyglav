@@ -113,6 +113,25 @@ class TestRenderSession(unittest.TestCase):
         self.assertIn('# Session: test_session', md)
         self.assertIn('- Turns: 0', md)
 
+    def test_header_carries_session_metadata(self):
+        s = Session('meta', role='writer', mode='write', version='0.43.0',
+                    session_id='ab12cd')
+        s.add_user('q')
+        s.end_turn('ok')
+        md = render_session(s)
+        self.assertIn('- Session id: ab12cd', md)
+        self.assertIn('- Role: writer', md)
+        self.assertIn('- Mode: write', md)
+        self.assertIn('- Version: 0.43.0', md)
+        self.assertIn('- Outcome: ok', md)
+
+    def test_header_empty_metadata_is_dash(self):
+        md = render_session(Session('bare'))
+        for field in ('- Session id: -', '- Role: -', '- Mode: -',
+                      '- Version: -'):
+            self.assertIn(field, md)
+        self.assertIn('- Outcome: ok', md)
+
     def test_fence_grows_past_backticks_in_content(self):
         s = self._session()
         s.add_user('q')

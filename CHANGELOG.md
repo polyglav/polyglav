@@ -2,6 +2,7 @@
 
 ## v0.43.0
 
+- Added session metadata to the Markdown header - an export lists the session id, role, mode, version, and derived outcome alongside created, updated, and turn count, so a transcript is self-describing. Docs (`session.md`). Tests: `test_session_render.py`
 - Added derived session metadata - `title` (first prompt), `outcome` (error if any turn failed), and `idle_at` (last ended turn) are computed on read and shown by `/sessions preview`, so a session is informative without storing extra fields or an index file. Docs (`session.md`). Tests: `test_session_metadata.py`
 - Added a session IO error log - an unreadable or unwritable session file is recorded in `.polyglav/sessions/errors.log` instead of a corrupt file reading as "not found", while a legacy-format skip logs nothing and a log-write failure never interrupts a session. Docs (`session.md`). Tests: `test_session_io.py`
 - Added truncation provenance - a session records a `dropped` marker (`reason` and `original_chars`) when a tool result is filtered by `noise_tools` or the `session_tool_max_chars` cap, so the log stays auditable after filtering while it stays small. Docs (`session.md`). Tests: `test_session_log.py`

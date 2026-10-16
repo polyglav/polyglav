@@ -60,6 +60,8 @@ Default output is `.polyglav/exports/<name>.md`, next to the `sessions/` directo
 
 The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional `analysis`), plain assistant answers, `command` records, compaction summaries (with the trimmed-context boundary), system notes, and a final `## Errors` section. Since it renders the persisted form, serialization-time transforms (`noise_tools` markers, `session_tool_max_chars` truncation) carry through as they appear in the file.
 
+The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived `outcome` (empty fields render as `-`).
+
 The headless CLI `polyglav export <name> [--out <file>]` reuses the same renderer for scripts and CI. `--out -` prints to stdout, and the default matches the slash command (`.polyglav/exports/<name>.md`).
 
 ## File structure
