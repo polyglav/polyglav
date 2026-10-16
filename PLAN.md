@@ -40,14 +40,6 @@ The selfdev teams run unattended, land their work, and can be reattached from th
 | Researcher role with fresh context - a researcher role template with web access, started fresh per task | S | clean research per task |
 | Docs writer commits each added task - commit the tasks right after the operator's prompt, then work one point at a time | S | tasks land as agreed |
 
-## Session log observability
-
-A session log records provider telemetry and tool provenance, so a turn is diagnosable from the log itself and a filtered log stays auditable. Per-turn `usage` and `context_tokens` already landed. Tool outputs stay filtered at write time (`noise_tools`, `session_tool_max_chars`), never inlined, so the log stays small.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Session IO error log - record an unreadable or unwritable session file beside `sessions/` | S | visible session failures |
-
 ## Session catalog and portability
 
 A session becomes informative in a listing and portable as an artifact, without a separate index file. Derived metadata is computed on read, so the per-file log stays the single source of truth.

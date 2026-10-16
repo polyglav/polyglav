@@ -264,21 +264,34 @@ class SessionManager:
         try:
             with open(path) as f:
                 data = json.load(f)
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as e:
+            self._log_io('read', session_name, e)
             return None
         try:
             return Session.from_dict(data)
         except (ValueError, KeyError, TypeError):
             return None
 
+    def _log_io(self, action: str, name: str, detail) -> None:
+        ts = datetime.now(timezone.utc).isoformat(timespec='seconds')
+        line = f'{ts}\t{action}\t{name}\t{detail}\n'
+        try:
+            with open(self.sessions_dir / 'errors.log', 'a') as f:
+                f.write(line)
+        except OSError:
+            pass
+
     def save(self, session: Session | None = None, tool_max_chars: int = 0,
              noise_tools: list[str] | None = None):
         s = session or self.current
         if s is None:
             return
-        with open(self.sessions_dir / f'{s.session_name}.json', 'w') as f:
-            json.dump(s.to_dict(tool_max_chars=tool_max_chars, noise_tools=noise_tools),
-                      f, indent=2)
+        try:
+            with open(self.sessions_dir / f'{s.session_name}.json', 'w') as f:
+                json.dump(s.to_dict(tool_max_chars=tool_max_chars,
+                                    noise_tools=noise_tools), f, indent=2)
+        except OSError as e:
+            self._log_io('save', s.session_name, e)
 
     def list(self) -> list[str]:
         return sorted(p.stem for p in self.sessions_dir.glob('*.json'))

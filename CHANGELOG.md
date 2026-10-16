@@ -2,6 +2,7 @@
 
 ## v0.43.0
 
+- Added a session IO error log - an unreadable or unwritable session file is recorded in `.polyglav/sessions/errors.log` instead of a corrupt file reading as "not found", while a legacy-format skip logs nothing and a log-write failure never interrupts a session. Docs (`session.md`). Tests: `test_session_io.py`
 - Added truncation provenance - a session records a `dropped` marker (`reason` and `original_chars`) when a tool result is filtered by `noise_tools` or the `session_tool_max_chars` cap, so the log stays auditable after filtering while it stays small. Docs (`session.md`). Tests: `test_session_log.py`
 - Added tool call provenance - each `tool` part stores the provider's `call_id` and the call's `duration`, and the provider context rebuilds from the stored ids (with a synthesized id for older logs), so a tool round replays exactly and slow calls are visible. Docs (`session.md`). Tests: `test_session_log.py`
 - Added stop reason to session turns - each agent turn records the provider's raw `finish_reason` (`stop`, `length`, `tool_calls`) beside `status`, so a truncated or empty turn is diagnosed from the recorded reason instead of a derived status. Docs (`session.md`). Tests: `test_session_log.py`

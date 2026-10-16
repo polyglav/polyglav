@@ -26,6 +26,8 @@ Each session also records the Polyglav `version` that created it, so a log says 
 
 Session files written before the turn format (flat `messages`) and files written before the `session_name`/`session_id` rename do not load: `read()` returns nothing for them, the file is left untouched on disk, and `/sessions` still lists the name. The turn format is a full cutover, not a compatibility layer.
 
+An unreadable or unwritable session file is recorded in `.polyglav/sessions/errors.log`, one tab-separated line per failure holding the timestamp, the `read` or `save` action, the session name, and the error. A legacy-format file that parses but does not load is not logged, since that is an expected skip rather than a failure. The log is best-effort, so a failure to write the log itself never interrupts a session.
+
 ## Managing sessions
 
 The active session is handled by `/session` (like `/model` for the model). The catalog of saved sessions lives under `/sessions` (like `/models`).
