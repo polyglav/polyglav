@@ -41,6 +41,28 @@ def render_turn(turn: dict, part=None, full: bool = False,
     return '\n'.join(lines)
 
 
+def export_document(session: Session) -> dict:
+    info = {
+        'session_name': session.session_name,
+        'session_id': session.session_id,
+        'role': session.role,
+        'mode': session.mode,
+        'version': session.version,
+        'created_at': session.created_at,
+        'updated_at': session.updated_at,
+        'parent_id': session.parent_id,
+        'sub_sessions': session.sub_sessions,
+        'title': session.derived_title(),
+        'outcome': session.derived_outcome(),
+        'idle_at': session.derived_idle_at(),
+    }
+    return {'info': info, 'turns': session.to_dict().get('turns', [])}
+
+
+def session_to_json(session: Session) -> str:
+    return json.dumps(export_document(session), indent=2) + '\n'
+
+
 def render_session(session: Session) -> str:
     lines = [
         f'# Session: {session.session_name}',

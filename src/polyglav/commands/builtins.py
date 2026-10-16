@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from .. import get_version
-from ..sessions.render import render_session, render_turn, turn_summary
+from ..sessions.render import render_session, render_turn, session_to_json, turn_summary
 
 SUB_INDENT = 4
 
@@ -1182,7 +1182,7 @@ def register_builtins(registry):
         ('list', 'List saved sessions'),
         ('preview', 'Show a structural preview of a session'),
         ('delete', 'Delete a session'),
-        ('export', 'Export a session to Markdown'),
+        ('export', 'Export a session to Markdown or JSON'),
     ])
     def sessions_cmd(arg=''):
         parts = arg.strip().split(maxsplit=2)
@@ -1221,25 +1221,33 @@ def register_builtins(registry):
             else:
                 print(f'Session not found: {name}')
         elif action == 'export':
-            name = parts[1] if len(parts) > 1 else ''
-            out = parts[2] if len(parts) > 2 else ''
+            tokens = [t for t in arg.strip().split()[1:] if t != '--json']
+            as_json = '--json' in arg.split()
+            name = tokens[0] if tokens else ''
+            out = tokens[1] if len(tokens) > 1 else ''
             if not name:
-                print('Usage: /sessions export <name> [out]')
+                print('Usage: /sessions export <name> [out] [--json]')
                 return
             s = chat.sessions.read(name)
             if s is None:
                 print(f'Session not found: {name}')
                 return
-            markdown = render_session(s)
+            if as_json:
+                content = session_to_json(s)
+                ext = '.json'
+            else:
+                content = render_session(s)
+                ext = '.md'
             if out == '-':
-                sys.stdout.write(markdown)
+                sys.stdout.write(content)
                 return
             if out:
                 path = Path(out)
             else:
-                path = chat.sessions.sessions_dir.parent / 'exports' / f'{name}.md'
+                path = (chat.sessions.sessions_dir.parent / 'exports'
+                        / f'{name}{ext}')
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(markdown)
+            path.write_text(content)
             print(f'Exported session: {name} -> {path}')
         else:
             _render_commands(registry, ['sessions'])

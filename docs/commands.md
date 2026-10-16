@@ -71,12 +71,13 @@ One-shot headless chat.
 
 ### `polyglav export`
 
-Export a saved session to Markdown (see [session.md](session.md)).
+Export a saved session to Markdown or JSON (see [session.md](session.md)).
 
 | Flag             | Default                      | Description                       |
 |------------------|------------------------------|-----------------------------------|
 | `name`           | **Required**                 | Session name to export            |
 | `--out`          | `.polyglav/exports/<name>.md`  | Output file, `-` for stdout       |
+| `--json`         | off                          | Export JSON instead of Markdown (default `.polyglav/exports/<name>.json`) |
 | `--path`         |                              | Project path                      |
 
 ### `polyglav models`

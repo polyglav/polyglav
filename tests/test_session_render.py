@@ -1,4 +1,5 @@
 import io
+import json
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -358,6 +359,27 @@ class TestExportCommand(unittest.TestCase):
         output = self._dispatch('/sessions export alpha -')
         self.assertIn('# Session: alpha', output)
         self.assertIn('hello', output)
+
+    def test_export_json_default_file(self):
+        self._make_session('alpha')
+        output = self._dispatch('/sessions export alpha --json')
+        path = self._export_dir() / 'alpha.json'
+        self.assertTrue(path.exists())
+        data = json.loads(path.read_text())
+        self.assertEqual(data['info']['session_name'], 'alpha')
+        self.assertEqual(data['info']['title'], 'hello')
+        self.assertEqual(data['info']['outcome'], 'ok')
+        self.assertTrue(data['turns'])
+        self.assertIn(f'Exported session: alpha -> {path}', output)
+
+    def test_export_json_stdout(self):
+        self._make_session('alpha')
+        output = self._dispatch('/sessions export alpha - --json')
+        data = json.loads(output)
+        self.assertEqual(data['info']['session_name'], 'alpha')
+
+    def test_export_usage_lists_json(self):
+        self.assertIn('--json', self._dispatch('/sessions export'))
 
     def test_export_not_found(self):
         output = self._dispatch('/sessions export nosuch')

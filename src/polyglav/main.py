@@ -31,9 +31,11 @@ def _add_run_parser(sub):
 
 
 def _add_export_parser(sub):
-    p = sub.add_parser('export', help='Export a saved session to Markdown')
+    p = sub.add_parser('export', help='Export a saved session to Markdown or JSON')
     p.add_argument('name', help='Session name to export')
     p.add_argument('--out', help='Output file (default: .polyglav/exports/<name>.md, - for stdout)')
+    p.add_argument('--json', action='store_true',
+                   help='Export as JSON (default: .polyglav/exports/<name>.json)')
     p.add_argument('--path', default=argparse.SUPPRESS,
                    help='Project path (default: current directory)')
 

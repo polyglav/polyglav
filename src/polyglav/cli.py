@@ -42,24 +42,29 @@ def cmd_run(args) -> int:
 
 def cmd_export(args) -> int:
     from .sessions.manager import SessionManager
-    from .sessions.render import render_session
+    from .sessions.render import render_session, session_to_json
     config = Config(path=getattr(args, 'path', None))
     sessions = SessionManager(config.local_path.parent / 'sessions')
     session = sessions.read(args.name)
     if session is None:
         print(f'Session not found: {args.name}', file=sys.stderr)
         return 1
-    markdown = render_session(session)
+    if getattr(args, 'json', False):
+        content = session_to_json(session)
+        ext = '.json'
+    else:
+        content = render_session(session)
+        ext = '.md'
     out = getattr(args, 'out', None)
     if out == '-':
-        sys.stdout.write(markdown)
+        sys.stdout.write(content)
         return 0
     if out:
         path = Path(out)
     else:
-        path = sessions.sessions_dir.parent / 'exports' / f'{args.name}.md'
+        path = sessions.sessions_dir.parent / 'exports' / f'{args.name}{ext}'
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(markdown)
+    path.write_text(content)
     print(f'Exported session: {args.name} -> {path}')
     return 0
 

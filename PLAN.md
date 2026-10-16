@@ -46,7 +46,6 @@ A session becomes informative in a listing and portable as an artifact, without 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| JSON session export - `info` plus `turns`, round-tripping with the planned import | S-M | tooling and interchange |
 | Standalone compaction summary - the `/compact` summary as a Markdown artifact | S-M | a hand-off brief |
 
 ## Memory and role instructions

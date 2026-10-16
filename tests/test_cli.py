@@ -371,6 +371,21 @@ class TestCliExport(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn('Exported session: alpha', out.getvalue())
 
+    def test_export_json_writes_default_file(self):
+        rc, out, _ = self._capture(self._args(json=True))
+        self.assertEqual(rc, 0)
+        path = (Path(self.path) / '.polyglav' / 'exports'
+                / 'alpha.json').resolve()
+        self.assertTrue(path.exists())
+        data = json.loads(path.read_text())
+        self.assertEqual(data['info']['session_name'], 'alpha')
+        self.assertIn(f'Exported session: alpha -> {path}', out)
+
+    def test_export_json_stdout(self):
+        rc, out, _ = self._capture(self._args(json=True, out='-'))
+        self.assertEqual(rc, 0)
+        self.assertEqual(json.loads(out)['info']['session_name'], 'alpha')
+
 
 class TestCliModels(unittest.TestCase):
 
