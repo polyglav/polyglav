@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Persist the raw stop reason on the turn - store the provider `finish_reason` beside `status`, so a truncated or empty turn is diagnosed from the recorded reason instead of a derived status
 - [ ] Tool call provenance - store a `call_id` and `started`/`ended` timing on each `tool` part, and build the provider context from those ids instead of the synthesized `call_<index>_<i>`
 - [ ] Truncation provenance in logs - record a structured `reason` and `original_chars` when a tool result is dropped by `noise_tools` or the `session_tool_max_chars` cap, so the log stays auditable after filtering
 - [ ] Session IO error log - record an unreadable or unwritable session file in a small operational log beside `sessions/` instead of reading a corrupt file as "not found"
@@ -174,6 +173,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added stop reason to session turns
 - [x] Per-turn context telemetry in session logs
 - [x] Prompt escapes bracketed so libedit redraw leaves no stale text
 - [x] Output log raw option keeps special characters

@@ -31,6 +31,18 @@ class TestSessionModel(unittest.TestCase):
         self.assertEqual(turn['usage'], {'prompt_tokens': 9})
         self.assertEqual(turn['context_tokens'], 11)
 
+    def test_end_turn_persists_finish_reason(self):
+        s = Session('s1')
+        s.add_user('hi')
+        s.end_turn('ok', finish_reason='stop')
+        self.assertEqual(s.to_dict()['turns'][0]['finish_reason'], 'stop')
+
+    def test_end_turn_omits_empty_finish_reason(self):
+        s = Session('s1')
+        s.add_user('hi')
+        s.end_turn('ok')
+        self.assertNotIn('finish_reason', s.to_dict()['turns'][0])
+
     def test_tool_max_chars_truncates_persisted_only(self):
         s = Session('s1')
         s.add_user('hi')
@@ -302,6 +314,15 @@ class TestSessionLogLoop(unittest.TestCase):
         self.assertEqual(tools[0]['name'], 'web_search')
         self.assertEqual(tools[0]['input'], {'query': 'test'})
         self.assertEqual(self._parts('text')[-1]['text'], 'Final.')
+
+    def test_stop_reason_persisted_on_turn(self):
+        self.chat.provider.chat.side_effect = [
+            [{'type': 'token', 'content': 'Hi.'},
+             {'type': 'done', 'reason': 'stop'}],
+        ]
+        self._run()
+        self.assertEqual(self.chat.current_session.turns[0]['finish_reason'],
+                         'stop')
 
     def test_tool_analysis_off_by_default(self):
         self.chat.provider.chat.side_effect = [

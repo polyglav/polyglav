@@ -26,13 +26,16 @@ def new_turn(index: int, model: str = '', provider: str = '',
 def finish_turn(turn: dict, status: str = 'ok',
                 ended_at: str | None = None,
                 usage: dict | None = None,
-                context_tokens: int | None = None) -> dict:
+                context_tokens: int | None = None,
+                finish_reason: str = '') -> dict:
     turn['status'] = status
     turn['ended_at'] = ended_at or _now()
     if usage is not None:
         turn['usage'] = usage
     if context_tokens is not None:
         turn['context_tokens'] = context_tokens
+    if finish_reason:
+        turn['finish_reason'] = finish_reason
     return turn
 
 

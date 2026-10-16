@@ -24,6 +24,7 @@ class TurnResult:
     duration: float = 0.0
     usage: dict | None = None
     context_tokens: int = 0
+    finish_reason: str = ''
     model: str = ''
     provider: str = ''
     session: str = ''
@@ -39,6 +40,7 @@ class TurnResult:
             'duration': self.duration,
             'usage': self.usage,
             'context_tokens': self.context_tokens,
+            'finish_reason': self.finish_reason,
             'model': self.model,
             'provider': self.provider,
             'session': self.session,
@@ -1099,6 +1101,7 @@ class Engine:
         tools_schema = self._init_tooling()
         turn_start = datetime.now(timezone.utc)
         usage = None
+        reason = ''
         status = 'ok'
         content = ''
         thinking = ''
@@ -1315,7 +1318,8 @@ class Engine:
                 self.ui.footer(duration, self._usage_counts(usage))
             self.current_session.end_turn(
                 status, usage=usage,
-                context_tokens=self._context_tokens(usage))
+                context_tokens=self._context_tokens(usage),
+                finish_reason=reason)
             self.session_auto_save()
 
         duration = round((datetime.now(timezone.utc) - turn_start).total_seconds(), 1)
@@ -1327,6 +1331,7 @@ class Engine:
             duration=duration,
             usage=usage,
             context_tokens=self._context_tokens(usage),
+            finish_reason=reason,
             model=self.config.get('model'),
             provider=self.config.get('provider'),
             session=self.current_session.session_name,
