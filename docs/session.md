@@ -213,6 +213,8 @@ Two config keys reshape `tool` part output when the session is written to disk, 
 - **`noise_tools`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, see tool call above for parameters]`, keeping noisy results out of session files while `input` stays on the part.
 - **`session_tool_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
 
+Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "noise_tool" | "max_chars", "original_chars": <len>}`. The in-memory part keeps its full `output`, so the marker is written to disk only.
+
 ## Preparing the provider context
 
 The provider payload is prepared from the turns by `turns.provider_messages()` (via `Engine._provider_messages`):

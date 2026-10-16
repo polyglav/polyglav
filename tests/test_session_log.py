@@ -256,7 +256,18 @@ class TestSessionModel(unittest.TestCase):
         d = s.to_dict(noise_tools=['fetch_page'])
         tool = d['turns'][0]['parts'][1]
         self.assertIn('excluded from log', tool['output'])
+        self.assertEqual(tool['dropped'],
+                         {'reason': 'noise_tool', 'original_chars': 850})
         self.assertEqual(part['output'], 'huge page content' * 50)
+
+    def test_max_chars_records_dropped_provenance(self):
+        s = Session('s1')
+        s.add_user('hi')
+        part = s.add_tool('web_search', {})
+        turns.finish_tool(part, 'x' * 100)
+        d = s.to_dict(tool_max_chars=20)
+        self.assertEqual(d['turns'][0]['parts'][1]['dropped'],
+                         {'reason': 'max_chars', 'original_chars': 100})
 
     def test_to_dict_keeps_non_noise_tool_content(self):
         s = Session('s1')
@@ -266,6 +277,7 @@ class TestSessionModel(unittest.TestCase):
         d = s.to_dict(noise_tools=['fetch_page'])
         tool = d['turns'][0]['parts'][1]
         self.assertEqual(tool['output'], 'search results')
+        self.assertNotIn('dropped', tool)
 
     def test_read_does_not_switch_current(self):
         tmp = tempfile.TemporaryDirectory()

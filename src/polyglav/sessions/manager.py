@@ -182,9 +182,13 @@ class Session:
                         p['output'] = (
                             f'[{p["name"]} result excluded from log; '
                             'see tool call above for parameters]')
+                        p['dropped'] = {'reason': 'noise_tool',
+                                        'original_chars': len(output)}
                     elif tool_max_chars > 0 and len(output) > tool_max_chars:
                         p['output'] = output[:tool_max_chars] + (
                             f'… (truncated from {len(output)} chars)')
+                        p['dropped'] = {'reason': 'max_chars',
+                                        'original_chars': len(output)}
                 parts.append(p)
             serialized['parts'] = parts
             out_turns.append(serialized)
