@@ -1355,8 +1355,11 @@ class Engine:
                 args['query'] = self._refine_query(args['query'])
                 if args['query'] != original:
                     self.ui.tool_refine(original, args['query'])
-            part = self.current_session.add_tool(name, args)
+            part = self.current_session.add_tool(name, args,
+                                                 call_id=tc.get('id', ''))
+            tool_start = time.monotonic()
             output = self._run_tool(name, args)
+            duration = round(time.monotonic() - tool_start, 1)
             if (self.config.get('tool_status_visible', True)
                     and self._tool_registry.echo_for(name) and output
                     and not self._tool_registry.is_note_result(name, output)
@@ -1371,7 +1374,7 @@ class Engine:
                     and output and not output.startswith(('[cancelled]', 'Error'))):
                 analysis = self._analyze_tool_result(name, output)
             turns.finish_tool(part, output, is_error=output.startswith('Error'),
-                              analysis=analysis)
+                              analysis=analysis, duration=duration)
         return executed
 
     def _analyze_tool_result(self, name: str, output: str) -> str | None:

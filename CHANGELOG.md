@@ -2,6 +2,7 @@
 
 ## v0.43.0
 
+- Added tool call provenance - each `tool` part stores the provider's `call_id` and the call's `duration`, and the provider context rebuilds from the stored ids (with a synthesized id for older logs), so a tool round replays exactly and slow calls are visible. Docs (`session.md`). Tests: `test_session_log.py`
 - Added stop reason to session turns - each agent turn records the provider's raw `finish_reason` (`stop`, `length`, `tool_calls`) beside `status`, so a truncated or empty turn is diagnosed from the recorded reason instead of a derived status. Docs (`session.md`). Tests: `test_session_log.py`
 - Added per-turn context telemetry - `usage` and `context_tokens` are persisted on each turn and returned on `TurnResult`, so a session log carries provider usage and the context size per turn. Docs (`session.md`). Tests: `test_turns.py`, `test_session_log.py`
 - Fixed the macOS/libedit prompt redraw so the color and reset escapes are bracketed as zero-width (`\001`/`\002`) on libedit as well as GNU readline, so recalling history or completing a slash command no longer leaves stale text on the line. Docs (`testing.md`). Tests: `test_focus.py`

@@ -43,6 +43,22 @@ class TestSessionModel(unittest.TestCase):
         s.end_turn('ok')
         self.assertNotIn('finish_reason', s.to_dict()['turns'][0])
 
+    def test_tool_part_stores_call_id_and_duration(self):
+        s = Session('s1')
+        s.add_user('hi')
+        part = s.add_tool('web_search', {'query': 'x'}, call_id='call_abc')
+        turns.finish_tool(part, 'result', duration=1.2)
+        tool = s.to_dict()['turns'][0]['parts'][1]
+        self.assertEqual(tool['call_id'], 'call_abc')
+        self.assertEqual(tool['duration'], 1.2)
+
+    def test_tool_part_omits_empty_call_id(self):
+        s = Session('s1')
+        s.add_user('hi')
+        part = s.add_tool('web_search', {})
+        turns.finish_tool(part, 'result')
+        self.assertNotIn('call_id', s.to_dict()['turns'][0]['parts'][1])
+
     def test_tool_max_chars_truncates_persisted_only(self):
         s = Session('s1')
         s.add_user('hi')
@@ -324,6 +340,20 @@ class TestSessionLogLoop(unittest.TestCase):
         self.assertEqual(self.chat.current_session.turns[0]['finish_reason'],
                          'stop')
 
+    def test_tool_part_carries_call_id_and_duration(self):
+        self.chat.provider.chat.side_effect = [
+            [{'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
+            [{'type': 'token', 'content': 'Final.'},
+             {'type': 'done', 'reason': 'stop'}],
+        ]
+        with patch.object(self._search_service(), 'search', return_value=[
+            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
+        ]):
+            self._run()
+        tool = self._parts('tool')[0]
+        self.assertEqual(tool['call_id'], 'call_test123')
+        self.assertIn('duration', tool)
+
     def test_tool_analysis_off_by_default(self):
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
@@ -513,6 +543,16 @@ class TestProviderMessages(unittest.TestCase):
         self.assertEqual(msgs[0]['role'], 'system')
         self.assertIn('THE SUMMARY', msgs[0]['content'])
         self.assertEqual(len(msgs), 1)
+
+    def test_tool_part_reuses_stored_call_id(self):
+        session = self.chat.current_session
+        session.add_user('hi')
+        part = session.add_tool('fetch_page', {'url': 'x'},
+                                call_id='call_xyz')
+        turns.finish_tool(part, 'page body')
+        msgs = self.chat._provider_messages()
+        self.assertEqual(msgs[1]['tool_calls'][0]['id'], 'call_xyz')
+        self.assertEqual(msgs[2]['tool_call_id'], 'call_xyz')
 
     def test_tool_part_always_carries_its_call(self):
         session = self.chat.current_session

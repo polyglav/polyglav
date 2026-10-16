@@ -80,17 +80,24 @@ def command_part(command: str, summary: str = '', compact_from=None,
 
 
 def tool_part(name: str, input=None, output: str = '', is_error: bool = False,
-              analysis: str | None = None, timestamp: str | None = None) -> dict:
-    return _part('tool', name=name, input=input, output=output,
+              analysis: str | None = None, timestamp: str | None = None,
+              call_id: str = '') -> dict:
+    part = _part('tool', name=name, input=input, output=output,
                  is_error=is_error, analysis=analysis, timestamp=timestamp)
+    if call_id:
+        part['call_id'] = call_id
+    return part
 
 
 def finish_tool(part: dict, output: str, is_error: bool = False,
-                analysis: str | None = None) -> dict:
+                analysis: str | None = None,
+                duration: float | None = None) -> dict:
     part['output'] = output
     part['is_error'] = is_error
     if analysis is not None:
         part['analysis'] = analysis
+    if duration is not None:
+        part['duration'] = duration
     return part
 
 
@@ -140,7 +147,7 @@ def turn_to_provider(turn: dict) -> list[dict]:
             results: list[dict] = []
             while i < len(parts) and parts[i].get('type') == 'tool':
                 tp = parts[i]
-                call_id = f'call_{index}_{i}'
+                call_id = tp.get('call_id') or f'call_{index}_{i}'
                 calls.append({
                     'id': call_id,
                     'type': 'function',

@@ -46,7 +46,6 @@ A session log records provider telemetry and tool provenance, so a turn is diagn
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Tool call provenance - a stored `call_id` and `started`/`ended` timing on each tool part, used when building the provider context | S-M | clean replay and slow-tool visibility |
 | Truncation provenance - a structured `reason` and `original_chars` when a result is dropped by `noise_tools` or the size cap | S | an auditable log after filtering |
 | Session IO error log - record an unreadable or unwritable session file beside `sessions/` | S | visible session failures |
 

@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Tool call provenance - store a `call_id` and `started`/`ended` timing on each `tool` part, and build the provider context from those ids instead of the synthesized `call_<index>_<i>`
 - [ ] Truncation provenance in logs - record a structured `reason` and `original_chars` when a tool result is dropped by `noise_tools` or the `session_tool_max_chars` cap, so the log stays auditable after filtering
 - [ ] Session IO error log - record an unreadable or unwritable session file in a small operational log beside `sessions/` instead of reading a corrupt file as "not found"
 - [ ] Derived session metadata - compute `title`, `outcome`, and `idle_at` on read from the first prompt, the worst turn status, and the last part timestamp, so `/sessions` and recall are informative without opening every file
@@ -173,6 +172,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added tool call provenance
 - [x] Added stop reason to session turns
 - [x] Per-turn context telemetry in session logs
 - [x] Prompt escapes bracketed so libedit redraw leaves no stale text
