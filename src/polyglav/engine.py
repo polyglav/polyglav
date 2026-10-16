@@ -1723,6 +1723,10 @@ class Engine:
                     tools.add(part['name'])
         self.ui.info(f'  {s.session_name} - {len(s.turns)} turns')
         self.ui.info(f'    created {s.created_at} · updated {s.updated_at}')
+        title = s.derived_title()
+        if title:
+            self.ui.info(f'    title: {title}')
+        self.ui.info(f'    outcome: {s.derived_outcome()} · idle {s.derived_idle_at()}')
         self.ui.info('    parts: ' + ' · '.join(f'{k} {v}' for k, v in counts.items()))
         if tools:
             self.ui.info('    tools: ' + ', '.join(sorted(tools)))

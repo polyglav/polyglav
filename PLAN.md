@@ -46,7 +46,6 @@ A session becomes informative in a listing and portable as an artifact, without 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Derived session metadata - `title`, `outcome`, `idle_at` computed on read | S-M | a listing without opening every file |
 | Richer Markdown session header - id, role, mode, version, counts | S | navigable transcripts |
 | JSON session export - `info` plus `turns`, round-tripping with the planned import | S-M | tooling and interchange |
 | Standalone compaction summary - the `/compact` summary as a Markdown artifact | S-M | a hand-off brief |

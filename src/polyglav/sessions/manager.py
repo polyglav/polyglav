@@ -168,6 +168,29 @@ class Session:
         self.permissions.append(entry)
         self._touch()
 
+    def derived_title(self) -> str:
+        for turn in self.turns:
+            for part in turn.get('parts') or []:
+                if part.get('type') != 'user':
+                    continue
+                text = ' '.join(str(part.get('text') or '').split())
+                if text:
+                    return text[:60]
+        return ''
+
+    def derived_outcome(self) -> str:
+        for turn in self.turns:
+            if turn.get('status') == 'error':
+                return 'error'
+        return 'ok'
+
+    def derived_idle_at(self) -> str:
+        for turn in reversed(self.turns):
+            ended = turn.get('ended_at')
+            if ended:
+                return ended
+        return self.updated_at
+
     def to_dict(self, tool_max_chars: int = 0, noise_tools: list[str] | None = None):
         noise_tools = set(noise_tools or [])
         out_turns = []

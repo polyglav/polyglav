@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] Derived session metadata - compute `title`, `outcome`, and `idle_at` on read from the first prompt, the worst turn status, and the last part timestamp, so `/sessions` and recall are informative without opening every file
 - [ ] Richer Markdown session header - add session id, role, mode, version, and turn or message count to the exported transcript header
 - [ ] JSON session export - `polyglav export --json` and `/sessions export --json` emit an `info` plus `turns` document that round-trips with the planned JSON import
 - [ ] Standalone compaction summary - write the `/compact` summary as a Markdown artifact beside the session, for `handoff`, memory, and other-agent consumption
@@ -170,6 +169,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added derived session metadata
 - [x] Added a session IO error log
 - [x] Added truncation provenance
 - [x] Added tool call provenance

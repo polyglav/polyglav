@@ -41,7 +41,7 @@ The active session is handled by `/session` (like `/model` for the model). The c
 | `/session load <name>` | Load a session (with compaction offer if it has a summary) |
 | `/session save` | Save the current session |
 | `/sessions` | List saved sessions |
-| `/sessions preview <name>` | Structural preview (turn count, part kinds, tool names) without switching |
+| `/sessions preview <name>` | Structural preview (title, outcome, idle time, turn count, part kinds, tool names) without switching |
 | `/sessions delete <name>` | Delete a session |
 | `/sessions export <name> [out]` | Export a session to Markdown |
 | `polyglav run --session-id <name>` | Load or create a session from headless mode |
@@ -97,6 +97,8 @@ The headless CLI `polyglav export <name> [--out <file>]` reuses the same rendere
 | `version` | string | Polyglav version that created the session, stamped at creation (empty for files written before the field) |
 
 `/sessions preview` prints the `parent` and `sub-sessions` links. `/sessions` annotates `sub_*` children with their parent.
+
+A session's `title`, `outcome`, and `idle_at` are derived on read rather than stored, so the log stays the single source of truth and no index file is needed. `title` is the first `user` prompt collapsed to one line and clipped to 60 characters, `outcome` is `error` when any turn failed and `ok` otherwise, and `idle_at` is the last turn's `ended_at` (falling back to `updated_at`). `/sessions preview` shows all three.
 
 ## Turn and part schema
 
