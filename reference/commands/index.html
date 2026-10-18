@@ -1495,7 +1495,7 @@
 <tr>
 <td><code>/asks</code></td>
 <td></td>
-<td>List and answer parked asks from unattended runs (<code>/asks list [all|pending|answered]</code>, <code>/asks show &lt;id&gt;</code>, <code>/asks answer &lt;id&gt; &lt;text&gt;</code>). Answering resumes the origin session. See <a href="../config/#unattended-mode">config.md</a></td>
+<td>List and answer parked asks from unattended runs (<code>/asks answer &lt;id&gt; &lt;text&gt;</code>, <code>/asks list [all|pending|answered]</code>, <code>/asks show &lt;id&gt;</code>). Answering resumes the origin session. See <a href="../config/#unattended-mode">config.md</a></td>
 </tr>
 <tr>
 <td><code>/compact</code></td>
@@ -1505,7 +1505,7 @@
 <tr>
 <td><code>/config</code></td>
 <td></td>
-<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The listing appends each key's origin: <code>(default)</code>, <code>(global)</code>, or <code>(local)</code></td>
+<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and a short description per key, and a value too long for the value column prints as an indented <code>value</code>/<code>source</code>/<code>description</code> block</td>
 </tr>
 <tr>
 <td><code>/connect</code></td>
@@ -1520,7 +1520,7 @@
 <tr>
 <td><code>/focus</code></td>
 <td></td>
-<td>Show and switch the focused agent run. No args shows the current run, the run tree (each run with its id, session, and session id, plus a <code>↔ Switch to &lt;role&gt;</code> marker), and the call log. Attach by <code>&lt;#run&gt;</code>, <code>#&lt;session_id&gt;</code>, <code>session:&lt;name&gt;</code>, <code>root</code>, or a session name, and navigate with <code>parent</code>, <code>child [n]</code>, <code>sibling [n]</code>, <code>next</code>, <code>prev</code>, or <code>back</code>. <code>log [n]</code> prints the focused run's buffered output (the last <code>n</code> lines, or all when omitted). Focus only navigates existing runs, it never creates a session. See <a href="../architecture/#focus">architecture.md</a></td>
+<td>Show and switch the focused agent run. No args shows the current run, the run tree (each run with its id, session, and session id, plus a <code>↔ Switch to &lt;role&gt;</code> marker), and the call log. Attach by <code>&lt;#run&gt;</code>, <code>#&lt;session_id&gt;</code>, <code>session:&lt;name&gt;</code>, <code>root</code>, or a session name, and navigate with <code>back</code>, <code>child [n]</code>, <code>next</code>, <code>parent</code>, <code>prev</code>, or <code>sibling [n]</code>. <code>log [n]</code> prints the focused run's buffered output (the last <code>n</code> lines, or all when omitted). Focus only navigates existing runs, it never creates a session. See <a href="../architecture/#focus">architecture.md</a></td>
 </tr>
 <tr>
 <td><code>/help</code></td>
@@ -1535,7 +1535,12 @@
 <tr>
 <td><code>/jobs</code></td>
 <td></td>
-<td>Manage scheduled and durable jobs: <code>list</code>, <code>status</code>, <code>show</code>, <code>add</code>, <code>add-supervisor</code>, <code>approve</code>, <code>reject</code>, <code>enable</code>, <code>disable</code>, <code>stop</code>, <code>remove</code>, <code>run</code>. See <a href="../jobs/">jobs.md</a></td>
+<td>Manage scheduled and durable jobs: <code>add</code>, <code>add-supervisor</code>, <code>approve</code>, <code>disable</code>, <code>enable</code>, <code>list</code>, <code>reject</code>, <code>remove</code>, <code>run</code>, <code>show</code>, <code>status</code>, <code>stop</code>. See <a href="../jobs/">jobs.md</a></td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td></td>
+<td>Manage MCP servers: <code>connect</code> (all if no name), <code>disconnect</code> (all if no name), <code>list</code>. See <a href="../mcp/">mcp.md</a></td>
 </tr>
 <tr>
 <td><code>/memorize</code></td>
@@ -1555,12 +1560,17 @@
 <tr>
 <td><code>/models</code></td>
 <td></td>
-<td>List configured models, or probe a provider's available models. <code>/models</code> shows the approved-model history grouped by provider (<code>(key)</code> when the provider has a stored key). <code>/models list [provider]</code> probes a provider's advertised models live (default: current provider)</td>
+<td>List configured models, or probe a provider's available models. <code>/models</code> shows the approved-model history grouped by provider (<code>(key)</code> when the provider has a stored key), marking <code>(unused)</code> when a model never completed a run and <code>(failed)</code> when its last run errored. <code>/models list [provider]</code> probes a provider's advertised models live (default: current provider), and <code>/models remove &lt;provider&gt;/&lt;model&gt;</code> drops a model from the registry, asking first when it is the active one</td>
+</tr>
+<tr>
+<td><code>/onboard</code></td>
+<td></td>
+<td>Set up this project (purpose, assistant, focus, prompt, output log). See <a href="../plugins/">plugins.md</a></td>
 </tr>
 <tr>
 <td><code>/plugins</code></td>
 <td><code>/plugin</code></td>
-<td>Manage plugins: <code>list</code>, <code>enable</code>, <code>disable</code>, <code>install</code>, <code>update</code>, <code>uninstall</code></td>
+<td>Manage plugins: <code>disable</code>, <code>enable</code>, <code>install</code>, <code>list</code>, <code>uninstall</code>, <code>update</code></td>
 </tr>
 <tr>
 <td><code>/print</code></td>
@@ -1573,6 +1583,21 @@
 <td>Show or switch the active provider</td>
 </tr>
 <tr>
+<td><code>/providers</code></td>
+<td></td>
+<td>List provider connections, alphabetical, with the active one marked and <code>(key)</code> when a key is stored, and <code>(custom)</code> for a provider with no built-in factory</td>
+</tr>
+<tr>
+<td><code>/role</code></td>
+<td></td>
+<td>Show the active run's role and session. See <a href="../roles/">roles.md</a></td>
+</tr>
+<tr>
+<td><code>/roles</code></td>
+<td></td>
+<td>Manage roles: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>new &lt;name&gt; [prompt]</code>, <code>remove &lt;name&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../roles/">roles.md</a></td>
+</tr>
+<tr>
 <td><code>/session</code></td>
 <td></td>
 <td>Show or switch the active session: <code>/session new</code>, <code>/session load &lt;name&gt;</code>, <code>/session save</code>. Saved-session catalog operations live under <code>/sessions</code></td>
@@ -1580,17 +1605,17 @@
 <tr>
 <td><code>/sessions</code></td>
 <td></td>
-<td>Manage the saved-session catalog: <code>list</code>, <code>preview</code>, <code>delete</code>, <code>export &lt;name&gt; [out] [--json]</code>, <code>import &lt;file&gt; [name] [--force]</code> (see <a href="../session/">session.md</a>)</td>
+<td>Manage the saved-session catalog: <code>delete</code>, <code>export &lt;name&gt; [out] [--json]</code>, <code>import &lt;file&gt; [name] [--force]</code>, <code>list</code>, <code>preview</code> (see <a href="../session/">session.md</a>)</td>
 </tr>
 <tr>
 <td><code>/skills</code></td>
 <td></td>
-<td>Manage skills: <code>list</code>, <code>show &lt;name&gt;</code>, <code>new &lt;name&gt;</code>, <code>remove &lt;name&gt;</code>. See <a href="../skills/">skills.md</a></td>
+<td>Manage skills: <code>list</code>, <code>new &lt;name&gt;</code>, <code>remove &lt;name&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../skills/">skills.md</a></td>
 </tr>
 <tr>
 <td><code>/teams</code></td>
 <td></td>
-<td>Manage teams: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>show &lt;name&gt;</code>, <code>new &lt;name&gt; [description]</code>, <code>remove &lt;name&gt;</code>, <code>run &lt;name&gt; &lt;task&gt;</code>. See <a href="../teams/">teams.md</a></td>
+<td>Manage teams: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>new &lt;name&gt; [description]</code>, <code>remove &lt;name&gt;</code>, <code>run &lt;name&gt; &lt;task&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../teams/">teams.md</a></td>
 </tr>
 <tr>
 <td><code>/thinking</code></td>
@@ -1601,16 +1626,6 @@
 <td><code>/tool</code></td>
 <td></td>
 <td>Run a tool directly (<code>/tool &lt;name&gt; {"key": "value"}</code>)</td>
-</tr>
-<tr>
-<td><code>/role</code></td>
-<td></td>
-<td>Show the active run's role and session. See <a href="../roles/">roles.md</a></td>
-</tr>
-<tr>
-<td><code>/roles</code></td>
-<td></td>
-<td>Manage roles: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>show &lt;name&gt;</code>, <code>new &lt;name&gt; [prompt]</code>, <code>remove &lt;name&gt;</code>. See <a href="../roles/">roles.md</a></td>
 </tr>
 <tr>
 <td><code>/unattended</code></td>
@@ -1624,7 +1639,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions.</p>
+<p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a provider then its known models (from <code>models.json</code> and a cached live probe).</p>
 <p>Delegation is a normal tool: the caller agent proposes it, or you run it directly, and <code>/tool call {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool delegate {"name": "...", "task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...

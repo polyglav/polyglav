@@ -1433,8 +1433,9 @@
 <li><strong>Local</strong> - <code>.polyglav/config.json</code> in the project path (project overrides).</li>
 </ol>
 <p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (origin: default/global/local)</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns, per-key description)</span>
 /config
+<span class="c1"># a value too long for the value column prints as an indented value/source/description block</span>
 <span class="c1"># set a value (project-local, Git-like default)</span>
 /config<span class="w"> </span>temperature<span class="w"> </span><span class="m">0</span>.3
 <span class="c1"># set a structured value</span>
@@ -1608,7 +1609,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>model</code></td>
 <td><code>"llama3.2"</code></td>
-<td>Model name. A <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) unfolds to that provider and model. An unfolded model must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
+<td>Model name. A <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) unfolds to that provider and model. <code>/model &lt;ref&gt;</code> persists only the ref, so a project config can be just <code>{"model": "provider/model"}</code>, while <code>provider</code>/<code>base_url</code> remain explicit overrides for <code>openai-compatible</code> and custom URL providers. An unfolded model must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
 </tr>
 <tr>
 <td><code>offload_depth</code></td>
@@ -1920,7 +1921,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <p><code>~/.config/polyglav/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>
 <ul>
 <li><code>/connect</code> records the model for the connection it just saved.</li>
-<li><code>/models</code> shows approved models grouped by provider, the active one marked <code>&gt;</code>, plus <code>(key)</code> when that provider has a stored key.</li>
+<li><code>/models</code> shows approved models grouped by provider, the active one marked <code>&gt;</code>, plus <code>(key)</code> when that provider has a stored key. Each entry carries <code>ok_at</code> (last successful run) and <code>last_error</code> (last failure), so <code>/models</code> marks a model <code>(unused)</code> when it never completed a run and <code>(failed)</code> when its last run errored.</li>
 <li><code>/models list [provider]</code> probes a provider's advertised models live (default: current provider).</li>
 </ul>
 

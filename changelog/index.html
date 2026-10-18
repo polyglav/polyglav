@@ -404,10 +404,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0440" class="md-nav__link">
+  <a href="#v0440-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.44.0
+        v0.44.0 - 2026-10-18
       
     </span>
   </a>
@@ -1648,10 +1648,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0440" class="md-nav__link">
+  <a href="#v0440-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.44.0
+        v0.44.0 - 2026-10-18
       
     </span>
   </a>
@@ -2149,8 +2149,15 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
-<h2 id="v0440">v0.44.0<a class="headerlink" href="#v0440" title="Permanent link">&para;</a></h2>
+<h2 id="v0440-2026-10-18">v0.44.0 - 2026-10-18<a class="headerlink" href="#v0440-2026-10-18" title="Permanent link">&para;</a></h2>
 <ul>
+<li>Added model removal to <code>/models</code> - <code>/models remove &lt;provider&gt;/&lt;model&gt;</code> drops a registry entry, asking first when it is the active model. Docs (<code>commands.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Marked unusable models in <code>/models</code> - a completed run records <code>ok_at</code> and a failed one records <code>last_error</code>, and the list tags a never-used model <code>(unused)</code> and a last-failed one <code>(failed)</code>. Docs (<code>commands.md</code>, <code>config.md</code>). Tests: <code>test_models.py</code>, <code>test_commands.py</code></li>
+<li>Added provider and model tab completion - <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a <code>provider/</code> then that provider's known models from <code>models.json</code> and a cached live probe. Docs (<code>commands.md</code>). Tests: <code>test_completion.py</code></li>
+<li>Changed the model config to a self-describing ref - <code>/model &lt;provider&gt;/&lt;model&gt;</code> persists only the <code>model</code> ref, so a project config can be a single <code>model</code> line while <code>provider</code>/<code>base_url</code> stay as overrides for <code>openai-compatible</code> and custom providers. Docs (<code>config.md</code>, <code>providers.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Added the <code>/providers</code> command to list provider connections alphabetically with the active one marked and a <code>(key)</code> marker, and <code>(custom)</code> for a provider with no built-in factory. Docs (<code>commands.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Sorted the <code>/help</code> subcommand rows alphabetically, and the description column now widens to fit a subcommand name so <code>/help &lt;cmd&gt;</code> no longer runs a label into its description. Docs (<code>commands.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Changed the config listing to sorted <code>key</code>, <code>value</code>, and source columns with a short description per key, and a value too long for the column prints as an indented <code>value</code>/<code>source</code>/<code>description</code> block. Docs (<code>commands.md</code>, <code>config.md</code>). Tests: <code>test_commands.py</code></li>
 <li>Added the sessions import command - <code>polyglav import &lt;file&gt; [--name] [--force]</code> and <code>/sessions import &lt;file&gt; [name] [--force]</code> write an imported session into <code>.polyglav/sessions/</code>, keeping the original name when free or a fresh <code>ses_&lt;ts&gt;_&lt;id&gt;</code>. Docs (<code>session.md</code>, <code>commands.md</code>). Tests: <code>test_cli.py</code>, <code>test_session_render.py</code></li>
 <li>Added a JSON session import - <code>session_from_document</code> rebuilds a session from an export document (or a raw session dict), and <code>SessionManager.import_document</code> writes it under the original name when free, an explicit name, or a fresh <code>ses_&lt;ts&gt;_&lt;id&gt;</code>, with <code>force</code> to overwrite. Docs (<code>session.md</code>). Tests: <code>test_session_import.py</code></li>
 <li>Changed the JSON export to be lossless - the document now carries <code>errors</code> and <code>permissions</code> alongside <code>info</code> and <code>turns</code>, so an import restores the whole session. Docs (<code>session.md</code>). Tests: <code>test_session_render.py</code></li>
