@@ -330,6 +330,27 @@ def _parse_turn_ref(spec):
     return int(n_str), m, ''
 
 
+def _render_config_listing(chat):
+    from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
+    keys = sorted(chat.config.data)
+    key_width = max((len(k) for k in keys), default=0)
+    for key in keys:
+        value = str(chat.config.data[key])
+        origin = chat.config.origin(key)
+        desc = CONFIG_DESCRIPTIONS.get(key, '')
+        if len(value) <= CONFIG_VALUE_INLINE:
+            line = f'  {key:<{key_width}}  {value:<{CONFIG_VALUE_INLINE}}  ({origin})'
+            if desc:
+                line += f'  {desc}'
+            print(line)
+        else:
+            print(f'  {key}:')
+            print(f'    value: {value}')
+            print(f'    source: {origin}')
+            if desc:
+                print(f'    description: {desc}')
+
+
 def _render_known_models(chat):
     entries = chat.models.all()
     if not entries:
@@ -1018,8 +1039,7 @@ def register_builtins(registry):
             text = text[flag_len:].lstrip()
         parts = text.split(maxsplit=1)
         if not text:
-            for k, v in chat.config.data.items():
-                print(f'  {k}: {v}  ({chat.config.origin(k)})')
+            _render_config_listing(chat)
             return
         key = parts[0]
         rest = parts[1].strip() if len(parts) > 1 else ''

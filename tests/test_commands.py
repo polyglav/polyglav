@@ -183,6 +183,28 @@ class TestToolCommand(unittest.TestCase):
         output = self._dispatch('/version')
         self.assertIn(get_version(), output)
 
+    def test_config_listing_sorted(self):
+        output = self._dispatch('/config')
+        keys = []
+        for line in output.splitlines():
+            if line.startswith('  ') and not line.startswith('    '):
+                keys.append(line.strip().split()[0].rstrip(':'))
+        self.assertEqual(keys, sorted(keys))
+
+    def test_config_listing_shows_description(self):
+        output = self._dispatch('/config')
+        self.assertIn('Sampling temperature', output)
+
+    def test_config_listing_blocks_long_values(self):
+        output = self._dispatch('/config')
+        self.assertIn('\n    value: ', output)
+        self.assertIn('\n    source: default', output)
+        self.assertIn('\n    description: ', output)
+
+    def test_config_listing_sorts_extra_key(self):
+        output = self._dispatch('/config')
+        self.assertLess(output.index('api_key'), output.index('provider'))
+
     def test_config_parses_json_list(self):
         self._dispatch('/config tools.deny ["run_command", "web_search"]')
         self.assertEqual(self.chat.config.get('tools.deny'),
