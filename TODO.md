@@ -57,7 +57,6 @@
 ## Open
 
 - [ ] Config and command audit - sort `/config` and `/help` listings, add `/providers`, make model config a self-describing ref, complete providers and models
-  - [ ] Providers command lists providers with keys and active marker
   - [ ] Model config stored as one provider/model ref, provider/base_url kept for openai-compatible
   - [ ] Tab completion for provider and model names
   - [ ] Unusable models marked
@@ -172,6 +171,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added providers command
 - [x] Sorted help subcommands
 - [x] Changed config listing
 - [x] Added the sessions import command

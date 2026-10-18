@@ -445,6 +445,29 @@ def _render_provider_list(chat, providers):
         print(f'  {i}. {name}{key}')
 
 
+def _provider_names(chat, providers):
+    names = set(providers) | {e.provider for e in chat.providers.all()}
+    return sorted(names)
+
+
+def _render_provider_status(chat, providers):
+    names = _provider_names(chat, providers)
+    if not names:
+        print('  (no providers)')
+        return
+    active = chat.config.get('provider')
+    print(f'{len(names)} providers:')
+    for name in names:
+        mark = '>' if name == active else ' '
+        key = ' (key)' if chat.providers.api_key_for(name) else ''
+        factory = providers.get(name)
+        base = chat.providers.base_url_for(name) or (
+            getattr(factory, 'DEFAULT_BASE_URL', '') if factory else '')
+        tag = '' if factory else ' (custom)'
+        base_col = f'  {base}' if base else ''
+        print(f'  {mark} {name}{tag}{key}{base_col}')
+
+
 def _connect_key_prompt(chat, provider):
     stored = chat.providers.api_key_for(provider)
     if stored:
@@ -627,6 +650,15 @@ def register_builtins(registry):
                     print('  Run /connect to fix provider settings')
         else:
             print(f'Current provider: {chat.config.get("provider")}')
+
+    @registry.register('providers', description='List provider connections')
+    def providers_cmd(arg=''):
+        from ..providers import PROVIDERS
+        providers = dict(PROVIDERS)
+        pm = getattr(chat, '_plugin_manager', None)
+        if pm is not None:
+            providers.update(pm.provider_classes())
+        _render_provider_status(chat, providers)
 
     @registry.register('thinking', aliases=['reasoning'],
                        description='Show or toggle streaming of thinking/reasoning tokens')

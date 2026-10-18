@@ -367,6 +367,14 @@ class TestConnectCommand(unittest.TestCase):
         self.assertIn('1. ollama', output)
         self.assertIn('openai (key)', output)
 
+    def test_providers_lists_connections(self):
+        self.chat.providers.put('ollama', 'https://api.ollama.com', 'k')
+        self.chat.providers.put('acme-example', 'https://llm.acme.example/v1', 'k')
+        output = self._dispatch('/providers')
+        self.assertIn('providers:', output)
+        self.assertIn('> ollama (key)', output)
+        self.assertIn('acme-example (custom) (key)', output)
+
     def test_connect_named_presets_defaults(self):
         with patch.object(self.chat, 'check_connection',
                           return_value=(True, '3 models available', [])) as probe:
