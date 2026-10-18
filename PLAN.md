@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Config and command audit
-
-Sort the config and help listings, add a read-only provider list, make the model config a single self-describing ref, and complete providers and models at the prompt.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Unusable models marked and removable | S-M | a clean model registry |
-
 ## Run control and sub-run visibility
 
 A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.

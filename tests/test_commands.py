@@ -639,6 +639,28 @@ class TestModelsCommand(unittest.TestCase):
         self.assertNotIn('(unused)', output)
         self.assertNotIn('(failed)', output)
 
+    def test_models_remove(self):
+        self.chat.models.put('opencode-go', 'deepseek-v4-flash')
+        output = self._dispatch('/models remove opencode-go/deepseek-v4-flash')
+        self.assertIn('Removed model: opencode-go/deepseek-v4-flash', output)
+        self.assertIsNone(
+            self.chat.models.find('opencode-go', 'deepseek-v4-flash'))
+
+    def test_models_remove_requires_whole_path(self):
+        output = self._dispatch('/models remove deepseek-v4-flash')
+        self.assertIn('Usage: /models remove <provider>/<model>', output)
+
+    def test_models_remove_unknown(self):
+        output = self._dispatch('/models remove ollama/nope')
+        self.assertIn('Model not in the registry: ollama/nope', output)
+
+    def test_models_remove_active_prompts(self):
+        self.chat.models.put('ollama', 'test-model')
+        with patch('builtins.input', return_value='n'):
+            output = self._dispatch('/models remove ollama/test-model')
+        self.assertIn('Kept', output)
+        self.assertIsNotNone(self.chat.models.find('ollama', 'test-model'))
+
     def test_models_empty(self):
         output = self._dispatch('/models')
         self.assertIn('No models configured yet', output)

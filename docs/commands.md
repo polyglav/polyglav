@@ -15,22 +15,24 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/help`                 | `/h`           | Show available commands and tools (`/help <cmd|tool>` for detail) |
 | `/history`              |                | List the active session's turns as a numbered index: `/history [n|all] [--thoughts [all]] [--run <target>]`. Default last 10, `--thoughts` adds a dim thinking excerpt (`all` prints it in full), and `--run` reads another run's session without switching focus. See [session.md](session.md) |
 | `/jobs`                 |                | Manage scheduled and durable jobs: `add`, `add-supervisor`, `approve`, `disable`, `enable`, `list`, `reject`, `remove`, `run`, `show`, `status`, `stop`. See [jobs.md](jobs.md) |
+| `/mcp`                  |                | Manage MCP servers: `connect` (all if no name), `disconnect` (all if no name), `list`. See [mcp.md](mcp.md) |
 | `/memorize`             |                | Summarize the active run into bounded memory: `/memorize` (active role), or `/memorize <role\|team\|job> <name>`. Writes `.polyglav/memory/<scopes>/<name>.md`. See [config.md](config.md) |
 | `/mode`                 |                | Show or switch the agent mode for this session (`read` = read-only, `write`). Persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `/model`                 |                | Show or switch the active model. `/model <name>` sets it on the current provider. `/model <provider>/<model>` switches provider and model together, approving the model on confirm |
-| `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key), marking `(unused)` when a model never completed a run and `(failed)` when its last run errored. `/models list [provider]` probes a provider's advertised models live (default: current provider) |
+| `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key), marking `(unused)` when a model never completed a run and `(failed)` when its last run errored. `/models list [provider]` probes a provider's advertised models live (default: current provider), and `/models remove <provider>/<model>` drops a model from the registry, asking first when it is the active one |
+| `/onboard`              |                | Set up this project (purpose, assistant, focus, prompt, output log). See [plugins.md](plugins.md) |
 | `/plugins`              | `/plugin`      | Manage plugins: `disable`, `enable`, `install`, `list`, `uninstall`, `update` |
 | `/print`                |                | Reprint a turn (or one part) in full: `/print <n>[.<m>] [--full] [--run <target>]`. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by `print_max_chars`, and `--full` drops the cap. See [session.md](session.md) |
 | `/provider`              |                | Show or switch the active provider                             |
 | `/providers`             |                | List provider connections, alphabetical, with the active one marked and `(key)` when a key is stored, and `(custom)` for a provider with no built-in factory |
+| `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
+| `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
 | `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. Saved-session catalog operations live under `/sessions` |
 | `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json]`, `import <file> [name] [--force]`, `list`, `preview` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
 | `/thinking`             | `/reasoning`   | Show or switch reasoning display and request (`/thinking on` streams reasoning dimmed under a blue `- Thinking` header, `off` shows only a spinner) |
 | `/tool`                 |                | Run a tool directly (`/tool <name> {"key": "value"}`)          |
-| `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
-| `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
 | `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, user asks route to the caller or return without pausing. See [config.md](config.md#unattended-mode) |
 | `/version`              | `/v`           | Show the Polyglav version                                       |
 

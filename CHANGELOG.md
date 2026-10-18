@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.44.0
+## v0.44.0 - 2026-10-18
 
+- Added model removal to `/models` - `/models remove <provider>/<model>` drops a registry entry, asking first when it is the active model. Docs (`commands.md`). Tests: `test_commands.py`
 - Marked unusable models in `/models` - a completed run records `ok_at` and a failed one records `last_error`, and the list tags a never-used model `(unused)` and a last-failed one `(failed)`. Docs (`commands.md`, `config.md`). Tests: `test_models.py`, `test_commands.py`
 - Added provider and model tab completion - `/connect`, `/provider`, `/providers`, and `/models list` complete provider names, and `/model` completes a `provider/` then that provider's known models from `models.json` and a cached live probe. Docs (`commands.md`). Tests: `test_completion.py`
 - Changed the model config to a self-describing ref - `/model <provider>/<model>` persists only the `model` ref, so a project config can be a single `model` line while `provider`/`base_url` stay as overrides for `openai-compatible` and custom providers. Docs (`config.md`, `providers.md`). Tests: `test_commands.py`

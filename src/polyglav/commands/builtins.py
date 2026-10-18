@@ -353,6 +353,35 @@ def _render_config_listing(chat):
                 print(f'    description: {desc}')
 
 
+def _remove_model(chat, ref):
+    if '/' not in ref:
+        print('Usage: /models remove <provider>/<model>')
+        return
+    provider, _, model = ref.partition('/')
+    provider = provider.strip()
+    model = model.strip()
+    if not provider or not model:
+        print('Usage: /models remove <provider>/<model>')
+        return
+    entry = chat.models.find(provider, model)
+    if entry is None:
+        print(f'Model not in the registry: {provider}/{model}')
+        return
+    if _active_model(chat, entry):
+        try:
+            answer = input(
+                f'  Remove the active model "{provider}/{model}"? [y/N] '
+            ).strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return
+        if answer not in ('y', 'yes'):
+            print('Kept')
+            return
+    chat.models.remove(provider, model)
+    print(f'Removed model: {provider}/{model}')
+
+
 def _render_known_models(chat):
     entries = chat.models.all()
     if not entries:
@@ -748,6 +777,7 @@ def register_builtins(registry):
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),
+        ('remove', 'Remove a model from the registry (remove <provider>/<model>)'),
     ])
     def models_cmd(arg=''):
         arg = arg.strip()
@@ -757,8 +787,10 @@ def register_builtins(registry):
             _render_online_models(chat, '')
         elif arg.startswith('list '):
             _render_online_models(chat, arg[len('list'):].strip())
+        elif arg == 'remove' or arg.startswith('remove '):
+            _remove_model(chat, arg[len('remove'):].strip())
         else:
-            print('Usage: /models [list [provider]]')
+            print('Usage: /models [list [provider]|remove <provider>/<model>]')
 
     @registry.register('roles', description='Manage roles', subcommands=[
         ('list', 'List roles (list <tag> filters by tag)'),
