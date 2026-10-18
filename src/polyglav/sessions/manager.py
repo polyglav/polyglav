@@ -191,27 +191,40 @@ class Session:
                 return ended
         return self.updated_at
 
-    def to_dict(self, max_chars: int = 0, drop_tools: list[str] | None = None):
+    def to_dict(self, max_chars: int = 0, drop_tools: list[str] | None = None,
+                spill=None):
         drop_tools = set(drop_tools or [])
         out_turns = []
         for turn in self.turns:
             serialized = {k: v for k, v in turn.items() if k != 'parts'}
             parts = []
-            for part in turn.get('parts') or []:
+            for index, part in enumerate(turn.get('parts') or []):
                 p = dict(part)
                 output = p.get('output')
                 if p.get('type') == 'tool' and isinstance(output, str):
+                    reason = ''
                     if p.get('name') in drop_tools:
                         p['output'] = (
                             f'[{p["name"]} result excluded from log; '
                             'see tool call above for parameters]')
-                        p['dropped'] = {'reason': 'drop',
-                                        'original_chars': len(output)}
+                        reason = 'drop'
                     elif max_chars > 0 and len(output) > max_chars:
                         p['output'] = output[:max_chars] + (
                             f'… (truncated from {len(output)} chars)')
-                        p['dropped'] = {'reason': 'max_chars',
-                                        'original_chars': len(output)}
+                        reason = 'max_chars'
+                    if reason:
+                        dropped = {'reason': reason,
+                                   'original_chars': len(output)}
+                        if spill is not None:
+                            try:
+                                ref = spill(
+                                    f'{turn.get("index", 0)}_{index}.txt',
+                                    output)
+                            except OSError:
+                                ref = ''
+                            if ref:
+                                dropped['ref'] = ref
+                        p['dropped'] = dropped
                 parts.append(p)
             serialized['parts'] = parts
             out_turns.append(serialized)
@@ -314,14 +327,15 @@ class SessionManager:
             pass
 
     def save(self, session: Session | None = None, max_chars: int = 0,
-             drop_tools: list[str] | None = None):
+             drop_tools: list[str] | None = None, spill=None):
         s = session or self.current
         if s is None:
             return
         try:
             with open(self.sessions_dir / f'{s.session_name}.json', 'w') as f:
                 json.dump(s.to_dict(max_chars=max_chars,
-                                    drop_tools=drop_tools), f, indent=2)
+                                    drop_tools=drop_tools,
+                                    spill=spill), f, indent=2)
         except OSError as e:
             self._log_io('save', s.session_name, e)
 

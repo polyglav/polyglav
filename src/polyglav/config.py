@@ -118,6 +118,7 @@ DEFAULT_CONFIG = {
     'tools.deny': [],
     'tools_output_drop': ['web_fetch', 'open', 'fetch_page'],
     'tools_output_max_chars': 0,
+    'tools_output_spill': False,
     'unattended': False,
     'web_search': False,
     'word_streaming': True,

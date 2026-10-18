@@ -25,7 +25,6 @@ Tool output is droppable, capped, and spillable by config, so the log stays smal
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Tool output spill to `.polyglav/tmp/` - dropped or capped output written to scratch with a `ref` | S-M | recall without re-calling, small logs |
 | Prune spilled tool output - remove on session delete and cap the scratch size | S | bounded scratch |
 
 ## Run control and sub-run visibility

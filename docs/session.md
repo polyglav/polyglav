@@ -220,8 +220,9 @@ Two config keys reshape `tool` part output when the session is written to disk, 
 
 - **`tools_output_drop`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, see tool call above for parameters]`, keeping noisy results out of session files while `input` stays on the part.
 - **`tools_output_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
+- **`tools_output_spill`** (default `false`) - when on, the full dropped or capped output is written to `.polyglav/tmp/<session>/<turn>_<part>.txt` instead of being lost.
 
-Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "noise_tool" | "max_chars", "original_chars": <len>}`. The in-memory part keeps its full `output`, so the marker is written to disk only.
+Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "drop" | "max_chars", "original_chars": <len>}`. With `tools_output_spill` on, the marker also carries `"ref": ".polyglav/tmp/<session>/<turn>_<part>.txt"`, so the content can be read instead of re-calling the tool. The in-memory part keeps its full `output`, so the marker is written to disk only.
 
 ## Preparing the provider context
 

@@ -425,12 +425,25 @@ class Engine:
         return probe._fetch_models()
 
     def session_auto_save(self):
-        if self.current_session and self.current_session.turns:
-            self.sessions.save(
-                self.current_session,
-                max_chars=self.config.get('tools_output_max_chars', 0),
-                drop_tools=self.config.get('tools_output_drop', []),
-            )
+        if not (self.current_session and self.current_session.turns):
+            return
+        spill = None
+        if self.config.get('tools_output_spill'):
+            base = self.sessions.sessions_dir.parent
+            name = self.current_session.session_name
+
+            def spill(filename: str, text: str) -> str:
+                path = base / 'tmp' / name / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text)
+                return str(path.relative_to(base.parent))
+
+        self.sessions.save(
+            self.current_session,
+            max_chars=self.config.get('tools_output_max_chars', 0),
+            drop_tools=self.config.get('tools_output_drop', []),
+            spill=spill,
+        )
 
     def load_or_create_session(self, name: str | None = None):
         if name and self.sessions.read(name) is not None:

@@ -290,6 +290,64 @@ class TestSessionModel(unittest.TestCase):
         self.assertEqual(tool['output'], 'search results')
         self.assertNotIn('dropped', tool)
 
+    def test_spill_writes_dropped_output_and_ref(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            base = Path(tmp.name) / '.polyglav'
+            s = Session('s1')
+            s.add_user('hi')
+            part = s.add_tool('fetch_page', {'url': 'x'})
+            turns.finish_tool(part, 'full page body')
+            calls = []
+
+            def spill(name, text):
+                path = base / 'tmp' / 's1' / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text)
+                calls.append((name, text))
+                return str(path.relative_to(base.parent))
+
+            d = s.to_dict(drop_tools=['fetch_page'], spill=spill)
+            tool = d['turns'][0]['parts'][1]
+            self.assertEqual(tool['dropped']['ref'],
+                             '.polyglav/tmp/s1/1_1.txt')
+            self.assertEqual(calls, [('1_1.txt', 'full page body')])
+            self.assertTrue((base / 'tmp' / 's1' / '1_1.txt').exists())
+        finally:
+            tmp.cleanup()
+
+    def test_spill_for_capped_output(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            base = Path(tmp.name) / '.polyglav'
+            s = Session('s1')
+            s.add_user('hi')
+            part = s.add_tool('web_search', {})
+            turns.finish_tool(part, 'x' * 50)
+
+            def spill(name, text):
+                path = base / 'tmp' / 's1' / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(text)
+                return str(path.relative_to(base.parent))
+
+            d = s.to_dict(max_chars=10, spill=spill)
+            dropped = d['turns'][0]['parts'][1]['dropped']
+            self.assertEqual(dropped['reason'], 'max_chars')
+            self.assertEqual(dropped['ref'], '.polyglav/tmp/s1/1_1.txt')
+            self.assertEqual((base / 'tmp' / 's1' / '1_1.txt').read_text(),
+                             'x' * 50)
+        finally:
+            tmp.cleanup()
+
+    def test_no_spill_ref_when_spill_is_none(self):
+        s = Session('s1')
+        s.add_user('hi')
+        part = s.add_tool('fetch_page', {'url': 'x'})
+        turns.finish_tool(part, 'page body')
+        d = s.to_dict(drop_tools=['fetch_page'])
+        self.assertNotIn('ref', d['turns'][0]['parts'][1]['dropped'])
+
     def test_read_does_not_switch_current(self):
         tmp = tempfile.TemporaryDirectory()
         try:
@@ -376,6 +434,24 @@ class TestSessionLogLoop(unittest.TestCase):
         tool = self._parts('tool')[0]
         self.assertEqual(tool['call_id'], 'call_test123')
         self.assertIn('duration', tool)
+
+    def test_auto_save_spills_when_enabled(self):
+        self.chat.config.set('tools_output_spill', True)
+        session = self.chat.current_session
+        part = session.add_tool('fetch_page', {'url': 'x'})
+        turns.finish_tool(part, 'page body')
+        type(self.chat).session_auto_save(self.chat)
+        base = self.chat.sessions.sessions_dir.parent
+        path = base / 'tmp' / session.session_name / '1_0.txt'
+        self.assertTrue(path.exists())
+        self.assertEqual(path.read_text(), 'page body')
+        with open(self.chat.sessions.sessions_dir
+                  / f'{session.session_name}.json') as f:
+            data = json.load(f)
+        dropped = data['turns'][0]['parts'][0]['dropped']
+        self.assertEqual(
+            dropped['ref'],
+            f'.polyglav/tmp/{session.session_name}/1_0.txt')
 
     def test_tool_analysis_off_by_default(self):
         self.chat.provider.chat.side_effect = [
