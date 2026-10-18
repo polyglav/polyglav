@@ -147,6 +147,7 @@ Polyglav/
 - One line only: no body, no trailers, no conventional-commit prefixes (`feat:`, `fix:`, `chore:`), no scope, no emoji, no issue numbers.
 - Start with a capital letter and a past-tense verb: `Added`, `Changed`, `Fixed`, `Removed`, `Renamed`, `Updated`, `Moved`.
 - Mirror the matching `TODO.md` `## Done` one-liner and trim it to a single line, so the log and the backlog read the same.
+- Keep the message short: a past-tense verb plus a terse object, no articles, no brackets, and no enumerations, for example `Added providers command` rather than `Added the providers command to list provider connections`.
 - No trailing period, and ASCII punctuation only, per `### Doc Conventions`.
 - Commit each finished step as part of the work, without waiting for a per-commit request.
 - Never push. `git push` is never run, and commits stay local.
