@@ -609,6 +609,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#polyglav-import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#polyglav-models" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1349,6 +1360,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#polyglav-import" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#polyglav-models" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1558,7 +1580,7 @@
 <tr>
 <td><code>/sessions</code></td>
 <td></td>
-<td>Manage the saved-session catalog: <code>list</code>, <code>preview</code>, <code>delete</code>, <code>export &lt;name&gt; [out]</code> (Markdown output, see <a href="../session/">session.md</a>)</td>
+<td>Manage the saved-session catalog: <code>list</code>, <code>preview</code>, <code>delete</code>, <code>export &lt;name&gt; [out] [--json]</code>, <code>import &lt;file&gt; [name] [--force]</code> (see <a href="../session/">session.md</a>)</td>
 </tr>
 <tr>
 <td><code>/skills</code></td>
@@ -1711,6 +1733,39 @@
 <td><code>--json</code></td>
 <td>off</td>
 <td>Export JSON instead of Markdown (default <code>.polyglav/exports/&lt;name&gt;.json</code>)</td>
+</tr>
+<tr>
+<td><code>--path</code></td>
+<td></td>
+<td>Project path</td>
+</tr>
+</tbody>
+</table>
+<h3 id="polyglav-import"><code>polyglav import</code><a class="headerlink" href="#polyglav-import" title="Permanent link">&para;</a></h3>
+<p>Import a session from a JSON export (see <a href="../session/">session.md</a>).</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td><strong>Required</strong></td>
+<td>JSON export to import</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>the file's session name</td>
+<td>Session name to import as</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>off</td>
+<td>Overwrite an existing session with that name</td>
 </tr>
 <tr>
 <td><code>--path</code></td>

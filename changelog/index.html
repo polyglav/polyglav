@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0440" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.44.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0430-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1637,6 +1648,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0440" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.44.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0430-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2127,6 +2149,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0440">v0.44.0<a class="headerlink" href="#v0440" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added the sessions import command - <code>polyglav import &lt;file&gt; [--name] [--force]</code> and <code>/sessions import &lt;file&gt; [name] [--force]</code> write an imported session into <code>.polyglav/sessions/</code>, keeping the original name when free or a fresh <code>ses_&lt;ts&gt;_&lt;id&gt;</code>. Docs (<code>session.md</code>, <code>commands.md</code>). Tests: <code>test_cli.py</code>, <code>test_session_render.py</code></li>
+<li>Added a JSON session import - <code>session_from_document</code> rebuilds a session from an export document (or a raw session dict), and <code>SessionManager.import_document</code> writes it under the original name when free, an explicit name, or a fresh <code>ses_&lt;ts&gt;_&lt;id&gt;</code>, with <code>force</code> to overwrite. Docs (<code>session.md</code>). Tests: <code>test_session_import.py</code></li>
+<li>Changed the JSON export to be lossless - the document now carries <code>errors</code> and <code>permissions</code> alongside <code>info</code> and <code>turns</code>, so an import restores the whole session. Docs (<code>session.md</code>). Tests: <code>test_session_render.py</code></li>
+<li>Added pruning for spilled tool output - a session's <code>.polyglav/tmp/&lt;name&gt;/</code> is removed when the session is deleted, and the spill directory is capped by <code>tools_output_tmp_max_bytes</code> (oldest files first). Docs (<code>session.md</code>, <code>config.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Added tool output spill to the tmp directory - with <code>tools_output_spill</code> on, the full dropped or capped tool output is written to <code>.polyglav/tmp/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt</code> and the <code>dropped</code> marker records its <code>ref</code>, so content is recallable without re-calling the tool while the log stays small. Docs (<code>session.md</code>, <code>config.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Changed the config defaults to alphanumeric order - the default config keys and the config key tables run alphabetically, and a duplicated <code>report.webhook</code> default was folded into one. Docs (<code>config.md</code>, <code>tools.md</code>). Tests: <code>test_config.py</code></li>
+<li>Renamed the tool output config keys - <code>noise_tools</code> is now <code>tools_output_drop</code> and <code>session_tool_max_chars</code> is now <code>tools_output_max_chars</code>, with a read-time migration that renames the old keys in the global and local config. Docs (<code>config.md</code>, <code>session.md</code>, <code>security.md</code>, <code>tools.md</code>, <code>plugins.md</code>). Tests: <code>test_config.py</code>, <code>test_session_log.py</code></li>
+</ul>
 <h2 id="v0430-2026-10-18">v0.43.0 - 2026-10-18<a class="headerlink" href="#v0430-2026-10-18" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added a standalone compaction summary - <code>/compact</code> also writes the summary to <code>.polyglav/summaries/&lt;name&gt;.md</code> with a small header, so the brief can be attached by a person or another agent while the in-log <code>command</code> part stays the source of truth. Docs (<code>session.md</code>). Tests: <code>test_session_log.py</code></li>

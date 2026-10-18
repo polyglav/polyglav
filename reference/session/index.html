@@ -905,6 +905,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#importing-from-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Importing from JSON
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#file-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1337,6 +1348,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#importing-from-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Importing from JSON
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#file-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1543,8 +1565,12 @@
 <td>Delete a session</td>
 </tr>
 <tr>
-<td><code>/sessions export &lt;name&gt; [out]</code></td>
-<td>Export a session to Markdown</td>
+<td><code>/sessions export &lt;name&gt; [out] [--json]</code></td>
+<td>Export a session to Markdown (or JSON)</td>
+</tr>
+<tr>
+<td><code>/sessions import &lt;file&gt; [name] [--force]</code></td>
+<td>Import a session from a JSON export</td>
 </tr>
 <tr>
 <td><code>polyglav run --session-id &lt;name&gt;</code></td>
@@ -1558,10 +1584,12 @@
 <h2 id="exporting-to-markdown">Exporting to Markdown<a class="headerlink" href="#exporting-to-markdown" title="Permanent link">&para;</a></h2>
 <p><code>/sessions export &lt;name&gt;</code> renders any saved session as a Markdown transcript. It reads the persisted log directly (<code>read()</code>, not <code>load()</code>), so the current session is never switched and the source file is left untouched.</p>
 <p>Default output is <code>.polyglav/exports/&lt;name&gt;.md</code>, next to the <code>sessions/</code> directory. A second argument overrides the path (<code>/sessions export &lt;name&gt; out.md</code>). <code>-</code> prints the transcript to stdout instead of a file. The command tab-completes session names.</p>
-<p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, serialization-time transforms (<code>noise_tools</code> markers, <code>session_tool_max_chars</code> truncation) carry through as they appear in the file.</p>
+<p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, serialization-time transforms (<code>tools_output_drop</code> markers, <code>tools_output_max_chars</code> truncation) carry through as they appear in the file.</p>
 <p>The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived <code>outcome</code> (empty fields render as <code>-</code>).</p>
 <p>The headless CLI <code>polyglav export &lt;name&gt; [--out &lt;file&gt;]</code> reuses the same renderer for scripts and CI. <code>--out -</code> prints to stdout, and the default matches the slash command (<code>.polyglav/exports/&lt;name&gt;.md</code>).</p>
-<p><code>--json</code> (and <code>/sessions export &lt;name&gt; --json</code>) emits a machine-readable document instead: <code>{"info": {...}, "turns": [...]}</code>, where <code>info</code> holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time) and <code>turns</code> is the full turn log. The default output becomes <code>.polyglav/exports/&lt;name&gt;.json</code>, and the shape is the one the planned JSON import will read back.</p>
+<p><code>--json</code> (and <code>/sessions export &lt;name&gt; --json</code>) emits a machine-readable document instead: <code>{"info": {...}, "turns": [...], "errors": [...], "permissions": [...]}</code>, where <code>info</code> holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time), <code>turns</code> is the full turn log, and <code>errors</code> and <code>permissions</code> are the session-level audit arrays. The document round-trips through the JSON import. The default output becomes <code>.polyglav/exports/&lt;name&gt;.json</code>.</p>
+<h2 id="importing-from-json">Importing from JSON<a class="headerlink" href="#importing-from-json" title="Permanent link">&para;</a></h2>
+<p><code>/sessions import &lt;file&gt; [name] [--force]</code> and <code>polyglav import &lt;file&gt; [--name] [--force]</code> read an export document and write it into <code>.polyglav/sessions/</code>. The session keeps the original name when it is free, uses an explicit name when given, and otherwise gets a fresh <code>ses_&lt;ts&gt;_&lt;id&gt;</code> name. A collision with an explicit name is an error unless <code>--force</code> overwrites it. Import reads <code>info</code>, <code>turns</code>, <code>errors</code>, and <code>permissions</code>, ignores the derived header fields (<code>title</code>, <code>outcome</code>, <code>idle_at</code>), does not change the active session, and also accepts a raw session file (<code>session_name</code> plus <code>turns</code>).</p>
 <h2 id="file-structure">File structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:00:00+00:00"</span><span class="p">,</span>
@@ -1827,10 +1855,12 @@
 <h2 id="serialization-time-transforms">Serialization-time transforms<a class="headerlink" href="#serialization-time-transforms" title="Permanent link">&para;</a></h2>
 <p>Two config keys reshape <code>tool</code> part output when the session is written to disk, without touching the stored parts:</p>
 <ul>
-<li><strong><code>noise_tools</code></strong> (default <code>["web_fetch", "open", "fetch_page"]</code>) - output of the listed tools is replaced with <code>[&lt;tool&gt; result excluded from log, see tool call above for parameters]</code>, keeping noisy results out of session files while <code>input</code> stays on the part.</li>
-<li><strong><code>session_tool_max_chars</code></strong> (default <code>0</code> = unlimited) - caps persisted tool <code>output</code> to N characters, appending <code>… (truncated from &lt;len&gt; chars)</code>.</li>
+<li><strong><code>tools_output_drop</code></strong> (default <code>["web_fetch", "open", "fetch_page"]</code>) - output of the listed tools is replaced with <code>[&lt;tool&gt; result excluded from log, see tool call above for parameters]</code>, keeping noisy results out of session files while <code>input</code> stays on the part.</li>
+<li><strong><code>tools_output_max_chars</code></strong> (default <code>0</code> = unlimited) - caps persisted tool <code>output</code> to N characters, appending <code>… (truncated from &lt;len&gt; chars)</code>.</li>
+<li><strong><code>tools_output_spill</code></strong> (default <code>false</code>) - when on, the full dropped or capped output is written to <code>.polyglav/tmp/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt</code> instead of being lost.</li>
 </ul>
-<p>Both transforms add a <code>dropped</code> marker on the part so the log records what was removed and why: <code>{"reason": "noise_tool" | "max_chars", "original_chars": &lt;len&gt;}</code>. The in-memory part keeps its full <code>output</code>, so the marker is written to disk only.</p>
+<p>Both transforms add a <code>dropped</code> marker on the part so the log records what was removed and why: <code>{"reason": "drop" | "max_chars", "original_chars": &lt;len&gt;}</code>. With <code>tools_output_spill</code> on, the marker also carries <code>"ref": ".polyglav/tmp/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt"</code>, so the content can be read instead of re-calling the tool. The in-memory part keeps its full <code>output</code>, so the marker is written to disk only.</p>
+<p>Spilled files live under <code>.polyglav/tmp/&lt;session&gt;/</code>. The directory is pruned to <code>tools_output_tmp_max_bytes</code> (oldest files first) after each save, and a session's spill directory is removed when the session is deleted.</p>
 <h2 id="preparing-the-provider-context">Preparing the provider context<a class="headerlink" href="#preparing-the-provider-context" title="Permanent link">&para;</a></h2>
 <p>The provider payload is prepared from the turns by <code>turns.provider_messages()</code> (via <code>Engine._provider_messages</code>):</p>
 <ul>

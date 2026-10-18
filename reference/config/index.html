@@ -1566,14 +1566,14 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Basic markdown-aware streaming</td>
 </tr>
 <tr>
-<td><code>max_tokens</code></td>
-<td><code>8192</code></td>
-<td>Output token cap sent to the provider. <code>0</code> = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults</td>
-</tr>
-<tr>
 <td><code>max_team_depth</code></td>
 <td><code>2</code></td>
 <td>Maximum nested team runs (a <code>delegate</code> stage that itself runs a team). <code>0</code> = unlimited. Cycles are refused regardless. See <a href="../teams/#the-team-tool">teams.md</a></td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td><code>8192</code></td>
+<td>Output token cap sent to the provider. <code>0</code> = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults</td>
 </tr>
 <tr>
 <td><code>mcp.servers</code></td>
@@ -1609,11 +1609,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>model</code></td>
 <td><code>"llama3.2"</code></td>
 <td>Model name. A <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) unfolds to that provider and model. An unfolded model must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
-</tr>
-<tr>
-<td><code>noise_tools</code></td>
-<td><code>["web_fetch", "open", "fetch_page"]</code></td>
-<td>Tool results replaced by a marker in persisted sessions</td>
 </tr>
 <tr>
 <td><code>offload_depth</code></td>
@@ -1694,11 +1689,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>search_results</code></td>
 <td><code>5</code></td>
 <td>Number of search results to fetch</td>
-</tr>
-<tr>
-<td><code>session_tool_max_chars</code></td>
-<td><code>0</code></td>
-<td><code>0</code> = unlimited. Caps persisted tool-result content</td>
 </tr>
 <tr>
 <td><code>show_context_size</code></td>
@@ -1794,6 +1784,26 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>tools.deny</code></td>
 <td><code>[]</code></td>
 <td>Name-level deny list (takes precedence over allow)</td>
+</tr>
+<tr>
+<td><code>tools_output_drop</code></td>
+<td><code>["web_fetch", "open", "fetch_page"]</code></td>
+<td>Tool results replaced by a marker in persisted sessions</td>
+</tr>
+<tr>
+<td><code>tools_output_max_chars</code></td>
+<td><code>0</code></td>
+<td><code>0</code> = unlimited. Caps persisted tool-result content</td>
+</tr>
+<tr>
+<td><code>tools_output_spill</code></td>
+<td><code>false</code></td>
+<td>Write the full dropped or capped tool output to <code>.polyglav/tmp/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt</code> and record the <code>ref</code> in the <code>dropped</code> marker, so the content is recallable without re-calling the tool</td>
+</tr>
+<tr>
+<td><code>tools_output_tmp_max_bytes</code></td>
+<td><code>50000000</code></td>
+<td>Cap on the total size of <code>.polyglav/tmp/</code> spilled tool output. Oldest files are removed past the cap. <code>0</code> = unlimited</td>
 </tr>
 <tr>
 <td><code>unattended</code></td>

@@ -1616,7 +1616,7 @@
 </tr>
 </tbody>
 </table>
-<p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>noise_tools</code>, and session logging. See <a href="../plugins/">plugins.md</a>.</p>
+<p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>tools_output_drop</code>, and session logging. See <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="asking-the-user-or-the-caller">Asking the user or the caller<a class="headerlink" href="#asking-the-user-or-the-caller" title="Permanent link">&para;</a></h2>
 <p>The <code>ask</code> tool (core, like <code>call</code>) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>target</code>, <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
 <ul>
@@ -1778,19 +1778,54 @@
 </thead>
 <tbody>
 <tr>
+<td><code>glyph_lines</code></td>
+<td><code>true</code></td>
+<td>Typed activity lines for mapped categories, else the <code>[tool: arg]</code> oneliner</td>
+</tr>
+<tr>
+<td><code>list_dir_max_entries</code></td>
+<td><code>200</code></td>
+<td>Cap the number of entries <code>list_dir</code> returns (<code>0</code> = unlimited)</td>
+</tr>
+<tr>
+<td><code>project_instructions</code></td>
+<td><code>"AGENTS.md"</code></td>
+<td>Per-worktree instructions file auto-loaded into the system prompt, <code>""</code> disables</td>
+</tr>
+<tr>
+<td><code>query_refine</code></td>
+<td><code>false</code></td>
+<td>Auto-refine short <code>query</code> args via a lightweight model call</td>
+</tr>
+<tr>
+<td><code>query_refine_context</code></td>
+<td><code>4</code></td>
+<td>Recent-message context injected into refinement</td>
+</tr>
+<tr>
+<td><code>query_refine_min_words</code></td>
+<td><code>3</code></td>
+<td>Minimum query length before refinement applies</td>
+</tr>
+<tr>
+<td><code>search_results</code></td>
+<td><code>5</code></td>
+<td>Number of results <code>web_search</code> returns</td>
+</tr>
+<tr>
+<td><code>tool_analysis</code></td>
+<td><code>false</code></td>
+<td>Model-generated one-line analysis of each tool result (log-only)</td>
+</tr>
+<tr>
 <td><code>tool_calling</code></td>
 <td><code>true</code></td>
 <td>Enable OpenAI-compatible function calling</td>
 </tr>
 <tr>
-<td><code>tools.allow</code></td>
-<td><code>[]</code></td>
-<td>Name-level allowlist. When non-empty, only these tools are callable</td>
-</tr>
-<tr>
-<td><code>tools.deny</code></td>
-<td><code>[]</code></td>
-<td>Name-level deny list (takes precedence over allow)</td>
+<td><code>tool_max_result_chars</code></td>
+<td><code>100000</code></td>
+<td>Cap every tool result at N chars (<code>0</code> = unlimited)</td>
 </tr>
 <tr>
 <td><code>tool_permission</code></td>
@@ -1803,64 +1838,29 @@
 <td><code>run_command</code> allowlist - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see <a href="../config/">config.md</a>)</td>
 </tr>
 <tr>
-<td><code>project_instructions</code></td>
-<td><code>"AGENTS.md"</code></td>
-<td>Per-worktree instructions file auto-loaded into the system prompt, <code>""</code> disables</td>
-</tr>
-<tr>
 <td><code>tool_status_visible</code></td>
 <td><code>true</code></td>
 <td>Show dimmed tool status in the REPL</td>
 </tr>
 <tr>
-<td><code>glyph_lines</code></td>
-<td><code>true</code></td>
-<td>Typed activity lines for mapped categories, else the <code>[tool: arg]</code> oneliner</td>
+<td><code>tools.allow</code></td>
+<td><code>[]</code></td>
+<td>Name-level allowlist. When non-empty, only these tools are callable</td>
 </tr>
 <tr>
-<td><code>tool_analysis</code></td>
-<td><code>false</code></td>
-<td>Model-generated one-line analysis of each tool result (log-only)</td>
+<td><code>tools.deny</code></td>
+<td><code>[]</code></td>
+<td>Name-level deny list (takes precedence over allow)</td>
 </tr>
 <tr>
-<td><code>tool_max_result_chars</code></td>
-<td><code>100000</code></td>
-<td>Cap every tool result at N chars (<code>0</code> = unlimited)</td>
-</tr>
-<tr>
-<td><code>list_dir_max_entries</code></td>
-<td><code>200</code></td>
-<td>Cap the number of entries <code>list_dir</code> returns (<code>0</code> = unlimited)</td>
-</tr>
-<tr>
-<td><code>session_tool_max_chars</code></td>
-<td><code>0</code></td>
-<td>Cap persisted tool-result content in session files (<code>0</code> = unlimited)</td>
-</tr>
-<tr>
-<td><code>noise_tools</code></td>
+<td><code>tools_output_drop</code></td>
 <td><code>["web_fetch", "open", "fetch_page"]</code></td>
 <td>Tool results replaced by a marker in persisted sessions</td>
 </tr>
 <tr>
-<td><code>query_refine</code></td>
-<td><code>false</code></td>
-<td>Auto-refine short <code>query</code> args via a lightweight model call</td>
-</tr>
-<tr>
-<td><code>query_refine_min_words</code></td>
-<td><code>3</code></td>
-<td>Minimum query length before refinement applies</td>
-</tr>
-<tr>
-<td><code>query_refine_context</code></td>
-<td><code>4</code></td>
-<td>Recent-message context injected into refinement</td>
-</tr>
-<tr>
-<td><code>search_results</code></td>
-<td><code>5</code></td>
-<td>Number of results <code>web_search</code> returns</td>
+<td><code>tools_output_max_chars</code></td>
+<td><code>0</code></td>
+<td>Cap persisted tool-result content in session files (<code>0</code> = unlimited)</td>
 </tr>
 </tbody>
 </table>

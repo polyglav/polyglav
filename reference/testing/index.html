@@ -1312,7 +1312,7 @@
 </tr>
 <tr>
 <td><code>test_cli.py</code></td>
-<td><code>polyglav run</code>: JSON/text output, session-id persistence, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>polyglav export</code>: default/custom/stdout targets, JSON default file and stdout, unknown session. <code>polyglav models</code>: bare configured listing (grouped, active marker, key marker, empty) and <code>list [provider]</code> probe (default/<code>&lt;provider&gt;</code>, error/empty), <code>main</code> dispatch for both. <code>polyglav plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch</td>
+<td><code>polyglav run</code>: JSON/text output, session-id persistence, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>polyglav export</code>: default/custom/stdout targets, JSON default file and stdout, unknown session. <code>polyglav import</code>: round-trip, JSON document and raw-dict input, name retention, explicit name, collision error, force overwrite, missing file, main dispatch. <code>polyglav models</code>: bare configured listing (grouped, active marker, key marker, empty) and <code>list [provider]</code> probe (default/<code>&lt;provider&gt;</code>, error/empty), <code>main</code> dispatch for both. <code>polyglav plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch</td>
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
@@ -1439,12 +1439,16 @@
 <td>Session id: <code>session_id_hash</code> determinism/length/base36, <code>coded_session_name</code>/<code>session_id_from_name</code> parsing (<code>ses_</code>/<code>job_</code>/<code>sub_</code>, explicit names ignored), <code>Session.session_id</code> stamping and round-trip, missing id loads empty, auto <code>ses_&lt;ts&gt;_&lt;id&gt;</code> naming and uniqueness, explicit names have no id, <code>SessionManager.find_by_session_id</code> hit/normalize/miss, <code>RunRegistry.start(session_id=)</code> + <code>find_by_session_id</code>, engine run/session id mirroring, <code>load_or_create_session</code> sync, id stable across turns, saved-session lookup</td>
 </tr>
 <tr>
+<td><code>test_session_import.py</code></td>
+<td>JSON session import: <code>session_from_document</code> from an export document and from a raw session dict, optional-field tolerance, non-document rejection, <code>SessionManager.import_document</code> name retention, explicit name, collision to a fresh <code>ses_</code> name, explicit-collision error, <code>force</code> overwrite, no current-session switch</td>
+</tr>
+<tr>
 <td><code>test_session_io.py</code></td>
 <td>Session IO error log: a corrupt session file logs a <code>read</code> line with the name, a missing file and a legacy-format skip log nothing, a failed save logs a <code>save</code> line, and <code>errors.log</code> is not listed as a session</td>
 </tr>
 <tr>
 <td><code>test_session_log.py</code></td>
-<td>Session model: turn/part storage and the explicit turn/part API, turn index/status/metadata, per-turn <code>usage</code>/<code>context_tokens</code>/<code>finish_reason</code> telemetry, append-only serialization, <code>tool_max_chars</code>/<code>noise_tools</code> transforms on tool-part output (with the <code>dropped</code> provenance marker), tool-part <code>call_id</code>/<code>duration</code>, errors/permissions round-trip, <code>session_id</code> field round-trip, <code>write_summary</code> file, files without the current format do not load (and stay listed), compaction boundary and provider reconstruction (with the standalone summary file), agent-loop turn persistence (thinking, tool parts, analysis, stop reason, call id)</td>
+<td>Session model: turn/part storage and the explicit turn/part API, turn index/status/metadata, per-turn <code>usage</code>/<code>context_tokens</code>/<code>finish_reason</code> telemetry, append-only serialization, <code>max_chars</code>/<code>tools_output_drop</code> transforms on tool-part output (with the <code>dropped</code> provenance marker and the optional <code>tools_output_spill</code> ref, and the tmp spill-dir removal on delete plus tmp pruning), tool-part <code>call_id</code>/<code>duration</code>, errors/permissions round-trip, <code>session_id</code> field round-trip, <code>write_summary</code> file, files without the current format do not load (and stay listed), compaction boundary and provider reconstruction (with the standalone summary file), agent-loop turn persistence (thinking, tool parts, analysis, stop reason, call id)</td>
 </tr>
 <tr>
 <td><code>test_session_metadata.py</code></td>
