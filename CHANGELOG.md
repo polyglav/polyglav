@@ -2,6 +2,7 @@
 
 ## v0.44.0
 
+- Added provider and model tab completion - `/connect`, `/provider`, `/providers`, and `/models list` complete provider names, and `/model` completes a `provider/` then that provider's known models from `models.json` and a cached live probe. Docs (`commands.md`). Tests: `test_completion.py`
 - Changed the model config to a self-describing ref - `/model <provider>/<model>` persists only the `model` ref, so a project config can be a single `model` line while `provider`/`base_url` stay as overrides for `openai-compatible` and custom providers. Docs (`config.md`, `providers.md`). Tests: `test_commands.py`
 - Added the `/providers` command to list provider connections alphabetically with the active one marked and a `(key)` marker, and `(custom)` for a provider with no built-in factory. Docs (`commands.md`). Tests: `test_commands.py`
 - Sorted the `/help` subcommand rows alphabetically, and the description column now widens to fit a subcommand name so `/help <cmd>` no longer runs a label into its description. Docs (`commands.md`). Tests: `test_commands.py`

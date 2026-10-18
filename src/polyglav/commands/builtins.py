@@ -386,6 +386,7 @@ def _render_online_models(chat, provider_arg):
     if not models:
         print(f'No models listed from {provider} ({base_url})')
         return
+    _cache_models(chat, provider, models)
     _render_models(models, provider, base_url)
     model = chat.config.get('model')
     if model and model not in models:
@@ -468,6 +469,16 @@ def _render_provider_status(chat, providers):
         print(f'  {mark} {name}{tag}{key}{base_col}')
 
 
+def _cache_models(chat, provider, models):
+    if not models:
+        return
+    cache = getattr(chat, '_model_cache', None)
+    if cache is None:
+        cache = {}
+        chat._model_cache = cache
+    cache[provider] = list(models)
+
+
 def _connect_key_prompt(chat, provider):
     stored = chat.providers.api_key_for(provider)
     if stored:
@@ -483,9 +494,11 @@ def _connect_save(chat, providers, provider, base_url, api_key):
         provider = detected
     was_known = chat.providers.find(provider) is not None
     checkout = chat.config.get('connect_check', True)
+    models: list[str] = []
     if checkout:
         ok, msg, _models = chat.check_connection(
             base_url=base_url, api_key=api_key, provider=provider)
+        models = _models
         if not ok:
             print(f'  [Error] Connection test failed: {msg}')
             try:
@@ -500,6 +513,7 @@ def _connect_save(chat, providers, provider, base_url, api_key):
     chat.config.set('provider', provider)
     if base_url:
         chat.config.set('base_url', base_url)
+    _cache_models(chat, provider, models)
     chat._reinit_provider()
     verb = 'Updated' if was_known else 'Added'
     if checkout:

@@ -49,6 +49,30 @@ class TestCompletion(unittest.TestCase):
     def test_plain_input_no_completion(self):
         self.assertIsNone(self._complete('hello', 'hello'))
 
+    def test_provider_completion(self):
+        self.chat.providers.put('acme-example', 'https://llm.acme.example/v1', 'k')
+        self.assertEqual(self._complete('/connect acme', 'acme'), 'acme-example ')
+        self.assertEqual(self._complete('/provider olla', 'olla'), 'ollama ')
+        self.assertEqual(self._complete('/providers olla', 'olla'), 'ollama ')
+
+    def test_model_ref_provider_completion(self):
+        self.assertEqual(self._complete('/model olla', 'olla'), 'ollama/')
+
+    def test_model_ref_model_completion(self):
+        self.chat.models.put('opencode-go', 'deepseek-v4-flash')
+        self.assertEqual(
+            self._complete('/model opencode-go/deep', 'opencode-go/deep'),
+            'opencode-go/deepseek-v4-flash ')
+
+    def test_model_ref_completion_from_cache(self):
+        self.chat._model_cache = {'opencode-go': ['deepseek-v4.1-flash']}
+        self.assertEqual(
+            self._complete('/model opencode-go/deep', 'opencode-go/deep'),
+            'opencode-go/deepseek-v4.1-flash ')
+
+    def test_models_list_provider_completion(self):
+        self.assertEqual(self._complete('/models list olla', 'olla'), 'ollama ')
+
     def test_path_completion_file(self):
         root = Path(self.chat._tmp.name)
         (root / 'notes.md').write_text('x')

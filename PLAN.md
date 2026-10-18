@@ -15,7 +15,6 @@ Sort the config and help listings, add a read-only provider list, make the model
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Provider and model tab completion | M | type a ref without typos |
 | Unusable models marked and removable | S-M | a clean model registry |
 
 ## Run control and sub-run visibility

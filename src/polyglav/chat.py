@@ -61,6 +61,7 @@ class ChatLoop(Engine):
         ui = ReplUI(self)
         super().__init__(config, ui=ui)
         self.focus = FocusManager(self)
+        self._model_cache: dict[str, list[str]] = {}
         self._load_history(config)
         self._setup_readline()
 
@@ -134,6 +135,12 @@ class ChatLoop(Engine):
             if state < len(options):
                 return options[state] + ' '
             return None
+        if head.endswith('/model '):
+            return self._complete_model_ref(text, state)
+        if (head.endswith('/connect ') or head.endswith('/provider ')
+                or head.endswith('/providers ')
+                or head.endswith('/models list ')):
+            return self._complete_options(self._provider_names(), text, state)
         if head.lstrip().startswith('/'):
             cmd = head.lstrip()[1:].strip().split(maxsplit=1)[0]
             meta = self.registry.meta.get(cmd)
@@ -161,6 +168,35 @@ class ChatLoop(Engine):
             return names
         return [n for n in names
                 if policy.allowed(n, self._tool_registry.permission_for(n))]
+
+    def _provider_names(self):
+        names = set(self._merged_providers())
+        names |= {e.provider for e in self.providers.all()}
+        return sorted(names)
+
+    def _complete_options(self, options, text: str, state: int,
+                          suffix: str = ' ') -> str | None:
+        matches = [o for o in options if o.startswith(text)]
+        if state < len(matches):
+            return matches[state] + suffix
+        return None
+
+    def _complete_model_ref(self, text: str, state: int) -> str | None:
+        if '/' in text:
+            provider, _, _ = text.partition('/')
+            names: list[str] = []
+            for entry in self.models.all():
+                if entry.provider == provider and entry.model not in names:
+                    names.append(entry.model)
+            for model in getattr(self, '_model_cache', {}).get(provider, []):
+                if model not in names:
+                    names.append(model)
+            options = [f'{provider}/{m}' for m in names
+                       if f'{provider}/{m}'.startswith(text)]
+            return self._complete_options(options, text, state)
+        options = [n + '/' for n in self._provider_names()
+                   if n.startswith(text)]
+        return self._complete_options(options, text, state, '')
 
     def _path_complete(self, text: str, state: int) -> str | None:
         path = Path(text) if text else Path('.')

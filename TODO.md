@@ -57,7 +57,6 @@
 ## Open
 
 - [ ] Config and command audit - sort `/config` and `/help` listings, add `/providers`, make model config a self-describing ref, complete providers and models
-  - [ ] Tab completion for provider and model names
   - [ ] Unusable models marked
   - [ ] Models remove <provider>/<model>
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
@@ -170,6 +169,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added provider and model completion
 - [x] Changed model config
 - [x] Added providers command
 - [x] Sorted help subcommands
