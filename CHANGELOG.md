@@ -2,6 +2,7 @@
 
 ## v0.44.0
 
+- Changed the config defaults to alphanumeric order - the default config keys and the config key tables run alphabetically, and a duplicated `report.webhook` default was folded into one. Docs (`config.md`, `tools.md`). Tests: `test_config.py`
 - Renamed the tool output config keys - `noise_tools` is now `tools_output_drop` and `session_tool_max_chars` is now `tools_output_max_chars`, with a read-time migration that renames the old keys in the global and local config. Docs (`config.md`, `session.md`, `security.md`, `tools.md`, `plugins.md`). Tests: `test_config.py`, `test_session_log.py`
 
 ## v0.43.0 - 2026-10-18

@@ -59,8 +59,8 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `hide_confirm_input`        | `false`                | Hide the typed input for the REPL `[Y/n]` tool confirm prompt (the answer is not echoed). Free-text `ask` answers stay visible |
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
-| `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults |
 | `max_team_depth`            | `2`                    | Maximum nested team runs (a `delegate` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
+| `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults |
 | `mcp.servers`               | `[]`                   | MCP client server definitions (see [mcp.md](mcp.md) for the schema)     |
 | `mcp_server.allow_ask`      | `true`                 | When serving MCP, run `ask`-policy tools (deferred to the client) vs refuse them |
 | `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
@@ -68,7 +68,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
 | `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
-| `tools_output_drop`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `offload_depth`             | `1`                    | Maximum nested `offload` siblings. `0` = unlimited. An `offload` sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
 | `output_log_ansi`           | `false`                | Write the raw stream to the output log (ANSI colors and control characters kept) instead of plain text, for manual inspection |
@@ -85,7 +84,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `report.webhook`            | `""`                   | URL the bundled `polyglav-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
 | `run_buffer_max_lines`      | `2000`                 | Cap lines kept in a run's per-run output buffer (`BufferUI`). Oldest lines are trimmed past the cap. `0` = unlimited. Read back with `/focus log` |
 | `search_results`            | `5`                    | Number of search results to fetch                                      |
-| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
 | `show_context_size`         | `true`                 | Dimmed context-size line after each response                           |
 | `show_errors`               | `true`                 | Show a red `! Error: ...` line (first line of the result) when a tool call fails. Off hides the line |
 | `show_notes`                | `true`                 | Show a dimmed info line for soft tool results (e.g. `(empty file)`, `(no matches for "x")`). Off hides the line |
@@ -105,6 +103,8 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tool_status_visible`       | `true`                 | Show dimmed tool status in the REPL                                    |
 | `tools.allow`               | `[]`                   | Name-level allowlist. Empty means no restriction                       |
 | `tools.deny`                | `[]`                   | Name-level deny list (takes precedence over allow)                     |
+| `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
+| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
 | `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
 | `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |

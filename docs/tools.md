@@ -157,23 +157,23 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 
 | Key | Default | Controls |
 |-----|---------|----------|
+| `glyph_lines` | `true` | Typed activity lines for mapped categories, else the `[tool: arg]` oneliner |
+| `list_dir_max_entries` | `200` | Cap the number of entries `list_dir` returns (`0` = unlimited) |
+| `project_instructions` | `"AGENTS.md"` | Per-worktree instructions file auto-loaded into the system prompt, `""` disables |
+| `query_refine` | `false` | Auto-refine short `query` args via a lightweight model call |
+| `query_refine_context` | `4` | Recent-message context injected into refinement |
+| `query_refine_min_words` | `3` | Minimum query length before refinement applies |
+| `search_results` | `5` | Number of results `web_search` returns |
+| `tool_analysis` | `false` | Model-generated one-line analysis of each tool result (log-only) |
 | `tool_calling` | `true` | Enable OpenAI-compatible function calling |
-| `tools.allow` | `[]` | Name-level allowlist. When non-empty, only these tools are callable |
-| `tools.deny` | `[]` | Name-level deny list (takes precedence over allow) |
+| `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |
 | `tool_permission` | *(see config.md)* | Category actions - `read`/`list`/`edit`/`bash`/`web`/`mcp` -> `allow`/`ask`/`deny` |
 | `tool_permission.bash_allow` | `[]` | `run_command` allowlist - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see [config.md](config.md)) |
-| `project_instructions` | `"AGENTS.md"` | Per-worktree instructions file auto-loaded into the system prompt, `""` disables |
 | `tool_status_visible` | `true` | Show dimmed tool status in the REPL |
-| `glyph_lines` | `true` | Typed activity lines for mapped categories, else the `[tool: arg]` oneliner |
-| `tool_analysis` | `false` | Model-generated one-line analysis of each tool result (log-only) |
-| `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |
-| `list_dir_max_entries` | `200` | Cap the number of entries `list_dir` returns (`0` = unlimited) |
-| `tools_output_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
+| `tools.allow` | `[]` | Name-level allowlist. When non-empty, only these tools are callable |
+| `tools.deny` | `[]` | Name-level deny list (takes precedence over allow) |
 | `tools_output_drop` | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions |
-| `query_refine` | `false` | Auto-refine short `query` args via a lightweight model call |
-| `query_refine_min_words` | `3` | Minimum query length before refinement applies |
-| `query_refine_context` | `4` | Recent-message context injected into refinement |
-| `search_results` | `5` | Number of results `web_search` returns |
+| `tools_output_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
 
 Handlers read config at runtime via the `_config` keyword argument, passed only when declared.
 
