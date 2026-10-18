@@ -218,6 +218,17 @@ class TestSessionModel(unittest.TestCase):
         finally:
             tmp.cleanup()
 
+    def test_write_summary_creates_file(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            sm = SessionManager(Path(tmp.name))
+            path = sm.write_summary('sess', 'BODY')
+            self.assertTrue(path.exists())
+            self.assertEqual(path.read_text(), 'BODY\n')
+            self.assertEqual(path.parent.name, 'summaries')
+        finally:
+            tmp.cleanup()
+
     def test_legacy_file_does_not_load(self):
         tmp = tempfile.TemporaryDirectory()
         try:
@@ -526,6 +537,24 @@ class TestCompactSession(unittest.TestCase):
         value = out.getvalue()
         self.assertIn('Compacted -', value)
         self.assertIn('COMPACTED SUMMARY TEXT', value)
+
+    def test_compact_writes_summary_file(self):
+        self._fill(6)
+        self._summary('COMPACTED SUMMARY')
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.compact_session()
+        path = (self.chat.sessions.sessions_dir.parent / 'summaries'
+                / f'{self.chat.current_session.session_name}.md')
+        self.assertTrue(path.exists())
+        body = path.read_text()
+        self.assertIn('COMPACTED SUMMARY', body)
+        self.assertIn('Compact from turn: 3', body)
+
+    def test_compact_without_history_writes_no_summary(self):
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.compact_session()
+        summaries = self.chat.sessions.sessions_dir.parent / 'summaries'
+        self.assertFalse(summaries.exists())
 
 
 class TestProviderMessages(unittest.TestCase):

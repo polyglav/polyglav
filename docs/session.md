@@ -238,3 +238,5 @@ For compaction, tool results fold back into the summarized context as `[tool res
 ## Compaction
 
 `/compact` summarizes the earlier conversation and trims the provider context, controlled by `compact_keep` (default 4 = turns kept at the tail). The summary is stored in the `summary` of a `command` part with a `compact_from` turn index, so the full history stays in the log while only the summary plus the kept turns are sent to the model going forward.
+
+The same summary is also written to `.polyglav/summaries/<name>.md` as a standalone brief (session name, `compact_from` turn, version, then the summary text), so a person or another agent can attach it without reading the session log. That file is derived and best-effort, and the in-log `command` part stays the source of truth.

@@ -1664,6 +1664,15 @@ class Engine:
         else:
             compact_from = base[-1]['index'] + 1
         self.current_session.set_compaction(summary, compact_from)
+        try:
+            header = (f'# Compaction summary: '
+                      f'{self.current_session.session_name}\n\n'
+                      f'- Compact from turn: {compact_from}\n'
+                      f'- Version: {self.current_session.version or "-"}\n\n')
+            self.sessions.write_summary(
+                self.current_session.session_name, header + summary)
+        except OSError:
+            pass
         n, chars = self._context_size()
         self.ui.info(f'Compacted - context now {n} messages ({self._human_chars(chars)})')
         self.ui.info('--- earlier conversation ---')

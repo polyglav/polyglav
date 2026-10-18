@@ -295,6 +295,15 @@ class SessionManager:
         except (ValueError, KeyError, TypeError):
             return None
 
+    def summary_path(self, session_name: str) -> Path:
+        return self.sessions_dir.parent / 'summaries' / f'{session_name}.md'
+
+    def write_summary(self, session_name: str, text: str) -> Path:
+        path = self.summary_path(session_name)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text if text.endswith('\n') else text + '\n')
+        return path
+
     def _log_io(self, action: str, name: str, detail) -> None:
         ts = datetime.now(timezone.utc).isoformat(timespec='seconds')
         line = f'{ts}\t{action}\t{name}\t{detail}\n'

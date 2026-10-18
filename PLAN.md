@@ -40,14 +40,6 @@ The selfdev teams run unattended, land their work, and can be reattached from th
 | Researcher role with fresh context - a researcher role template with web access, started fresh per task | S | clean research per task |
 | Docs writer commits each added task - commit the tasks right after the operator's prompt, then work one point at a time | S | tasks land as agreed |
 
-## Session catalog and portability
-
-A session becomes informative in a listing and portable as an artifact, without a separate index file. Derived metadata is computed on read, so the per-file log stays the single source of truth.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Standalone compaction summary - the `/compact` summary as a Markdown artifact | S-M | a hand-off brief |
-
 ## Memory and role instructions
 
 A delegated role remembers the user's instructions across runs, long role instructions live in full-length Markdown, and a conclusion stage lets a finished run improve the catalog.
