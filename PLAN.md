@@ -11,21 +11,13 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 
 ## JSON session import
 
-A saved session becomes an interchange artifact that round-trips through the JSON export, so a session can move between worktrees, machines, or another harness. This is independent of tool output retention.
+A saved session becomes an interchange artifact that round-trips through the JSON export, so a session can move between worktrees, machines, or another harness.
 
 | Task | Effort | Provides |
 |------|--------|----------|
 | JSON export losslessness - `errors` and `permissions` in the document | S | a round-trippable export |
 | JSON session import - `session_from_document` over `info` plus `turns` | S-M | restore a session from a file |
 | Session import command - `polyglav import` and `/sessions import` | S | import from CLI and REPL |
-
-## Tool output retention
-
-Tool output is droppable, capped, and spillable by config, so the log stays small while the full content remains recallable without re-calling the tool. Naming uses one `tools_output_*` prefix, sorted alphanumerically with the rest of the config.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Prune spilled tool output - remove on session delete and cap the scratch size | S | bounded scratch |
 
 ## Run control and sub-run visibility
 

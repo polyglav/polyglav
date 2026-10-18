@@ -119,6 +119,7 @@ DEFAULT_CONFIG = {
     'tools_output_drop': ['web_fetch', 'open', 'fetch_page'],
     'tools_output_max_chars': 0,
     'tools_output_spill': False,
+    'tools_output_tmp_max_bytes': 50000000,
     'unattended': False,
     'web_search': False,
     'word_streaming': True,

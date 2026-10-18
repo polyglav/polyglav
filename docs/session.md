@@ -224,6 +224,8 @@ Two config keys reshape `tool` part output when the session is written to disk, 
 
 Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "drop" | "max_chars", "original_chars": <len>}`. With `tools_output_spill` on, the marker also carries `"ref": ".polyglav/tmp/<session>/<turn>_<part>.txt"`, so the content can be read instead of re-calling the tool. The in-memory part keeps its full `output`, so the marker is written to disk only.
 
+Spilled files live under `.polyglav/tmp/<session>/`. The directory is pruned to `tools_output_tmp_max_bytes` (oldest files first) after each save, and a session's spill directory is removed when the session is deleted.
+
 ## Preparing the provider context
 
 The provider payload is prepared from the turns by `turns.provider_messages()` (via `Engine._provider_messages`):

@@ -444,6 +444,9 @@ class Engine:
             drop_tools=self.config.get('tools_output_drop', []),
             spill=spill,
         )
+        if spill is not None:
+            self.sessions.prune_tmp(
+                self.config.get('tools_output_tmp_max_bytes', 0))
 
     def load_or_create_session(self, name: str | None = None):
         if name and self.sessions.read(name) is not None:

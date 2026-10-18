@@ -1,6 +1,7 @@
 import hashlib
 import json
 import re
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -342,9 +343,33 @@ class SessionManager:
     def list(self) -> list[str]:
         return sorted(p.stem for p in self.sessions_dir.glob('*.json'))
 
+    @property
+    def tmp_dir(self) -> Path:
+        return self.sessions_dir.parent / 'tmp'
+
+    def prune_tmp(self, max_bytes: int = 0) -> None:
+        if max_bytes <= 0:
+            return
+        root = self.tmp_dir
+        if not root.exists():
+            return
+        files = [p for p in root.rglob('*') if p.is_file()]
+        total = sum(p.stat().st_size for p in files)
+        if total <= max_bytes:
+            return
+        for path in sorted(files, key=lambda p: p.stat().st_mtime):
+            if total <= max_bytes:
+                break
+            try:
+                total -= path.stat().st_size
+                path.unlink()
+            except OSError:
+                pass
+
     def delete(self, session_name: str) -> bool:
         path = self.sessions_dir / f'{session_name}.json'
         if path.exists():
             path.unlink()
+            shutil.rmtree(self.tmp_dir / session_name, ignore_errors=True)
             return True
         return False

@@ -1,6 +1,7 @@
 import unittest
 import io
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -226,6 +227,51 @@ class TestSessionModel(unittest.TestCase):
             self.assertTrue(path.exists())
             self.assertEqual(path.read_text(), 'BODY\n')
             self.assertEqual(path.parent.name, 'summaries')
+        finally:
+            tmp.cleanup()
+
+    def test_delete_removes_spill_dir(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
+            s = sm.create('sess')
+            sm.save(s)
+            spill = sm.tmp_dir / 'sess' / '1_0.txt'
+            spill.parent.mkdir(parents=True)
+            spill.write_text('x')
+            self.assertTrue(sm.delete('sess'))
+            self.assertFalse(spill.parent.exists())
+        finally:
+            tmp.cleanup()
+
+    def test_prune_tmp_removes_oldest_over_cap(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
+            root = sm.tmp_dir / 'sess'
+            root.mkdir(parents=True)
+            old = root / 'old.txt'
+            new = root / 'new.txt'
+            old.write_text('a' * 60)
+            new.write_text('b' * 60)
+            os.utime(old, (1000, 1000))
+            os.utime(new, (2000, 2000))
+            sm.prune_tmp(60)
+            self.assertFalse(old.exists())
+            self.assertTrue(new.exists())
+        finally:
+            tmp.cleanup()
+
+    def test_prune_tmp_zero_is_unlimited(self):
+        tmp = tempfile.TemporaryDirectory()
+        try:
+            sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
+            root = sm.tmp_dir / 'sess'
+            root.mkdir(parents=True)
+            kept = root / 'a.txt'
+            kept.write_text('x' * 100)
+            sm.prune_tmp(0)
+            self.assertTrue(kept.exists())
         finally:
             tmp.cleanup()
 

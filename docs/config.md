@@ -106,6 +106,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
 | `tools_output_spill`        | `false`                | Write the full dropped or capped tool output to `.polyglav/tmp/<session>/<turn>_<part>.txt` and record the `ref` in the `dropped` marker, so the content is recallable without re-calling the tool |
+| `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of `.polyglav/tmp/` spilled tool output. Oldest files are removed past the cap. `0` = unlimited |
 | `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
 | `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
