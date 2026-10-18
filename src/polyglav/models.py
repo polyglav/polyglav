@@ -17,6 +17,8 @@ class ModelEntry:
     model: str = ''
     added_at: str = ''
     last_used: str = ''
+    ok_at: str = ''
+    last_error: str = ''
 
     @classmethod
     def from_dict(cls, d: dict) -> 'ModelEntry':
@@ -25,6 +27,8 @@ class ModelEntry:
             model=d.get('model', ''),
             added_at=d.get('added_at', ''),
             last_used=d.get('last_used', ''),
+            ok_at=d.get('ok_at', ''),
+            last_error=d.get('last_error', ''),
         )
 
 
@@ -77,7 +81,20 @@ class ModelRegistry:
         entry = self.find(provider, model)
         if entry is None:
             return None
+        now = _now()
+        entry.last_used = now
+        entry.ok_at = now
+        entry.last_error = ''
+        self._save()
+        return entry
+
+    def record_failure(self, provider: str, model: str,
+                       error: str = '') -> ModelEntry | None:
+        entry = self.find(provider, model)
+        if entry is None:
+            return None
         entry.last_used = _now()
+        entry.last_error = str(error)[:200]
         self._save()
         return entry
 

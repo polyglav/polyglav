@@ -237,5 +237,5 @@ Two global files live separately from config in `~/.config/polyglav/`. Neither i
 `~/.config/polyglav/models.json` is the history of approved models. Entries are `{provider, model, added_at, last_used}` with no API keys (those live in `providers.json`). It records every model you connect or switch to, so `/models` shows what has been used per provider with `>` marking the active one. The active model still comes from `config.model`.
 
 - `/connect` records the model for the connection it just saved.
-- `/models` shows approved models grouped by provider, the active one marked `>`, plus `(key)` when that provider has a stored key.
+- `/models` shows approved models grouped by provider, the active one marked `>`, plus `(key)` when that provider has a stored key. Each entry carries `ok_at` (last successful run) and `last_error` (last failure), so `/models` marks a model `(unused)` when it never completed a run and `(failed)` when its last run errored.
 - `/models list [provider]` probes a provider's advertised models live (default: current provider).

@@ -61,6 +61,36 @@ class TestModelRegistry(unittest.TestCase):
     def test_touch_unknown_returns_none(self):
         self.assertIsNone(self._reg().touch('ollama', 'nope'))
 
+    def test_record_failure(self):
+        reg = self._reg()
+        reg.put('ollama', 'm')
+        reg.record_failure('ollama', 'm', 'HTTP 404: model not found')
+        entry = reg.find('ollama', 'm')
+        self.assertEqual(entry.last_error, 'HTTP 404: model not found')
+        self.assertEqual(entry.ok_at, '')
+
+    def test_record_failure_unknown_returns_none(self):
+        self.assertIsNone(self._reg().record_failure('ollama', 'nope'))
+
+    def test_touch_sets_ok_at_and_clears_failure(self):
+        reg = self._reg()
+        reg.put('ollama', 'm')
+        reg.record_failure('ollama', 'm', 'boom')
+        reg.touch('ollama', 'm')
+        entry = reg.find('ollama', 'm')
+        self.assertTrue(entry.ok_at)
+        self.assertEqual(entry.last_error, '')
+
+    def test_old_entry_defaults_new_fields(self):
+        old = [{'provider': 'ollama', 'model': 'm', 'added_at': 't',
+                'last_used': 't'}]
+        path = self.base / '.config' / 'polyglav' / 'models.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(old))
+        entry = ModelRegistry(global_dir=self.base).find('ollama', 'm')
+        self.assertEqual(entry.ok_at, '')
+        self.assertEqual(entry.last_error, '')
+
     def test_remove(self):
         reg = self._reg()
         reg.put('ollama', 'm')

@@ -308,6 +308,18 @@ class Engine:
             return False
         return False
 
+    def _record_model_outcome(self, status: str):
+        model = self.config.get('model')
+        if not model:
+            return
+        provider = self.config.get('provider')
+        if status in ('ok', 'truncated'):
+            self.models.touch(provider, model)
+        elif status == 'error':
+            errors = self.current_session.errors
+            message = errors[-1].get('message', '') if errors else ''
+            self.models.record_failure(provider, model, message)
+
     def _reinit_provider(self):
         provider_name = self.config.get('provider', 'ollama')
         factory, resolved, merged = self._resolve_provider_factory(
@@ -1336,6 +1348,7 @@ class Engine:
                 status, usage=usage,
                 context_tokens=self._context_tokens(usage),
                 finish_reason=reason)
+            self._record_model_outcome(status)
             self.session_auto_save()
 
         duration = round((datetime.now(timezone.utc) - turn_start).total_seconds(), 1)

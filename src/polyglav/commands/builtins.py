@@ -363,7 +363,13 @@ def _render_known_models(chat):
         for e in items:
             active = '>' if _active_model(chat, e) else ' '
             key = ' (key)' if chat.providers.api_key_for(e.provider) else ''
-            print(f'  {active} {e.model}{key}')
+            if e.last_error:
+                status = '  (failed)'
+            elif not e.ok_at:
+                status = '  (unused)'
+            else:
+                status = ''
+            print(f'  {active} {e.model}{key}{status}')
 
 
 def _render_online_models(chat, provider_arg):

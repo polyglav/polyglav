@@ -621,6 +621,24 @@ class TestModelsCommand(unittest.TestCase):
         output = self._dispatch('/models')
         self.assertIn('> test-model', output)
 
+    def test_models_marks_unused(self):
+        self.chat.models.put('ollama', 'ghost')
+        output = self._dispatch('/models')
+        self.assertIn('ghost  (unused)', output)
+
+    def test_models_marks_failed(self):
+        self.chat.models.put('ollama', 'ghost')
+        self.chat.models.record_failure('ollama', 'ghost', 'HTTP 404')
+        output = self._dispatch('/models')
+        self.assertIn('ghost  (failed)', output)
+
+    def test_models_used_not_marked(self):
+        self.chat.models.put('ollama', 'good')
+        self.chat.models.touch('ollama', 'good')
+        output = self._dispatch('/models')
+        self.assertNotIn('(unused)', output)
+        self.assertNotIn('(failed)', output)
+
     def test_models_empty(self):
         output = self._dispatch('/models')
         self.assertIn('No models configured yet', output)
