@@ -69,6 +69,27 @@ def cmd_export(args) -> int:
     return 0
 
 
+def cmd_import(args) -> int:
+    from .sessions.manager import SessionManager
+    config = Config(path=getattr(args, 'path', None))
+    sessions = SessionManager(config.local_path.parent / 'sessions')
+    path = Path(args.file)
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as e:
+        print(f'Cannot read session file: {e}', file=sys.stderr)
+        return 1
+    try:
+        session = sessions.import_document(
+            data, name=getattr(args, 'name', '') or '',
+            force=getattr(args, 'force', False))
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        return 1
+    print(f'Imported session: {path} -> {session.session_name}')
+    return 0
+
+
 def cmd_models(args) -> int:
     from .ui import NullUI
     config = Config(path=getattr(args, 'path', None))

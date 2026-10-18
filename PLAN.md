@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## JSON session import
-
-A saved session becomes an interchange artifact that round-trips through the JSON export, so a session can move between worktrees, machines, or another harness.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Session import command - `polyglav import` and `/sessions import` | S | import from CLI and REPL |
-
 ## Run control and sub-run visibility
 
 A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.

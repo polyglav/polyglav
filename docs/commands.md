@@ -23,7 +23,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/print`                |                | Reprint a turn (or one part) in full: `/print <n>[.<m>] [--full] [--run <target>]`. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by `print_max_chars`, and `--full` drops the cap. See [session.md](session.md) |
 | `/provider`              |                | Show or switch the active provider                             |
 | `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. Saved-session catalog operations live under `/sessions` |
-| `/sessions`             |                | Manage the saved-session catalog: `list`, `preview`, `delete`, `export <name> [out]` (Markdown output, see [session.md](session.md)) |
+| `/sessions`             |                | Manage the saved-session catalog: `list`, `preview`, `delete`, `export <name> [out] [--json]`, `import <file> [name] [--force]` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `show <name>`, `new <name>`, `remove <name>`. See [skills.md](skills.md) |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `show <name>`, `new <name> [description]`, `remove <name>`, `run <name> <task>`. See [teams.md](teams.md) |
 | `/thinking`             | `/reasoning`   | Show or switch reasoning display and request (`/thinking on` streams reasoning dimmed under a blue `- Thinking` header, `off` shows only a spinner) |
@@ -78,6 +78,17 @@ Export a saved session to Markdown or JSON (see [session.md](session.md)).
 | `name`           | **Required**                 | Session name to export            |
 | `--out`          | `.polyglav/exports/<name>.md`  | Output file, `-` for stdout       |
 | `--json`         | off                          | Export JSON instead of Markdown (default `.polyglav/exports/<name>.json`) |
+| `--path`         |                              | Project path                      |
+
+### `polyglav import`
+
+Import a session from a JSON export (see [session.md](session.md)).
+
+| Flag             | Default                      | Description                       |
+|------------------|------------------------------|-----------------------------------|
+| `file`           | **Required**                 | JSON export to import             |
+| `--name`         | the file's session name      | Session name to import as         |
+| `--force`        | off                          | Overwrite an existing session with that name |
 | `--path`         |                              | Project path                      |
 
 ### `polyglav models`

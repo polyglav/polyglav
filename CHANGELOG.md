@@ -2,6 +2,7 @@
 
 ## v0.44.0
 
+- Added the sessions import command - `polyglav import <file> [--name] [--force]` and `/sessions import <file> [name] [--force]` write an imported session into `.polyglav/sessions/`, keeping the original name when free or a fresh `ses_<ts>_<id>`. Docs (`session.md`, `commands.md`). Tests: `test_cli.py`, `test_session_render.py`
 - Added a JSON session import - `session_from_document` rebuilds a session from an export document (or a raw session dict), and `SessionManager.import_document` writes it under the original name when free, an explicit name, or a fresh `ses_<ts>_<id>`, with `force` to overwrite. Docs (`session.md`). Tests: `test_session_import.py`
 - Changed the JSON export to be lossless - the document now carries `errors` and `permissions` alongside `info` and `turns`, so an import restores the whole session. Docs (`session.md`). Tests: `test_session_render.py`
 - Added pruning for spilled tool output - a session's `.polyglav/tmp/<name>/` is removed when the session is deleted, and the spill directory is capped by `tools_output_tmp_max_bytes` (oldest files first). Docs (`session.md`, `config.md`). Tests: `test_session_log.py`

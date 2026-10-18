@@ -6,7 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from polyglav.cli import cmd_run, cmd_export, cmd_models, cmd_plugins
+from polyglav.cli import cmd_run, cmd_export, cmd_import, cmd_models, cmd_plugins
 from polyglav.main import main
 from polyglav import get_version
 from polyglav.config import Config
@@ -594,6 +594,67 @@ class TestCliVersion(unittest.TestCase):
                 main(['-v'])
         self.assertEqual(ctx.exception.code, 0)
         self.assertIn(get_version(), out.getvalue())
+
+
+class TestCliImport(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = self.tmp.name
+        sessions = Path(self.path) / '.polyglav' / 'sessions'
+        sessions.mkdir(parents=True, exist_ok=True)
+        s = Session('alpha')
+        s.add_user('hello')
+        s.add_text('hi')
+        s.end_turn('ok')
+        with open(sessions / 'alpha.json', 'w') as f:
+            json.dump(s.to_dict(), f)
+        from polyglav.sessions.render import export_document
+        self.out_file = Path(self.path) / 'export.json'
+        self.out_file.write_text(json.dumps(export_document(s)))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _args(self, **kw):
+        base = dict(file=str(self.out_file), name='', force=False,
+                    path=self.path)
+        base.update(kw)
+        return SimpleNamespace(**base)
+
+    def _capture(self, args):
+        out = io.StringIO()
+        err = io.StringIO()
+        with patch('sys.stdout', new=out), patch('sys.stderr', new=err):
+            rc = cmd_import(args)
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_import_round_trip(self):
+        rc, out, _ = self._capture(self._args(name='beta'))
+        self.assertEqual(rc, 0)
+        self.assertIn('Imported session: ', out)
+        path = Path(self.path) / '.polyglav' / 'sessions' / 'beta.json'
+        self.assertTrue(path.exists())
+        self.assertEqual(json.loads(path.read_text())['turns'][0]['parts'][0]['text'],
+                         'hello')
+
+    def test_import_missing_file(self):
+        rc, _, err = self._capture(self._args(file='/no/such.json'))
+        self.assertEqual(rc, 1)
+        self.assertIn('Cannot read session file', err)
+
+    def test_import_collision_errors(self):
+        rc, _, err = self._capture(self._args(name='alpha'))
+        self.assertEqual(rc, 1)
+        self.assertIn('Session exists', err)
+
+    def test_import_main_dispatch(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            rc = main(['import', str(self.out_file), '--name', 'beta',
+                       '--path', self.path])
+        self.assertEqual(rc, 0)
+        self.assertIn('Imported session', out.getvalue())
 
 
 if __name__ == '__main__':

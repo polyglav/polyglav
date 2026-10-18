@@ -1183,6 +1183,7 @@ def register_builtins(registry):
         ('preview', 'Show a structural preview of a session'),
         ('delete', 'Delete a session'),
         ('export', 'Export a session to Markdown or JSON'),
+        ('import', 'Import a session from a JSON export'),
     ])
     def sessions_cmd(arg=''):
         parts = arg.strip().split(maxsplit=2)
@@ -1249,6 +1250,26 @@ def register_builtins(registry):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
             print(f'Exported session: {name} -> {path}')
+        elif action == 'import':
+            tokens = [t for t in arg.strip().split()[1:] if t != '--force']
+            force = '--force' in arg.split()
+            file = tokens[0] if tokens else ''
+            name = tokens[1] if len(tokens) > 1 else ''
+            if not file:
+                print('Usage: /sessions import <file> [name] [--force]')
+                return
+            try:
+                data = json.loads(Path(file).read_text())
+            except (OSError, json.JSONDecodeError) as e:
+                print(f'Cannot read session file: {e}')
+                return
+            try:
+                s = chat.sessions.import_document(data, name=name,
+                                                  force=force)
+            except ValueError as e:
+                print(str(e))
+                return
+            print(f'Imported session: {s.session_name}')
         else:
             _render_commands(registry, ['sessions'])
 

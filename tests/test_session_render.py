@@ -392,6 +392,24 @@ class TestExportCommand(unittest.TestCase):
     def test_export_usage_lists_json(self):
         self.assertIn('--json', self._dispatch('/sessions export'))
 
+    def test_import_json_round_trip(self):
+        self._make_session('alpha')
+        self._dispatch('/sessions export alpha --json')
+        export = self._export_dir() / 'alpha.json'
+        (self.chat.sessions.sessions_dir / 'alpha.json').unlink()
+        output = self._dispatch(f'/sessions import {export} beta')
+        self.assertIn('Imported session: beta', output)
+        self.assertTrue(
+            (self.chat.sessions.sessions_dir / 'beta.json').exists())
+
+    def test_import_reports_missing_file(self):
+        output = self._dispatch('/sessions import /no/such/file.json')
+        self.assertIn('Cannot read session file', output)
+
+    def test_import_usage_without_file(self):
+        self.assertIn('Usage: /sessions import',
+                      self._dispatch('/sessions import'))
+
     def test_export_not_found(self):
         output = self._dispatch('/sessions export nosuch')
         self.assertIn('Session not found: nosuch', output)

@@ -40,6 +40,17 @@ def _add_export_parser(sub):
                    help='Project path (default: current directory)')
 
 
+def _add_import_parser(sub):
+    p = sub.add_parser('import', help='Import a session from a JSON export')
+    p.add_argument('file', help='JSON export to import')
+    p.add_argument('--name',
+                   help='Session name to import as (default: the file\'s session name, or a fresh ses_ name)')
+    p.add_argument('--force', action='store_true',
+                   help='Overwrite an existing session with that name')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+
+
 def _add_models_parser(sub):
     p = sub.add_parser('models', help='List configured models, or probe a provider\'s available models')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -283,6 +294,7 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command')
     _add_run_parser(sub)
     _add_export_parser(sub)
+    _add_import_parser(sub)
     _add_models_parser(sub)
     _add_eval_parser(sub)
     _add_serve_parser(sub)
@@ -299,6 +311,9 @@ def main(argv=None):
     if args.command == 'export':
         from .cli import cmd_export
         return cmd_export(args)
+    if args.command == 'import':
+        from .cli import cmd_import
+        return cmd_import(args)
     if args.command == 'models':
         from .cli import cmd_models
         return cmd_models(args)

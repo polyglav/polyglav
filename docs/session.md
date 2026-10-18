@@ -43,7 +43,8 @@ The active session is handled by `/session` (like `/model` for the model). The c
 | `/sessions` | List saved sessions |
 | `/sessions preview <name>` | Structural preview (title, outcome, idle time, turn count, part kinds, tool names) without switching |
 | `/sessions delete <name>` | Delete a session |
-| `/sessions export <name> [out]` | Export a session to Markdown |
+| `/sessions export <name> [out] [--json]` | Export a session to Markdown (or JSON) |
+| `/sessions import <file> [name] [--force]` | Import a session from a JSON export |
 | `polyglav run --session-id <name>` | Load or create a session from headless mode |
 
 The current session auto-saves after every turn and command, so nothing is lost on exit.
@@ -65,6 +66,10 @@ The header lists the session metadata every transcript starts with: created and 
 The headless CLI `polyglav export <name> [--out <file>]` reuses the same renderer for scripts and CI. `--out -` prints to stdout, and the default matches the slash command (`.polyglav/exports/<name>.md`).
 
 `--json` (and `/sessions export <name> --json`) emits a machine-readable document instead: `{"info": {...}, "turns": [...], "errors": [...], "permissions": [...]}`, where `info` holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time), `turns` is the full turn log, and `errors` and `permissions` are the session-level audit arrays. The document round-trips through the JSON import. The default output becomes `.polyglav/exports/<name>.json`.
+
+## Importing from JSON
+
+`/sessions import <file> [name] [--force]` and `polyglav import <file> [--name] [--force]` read an export document and write it into `.polyglav/sessions/`. The session keeps the original name when it is free, uses an explicit name when given, and otherwise gets a fresh `ses_<ts>_<id>` name. A collision with an explicit name is an error unless `--force` overwrites it. Import reads `info`, `turns`, `errors`, and `permissions`, ignores the derived header fields (`title`, `outcome`, `idle_at`), does not change the active session, and also accepts a raw session file (`session_name` plus `turns`).
 
 ## File structure
 
