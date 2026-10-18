@@ -59,12 +59,12 @@ class TestSessionModel(unittest.TestCase):
         turns.finish_tool(part, 'result')
         self.assertNotIn('call_id', s.to_dict()['turns'][0]['parts'][1])
 
-    def test_tool_max_chars_truncates_persisted_only(self):
+    def test_max_chars_truncates_persisted_only(self):
         s = Session('s1')
         s.add_user('hi')
         part = s.add_tool('web_search', {})
         turns.finish_tool(part, 'x' * 100)
-        d = s.to_dict(tool_max_chars=20)
+        d = s.to_dict(max_chars=20)
         tool = d['turns'][0]['parts'][1]
         self.assertTrue(tool['output'].startswith('x' * 20))
         self.assertIn('truncated from 100 chars', tool['output'])
@@ -242,7 +242,7 @@ class TestSessionModel(unittest.TestCase):
         finally:
             tmp.cleanup()
 
-    def test_save_applies_tool_max_chars_to_file(self):
+    def test_save_applies_max_chars_to_file(self):
         tmp = tempfile.TemporaryDirectory()
         try:
             sm = SessionManager(Path(tmp.name))
@@ -250,7 +250,7 @@ class TestSessionModel(unittest.TestCase):
             s.add_user('hi')
             part = s.add_tool('web_search', {})
             turns.finish_tool(part, 'x' * 50)
-            sm.save(s, tool_max_chars=10)
+            sm.save(s, max_chars=10)
             with open(sm.sessions_dir / 'cap.json') as f:
                 data = json.load(f)
             self.assertIn('truncated from 50 chars',
@@ -259,16 +259,16 @@ class TestSessionModel(unittest.TestCase):
         finally:
             tmp.cleanup()
 
-    def test_to_dict_replaces_noise_tool_content(self):
+    def test_to_dict_drops_listed_tool_content(self):
         s = Session('s1')
         s.add_user('hi')
         part = s.add_tool('fetch_page', {'url': 'x'})
         turns.finish_tool(part, 'huge page content' * 50)
-        d = s.to_dict(noise_tools=['fetch_page'])
+        d = s.to_dict(drop_tools=['fetch_page'])
         tool = d['turns'][0]['parts'][1]
         self.assertIn('excluded from log', tool['output'])
         self.assertEqual(tool['dropped'],
-                         {'reason': 'noise_tool', 'original_chars': 850})
+                         {'reason': 'drop', 'original_chars': 850})
         self.assertEqual(part['output'], 'huge page content' * 50)
 
     def test_max_chars_records_dropped_provenance(self):
@@ -276,16 +276,16 @@ class TestSessionModel(unittest.TestCase):
         s.add_user('hi')
         part = s.add_tool('web_search', {})
         turns.finish_tool(part, 'x' * 100)
-        d = s.to_dict(tool_max_chars=20)
+        d = s.to_dict(max_chars=20)
         self.assertEqual(d['turns'][0]['parts'][1]['dropped'],
                          {'reason': 'max_chars', 'original_chars': 100})
 
-    def test_to_dict_keeps_non_noise_tool_content(self):
+    def test_to_dict_keeps_unlisted_tool_content(self):
         s = Session('s1')
         s.add_user('hi')
         part = s.add_tool('web_search', {})
         turns.finish_tool(part, 'search results')
-        d = s.to_dict(noise_tools=['fetch_page'])
+        d = s.to_dict(drop_tools=['fetch_page'])
         tool = d['turns'][0]['parts'][1]
         self.assertEqual(tool['output'], 'search results')
         self.assertNotIn('dropped', tool)

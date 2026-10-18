@@ -44,7 +44,7 @@ DEFAULT_CONFIG = {
     'show_errors': True,
     'show_notes': True,
     'tool_analysis': False,
-    'session_tool_max_chars': 0,
+    'tools_output_max_chars': 0,
     'print_max_chars': 4000,
     'tool_max_result_chars': 100000,
     'list_dir_max_entries': 200,
@@ -74,7 +74,7 @@ DEFAULT_CONFIG = {
     'show_version': True,
     'compact_keep': 4,
     'project_instructions': 'AGENTS.md',
-    'noise_tools': ['web_fetch', 'open', 'fetch_page'],
+    'tools_output_drop': ['web_fetch', 'open', 'fetch_page'],
     'web_search': False,
     'search_results': 5,
     'tools.allow': [],
@@ -128,6 +128,11 @@ _NEW_PROVIDER_PLUGINS = ['polyglav-core-opencode', 'polyglav-core-ollama',
                          'polyglav-core-openai', 'polyglav-core-groq',
                          'polyglav-core-anthropic']
 
+_OUTPUT_KEY_ALIASES = {
+    'noise_tools': 'tools_output_drop',
+    'session_tool_max_chars': 'tools_output_max_chars',
+}
+
 _MISSING = object()
 
 
@@ -166,9 +171,32 @@ class Config:
                 self._local_raw = json.load(f)
         self.data = self._merged()
         self._migrate_plugins()
+        self._migrate_output_keys()
 
     def _merged(self) -> dict:
         return _merge(_merge(DEFAULT_CONFIG, self._global_raw), self._local_raw)
+
+    def _migrate_output_keys(self):
+        local = self._rename_output_keys(self._local_raw)
+        global_ = self._rename_output_keys(self._global_raw)
+        if local or global_:
+            self.data = self._merged()
+        if local:
+            self._save_local()
+        if global_:
+            self._write_global({})
+
+    @staticmethod
+    def _rename_output_keys(raw: dict) -> bool:
+        changed = False
+        for old, new in _OUTPUT_KEY_ALIASES.items():
+            if old not in raw:
+                continue
+            if new not in raw:
+                raw[new] = raw[old]
+            raw.pop(old, None)
+            changed = True
+        return changed
 
     def _migrate_plugins(self):
         plugins = self.data.get('plugins')

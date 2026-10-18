@@ -25,7 +25,6 @@ Tool output is droppable, capped, and spillable by config, so the log stays smal
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Tool output config naming - `tools_output_drop`, `tools_output_max_chars`, with a read-time migration | S | clearer, consistent keys |
 | Alphanumeric config order - defaults dict and doc tables sorted | S | a predictable schema |
 | Tool output spill to `.polyglav/tmp/` - dropped or capped output written to scratch with a `ref` | S-M | recall without re-calling, small logs |
 | Prune spilled tool output - remove on session delete and cap the scratch size | S | bounded scratch |

@@ -58,7 +58,7 @@ The current session auto-saves after every turn and command, so nothing is lost 
 
 Default output is `.polyglav/exports/<name>.md`, next to the `sessions/` directory. A second argument overrides the path (`/sessions export <name> out.md`). `-` prints the transcript to stdout instead of a file. The command tab-completes session names.
 
-The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional `analysis`), plain assistant answers, `command` records, compaction summaries (with the trimmed-context boundary), system notes, and a final `## Errors` section. Since it renders the persisted form, serialization-time transforms (`noise_tools` markers, `session_tool_max_chars` truncation) carry through as they appear in the file.
+The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional `analysis`), plain assistant answers, `command` records, compaction summaries (with the trimmed-context boundary), system notes, and a final `## Errors` section. Since it renders the persisted form, serialization-time transforms (`tools_output_drop` markers, `tools_output_max_chars` truncation) carry through as they appear in the file.
 
 The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived `outcome` (empty fields render as `-`).
 
@@ -218,8 +218,8 @@ Turns and errors are only ever appended. Compaction stores the summary in a `com
 
 Two config keys reshape `tool` part output when the session is written to disk, without touching the stored parts:
 
-- **`noise_tools`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, see tool call above for parameters]`, keeping noisy results out of session files while `input` stays on the part.
-- **`session_tool_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
+- **`tools_output_drop`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, see tool call above for parameters]`, keeping noisy results out of session files while `input` stays on the part.
+- **`tools_output_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
 
 Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "noise_tool" | "max_chars", "original_chars": <len>}`. The in-memory part keeps its full `output`, so the marker is written to disk only.
 

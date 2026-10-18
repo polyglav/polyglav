@@ -148,7 +148,7 @@ class TestRenderSession(unittest.TestCase):
         part = s.add_tool('fetch_page', {'url': 'x'})
         turns.finish_tool(part, 'page body')
         s.end_turn('ok')
-        data = s.to_dict(noise_tools=['fetch_page'])
+        data = s.to_dict(drop_tools=['fetch_page'])
         restored = Session.from_dict(data)
         md = render_session(restored)
         self.assertIn('excluded from log', md)

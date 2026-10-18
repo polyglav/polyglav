@@ -39,7 +39,7 @@ The mode ([modes.md](modes.md)) is the outermost bound. `read` (default) allows 
 
 ## Config-driven surface
 
-The model only sees tools whose schema passes policy filtering (`tools.allow` / `tools.deny` / `tool_permission`), and plugin activation is an explicit `plugins` list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each `allow` / `ask` / `deny` resolution and its outcome) are recorded in the session `permissions` array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content can be redacted by `noise_tools` / `session_tool_max_chars`, and tool `analysis` is off by default (`tool_analysis`).
+The model only sees tools whose schema passes policy filtering (`tools.allow` / `tools.deny` / `tool_permission`), and plugin activation is an explicit `plugins` list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each `allow` / `ask` / `deny` resolution and its outcome) are recorded in the session `permissions` array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content can be redacted by `tools_output_drop` / `tools_output_max_chars`, and tool `analysis` is off by default (`tool_analysis`).
 
 ## Audit trail
 
@@ -57,7 +57,7 @@ Plugins are arbitrary Python code that run with your user's privileges. Install 
 
 ## Prompt injection
 
-Tool results and fetched content are untrusted input returned to the model. Defense in depth today: tools are whitelisted by policy, `ToolRegistry.execute()` drops undeclared and `null` arguments (so a hallucinated parameter cannot reach a handler), results are bounded (`session_tool_max_chars`, `noise_tools`), and `run_command` requires confirmation by default. Worktree escalation keeps file access scoped.
+Tool results and fetched content are untrusted input returned to the model. Defense in depth today: tools are whitelisted by policy, `ToolRegistry.execute()` drops undeclared and `null` arguments (so a hallucinated parameter cannot reach a handler), results are bounded (`tools_output_max_chars`, `tools_output_drop`), and `run_command` requires confirmation by default. Worktree escalation keeps file access scoped.
 
 ## Threat model at a glance
 

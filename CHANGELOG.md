@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.44.0
+
+- Renamed the tool output config keys - `noise_tools` is now `tools_output_drop` and `session_tool_max_chars` is now `tools_output_max_chars`, with a read-time migration that renames the old keys in the global and local config. Docs (`config.md`, `session.md`, `security.md`, `tools.md`, `plugins.md`). Tests: `test_config.py`, `test_session_log.py`
+
 ## v0.43.0 - 2026-10-18
 
 - Added a standalone compaction summary - `/compact` also writes the summary to `.polyglav/summaries/<name>.md` with a small header, so the brief can be attached by a person or another agent while the in-log `command` part stays the source of truth. Docs (`session.md`). Tests: `test_session_log.py`

@@ -428,8 +428,8 @@ class Engine:
         if self.current_session and self.current_session.turns:
             self.sessions.save(
                 self.current_session,
-                tool_max_chars=self.config.get('session_tool_max_chars', 0),
-                noise_tools=self.config.get('noise_tools', []),
+                max_chars=self.config.get('tools_output_max_chars', 0),
+                drop_tools=self.config.get('tools_output_drop', []),
             )
 
     def load_or_create_session(self, name: str | None = None):

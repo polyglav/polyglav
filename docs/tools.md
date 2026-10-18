@@ -31,7 +31,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
-Plugins register additional tools the same way and automatically inherit tool policy, `/tool`, `/help`, query refinement, `noise_tools`, and session logging. See [plugins.md](plugins.md).
+Plugins register additional tools the same way and automatically inherit tool policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. See [plugins.md](plugins.md).
 
 ## Asking the user or the caller
 
@@ -168,8 +168,8 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 | `tool_analysis` | `false` | Model-generated one-line analysis of each tool result (log-only) |
 | `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |
 | `list_dir_max_entries` | `200` | Cap the number of entries `list_dir` returns (`0` = unlimited) |
-| `session_tool_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
-| `noise_tools` | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions |
+| `tools_output_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
+| `tools_output_drop` | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions |
 | `query_refine` | `false` | Auto-refine short `query` args via a lightweight model call |
 | `query_refine_min_words` | `3` | Minimum query length before refinement applies |
 | `query_refine_context` | `4` | Recent-message context injected into refinement |

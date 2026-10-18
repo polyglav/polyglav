@@ -191,8 +191,8 @@ class Session:
                 return ended
         return self.updated_at
 
-    def to_dict(self, tool_max_chars: int = 0, noise_tools: list[str] | None = None):
-        noise_tools = set(noise_tools or [])
+    def to_dict(self, max_chars: int = 0, drop_tools: list[str] | None = None):
+        drop_tools = set(drop_tools or [])
         out_turns = []
         for turn in self.turns:
             serialized = {k: v for k, v in turn.items() if k != 'parts'}
@@ -201,14 +201,14 @@ class Session:
                 p = dict(part)
                 output = p.get('output')
                 if p.get('type') == 'tool' and isinstance(output, str):
-                    if p.get('name') in noise_tools:
+                    if p.get('name') in drop_tools:
                         p['output'] = (
                             f'[{p["name"]} result excluded from log; '
                             'see tool call above for parameters]')
-                        p['dropped'] = {'reason': 'noise_tool',
+                        p['dropped'] = {'reason': 'drop',
                                         'original_chars': len(output)}
-                    elif tool_max_chars > 0 and len(output) > tool_max_chars:
-                        p['output'] = output[:tool_max_chars] + (
+                    elif max_chars > 0 and len(output) > max_chars:
+                        p['output'] = output[:max_chars] + (
                             f'… (truncated from {len(output)} chars)')
                         p['dropped'] = {'reason': 'max_chars',
                                         'original_chars': len(output)}
@@ -313,15 +313,15 @@ class SessionManager:
         except OSError:
             pass
 
-    def save(self, session: Session | None = None, tool_max_chars: int = 0,
-             noise_tools: list[str] | None = None):
+    def save(self, session: Session | None = None, max_chars: int = 0,
+             drop_tools: list[str] | None = None):
         s = session or self.current
         if s is None:
             return
         try:
             with open(self.sessions_dir / f'{s.session_name}.json', 'w') as f:
-                json.dump(s.to_dict(tool_max_chars=tool_max_chars,
-                                    noise_tools=noise_tools), f, indent=2)
+                json.dump(s.to_dict(max_chars=max_chars,
+                                    drop_tools=drop_tools), f, indent=2)
         except OSError as e:
             self._log_io('save', s.session_name, e)
 

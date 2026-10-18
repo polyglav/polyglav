@@ -68,7 +68,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
 | `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
-| `noise_tools`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
+| `tools_output_drop`               | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
 | `offload_depth`             | `1`                    | Maximum nested `offload` siblings. `0` = unlimited. An `offload` sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
 | `output_log_ansi`           | `false`                | Write the raw stream to the output log (ANSI colors and control characters kept) instead of plain text, for manual inspection |
@@ -85,7 +85,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `report.webhook`            | `""`                   | URL the bundled `polyglav-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
 | `run_buffer_max_lines`      | `2000`                 | Cap lines kept in a run's per-run output buffer (`BufferUI`). Oldest lines are trimmed past the cap. `0` = unlimited. Read back with `/focus log` |
 | `search_results`            | `5`                    | Number of search results to fetch                                      |
-| `session_tool_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
+| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
 | `show_context_size`         | `true`                 | Dimmed context-size line after each response                           |
 | `show_errors`               | `true`                 | Show a red `! Error: ...` line (first line of the result) when a tool call fails. Off hides the line |
 | `show_notes`                | `true`                 | Show a dimmed info line for soft tool results (e.g. `(empty file)`, `(no matches for "x")`). Off hides the line |

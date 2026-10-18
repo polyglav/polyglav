@@ -72,7 +72,7 @@ def register_fixtures(fixtures) -> None: ...     # fixtures["id"] = fixture data
 def register_startup(hooks) -> None: ...         # hooks.append(callable(chat)) - run once when the REPL starts
 ```
 
-Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement, `noise_tools`, and session logging. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
+Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
 
 ### Providers
 

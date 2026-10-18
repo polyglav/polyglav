@@ -59,7 +59,6 @@
 - [ ] JSON export losslessness - include `errors` and `permissions` in the JSON export document, so an import restores the whole session
 - [ ] JSON session import - `session_from_document` maps an `info` plus `turns` document onto a session, tolerant of unknown fields and missing optionals
 - [ ] Session import command - `polyglav import <file> [--name] [--force]` and `/sessions import <file> [name] [--force]`, importing under the original name when free, else a fresh `ses_<ts>_<id>`
-- [ ] Tool output config naming - rename `noise_tools` to `tools_output_drop` and `session_tool_max_chars` to `tools_output_max_chars`, with a read-time migration of the old keys
 - [ ] Alphanumeric config order - sort the config defaults and the `docs/config.md` key tables
 - [ ] Tool output spill to `.polyglav/tmp/` - with `tools_output_spill` on, write dropped or capped tool output to a scratch file and record the `ref` in the `dropped` marker, so the content is recallable without re-calling the tool and the log stays small
 - [ ] Prune spilled tool output - remove a session's `.polyglav/tmp/<name>/` on delete and cap the total scratch size
@@ -173,6 +172,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Renamed the tool output config keys
 - [x] Added a standalone compaction summary
 - [x] Added a JSON session export
 - [x] Added session metadata to the Markdown header
