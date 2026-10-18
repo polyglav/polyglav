@@ -1495,6 +1495,7 @@
 <p>Each session also records the agent <code>role</code> that owns it (the bound root role, the delegated role, the team-stage role, or the job role), stamped at creation. That makes a run reconstructable from its log even after the process exits. A plain root or a headless run with no <code>--role</code> leaves <code>role</code> empty.</p>
 <p>Each session also records the Polyglav <code>version</code> that created it, so a log says which build wrote it. The version is stamped once at creation and never changes. Files written before the field load with an empty <code>version</code> (no backfill).</p>
 <p>Session files written before the turn format (flat <code>messages</code>) and files written before the <code>session_name</code>/<code>session_id</code> rename do not load: <code>read()</code> returns nothing for them, the file is left untouched on disk, and <code>/sessions</code> still lists the name. The turn format is a full cutover, not a compatibility layer.</p>
+<p>An unreadable or unwritable session file is recorded in <code>.polyglav/sessions/errors.log</code>, one tab-separated line per failure holding the timestamp, the <code>read</code> or <code>save</code> action, the session name, and the error. A legacy-format file that parses but does not load is not logged, since that is an expected skip rather than a failure. The log is best-effort, so a failure to write the log itself never interrupts a session.</p>
 <h2 id="managing-sessions">Managing sessions<a class="headerlink" href="#managing-sessions" title="Permanent link">&para;</a></h2>
 <p>The active session is handled by <code>/session</code> (like <code>/model</code> for the model). The catalog of saved sessions lives under <code>/sessions</code> (like <code>/models</code>).</p>
 <table>
@@ -1535,7 +1536,7 @@
 </tr>
 <tr>
 <td><code>/sessions preview &lt;name&gt;</code></td>
-<td>Structural preview (turn count, part kinds, tool names) without switching</td>
+<td>Structural preview (title, outcome, idle time, turn count, part kinds, tool names) without switching</td>
 </tr>
 <tr>
 <td><code>/sessions delete &lt;name&gt;</code></td>
@@ -1558,7 +1559,9 @@
 <p><code>/sessions export &lt;name&gt;</code> renders any saved session as a Markdown transcript. It reads the persisted log directly (<code>read()</code>, not <code>load()</code>), so the current session is never switched and the source file is left untouched.</p>
 <p>Default output is <code>.polyglav/exports/&lt;name&gt;.md</code>, next to the <code>sessions/</code> directory. A second argument overrides the path (<code>/sessions export &lt;name&gt; out.md</code>). <code>-</code> prints the transcript to stdout instead of a file. The command tab-completes session names.</p>
 <p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, serialization-time transforms (<code>noise_tools</code> markers, <code>session_tool_max_chars</code> truncation) carry through as they appear in the file.</p>
+<p>The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived <code>outcome</code> (empty fields render as <code>-</code>).</p>
 <p>The headless CLI <code>polyglav export &lt;name&gt; [--out &lt;file&gt;]</code> reuses the same renderer for scripts and CI. <code>--out -</code> prints to stdout, and the default matches the slash command (<code>.polyglav/exports/&lt;name&gt;.md</code>).</p>
+<p><code>--json</code> (and <code>/sessions export &lt;name&gt; --json</code>) emits a machine-readable document instead: <code>{"info": {...}, "turns": [...]}</code>, where <code>info</code> holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time) and <code>turns</code> is the full turn log. The default output becomes <code>.polyglav/exports/&lt;name&gt;.json</code>, and the shape is the one the planned JSON import will read back.</p>
 <h2 id="file-structure">File structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:00:00+00:00"</span><span class="p">,</span>
@@ -1647,6 +1650,7 @@
 </tbody>
 </table>
 <p><code>/sessions preview</code> prints the <code>parent</code> and <code>sub-sessions</code> links. <code>/sessions</code> annotates <code>sub_*</code> children with their parent.</p>
+<p>A session's <code>title</code>, <code>outcome</code>, and <code>idle_at</code> are derived on read rather than stored, so the log stays the single source of truth and no index file is needed. <code>title</code> is the first <code>user</code> prompt collapsed to one line and clipped to 60 characters, <code>outcome</code> is <code>error</code> when any turn failed and <code>ok</code> otherwise, and <code>idle_at</code> is the last turn's <code>ended_at</code> (falling back to <code>updated_at</code>). <code>/sessions preview</code> shows all three.</p>
 <h2 id="turn-and-part-schema">Turn and part schema<a class="headerlink" href="#turn-and-part-schema" title="Permanent link">&para;</a></h2>
 <p>A turn is one user prompt (or one slash command) and the agent's response to it. It holds the turn-level context and an ordered list of parts:</p>
 <table>
@@ -1682,6 +1686,18 @@
 <td>The <code>reasoning</code> config value in effect (<code>false</code>/<code>"off"</code> or an effort value)</td>
 </tr>
 <tr>
+<td><code>usage</code></td>
+<td>Provider usage for the turn (<code>prompt_tokens</code>, <code>completion_tokens</code>, cache details) when the provider reported it. Recorded on agent turns</td>
+</tr>
+<tr>
+<td><code>context_tokens</code></td>
+<td>Context/input token count the turn ran with (<code>prompt_tokens</code>, else a chars/4 fallback). Recorded on agent turns</td>
+</tr>
+<tr>
+<td><code>finish_reason</code></td>
+<td>The provider's raw stop reason (<code>stop</code>, <code>length</code>, <code>tool_calls</code>, ...) when the provider reported one. Recorded on agent turns</td>
+</tr>
+<tr>
 <td><code>parts</code></td>
 <td>Ordered list of parts (below)</td>
 </tr>
@@ -1714,8 +1730,8 @@
 </tr>
 <tr>
 <td><code>tool</code></td>
-<td><code>name</code>, <code>input</code>, <code>output</code>, <code>is_error</code>, <code>analysis</code></td>
-<td>One tool call and its result, co-located. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is the optional one-line model insight (<code>tool_analysis</code> config)</td>
+<td><code>name</code>, <code>input</code>, <code>output</code>, <code>is_error</code>, <code>analysis</code>, <code>call_id</code>, <code>duration</code></td>
+<td>One tool call and its result, co-located. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is the optional one-line model insight (<code>tool_analysis</code> config), <code>call_id</code> is the provider's tool-call id, and <code>duration</code> is the wall-clock seconds the call took</td>
 </tr>
 <tr>
 <td><code>command</code></td>
@@ -1729,7 +1745,7 @@
 </tr>
 </tbody>
 </table>
-<p>A tool call and its result never split into separate records: the <code>tool</code> part is created with <code>name</code>/<code>input</code>, the engine executes the call, and <code>output</code>/<code>is_error</code>/<code>analysis</code> fill in on the same part. Thinking recorded before a tool round becomes a <code>thinking</code> part ahead of the <code>tool</code> parts.</p>
+<p>A tool call and its result never split into separate records: the <code>tool</code> part is created with <code>name</code>/<code>input</code>/<code>call_id</code>, the engine executes the call, and <code>output</code>/<code>is_error</code>/<code>analysis</code>/<code>duration</code> fill in on the same part. Thinking recorded before a tool round becomes a <code>thinking</code> part ahead of the <code>tool</code> parts.</p>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
 <p>A plain prompt and answer:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1814,18 +1830,20 @@
 <li><strong><code>noise_tools</code></strong> (default <code>["web_fetch", "open", "fetch_page"]</code>) - output of the listed tools is replaced with <code>[&lt;tool&gt; result excluded from log, see tool call above for parameters]</code>, keeping noisy results out of session files while <code>input</code> stays on the part.</li>
 <li><strong><code>session_tool_max_chars</code></strong> (default <code>0</code> = unlimited) - caps persisted tool <code>output</code> to N characters, appending <code>… (truncated from &lt;len&gt; chars)</code>.</li>
 </ul>
+<p>Both transforms add a <code>dropped</code> marker on the part so the log records what was removed and why: <code>{"reason": "noise_tool" | "max_chars", "original_chars": &lt;len&gt;}</code>. The in-memory part keeps its full <code>output</code>, so the marker is written to disk only.</p>
 <h2 id="preparing-the-provider-context">Preparing the provider context<a class="headerlink" href="#preparing-the-provider-context" title="Permanent link">&para;</a></h2>
 <p>The provider payload is prepared from the turns by <code>turns.provider_messages()</code> (via <code>Engine._provider_messages</code>):</p>
 <ul>
 <li>The latest <code>command</code> part with a <code>summary</code> becomes a <code>system</code> summary: <code>Summary of earlier conversation:\n\n&lt;summary&gt;</code>, and turns before its <code>compact_from</code> index are skipped.</li>
 <li><code>command</code> parts are dropped.</li>
-<li>Within a turn, assistant text and the consecutive <code>tool</code> parts that follow become one assistant message with <code>tool_calls</code>, followed by the <code>tool</code> result messages, so a co-located tool round rebuilds to the OpenAI-compatible shape.</li>
+<li>Within a turn, assistant text and the consecutive <code>tool</code> parts that follow become one assistant message with <code>tool_calls</code> (reusing each part's stored <code>call_id</code>, or a synthesized id for older logs), followed by the <code>tool</code> result messages, so a co-located tool round rebuilds to the OpenAI-compatible shape.</li>
 <li><code>thinking</code> is attached to the assistant message it preceded.</li>
 <li><code>user</code> and <code>system</code> parts pass through in order.</li>
 </ul>
 <p>For compaction, tool results fold back into the summarized context as <code>[tool result] &lt;output&gt;</code> user messages so the summary can carry forward what the tools found.</p>
 <h2 id="compaction">Compaction<a class="headerlink" href="#compaction" title="Permanent link">&para;</a></h2>
 <p><code>/compact</code> summarizes the earlier conversation and trims the provider context, controlled by <code>compact_keep</code> (default 4 = turns kept at the tail). The summary is stored in the <code>summary</code> of a <code>command</code> part with a <code>compact_from</code> turn index, so the full history stays in the log while only the summary plus the kept turns are sent to the model going forward.</p>
+<p>The same summary is also written to <code>.polyglav/summaries/&lt;name&gt;.md</code> as a standalone brief (session name, <code>compact_from</code> turn, version, then the summary text), so a person or another agent can attach it without reading the session log. That file is derived and best-effort, and the in-log <code>command</code> part stays the source of truth.</p>
 
 
 

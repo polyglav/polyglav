@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0430-2026-10-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.43.0 - 2026-10-18
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0420-2026-10-05" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1626,6 +1637,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0430-2026-10-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.43.0 - 2026-10-18
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0420-2026-10-05" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2105,6 +2127,19 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0430-2026-10-18">v0.43.0 - 2026-10-18<a class="headerlink" href="#v0430-2026-10-18" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added a standalone compaction summary - <code>/compact</code> also writes the summary to <code>.polyglav/summaries/&lt;name&gt;.md</code> with a small header, so the brief can be attached by a person or another agent while the in-log <code>command</code> part stays the source of truth. Docs (<code>session.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Added a JSON session export - <code>polyglav export --json</code> and <code>/sessions export --json</code> emit an <code>info</code> plus <code>turns</code> document (header, derived metadata, full turn log) that round-trips with the planned JSON import, while Markdown stays the default. Docs (<code>session.md</code>, <code>commands.md</code>). Tests: <code>test_session_render.py</code>, <code>test_cli.py</code></li>
+<li>Added session metadata to the Markdown header - an export lists the session id, role, mode, version, and derived outcome alongside created, updated, and turn count, so a transcript is self-describing. Docs (<code>session.md</code>). Tests: <code>test_session_render.py</code></li>
+<li>Added derived session metadata - <code>title</code> (first prompt), <code>outcome</code> (error if any turn failed), and <code>idle_at</code> (last ended turn) are computed on read and shown by <code>/sessions preview</code>, so a session is informative without storing extra fields or an index file. Docs (<code>session.md</code>). Tests: <code>test_session_metadata.py</code></li>
+<li>Added a session IO error log - an unreadable or unwritable session file is recorded in <code>.polyglav/sessions/errors.log</code> instead of a corrupt file reading as "not found", while a legacy-format skip logs nothing and a log-write failure never interrupts a session. Docs (<code>session.md</code>). Tests: <code>test_session_io.py</code></li>
+<li>Added truncation provenance - a session records a <code>dropped</code> marker (<code>reason</code> and <code>original_chars</code>) when a tool result is filtered by <code>noise_tools</code> or the <code>session_tool_max_chars</code> cap, so the log stays auditable after filtering while it stays small. Docs (<code>session.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Added tool call provenance - each <code>tool</code> part stores the provider's <code>call_id</code> and the call's <code>duration</code>, and the provider context rebuilds from the stored ids (with a synthesized id for older logs), so a tool round replays exactly and slow calls are visible. Docs (<code>session.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Added stop reason to session turns - each agent turn records the provider's raw <code>finish_reason</code> (<code>stop</code>, <code>length</code>, <code>tool_calls</code>) beside <code>status</code>, so a truncated or empty turn is diagnosed from the recorded reason instead of a derived status. Docs (<code>session.md</code>). Tests: <code>test_session_log.py</code></li>
+<li>Added per-turn context telemetry - <code>usage</code> and <code>context_tokens</code> are persisted on each turn and returned on <code>TurnResult</code>, so a session log carries provider usage and the context size per turn. Docs (<code>session.md</code>). Tests: <code>test_turns.py</code>, <code>test_session_log.py</code></li>
+<li>Fixed the macOS/libedit prompt redraw so the color and reset escapes are bracketed as zero-width (<code>\001</code>/<code>\002</code>) on libedit as well as GNU readline, so recalling history or completing a slash command no longer leaves stale text on the line. Docs (<code>testing.md</code>). Tests: <code>test_focus.py</code></li>
+</ul>
 <h2 id="v0420-2026-10-05">v0.42.0 - 2026-10-05<a class="headerlink" href="#v0420-2026-10-05" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Changed onboarding order so the setup questions run after the startup banner and before the first prompt, so the version line shows first and setup is captured in the output log. Docs (<code>plugins.md</code>). Tests: <code>test_repl_input.py</code></li>
