@@ -264,6 +264,26 @@ class Session:
         )
 
 
+def session_from_document(data: dict) -> Session:
+    if not isinstance(data, dict):
+        raise ValueError('not a session document')
+    if 'info' not in data:
+        try:
+            return Session.from_dict(data)
+        except (KeyError, TypeError):
+            raise ValueError('not a session document') from None
+    info = data.get('info')
+    turns_list = data.get('turns')
+    if not isinstance(info, dict) or not isinstance(turns_list, list):
+        raise ValueError('not a session document')
+    flat = dict(info)
+    flat['turns'] = turns_list
+    flat.setdefault('session_name', '')
+    flat.setdefault('errors', data.get('errors', []))
+    flat.setdefault('permissions', data.get('permissions', []))
+    return Session.from_dict(flat)
+
+
 class SessionManager:
     def __init__(self, sessions_dir: Path):
         self.sessions_dir = sessions_dir
@@ -277,6 +297,23 @@ class SessionManager:
             session_name, session_id=session_id_from_name(session_name), role=role,
             version=get_version())
         return self.current
+
+    def import_document(self, data: dict, name: str = '',
+                        force: bool = False) -> Session:
+        session = session_from_document(data)
+        target = (name or session.session_name or '').strip()
+        if target and (self.sessions_dir / f'{target}.json').exists():
+            if not force:
+                if name:
+                    raise ValueError(f'Session exists: {target}')
+                target = ''
+        if not target:
+            target = coded_session_name('ses', session.role,
+                                        sessions_dir=self.sessions_dir)
+        session.session_name = target
+        session.session_id = session_id_from_name(target)
+        self.save(session)
+        return session
 
     def find_by_session_id(self, session_id: str) -> Session | None:
         session_id = (session_id or '').strip().lower()

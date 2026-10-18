@@ -56,7 +56,6 @@
 
 ## Open
 
-- [ ] JSON session import - `session_from_document` maps an `info` plus `turns` document onto a session, tolerant of unknown fields and missing optionals
 - [ ] Session import command - `polyglav import <file> [--name] [--force]` and `/sessions import <file> [name] [--force]`, importing under the original name when free, else a fresh `ses_<ts>_<id>`
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
@@ -168,6 +167,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added a JSON session import
 - [x] Changed the JSON export to be lossless
 - [x] Added pruning for spilled tool output
 - [x] Added tool output spill to the tmp directory
