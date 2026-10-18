@@ -56,6 +56,13 @@
 
 ## Open
 
+- [ ] JSON export losslessness - include `errors` and `permissions` in the JSON export document, so an import restores the whole session
+- [ ] JSON session import - `session_from_document` maps an `info` plus `turns` document onto a session, tolerant of unknown fields and missing optionals
+- [ ] Session import command - `polyglav import <file> [--name] [--force]` and `/sessions import <file> [name] [--force]`, importing under the original name when free, else a fresh `ses_<ts>_<id>`
+- [ ] Tool output config naming - rename `noise_tools` to `tools_output_drop` and `session_tool_max_chars` to `tools_output_max_chars`, with a read-time migration of the old keys
+- [ ] Alphanumeric config order - sort the config defaults and the `docs/config.md` key tables
+- [ ] Tool output spill to `.polyglav/tmp/` - with `tools_output_spill` on, write dropped or capped tool output to a scratch file and record the `ref` in the `dropped` marker, so the content is recallable without re-calling the tool and the log stays small
+- [ ] Prune spilled tool output - remove a session's `.polyglav/tmp/<name>/` on delete and cap the total scratch size
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
