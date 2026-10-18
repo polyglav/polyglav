@@ -378,6 +378,17 @@ class TestExportCommand(unittest.TestCase):
         data = json.loads(output)
         self.assertEqual(data['info']['session_name'], 'alpha')
 
+    def test_export_json_carries_errors_and_permissions(self):
+        s = self._make_session('alpha')
+        s.add_error(0, 'boom')
+        s.add_permission('run_command', 'ask', 'granted', path='/tmp/x')
+        self.chat.sessions.save(s)
+        output = self._dispatch('/sessions export alpha - --json')
+        data = json.loads(output)
+        self.assertEqual(data['errors'][0]['message'], 'boom')
+        self.assertEqual(data['permissions'][0]['tool'], 'run_command')
+        self.assertEqual(data['permissions'][0]['decision'], 'granted')
+
     def test_export_usage_lists_json(self):
         self.assertIn('--json', self._dispatch('/sessions export'))
 

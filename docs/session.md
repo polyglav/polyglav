@@ -64,7 +64,7 @@ The header lists the session metadata every transcript starts with: created and 
 
 The headless CLI `polyglav export <name> [--out <file>]` reuses the same renderer for scripts and CI. `--out -` prints to stdout, and the default matches the slash command (`.polyglav/exports/<name>.md`).
 
-`--json` (and `/sessions export <name> --json`) emits a machine-readable document instead: `{"info": {...}, "turns": [...]}`, where `info` holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time) and `turns` is the full turn log. The default output becomes `.polyglav/exports/<name>.json`, and the shape is the one the planned JSON import will read back.
+`--json` (and `/sessions export <name> --json`) emits a machine-readable document instead: `{"info": {...}, "turns": [...], "errors": [...], "permissions": [...]}`, where `info` holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time), `turns` is the full turn log, and `errors` and `permissions` are the session-level audit arrays. The document round-trips through the JSON import. The default output becomes `.polyglav/exports/<name>.json`.
 
 ## File structure
 

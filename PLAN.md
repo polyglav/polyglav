@@ -15,7 +15,6 @@ A saved session becomes an interchange artifact that round-trips through the JSO
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| JSON export losslessness - `errors` and `permissions` in the document | S | a round-trippable export |
 | JSON session import - `session_from_document` over `info` plus `turns` | S-M | restore a session from a file |
 | Session import command - `polyglav import` and `/sessions import` | S | import from CLI and REPL |
 

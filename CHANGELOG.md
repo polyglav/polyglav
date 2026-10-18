@@ -2,6 +2,7 @@
 
 ## v0.44.0
 
+- Changed the JSON export to be lossless - the document now carries `errors` and `permissions` alongside `info` and `turns`, so an import restores the whole session. Docs (`session.md`). Tests: `test_session_render.py`
 - Added pruning for spilled tool output - a session's `.polyglav/tmp/<name>/` is removed when the session is deleted, and the spill directory is capped by `tools_output_tmp_max_bytes` (oldest files first). Docs (`session.md`, `config.md`). Tests: `test_session_log.py`
 - Added tool output spill to the tmp directory - with `tools_output_spill` on, the full dropped or capped tool output is written to `.polyglav/tmp/<session>/<turn>_<part>.txt` and the `dropped` marker records its `ref`, so content is recallable without re-calling the tool while the log stays small. Docs (`session.md`, `config.md`). Tests: `test_session_log.py`
 - Changed the config defaults to alphanumeric order - the default config keys and the config key tables run alphabetically, and a duplicated `report.webhook` default was folded into one. Docs (`config.md`, `tools.md`). Tests: `test_config.py`

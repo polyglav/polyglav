@@ -56,7 +56,12 @@ def export_document(session: Session) -> dict:
         'outcome': session.derived_outcome(),
         'idle_at': session.derived_idle_at(),
     }
-    return {'info': info, 'turns': session.to_dict().get('turns', [])}
+    return {
+        'info': info,
+        'turns': session.to_dict().get('turns', []),
+        'errors': session.errors,
+        'permissions': session.permissions,
+    }
 
 
 def session_to_json(session: Session) -> str:
