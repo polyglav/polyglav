@@ -15,7 +15,6 @@ Sort the config and help listings, add a read-only provider list, make the model
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Help subcommand rows sorted | S | consistent help order |
 | Providers command lists providers with keys and active marker | S | see connections without `/connect` |
 | Model config as a self-describing provider/model ref | M | a one-line project config |
 | Provider and model tab completion | M | type a ref without typos |

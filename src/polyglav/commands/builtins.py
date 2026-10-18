@@ -19,20 +19,22 @@ def _command_label(name, aliases):
 def _render_commands(registry, names, chat=None):
     metas = {n: registry.meta.get(n, {}) for n in names}
     labels = {n: _command_label(n, metas[n].get('aliases', [])) for n in names}
+    subs = {n: sorted(metas[n].get('subcommands', [])) for n in names}
+    if chat is not None and 'tool' in subs:
+        rows = _tool_rows(chat)
+        if rows is None:
+            subs['tool'].append(('(tool calling disabled)', ''))
+        elif not rows:
+            subs['tool'].append(('(no tools allowed)', ''))
+        else:
+            subs['tool'].extend(rows)
     max_label = max((len(l) for l in labels.values()), default=0)
-    desc_col = 2 + max_label + 2
+    max_sub = max((len(s) + SUB_INDENT
+                   for group in subs.values() for s, _ in group), default=0)
+    desc_col = max(2 + max_label, max_sub) + 2
     for n in names:
         print(f'  {labels[n]:<{desc_col - 2}}{metas[n].get("description", "")}')
-        subs = list(metas[n].get('subcommands', []))
-        if chat is not None and n == 'tool':
-            rows = _tool_rows(chat)
-            if rows is None:
-                subs.append(('(tool calling disabled)', ''))
-            elif not rows:
-                subs.append(('(no tools allowed)', ''))
-            else:
-                subs.extend(rows)
-        for sub, sdesc in subs:
+        for sub, sdesc in subs[n]:
             print(f'{" " * SUB_INDENT}{sub:<{desc_col - SUB_INDENT}}{sdesc}')
 
 
