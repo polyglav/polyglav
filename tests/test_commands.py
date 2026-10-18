@@ -562,6 +562,17 @@ class TestModelCommand(unittest.TestCase):
         self.assertEqual(self.chat.config.get('base_url'),
                          'https://opencode.ai/zen/go/v1')
 
+    def test_model_ref_persists_only_model(self):
+        self.chat.models.put('opencode-go', 'deepseek-v4-flash')
+        self.chat.providers.put('opencode-go',
+                                'https://opencode.ai/zen/go/v1', 'k')
+        before = json.loads(self.chat.config.local_path.read_text())
+        self._dispatch('/model opencode-go/deepseek-v4-flash')
+        after = json.loads(self.chat.config.local_path.read_text())
+        self.assertEqual(after['model'], 'opencode-go/deepseek-v4-flash')
+        self.assertEqual(after.get('provider'), before.get('provider'))
+        self.assertEqual(after.get('base_url'), before.get('base_url'))
+
     def test_model_ref_unapproved_prompts_and_approves(self):
         self.chat.providers.put('opencode-go',
                                 'https://opencode.ai/zen/go/v1', 'k')

@@ -624,9 +624,7 @@ def register_builtins(registry):
         if ref is not None:
             provider, base_url, model = ref
             if chat._ensure_model_approved(provider, model):
-                chat.config.set('provider', provider)
-                chat.config.set('base_url', base_url)
-                chat.config.set('model', model)
+                chat.config.set('model', f'{provider}/{model}')
                 chat._reinit_provider()
                 print(f'Model set to: {provider}/{model}')
             else:

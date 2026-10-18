@@ -2,6 +2,7 @@
 
 ## v0.44.0
 
+- Changed the model config to a self-describing ref - `/model <provider>/<model>` persists only the `model` ref, so a project config can be a single `model` line while `provider`/`base_url` stay as overrides for `openai-compatible` and custom providers. Docs (`config.md`, `providers.md`). Tests: `test_commands.py`
 - Added the `/providers` command to list provider connections alphabetically with the active one marked and a `(key)` marker, and `(custom)` for a provider with no built-in factory. Docs (`commands.md`). Tests: `test_commands.py`
 - Sorted the `/help` subcommand rows alphabetically, and the description column now widens to fit a subcommand name so `/help <cmd>` no longer runs a label into its description. Docs (`commands.md`). Tests: `test_commands.py`
 - Changed the config listing to sorted `key`, `value`, and source columns with a short description per key, and a value too long for the column prints as an indented `value`/`source`/`description` block. Docs (`commands.md`, `config.md`). Tests: `test_commands.py`
