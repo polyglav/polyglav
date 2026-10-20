@@ -1,11 +1,10 @@
 # TODO
 
 - First-run onboarding - the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users
-  - Also ask how agent focus should behave (`focus_on_delegate`: off/ask/on) and whether the prompt names the active role (`prompt_role`), both off by default
+  - Also ask whether the prompt names the active role (`prompt_role`), off by default
 - One-window status - `/status` shows sessions, running agents, and configured jobs on the current machine, with logs reachable from the same place (the journalctl-style alternative)
 - Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding
 - Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)
-- Non-blocking delegation - the assistant starts sub-agents or whole teams for bigger tasks and reports their status instead of blocking the current run
 - Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time
 - Auto-improving skills (autogen/autolearn) - a role refines its skills from experience and keeps them alongside its memory, so recurring work gets better without re-prompting
 - Runtime pluginization - make models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI replaceable plugins, and move the REPL to a plugin. Five replaceable layers: access, orchestration, capability, model, storage
@@ -56,6 +55,42 @@
 
 ## Open
 
+- [ ] REPL output vocabulary - one terminal language for the REPL:
+  - [ ] Palette - default assistant text, blue read prompt, orange write prompt, turquoise slash-command input, green bash command line, gray info and state lines, yellow warning, red error
+  - [ ] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
+  - [ ] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
+  - [ ] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
+  - [ ] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
+  - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
+  - [ ] Status newline - a status line never prints inline after streamed text
+  - [ ] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
+  - [ ] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
+  - [ ] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
+  - [ ] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
+  - [ ] Golden transcripts - assert the header, input, tool, stage, and footer lines against the design mocks
+- [ ] Unified call target - collapse `call`, `delegate`, and `offload` into one `call <target>` tool, where the target is a role, a team, or a role-less sibling:
+  - [ ] Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling
+  - [ ] Permissions - one `call` permission key, resolved per target from the role or team entry
+  - [ ] Compatibility - keep the old names as aliases for one version
+  - [ ] Docs and prompts - update `docs/tools.md`, `docs/swarm.md`, `docs/roles.md`, and the role and team prompts
+- [ ] Verbosity model - replace the scattered display flags with one model:
+  - [ ] Global `verbosity` - `quiet`, `normal`, or `verbose`
+  - [ ] Scoped overrides - `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`, each `off`, `summary`, `full`, or `inherit`
+  - [ ] Migration - map and remove `show_thinking`, `show_thought_duration`, `show_notes`, `delegate_echo`, `subrun_verbosity`, `status_spinner`, `glyph_lines`, `glyph_params`, and `show_context_size`
+  - [ ] Errors - remove `show_errors`, since errors are never hidden
+  - [ ] Persistence - verbosity only changes rendering, never the session log
+- [ ] Sequential-only run model - remove the concurrency vocabulary and make pause and resume the control surface:
+  - [ ] VISION and PLAN - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
+  - [ ] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
+  - [ ] Remove focus switching - `/focus` becomes a read-only `/runs` tree
+  - [ ] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
+  - [ ] Cleanup - drop `focus_on_delegate`, the `SubRunUI` forwarding, and `ask target='caller'`
+  - [ ] Keep jobs and fleet - they are separate OS processes, not in-REPL concurrency
+- [ ] Composite session view - show one transcript while keeping separate files:
+  - [ ] `/sessions` - list roots only and hide `sub_` sessions
+  - [ ] `/print` and `/history` - follow `sub_sessions` and `parent_id` to render the whole run tree
+  - [ ] Export - include sub-runs in the Markdown and JSON export
+- [ ] Design mock transcripts - keep annotated `example_*.txt` files under the git-ignored `.polyglav/` directory to approve the vocabulary before code
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
@@ -65,10 +100,8 @@
 - [ ] Markdown catalogue for teams and skills - extend the JSON-index plus Markdown-body model to teams and skills, with one catalogue directory and migration from the JSON files
 - [ ] Per-agent request overlays - a role sets request headers and a JSON body overlay applied to its provider calls, for per-agent temperature or routing, with providers that ignore them degrading gracefully
 - [ ] Dev tool fallback - `code_lint`/`code_format` report a clear setup hint when the configured linter/formatter (`ruff`) is absent, and honor the `dev.lint_cmd`/`dev.format_cmd` overrides
-- [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so parallel roles do not re-read the same files
+- [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so roles do not re-read the same files
 - [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
-- [ ] Focus keeps the run's context - re-entering a finished run uses its retained engine or resumes that run's own session, and never starts a fresh session. /focus drops the session:<name> attach, because saved sessions belong to /load
-- [ ] Focus a live sub-run - /focus attaches to a running sub-run and leaves the caller reachable
 - [ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change
 - [ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown
 - [ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay
@@ -86,23 +119,11 @@
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
 - [ ] Root role memory - inject `.polyglav/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
 - [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
-- [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/focus` stays live-runs-only
+- [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/runs` stays a read-only history
 - [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
-- [ ] Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, and onboarding asks whether to enable auto-focus
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
-- [ ] REPL UI colors and prompts - a consistent color scheme and prompt behavior for the REPL:
-  - [ ] User prompt - bold the `>>>`/`...` marker so it stands out in long output
-  - [ ] Actions/Asks orange - activity/tool status lines and the confirm/ask prompts
-  - [ ] Keep output dimmed - tool results and detail lines stay dim
-  - [ ] Newline before status - a status line never prints inline after streamed text
-  - [ ] `[Y/n]` enter-to-continue - confirm defaults to yes on an empty answer
-  - [ ] Hide confirm input - hidden for the `[Y/n]` confirm, visible for a free-text ask
-  - [ ] Errored tool calls red - the `! Error:` line in red
-  - [ ] Thinking/Thought blue - headers blue, reasoning body dim
-- [ ] Runs, focus, and memory redesign (see PLAN.md `Runs, focus, and memory`):
-  - [ ] Non-blocking runs and live focus - background execution, output/input routing, cancellation
 - [ ] Remove `--session-id` - explicit session naming is no longer needed now that auto sessions are named `ses_<ts>_<id>`
 - [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
 - [ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs
@@ -162,7 +183,7 @@
   - [ ] Audit logging + metrics (`/metrics`) for enterprise deployments
   - [ ] Onboarding wizard (`polyglav wizard`) for data-source / MES interface setup
   - [ ] RBAC - role-based access control for enterprise deployments
-  - [ ] Queue-based scaling - many concurrent sensor/chat feeds without blocking the loop
+  - [ ] Queue-based scaling - many sensor and chat feeds without blocking the loop
 - [ ] Session import from Markdown/JSON
 
 ## Done

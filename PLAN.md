@@ -9,34 +9,82 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Run control and sub-run visibility
+## Design approval
 
-A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Focus a live sub-run - `/focus` watches, joins, or cancels a running sub-run and leaves the caller reachable | M | jump into a live agent |
-| Focus keeps the run's context - re-entering a finished run resumes its own session, never a fresh one, and `/focus` drops the `session:<name>` attach | S | context survives a re-entry |
-
-## REPL input and defaults
-
-Small operator-picked REPL changes, one commit each.
+The target REPL look is approved from annotated transcripts before any application change. The files stay in the git-ignored `.polyglav/` directory.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| `hide_confirm_input` default true - the typed input is hidden on the tool confirm unless overridden | S | quieter confirms |
-| `/clear` command - empty the screen and the previous messages, then reprint the startup header | S | a clean window mid-session |
+| Annotated transcripts - `example_session.txt`, `example_workflow.txt`, and `example_states.txt` under `.polyglav/`, with the palette and glyph legend as comments | S | a reviewable target |
+
+## REPL output vocabulary
+
+One terminal language for input, output, tools, and state. A small glyph set and five ANSI roles replace the current mix, and tool detail stays out of the way until asked for.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Palette and mode - gray state lines, blue read prompt, orange write prompt, turquoise command input, green bash line, gray info, yellow warning, red error | S | one calm palette |
+| Header and hints - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line | S | a short start screen |
+| Input - `> ` chat and ask, `/ ` commands, the submitted line reprinted in its color, hidden confirm | S-M | one input style |
+| Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
+| Glyph config - a `glyphs` override map and an ASCII preset, no runtime detection | S | usable in any terminal |
+| Hidden tool output - a one-line summary by default, full output through `/history` and `/print` | S-M | quiet output, full detail on demand |
+| Flat stages - no `<<<`, no indentation, `(i/n)` stage markers, `✓ Worked: <role>` and `✓ Done` footers | S-M | readable long runs |
+| String cleanup - grouped `/models`, `@ Model:`, `✗ [code] message`, indented refine, unified footer | S | consistent wording |
+| Status newline - a status line never prints inline after streamed text | S | clean output boundaries |
+| `/clear` command - empty the screen and reprint the header | S | a clean window mid-session |
+| Golden transcripts - assert header, input, tool, stage, and footer lines against the design mocks | S-M | no doc drift |
+
+## Verbosity model
+
+Display volume becomes one predictable model instead of a dozen flags. The session log stays complete, and verbosity only changes what the REPL renders.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Global `verbosity` - `quiet`, `normal`, or `verbose` | S | one preset |
+| Scoped overrides - `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`, each `off`, `summary`, `full`, or `inherit` | S-M | per-area control |
+| Migration and cleanup - map the old display keys, remove `show_errors`, and keep rendering separate from persistence | S-M | no dead flags |
+
+## Sequential run control
+
+The REPL runs one process and one context at a time. A run can pause at a safe boundary and resume later, and `/runs` shows the history tree without switching control.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and state prints as `@ Paused #n` and `@ Resumed #n` | M | control a long run |
+| Read-only `/runs` - replace focus switching with a history tree, and drop `handoff` and `focus_on_delegate` | S-M | see the run tree without switching |
+| Sequential cleanup - remove the `SubRunUI` forwarding and `ask target='caller'`, and align VISION with one context at a time | S-M | one simple run model |
+
+## Unified call target
+
+Delegation speaks one verb. `call <target>` names a role, a team, or a role-less sibling, and the target carries the behavior.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling | M | one delegation verb |
+| Permissions - one `call` permission key, resolved per target from the role or team entry | S-M | one permission path |
+| Compatibility - keep the old names as aliases for one version | S | a safe migration |
+| Docs and prompts - update the tool, swarm, role, and team references | S-M | one vocabulary |
+
+## Composite session view
+
+Separate session files stay the storage model, and the operator sees one transcript.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| `/sessions` roots only - hide `sub_` sessions from the catalog | S | a short catalog |
+| Recursive `/print` and `/history` - follow `sub_sessions` and `parent_id` to render the whole run tree | S-M | one transcript |
+| Export - include sub-runs in the Markdown and JSON export | S | complete artifacts |
 
 ## Self-development team enablement
 
-The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the project catalogs and the described workflow.
+The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
 
 | Task | Effort | Provides |
 |------|--------|----------|
 | Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message | M | commits during a run |
-| Saved-session catalog in `/load` - `/load` lists and loads saved sessions, `/focus` stays live-runs-only, so an operator reattaches to a prior agent after a restart | S-M | switch to any prior agent |
+| Saved-session catalog in `/load` - `/load` lists and loads saved sessions, `/runs` stays a read-only history, so an operator reattaches to a prior agent after a restart | S-M | switch to any prior agent |
 | Ask continuation - answering a parked ask resumes and continues its origin run in place, not only injecting the answer into the session | M | reply to stacked questions and continue |
-| Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer > planner > developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, with onboarding asking whether to enable it | M | automatic agent-to-agent handoff |
 | Researcher role with fresh context - a researcher role template with web access, started fresh per task | S | clean research per task |
 | Docs writer commits each added task - commit the tasks right after the operator's prompt, then work one point at a time | S | tasks land as agreed |
 
@@ -48,7 +96,7 @@ A delegated role remembers the user's instructions across runs, long role instru
 |------|--------|----------|
 | Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
 | Role memory for delegated roles - inject role memory in `_new_sub_engine` through a shared compose helper, with a refresh path | S | a role remembers across runs |
-| Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files | S-M | no duplicated reads |
+| Shared codebase research - a role consults a shared research note (or memory) so roles do not re-read the same files | S-M | no duplicated reads |
 | `memorize` as a tool - memory writes through a tool an agent calls | S-M | memory the agent maintains |
 | Conclusion stage - a write-scoped stage that distills a finished run into role files, skills, or memory, and never commits | M | self-improvement loop |
 
@@ -87,18 +135,9 @@ A session leaves a durable record, and status lines stay legible when a tool arg
 | Tester loop scope - the tester runs only the related tests during the loop and the whole suite once | S | a fast related check, then a full run |
 | Thinking visibility - show the reasoning, or drop the duration-only line | S-M | no misleading thought line |
 
-## Non-blocking runs & live focus
-
-Deferred from the runs, focus, and memory redesign. Each piece is independent. Live focus lets the operator watch, join, or cancel a running run, and re-entering a finished run keeps that run's own context.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Background execution - run sub-agents and teams off the calling thread, with thread-safe session and registry access | L | non-blocking runs |
-| Live focus and cancellation - watch or join a running run and cancel it, and route input to the focused run | M | watch or join a running agent |
-
 ## Assistant roles & team orchestration
 
-The assistant is the operator's entry point. A composer turns a task into a team, a manager runs teams, and specialists do the work. A role keeps a standing identity and extends it with skills per task, teams iterate generate > check > correct, and focus follows the call tree of runs. This track resumes after the runs, focus, and memory redesign above, ordered by dependency.
+The assistant is the operator's entry point. A composer turns a task into a team, a manager runs teams, and specialists do the work. A role keeps a standing identity and extends it with skills per task, teams iterate generate > check > correct, and the run tree records the call order. This track resumes after the sequential run control and composite session view above, ordered by dependency.
 
 | Task | Effort | Provides |
 |------|--------|----------|
@@ -129,9 +168,9 @@ Agents cooperate through types, delegation, and team stages. Sub-agents use the 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style) | M | current state of a delegation |
-| Auto team selection - the assistant composes the team (types + order + briefs) for a task and delegates in sequence | M | team orchestration as a user-facing pattern |
-| `/agent` types - interactive type selection/run UX (type registry, sub-engine, and `delegate` landed) | M | pick a type and run with it |
+| Per-agent todo lists - view a delegated agent's tasks, mark items done, read its session after the run, and ask for the current state (OpenCode-style) | M | current state of a delegation |
+| Auto team selection - the assistant composes the team (types + order + briefs) for a task and calls the stages in sequence | M | team orchestration as a user-facing pattern |
+| `/agent` types - interactive type selection/run UX (type registry, sub-engine, and `call` landed) | M | pick a type and run with it |
 | Auditor agents + generate > check > correct orchestration - run a main agent, an auditor, and a fix pass in a loop until passing | M-L | review-and-fix loops (later phase, listed in VISION.md out-of-scope) |
 | PM/dev/tester team orchestration as a user-facing pattern | M | team pattern on top of the teams registry |
 | Custom system prompts per session | S-M | per-site instructions |
@@ -169,7 +208,7 @@ Run many scoped agents under a supervisor with a control surface.
 |------|--------|----------|
 | Immutable agent config - `polyglav serve` agents cannot change their own configuration, permissions, or tool list | S-M | control-plane rule |
 | Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API | M | dashboard over the JSON API |
-| Multiuser API + queue / rate limits | M | concurrent feeds without blocking the loop |
+| Multiuser API + queue / rate limits | M | many feeds without blocking the loop |
 | Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin | S-M | fast API without core deps |
 | Observability + telemetry decision - latency/cost/error metrics, Pi-style contracts | M | measured operations |
 
@@ -274,8 +313,8 @@ Distribution and outward-facing presence.
 
 One round hands off in three steps:
 
-1. **Start** - the operator starts a task: `polyglav jobs add`/`run` for scheduled work, or a REPL prompt or `/tool delegate` for ad-hoc work. The jobs operator API adds a remote start (`POST /jobs/<name>/approve`) later
-2. **Distribute + review** - the assistant splits the task into subtasks and delegates them: sequentially by type or team stage today (`delegate`, `Engine.run_team`), routed to fleet agents over `POST /chat` once cross-process delegation lands, with auditor agents reviewing the output (generate > check > correct)
-3. **Return** - results come back to the operator: the delegate result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose
+1. **Start** - the operator starts a task: `polyglav jobs add`/`run` for scheduled work, or a REPL prompt or `/tool call <target>` for ad-hoc work. The jobs operator API adds a remote start (`POST /jobs/<name>/approve`) later
+2. **Distribute + review** - the assistant splits the task into subtasks and calls them: sequentially by type or team stage today (`call`, `Engine.run_team`), routed to fleet agents over `POST /chat` once cross-process calls land, with auditor agents reviewing the output (generate > check > correct)
+3. **Return** - results come back to the operator: the call result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose
 
 Fleet is the substrate that stays up, not the conductor of the work.
