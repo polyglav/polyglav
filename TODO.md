@@ -150,6 +150,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Fixed the whole-line input reprint color
 - [x] Added the unified call target
 - [x] Added the REPL design mocks
 - [x] Added the composite session view

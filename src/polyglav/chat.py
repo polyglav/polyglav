@@ -255,7 +255,7 @@ class ChatLoop(Engine):
             label = '>'
             body = text
         sys.stdout.write('\033[A\r\033[K')
-        sys.stdout.write(_prompt_text(color, label) + body + '\n')
+        sys.stdout.write(f'\001{color}\002{label} {body}\001\033[0m\002\n')
         sys.stdout.flush()
 
     def _read_block(self, line: str, delim: str) -> str | None:

@@ -131,16 +131,16 @@ class TestReplInput(unittest.TestCase):
 
     def test_chat_input_reprinted_in_mode_color(self):
         output = self._run(['hello', EOFError])
-        self.assertIn('\001\033[96m\002>\001\033[0m\002 hello', output)
+        self.assertIn('\001\033[96m\002> hello\001\033[0m\002', output)
 
     def test_command_input_reprinted_in_magenta(self):
         output = self._run(['/sessions list', EOFError])
-        self.assertIn('\001\033[95m\002/\001\033[0m\002 sessions list', output)
+        self.assertIn('\001\033[95m\002/ sessions list\001\033[0m\002', output)
 
     def test_write_input_reprinted_in_orange(self):
         self.chat.config.set('mode', 'write')
         output = self._run(['hello', EOFError])
-        self.assertIn('\001\033[38;5;208m\002>\001\033[0m\002 hello', output)
+        self.assertIn('\001\033[38;5;208m\002> hello\001\033[0m\002', output)
 
 
 class TestOutputLog(unittest.TestCase):
@@ -175,6 +175,20 @@ class TestOutputLog(unittest.TestCase):
         worktree = self._run({'output_log': True, 'output_log_ansi': True})
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
         self.assertIn('\x1b', log.read_text())
+
+    def test_output_log_reprints_colored_chat_input(self):
+        worktree = self._run({'output_log': True, 'output_log_ansi': True},
+                             lines=('hello', EOFError))
+        log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
+        self.assertIn('\001\033[96m\002> hello\001\033[0m\002',
+                      log.read_text())
+
+    def test_output_log_reprints_colored_command_input(self):
+        worktree = self._run({'output_log': True, 'output_log_ansi': True},
+                             lines=('/sessions list', EOFError))
+        log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
+        self.assertIn('\001\033[95m\002/ sessions list\001\033[0m\002',
+                      log.read_text())
 
     def test_banner_precedes_startup_hooks(self):
         self.chat = make_chat({})
