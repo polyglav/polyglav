@@ -1023,21 +1023,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#asking-the-user-or-the-caller" class="md-nav__link">
+  <a href="#asking-the-user" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Asking the user or the caller
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#handing-off-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Handing off control
+        Asking the user
       
     </span>
   </a>
@@ -1315,21 +1304,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#asking-the-user-or-the-caller" class="md-nav__link">
+  <a href="#asking-the-user" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Asking the user or the caller
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#handing-off-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Handing off control
+        Asking the user
       
     </span>
   </a>
@@ -1479,14 +1457,14 @@
 <td>core</td>
 <td><code>ask</code></td>
 <td><code>ask</code></td>
-<td>Ask the user or the caller agent for a decision, pausing until answered</td>
+<td>Ask the user for a decision, pausing until answered</td>
 </tr>
 <tr>
 <td><code>call</code></td>
 <td>core</td>
 <td><code>call</code></td>
 <td><code>call</code></td>
-<td>Run a task under a named role as a sub-agent</td>
+<td>Call a role, a team, or a role-less sibling (<code>target</code>, <code>kind</code>)</td>
 </tr>
 <tr>
 <td><code>catalog</code></td>
@@ -1521,7 +1499,7 @@
 <td>core</td>
 <td><code>delegate</code></td>
 <td><code>delegate</code></td>
-<td>Run a named team (an ordered chain of role stages) and return the final stage's answer</td>
+<td>Compatibility shim for a named team; prefer <code>call target=&lt;team&gt; kind=team</code></td>
 </tr>
 <tr>
 <td><code>file_edit</code></td>
@@ -1573,13 +1551,6 @@
 <td>Regex content search (<code>file:line:</code> results, alias <code>find</code>)</td>
 </tr>
 <tr>
-<td><code>handoff</code></td>
-<td>core</td>
-<td><code>handoff</code></td>
-<td><code>handoff</code></td>
-<td>Pause or finish this run and hand control to a parent/sibling/child/root/run id</td>
-</tr>
-<tr>
 <td><code>list_dir</code></td>
 <td>polyglav-core-fs</td>
 <td><code>read</code></td>
@@ -1591,7 +1562,7 @@
 <td>core</td>
 <td><code>offload</code></td>
 <td><code>offload</code></td>
-<td>Hand a self-contained sub-task to an anonymous read-only sibling</td>
+<td>Compatibility shim for a read-class sibling; prefer <code>call target=sibling</code></td>
 </tr>
 <tr>
 <td><code>run_command</code></td>
@@ -1617,20 +1588,17 @@
 </tbody>
 </table>
 <p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>tools_output_drop</code>, and session logging. See <a href="../plugins/">plugins.md</a>.</p>
-<h2 id="asking-the-user-or-the-caller">Asking the user or the caller<a class="headerlink" href="#asking-the-user-or-the-caller" title="Permanent link">&para;</a></h2>
-<p>The <code>ask</code> tool (core, like <code>call</code>) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>target</code>, <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
+<h2 id="asking-the-user">Asking the user<a class="headerlink" href="#asking-the-user" title="Permanent link">&para;</a></h2>
+<p>The <code>ask</code> tool (core, like <code>call</code>) pauses the run and routes a decision or permission request to the user, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
 <ul>
-<li><code>target='user'</code> - the user answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its <code>sub_&lt;...&gt;</code> session name so the user knows who is asking (delegation and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues. When <code>target</code> is omitted, <code>ask_policy</code> decides the route. A delegated run defaults to its caller, so a running team stays automated and only reaches you when a role sets <code>ask_policy.direction='user'</code> or the ask passes <code>target='user'</code>. The root falls back to the terminal user when there is no caller to consult.</li>
-<li><code>target='caller'</code> - the role or engine that delegated this run decides. The caller answers through a lightweight non-streaming consultation (a bounded prompt with the question, context, options, and the sub-agent's delegated task), not a full parent turn. A root engine has no caller, so <code>target='caller'</code> falls back to <code>user</code>, and <code>user</code> falls back to <code>caller</code> when no terminal is reachable.</li>
-<li><code>kind='permission'</code> - a request for a tool or category the sub-agent is not allowed to use. Naming a category (<code>edit</code>, <code>bash</code>, <code>read</code>) grants the whole category, so every tool in it is covered, while naming a specific tool (<code>file_write</code>) grants only that tool. Routing follows <code>ask_policy.permission</code> (<code>auto</code> = the caller decides and grants one use, <code>user</code> = the user, <code>deny</code> = disabled), capped by the caller's <code>grant_permission</code> ceiling. An approval creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may answer <code>always</code> to make it reusable for the rest of that sub-agent's run. The caller only ever grants <code>once</code>. See <a href="../config/#permission-authority">config.md</a>.</li>
+<li>The user answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its <code>sub_&lt;...&gt;</code> session name so the user knows who is asking (calls and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues.</li>
+<li><code>kind='permission'</code> - a request for a tool or category the run is not allowed to use. Naming a category (<code>edit</code>, <code>bash</code>, <code>read</code>) grants the whole category, so every tool in it is covered, while naming a specific tool (<code>file_write</code>) grants only that tool. <code>ask_policy.permission</code> may be <code>auto</code> (prompt the user) or <code>deny</code> (disabled), capped by the mode-derived <code>grant_permission</code> ceiling. An approval creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may answer <code>always</code> to make it reusable for the rest of that sub-agent's run. See <a href="../config/#permission-authority">config.md</a>.</li>
 <li>A <code>kind='direction'</code> ask must be self-contained. A question shorter than <code>ask_min_question_chars</code> with no <code>context</code> and no <code>options</code> is rejected with an error, so a placeholder such as <code>probe</code> cannot reach a person. <code>0</code> disables the guard.</li>
-<li>Options render inline after the question when the line fits <code>ask_options_inline_chars</code> (for example <code>which?  (a) a  (b) b</code>), otherwise the question prints first and each option follows on its own line as <code>1) opt</code>. The answer accepts a number, a letter (<code>a</code>, <code>b</code>), or the option text, and any other input is a free-text answer. Only <code>? Answer:</code> is the input prompt, so the question and options stay in the transcript.</li>
-<li>The ask prints as its own block: the origin header for a sub-agent ask, the question on a fresh line, then the context, then the options, then <code>? Answer:</code>. The question is plain text, the context and options are dim, and the spinner stops before the block so the question is never appended to a status line.</li>
-<li>When no one can answer (headless <code>run</code>/<code>serve</code>/jobs: no terminal and no caller at the root), <code>ask</code> returns an <code>Error: ask has no one to answer ...</code> result and the run continues autonomously. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see <a href="../jobs/">jobs.md</a>).</li>
+<li>Options render as a numbered block (<code>1) opt</code>), and the answer prompt is <code>&gt;</code> at column 0 in the mode color. The answer accepts a number, a letter (<code>a</code>, <code>b</code>), or the option text, and any other input is a free-text answer.</li>
+<li>The ask prints as its own block: the origin header for a sub-agent ask, the gray question, then the context, then the numbered options, then the <code>&gt;</code> prompt. The spinner stops before the block so the question is never appended to a status line.</li>
+<li>When no one can answer (headless <code>run</code>/<code>serve</code>/jobs with no terminal), <code>ask</code> returns an <code>Error: ask has no one to answer ...</code> result and the run continues autonomously, or parks under unattended mode. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see <a href="../jobs/">jobs.md</a>).</li>
 </ul>
 <p>The ask is not additionally gated: <code>tool_permission.ask</code> defaults to <code>allow</code>, since the question and answer are the point. Users can block it with <code>tools.deny: ["ask"]</code>. The question (tool arguments) and answer (tool result) persist in the asking session's log, and the call is recorded in the session <code>permissions</code> audit array like any tool call. A permission grant adds <code>scope</code> and <code>granted_by</code> fields to that audit entry.</p>
-<h2 id="handing-off-control">Handing off control<a class="headerlink" href="#handing-off-control" title="Permanent link">&para;</a></h2>
-<p>The <code>handoff</code> tool (core) pauses or finishes the current run and hands control to another run, with the user's focus following the target. Schema: <code>target</code> (required) and <code>done</code> (default false). Targets resolve against the run registry: <code>parent</code>, <code>child</code>, <code>sibling</code>, <code>root</code>, a run id (<code>3</code> or <code>#3</code>), a session id (<code>#ab12cd</code>), or a session name. The tool marks the current run <code>done</code> (when <code>done=true</code>) or <code>paused</code>, then records a pending handoff on the focus root. The turn ends immediately, because the loop does not stream another round after the tool batch, and <code>ChatLoop</code> applies the pending handoff once the turn returns, focusing the target run (a root-run target resets to the assistant). It is REPL-only: a delegated sub-agent has no focus manager and gets an <code>Error: handoff is only available in the REPL focus session ...</code> result. Gated by <code>tool_permission.handoff</code> (default <code>allow</code>).</p>
 <h2 id="the-tool-loop">The tool loop<a class="headerlink" href="#the-tool-loop" title="Permanent link">&para;</a></h2>
 <ol>
 <li>The provider's <code>chat()</code> stream yields a <code>tool_calls</code> event with the requested function calls.</li>
@@ -1658,11 +1626,11 @@
 </tr>
 <tr>
 <td><code>category</code></td>
-<td><code>ask</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>exec</code> / <code>handoff</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>search</code> / <code>todo</code> / <code>write</code> - drives the default activity glyph and verb</td>
+<td><code>ask</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>exec</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>search</code> / <code>todo</code> / <code>write</code> - drives the default activity glyph and verb</td>
 </tr>
 <tr>
 <td><code>permission</code></td>
-<td>The <code>tool_permission</code> key that gates the tool: <code>bash</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>edit</code> / <code>handoff</code> / <code>list</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>vcs</code> / <code>web</code></td>
+<td>The <code>tool_permission</code> key that gates the tool: <code>bash</code> / <code>call</code> / <code>catalog</code> / <code>delegate</code> / <code>edit</code> / <code>list</code> / <code>mcp</code> / <code>offload</code> / <code>read</code> / <code>vcs</code> / <code>web</code></td>
 </tr>
 <tr>
 <td><code>permission_fn</code></td>
@@ -1778,9 +1746,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>glyph_lines</code></td>
-<td><code>true</code></td>
-<td>Typed activity lines for mapped categories, else the <code>[tool: arg]</code> oneliner</td>
+<td><code>glyphs</code></td>
+<td><code>{}</code></td>
+<td>Glyph overrides by meaning, or <code>"ascii"</code> for the ASCII preset</td>
 </tr>
 <tr>
 <td><code>list_dir_max_entries</code></td>
@@ -1862,15 +1830,20 @@
 <td><code>0</code></td>
 <td>Cap persisted tool-result content in session files (<code>0</code> = unlimited)</td>
 </tr>
+<tr>
+<td><code>verbosity.tools</code></td>
+<td><code>"inherit"</code></td>
+<td><code>off</code> hides tool lines, <code>summary</code> shows the one-line summary, <code>full</code> shows params and the result body</td>
+</tr>
 </tbody>
 </table>
 <p>Handlers read config at runtime via the <code>_config</code> keyword argument, passed only when declared.</p>
 <p>See <a href="../config/">config.md</a> for the <code>tools.allow</code>, <code>tools.deny</code>, and <code>tool_permission</code> keys, and <a href="../security/">security.md</a> for the threat model.</p>
 <h2 id="status-and-activity-lines">Status and activity lines<a class="headerlink" href="#status-and-activity-lines" title="Permanent link">&para;</a></h2>
-<p>Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, <code>&lt;glyph&gt; &lt;verb&gt; &lt;key_arg&gt;</code> (e.g. <code>← Read README.md</code>, <code>→ Write test.md</code>, <code>$ Run pytest</code>), gated by <code>glyph_lines</code> (default <code>true</code>). Category defaults map to glyphs: read <code>←</code> Read, write <code>→</code> Write, search <code>%</code> Search, exec <code>$</code> Run, ask <code>~</code> Ask, todo <code>-</code> Todo, call <code>↳</code> Call, delegate <code>↳</code> Delegate, offload <code>↳</code> Offload. Unmapped categories fall back to the <code>[tool: key_arg]</code> oneliner plus any <code>status</code> detail lines. Filesystem tools use the <code>*</code> glyph with distinct verbs: <code>* Glob</code>, <code>* List</code>, <code>* Grep</code>.</p>
-<p>When <code>glyph_params</code> is on (default <code>true</code>), the parameters the model passed (excluding the one already shown in the label) are appended: <code>← Read engine.py [offset=299, limit=85]</code>, <code>$ Run pytest [cwd=/workspace, timeout=600]</code>. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving.</p>
-<p>When a tool call fails, the first line of its <code>Error:</code> result is echoed as a dimmed <code>! Error: ...</code> line under the activity line (gated by <code>show_errors</code>, default <code>true</code>). This applies to every tool through the shared dispatch point: the agent loop, <code>/tool</code>, and policy-denied calls alike.</p>
-<p>Soft tool results (short one-line informational notes a tool returns instead of content, like <code>(empty file)</code>, <code>(empty directory)</code>, <code>(no matches for "x")</code>, <code>(end of content)</code>, or <code>No search results found.</code>) surface as a dimmed info line under the activity line (gated by <code>show_notes</code>, default <code>true</code>). A tool opts in by declaring a <code>note</code> predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.</p>
+<p>Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, <code>&lt;glyph&gt; &lt;verb&gt; &lt;key_arg&gt;</code> (e.g. <code>← Read README.md</code>, <code>→ Write test.md</code>, <code>$ Run pytest</code>), gated by <code>verbosity.tools</code> (<code>off</code> hides it, <code>summary</code> and <code>full</code> show it). Category defaults map to glyphs: read <code>←</code> Read, write <code>→</code> Write, search <code>%</code> Search, exec <code>$</code> Run, ask <code>?</code> Ask, todo <code>-</code> Todo, call <code>↳</code> Call, delegate <code>↳</code> Delegate, offload <code>↳</code> Offload, catalog <code>+</code> Catalog. Unmapped categories fall back to the <code>* &lt;name&gt; &lt;value&gt;</code> oneliner plus any <code>status</code> detail lines. Filesystem tools use the <code>*</code> glyph with distinct verbs: <code>* Glob</code>, <code>* List</code>, <code>* Grep</code>. MCP and Git use <code>*</code>.</p>
+<p>At <code>verbosity.tools = full</code>, the parameters the model passed (excluding the one already shown in the label) are appended: <code>← Read engine.py [offset=299, limit=85]</code>, <code>$ Run pytest [cwd=/workspace, timeout=600]</code>. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving. At <code>summary</code>, only the one-line summary shows.</p>
+<p>When a tool call fails, the first line of its <code>Error:</code> result is echoed as a red <code>✗ ...</code> line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop, <code>/tool</code>, and policy-denied calls alike.</p>
+<p>Soft tool results (short one-line informational notes a tool returns instead of content, like <code>(empty file)</code>, <code>(empty directory)</code>, <code>(no matches for "x")</code>, <code>(end of content)</code>, or <code>No search results found.</code>) surface as a dimmed info line under the activity line at <code>summary</code>/<code>full</code>; <code>verbosity.tools = off</code> hides them. A tool opts in by declaring a <code>note</code> predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.</p>
 
 
 

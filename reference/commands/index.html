@@ -1505,7 +1505,7 @@
 <tr>
 <td><code>/config</code></td>
 <td></td>
-<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and a short description per key, and a value too long for the value column prints as an indented <code>value</code>/<code>source</code>/<code>description</code> block</td>
+<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
 </tr>
 <tr>
 <td><code>/connect</code></td>
@@ -1518,11 +1518,6 @@
 <td>Save and exit</td>
 </tr>
 <tr>
-<td><code>/focus</code></td>
-<td></td>
-<td>Show and switch the focused agent run. No args shows the current run, the run tree (each run with its id, session, and session id, plus a <code>↔ Switch to &lt;role&gt;</code> marker), and the call log. Attach by <code>&lt;#run&gt;</code>, <code>#&lt;session_id&gt;</code>, <code>session:&lt;name&gt;</code>, <code>root</code>, or a session name, and navigate with <code>back</code>, <code>child [n]</code>, <code>next</code>, <code>parent</code>, <code>prev</code>, or <code>sibling [n]</code>. <code>log [n]</code> prints the focused run's buffered output (the last <code>n</code> lines, or all when omitted). Focus only navigates existing runs, it never creates a session. See <a href="../architecture/#focus">architecture.md</a></td>
-</tr>
-<tr>
 <td><code>/help</code></td>
 <td><code>/h</code></td>
 <td>Show available commands and tools (<code>/help &lt;cmd|tool&gt;</code> for detail)</td>
@@ -1530,7 +1525,7 @@
 <tr>
 <td><code>/history</code></td>
 <td></td>
-<td>List the active session's turns as a numbered index: <code>/history [n|all] [--thoughts [all]] [--run &lt;target&gt;]</code>. Default last 10, <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), and <code>--run</code> reads another run's session without switching focus. See <a href="../session/">session.md</a></td>
+<td>List the active session's turns as a numbered index: <code>/history [n|all] [--thoughts [all]] [--run &lt;target&gt;] [--tree]</code>. Default last 10, <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), <code>--run</code> reads another run's session, and <code>--tree</code> lists the root and its sub-runs. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/jobs</code></td>
@@ -1550,7 +1545,7 @@
 <tr>
 <td><code>/mode</code></td>
 <td></td>
-<td>Show or switch the agent mode for this session (<code>read</code> = read-only, <code>write</code>). Persist with <code>/config mode &lt;value&gt;</code>. See <a href="../modes/">modes.md</a></td>
+<td>Show the current agent mode, or switch it (<code>/mode &lt;name&gt;</code>). See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>/model</code></td>
@@ -1563,9 +1558,19 @@
 <td>List configured models, or probe a provider's available models. <code>/models</code> shows the approved-model history grouped by provider (<code>(key)</code> when the provider has a stored key), marking <code>(unused)</code> when a model never completed a run and <code>(failed)</code> when its last run errored. <code>/models list [provider]</code> probes a provider's advertised models live (default: current provider), and <code>/models remove &lt;provider&gt;/&lt;model&gt;</code> drops a model from the registry, asking first when it is the active one</td>
 </tr>
 <tr>
+<td><code>/modes</code></td>
+<td></td>
+<td>List the available agent modes, marking the current one. <code>/modes &lt;name&gt;</code> prints that mode's instruction. See <a href="../modes/">modes.md</a></td>
+</tr>
+<tr>
 <td><code>/onboard</code></td>
 <td></td>
-<td>Set up this project (purpose, assistant, focus, prompt, output log). See <a href="../plugins/">plugins.md</a></td>
+<td>Set up this project (purpose, assistant, output log). See <a href="../plugins/">plugins.md</a></td>
+</tr>
+<tr>
+<td><code>/pause</code></td>
+<td></td>
+<td>Hold the next turn at the turn boundary; <code>/resume</code> clears it. State prints as <code>@ Paused #n</code> and <code>@ Resumed #n</code></td>
 </tr>
 <tr>
 <td><code>/plugins</code></td>
@@ -1575,7 +1580,7 @@
 <tr>
 <td><code>/print</code></td>
 <td></td>
-<td>Reprint a turn (or one part) in full: <code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;]</code>. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by <code>print_max_chars</code>, and <code>--full</code> drops the cap. See <a href="../session/">session.md</a></td>
+<td>Reprint a turn (or one part) in full: <code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;] [--tree]</code>. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by <code>print_max_chars</code>, and <code>--full</code> drops the cap. <code>--tree</code> renders the root and its sub-runs. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/provider</code></td>
@@ -1588,6 +1593,11 @@
 <td>List provider connections, alphabetical, with the active one marked and <code>(key)</code> when a key is stored, and <code>(custom)</code> for a provider with no built-in factory</td>
 </tr>
 <tr>
+<td><code>/resume</code></td>
+<td></td>
+<td>Clear a paused run and continue at the next turn</td>
+</tr>
+<tr>
 <td><code>/role</code></td>
 <td></td>
 <td>Show the active run's role and session. See <a href="../roles/">roles.md</a></td>
@@ -1598,6 +1608,11 @@
 <td>Manage roles: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>new &lt;name&gt; [prompt]</code>, <code>remove &lt;name&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../roles/">roles.md</a></td>
 </tr>
 <tr>
+<td><code>/runs</code></td>
+<td></td>
+<td>Show the run tree read-only: run id, role, status, session, and session id. <code>log [n]</code> prints the current run's buffered output (last <code>n</code> lines, or all), and <code>log #&lt;id&gt;</code> reads another run. See <a href="../session/">session.md</a></td>
+</tr>
+<tr>
 <td><code>/session</code></td>
 <td></td>
 <td>Show or switch the active session: <code>/session new</code>, <code>/session load &lt;name&gt;</code>, <code>/session save</code>. Saved-session catalog operations live under <code>/sessions</code></td>
@@ -1605,7 +1620,7 @@
 <tr>
 <td><code>/sessions</code></td>
 <td></td>
-<td>Manage the saved-session catalog: <code>delete</code>, <code>export &lt;name&gt; [out] [--json]</code>, <code>import &lt;file&gt; [name] [--force]</code>, <code>list</code>, <code>preview</code> (see <a href="../session/">session.md</a>)</td>
+<td>Manage the saved-session catalog: <code>delete</code>, <code>export &lt;name&gt; [out] [--json] [--tree]</code>, <code>import &lt;file&gt; [name] [--force]</code>, <code>list</code> (roots only), <code>preview</code> (see <a href="../session/">session.md</a>)</td>
 </tr>
 <tr>
 <td><code>/skills</code></td>
@@ -1620,7 +1635,7 @@
 <tr>
 <td><code>/thinking</code></td>
 <td><code>/reasoning</code></td>
-<td>Show or switch reasoning display and request (<code>/thinking on</code> streams reasoning dimmed under a blue <code>- Thinking</code> header, <code>off</code> shows only a spinner)</td>
+<td>Show or set thinking detail: <code>off</code>, <code>summary</code>, or <code>full</code> (<code>/thinking on</code> = <code>full</code>, <code>off</code> = <code>off</code>). Prints <code>@ Thinking: &lt;level&gt;</code></td>
 </tr>
 <tr>
 <td><code>/tool</code></td>
@@ -1630,7 +1645,7 @@
 <tr>
 <td><code>/unattended</code></td>
 <td></td>
-<td>Show or toggle unattended mode (<code>/unattended on</code>/<code>off</code>): no stdin at any depth, confirms auto-deny, user asks route to the caller or return without pausing. See <a href="../config/#unattended-mode">config.md</a></td>
+<td>Show or toggle unattended mode (<code>/unattended on</code>/<code>off</code>): no stdin at any depth, confirms auto-deny, user asks park or return without pausing. See <a href="../config/#unattended-mode">config.md</a></td>
 </tr>
 <tr>
 <td><code>/version</code></td>

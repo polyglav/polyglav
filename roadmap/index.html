@@ -361,28 +361,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run control and sub-run visibility
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#repl-input-and-defaults" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        REPL input and defaults
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -431,17 +409,6 @@
     <span class="md-ellipsis">
       
         Output log and status legibility
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#non-blocking-runs-live-focus" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Non-blocking runs &amp; live focus
       
     </span>
   </a>
@@ -1439,28 +1406,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-control-and-sub-run-visibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run control and sub-run visibility
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#repl-input-and-defaults" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        REPL input and defaults
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1509,17 +1454,6 @@
     <span class="md-ellipsis">
       
         Output log and status legibility
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#non-blocking-runs-live-focus" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Non-blocking runs &amp; live focus
       
     </span>
   </a>
@@ -1716,54 +1650,8 @@
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
-<h2 id="run-control-and-sub-run-visibility">Run control and sub-run visibility<a class="headerlink" href="#run-control-and-sub-run-visibility" title="Permanent link">&para;</a></h2>
-<p>A running team or delegate blocks the terminal. The status line is interruptible (interactive prompts are never hidden) and printed per stage, so what remains is live focus: watch, join, or cancel a running run, and keep a re-entered run's own context.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Focus a live sub-run - <code>/focus</code> watches, joins, or cancels a running sub-run and leaves the caller reachable</td>
-<td>M</td>
-<td>jump into a live agent</td>
-</tr>
-<tr>
-<td>Focus keeps the run's context - re-entering a finished run resumes its own session, never a fresh one, and <code>/focus</code> drops the <code>session:&lt;name&gt;</code> attach</td>
-<td>S</td>
-<td>context survives a re-entry</td>
-</tr>
-</tbody>
-</table>
-<h2 id="repl-input-and-defaults">REPL input and defaults<a class="headerlink" href="#repl-input-and-defaults" title="Permanent link">&para;</a></h2>
-<p>Small operator-picked REPL changes, one commit each.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>hide_confirm_input</code> default true - the typed input is hidden on the tool confirm unless overridden</td>
-<td>S</td>
-<td>quieter confirms</td>
-</tr>
-<tr>
-<td><code>/clear</code> command - empty the screen and the previous messages, then reprint the startup header</td>
-<td>S</td>
-<td>a clean window mid-session</td>
-</tr>
-</tbody>
-</table>
 <h2 id="self-development-team-enablement">Self-development team enablement<a class="headerlink" href="#self-development-team-enablement" title="Permanent link">&para;</a></h2>
-<p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Background execution above is the prerequisite for leaving and returning to a running main loop. The rest closes the gaps between the project catalogs and the described workflow.</p>
+<p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.</p>
 <table>
 <thead>
 <tr>
@@ -1779,7 +1667,7 @@
 <td>commits during a run</td>
 </tr>
 <tr>
-<td>Saved-session catalog in <code>/load</code> - <code>/load</code> lists and loads saved sessions, <code>/focus</code> stays live-runs-only, so an operator reattaches to a prior agent after a restart</td>
+<td>Saved-session catalog in <code>/load</code> - <code>/load</code> lists and loads saved sessions, <code>/runs</code> stays a read-only history, so an operator reattaches to a prior agent after a restart</td>
 <td>S-M</td>
 <td>switch to any prior agent</td>
 </tr>
@@ -1787,11 +1675,6 @@
 <td>Ask continuation - answering a parked ask resumes and continues its origin run in place, not only injecting the answer into the session</td>
 <td>M</td>
 <td>reply to stacked questions and continue</td>
-</tr>
-<tr>
-<td>Handoff and auto-focus - a team stage or delegated agent hands focus to the next agent (composer &gt; planner &gt; developer), not only the REPL root, and auto-focus follows a delegated or team run so the user sees it, with onboarding asking whether to enable it</td>
-<td>M</td>
-<td>automatic agent-to-agent handoff</td>
 </tr>
 <tr>
 <td>Researcher role with fresh context - a researcher role template with web access, started fresh per task</td>
@@ -1827,7 +1710,7 @@
 <td>a role remembers across runs</td>
 </tr>
 <tr>
-<td>Shared codebase research - a role consults a shared research note (or memory) so parallel roles do not re-read the same files</td>
+<td>Shared codebase research - a role consults a shared research note (or memory) so roles do not re-read the same files</td>
 <td>S-M</td>
 <td>no duplicated reads</td>
 </tr>
@@ -1943,31 +1826,8 @@
 </tr>
 </tbody>
 </table>
-<h2 id="non-blocking-runs-live-focus">Non-blocking runs &amp; live focus<a class="headerlink" href="#non-blocking-runs-live-focus" title="Permanent link">&para;</a></h2>
-<p>Deferred from the runs, focus, and memory redesign. Each piece is independent. Live focus lets the operator watch, join, or cancel a running run, and re-entering a finished run keeps that run's own context.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Background execution - run sub-agents and teams off the calling thread, with thread-safe session and registry access</td>
-<td>L</td>
-<td>non-blocking runs</td>
-</tr>
-<tr>
-<td>Live focus and cancellation - watch or join a running run and cancel it, and route input to the focused run</td>
-<td>M</td>
-<td>watch or join a running agent</td>
-</tr>
-</tbody>
-</table>
 <h2 id="assistant-roles-team-orchestration">Assistant roles &amp; team orchestration<a class="headerlink" href="#assistant-roles-team-orchestration" title="Permanent link">&para;</a></h2>
-<p>The assistant is the operator's entry point. A composer turns a task into a team, a manager runs teams, and specialists do the work. A role keeps a standing identity and extends it with skills per task, teams iterate generate &gt; check &gt; correct, and focus follows the call tree of runs. This track resumes after the runs, focus, and memory redesign above, ordered by dependency.</p>
+<p>The assistant is the operator's entry point. A composer turns a task into a team, a manager runs teams, and specialists do the work. A role keeps a standing identity and extends it with skills per task, teams iterate generate &gt; check &gt; correct, and the run tree records the call order. This track resumes after the sequential run control and composite session view above, ordered by dependency.</p>
 <table>
 <thead>
 <tr>
@@ -2069,17 +1929,17 @@
 </thead>
 <tbody>
 <tr>
-<td>Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)</td>
+<td>Per-agent todo lists - view a delegated agent's tasks, mark items done, read its session after the run, and ask for the current state (OpenCode-style)</td>
 <td>M</td>
 <td>current state of a delegation</td>
 </tr>
 <tr>
-<td>Auto team selection - the assistant composes the team (types + order + briefs) for a task and delegates in sequence</td>
+<td>Auto team selection - the assistant composes the team (types + order + briefs) for a task and calls the stages in sequence</td>
 <td>M</td>
 <td>team orchestration as a user-facing pattern</td>
 </tr>
 <tr>
-<td><code>/agent</code> types - interactive type selection/run UX (type registry, sub-engine, and <code>delegate</code> landed)</td>
+<td><code>/agent</code> types - interactive type selection/run UX (type registry, sub-engine, and <code>call</code> landed)</td>
 <td>M</td>
 <td>pick a type and run with it</td>
 </tr>
@@ -2205,7 +2065,7 @@
 <tr>
 <td>Multiuser API + queue / rate limits</td>
 <td>M</td>
-<td>concurrent feeds without blocking the loop</td>
+<td>many feeds without blocking the loop</td>
 </tr>
 <tr>
 <td>Headless web API plugin-first - stdlib <code>http.server</code> fallback, richer framework (FastAPI) via the dependency plugin</td>
@@ -2531,9 +2391,9 @@
 <h2 id="how-the-layers-compose">How the layers compose<a class="headerlink" href="#how-the-layers-compose" title="Permanent link">&para;</a></h2>
 <p>One round hands off in three steps:</p>
 <ol>
-<li><strong>Start</strong> - the operator starts a task: <code>polyglav jobs add</code>/<code>run</code> for scheduled work, or a REPL prompt or <code>/tool delegate</code> for ad-hoc work. The jobs operator API adds a remote start (<code>POST /jobs/&lt;name&gt;/approve</code>) later</li>
-<li><strong>Distribute + review</strong> - the assistant splits the task into subtasks and delegates them: sequentially by type or team stage today (<code>delegate</code>, <code>Engine.run_team</code>), routed to fleet agents over <code>POST /chat</code> once cross-process delegation lands, with auditor agents reviewing the output (generate &gt; check &gt; correct)</li>
-<li><strong>Return</strong> - results come back to the operator: the delegate result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose</li>
+<li><strong>Start</strong> - the operator starts a task: <code>polyglav jobs add</code>/<code>run</code> for scheduled work, or a REPL prompt or <code>/tool call &lt;target&gt;</code> for ad-hoc work. The jobs operator API adds a remote start (<code>POST /jobs/&lt;name&gt;/approve</code>) later</li>
+<li><strong>Distribute + review</strong> - the assistant splits the task into subtasks and calls them: sequentially by type or team stage today (<code>call</code>, <code>Engine.run_team</code>), routed to fleet agents over <code>POST /chat</code> once cross-process calls land, with auditor agents reviewing the output (generate &gt; check &gt; correct)</li>
+<li><strong>Return</strong> - results come back to the operator: the call result, team memory, or job summary today, the jobs operator API + webhook/email/Telegram connectors when the jobs layer lands. The fleet supervisor restarts crashed processes underneath. The jobs layer restarts failed work - two kinds of restart, both compose</li>
 </ol>
 <p>Fleet is the substrate that stays up, not the conductor of the work.</p>
 

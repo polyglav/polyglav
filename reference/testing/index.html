@@ -1296,11 +1296,11 @@
 </tr>
 <tr>
 <td><code>test_ask.py</code></td>
-<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), <code>target='caller'</code> caller-model consultation (question + delegated task in the prompt) + silent-caller fallback to the user + root-fallback, direction routing (<code>ask_policy.direction</code> caller/user, a sub-agent defaults to its caller, explicit target overrides, the root defaults to the user), the clarity guard (a short question with no context or options is rejected), ask options rendering (inline letters vs multiline numbers, number/letter/free-text selection), permission-request target routing (explicit <code>user</code> prompts the root, an omitted target falls back to the terminal user, unattended parks, a read-mode catalog ask offers a mode switch), sub-engine <code>_caller</code>/<code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
+<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), direction routing (always the user; <code>caller</code>/<code>auto</code> accepted as <code>user</code> for one version), the clarity guard (a short question with no context or options is rejected), ask options rendering (numbered block, <code>&gt;</code> prompt, number/letter/free-text selection), permission-request routing (prompts the root, unattended parks, a read-mode catalog ask offers a mode switch), sub-engine <code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
 </tr>
 <tr>
 <td><code>test_asks.py</code></td>
-<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root ask -&gt; <code>[parked]</code> + record with no stdin, an unattended sub-agent ask consults its caller then parks when the caller is silent, <code>target='user'</code> parks without consulting the caller, <code>target='caller'</code> caller-less root parks, attended still prompts, permission-ask <code>user</code> route parks with <code>kind=permission</code> while <code>auto</code> route still grants <code>once</code> to the caller), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
+<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root ask -&gt; <code>[parked]</code> + record with no stdin, an unattended sub-agent ask parks without consulting a caller, permission asks park, attended still prompts), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
 </tr>
 <tr>
 <td><code>test_autonomous_supervisor.py</code></td>
@@ -1316,7 +1316,7 @@
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
-<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under <code>/tool</code>, mode-filtered listings), <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, <code>connect_check</code> off, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> scope flags (<code>--global</code>/<code>--local</code>, <code>api_key</code> as a normal key incl. global writes, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
+<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under <code>/tool</code>, mode-filtered listings), <code>/modes</code> list and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, <code>connect_check</code> off, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>api_key</code> as a normal key incl. global writes, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
 </tr>
 <tr>
 <td><code>test_completion.py</code></td>
@@ -1324,11 +1324,11 @@
 </tr>
 <tr>
 <td><code>test_config.py</code></td>
-<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration. <code>prompt_role</code> defaults on</td>
+<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration. Verbosity defaults and migration are covered in <code>test_verbosity.py</code></td>
 </tr>
 <tr>
 <td><code>test_call.py</code></td>
-<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>delegate_echo</code> on/off display + sub footer, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
+<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.subruns</code> on/off display, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
 <tr>
 <td><code>test_catalog.py</code></td>
@@ -1340,7 +1340,7 @@
 </tr>
 <tr>
 <td><code>test_engine.py</code></td>
-<td><code>Engine.chat</code> turn result, thinking/content separation, load-or-create sessions, auto <code>ses_&lt;ts&gt;_&lt;id&gt;</code> naming (stable across turns), plan-mode schema filtering, instruction injection, per-turn <code>mode</code>, glyph param suffix gating, <code>!</code> error-line rendering and <code>show_errors</code> gating, soft-result note-line rendering and <code>show_notes</code> gating, <code>check_connection</code>/<code>list_models</code> probe resolution and overrides without state mutation, <code>_reinit_provider</code> provider-registry API key resolution (no config fallback, registry custom base_url fallback when config empty), model-ref unfold + approval gate (unfolded provider/base_url/model, headless deny, <code>approve_models</code> grant, chat short-circuit, subrole-model unfold + gate, team-run pre-check deny)</td>
+<td><code>Engine.chat</code> turn result, thinking/content separation, load-or-create sessions, auto <code>ses_&lt;ts&gt;_&lt;id&gt;</code> naming (stable across turns), plan-mode schema filtering, instruction injection, per-turn <code>mode</code>, glyph param suffix gating, <code>✗</code> error-line rendering (never hidden), soft-result note-line rendering at <code>verbosity.tools</code>, <code>check_connection</code>/<code>list_models</code> probe resolution and overrides without state mutation, <code>_reinit_provider</code> provider-registry API key resolution (no config fallback, registry custom base_url fallback when config empty), model-ref unfold + approval gate (unfolded provider/base_url/model, headless deny, <code>approve_models</code> grant, chat short-circuit, subrole-model unfold + gate, team-run pre-check deny)</td>
 </tr>
 <tr>
 <td><code>test_eval.py</code></td>
@@ -1351,20 +1351,8 @@
 <td>Fleet supervisor: port allocation (preferred/bind-probe fallback/in-use skip/exhaustion), <code>/health</code> probe ok + failure, manifest/state round-trip + corrupt tolerance, spawn &gt; health &gt; crash &gt; restart &gt; down via <code>sys.executable -c</code> mock servers, <code>max_restarts</code> give-up, unhealthy-threshold restart, disabled gate, log files, env seams (<code>POLYGLAV_FLEET_PORT</code>), <code>polyglav fleet</code> CLI (init/add/remove/status/restart/config incl. role inline + unknown-role error), detached-daemon end-to-end (up --detach, status, down)</td>
 </tr>
 <tr>
-<td><code>test_focus.py</code></td>
-<td><code>FocusManager</code>: root start, run-keyed attach to a run's own session and role (<code>agent_&lt;role&gt;</code> removed), re-enter identity, <code>back</code>/<code>reset</code> stack walking, root-run reset, unknown-run error, <code>engines</code> listing, <code>run_engine</code> resume of a saved run, <code>focus_session</code> by session name. REPL routing to the active engine for turns and slash commands, role prompt (<code>prompt_role</code>, default on, lower-cased label) gating, and the prompt builder (the color and reset escapes are bracketed as zero-width on libedit and GNU readline alike). <code>/focus</code> command: show, <code>#id</code>/<code>#run</code>/<code>#&lt;session_id&gt;</code>/<code>session:&lt;name&gt;</code>/<code>root</code> attach, <code>back</code>/<code>child</code>/<code>parent</code>/<code>sibling</code>/<code>next</code>/<code>prev</code>, role no longer a target, unknown target, absent manager</td>
-</tr>
-<tr>
-<td><code>test_focus_on_delegate.py</code></td>
-<td><code>focus_on_delegate</code> config: default <code>on</code>, <code>off</code> leaves focus alone, <code>on</code> records a pending focus on the child run (and the last stage for a team), <code>ask</code> prompts and focuses on yes / leaves focus on no, unattended <code>ask</code> skips the prompt, an invalid mode falls back to <code>off</code>, a sub-agent without a focus manager is a no-op. The pending focus does not stop the agent loop (the caller's answer still streams) and <code>ChatLoop</code> applies it after the turn</td>
-</tr>
-<tr>
-<td><code>test_handoff.py</code></td>
-<td><code>handoff</code> tool (core): registration + <code>handoff</code> permission, run target sets the pending handoff and pauses the run, <code>done</code> finishes it, unknown target errors without pausing, <code>parent</code> from a child run resolves the root run, <code>child</code>/<code>sibling</code>/<code>#id</code>/<code>#run</code>/session name/<code>root</code> resolution, sub-agent without a focus manager errors. Agent loop stops after the handoff batch (no second provider round), <code>ChatLoop</code> applies the pending focus by run id and resets on the root run</td>
-</tr>
-<tr>
 <td><code>test_history.py</code></td>
-<td><code>/history</code> command: default last-10 / <code>n</code> / <code>all</code> listings by absolute turn index, header with total turns and role, line fields (status, duration, tool count, prompt), command-only turns, prompt first-line clip, <code>--thoughts</code> excerpt vs <code>--thoughts all</code>, <code>--run</code> target resolution (session name, bare name, live <code>#run</code>, saved-run <code>#run</code>, live <code>#id</code>, saved <code>#id</code>, live role run, saved session fallback) without switching focus or current session, unknown target and usage errors, empty-session and no-focus-manager cases</td>
+<td><code>/history</code> command: default last-10 / <code>n</code> / <code>all</code> listings by absolute turn index, header with total turns and role, line fields (status, duration, tool count, prompt), command-only turns, prompt first-line clip, <code>--thoughts</code> excerpt vs <code>--thoughts all</code>, <code>--run</code> target resolution (session name, bare name, live <code>#run</code>, saved-run <code>#run</code>, live <code>#id</code>, saved <code>#id</code>, live role run, saved session fallback) without changing the current session, unknown target and usage errors, empty-session cases</td>
 </tr>
 <tr>
 <td><code>test_http.py</code></td>
@@ -1384,7 +1372,7 @@
 </tr>
 <tr>
 <td><code>test_modes.py</code></td>
-<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), prompt color</td>
+<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), submitted-line color</td>
 </tr>
 <tr>
 <td><code>test_offload.py</code></td>
@@ -1400,7 +1388,7 @@
 </tr>
 <tr>
 <td><code>test_print.py</code></td>
-<td><code>/print</code> command: whole-turn reprint with the full metadata block (empty fields as <code>-</code>, including a command turn), part-only <code>&lt;n&gt;.&lt;m&gt;</code>, out-of-range part, unknown turn, <code>print_max_chars</code> cap vs <code>--full</code>, <code>--run</code> targets (session name, bare name, live role run, saved session fallback, live <code>#run</code>, live <code>#id</code>) without switching focus, unknown target and usage/invalid-spec errors</td>
+<td><code>/print</code> command: whole-turn reprint with the full metadata block (empty fields as <code>-</code>, including a command turn), part-only <code>&lt;n&gt;.&lt;m&gt;</code>, out-of-range part, unknown turn, <code>print_max_chars</code> cap vs <code>--full</code>, <code>--run</code> targets (session name, bare name, live role run, saved session fallback, live <code>#run</code>, live <code>#id</code>) without changing the current session, unknown target and usage/invalid-spec errors</td>
 </tr>
 <tr>
 <td><code>test_provider_session.py</code></td>
@@ -1415,12 +1403,32 @@
 <td><code>ProviderRegistry</code> (global <code>providers.json</code>): path under <code>GLOBAL_DIR</code>, put/find/dedupe per provider, empty key keeps existing, base_url stored only when given, key/base_url lookup, touch, <code>0600</code> when keyed, reload, corrupt-file tolerance, remove, <code>GLOBAL_DIR</code> default. <code>resolve_model_ref</code>: known/unknown provider, bare model, no-default provider, empty parts, plugin providers</td>
 </tr>
 <tr>
+<td><code>test_repl_output.py</code></td>
+<td>Golden REPL vocabulary: header, plain live prompt, colored submitted-line reprint, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
+</tr>
+<tr>
 <td><code>test_repl_input.py</code></td>
-<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks</td>
+<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, plain live prompt, submitted-line reprint in the mode and command colors</td>
+</tr>
+<tr>
+<td><code>test_pause.py</code></td>
+<td>Pause/resume: <code>/pause</code> and <code>/resume</code> state, <code>@ Paused #n root</code> and <code>@ Resumed #n root</code>, and a chat turn skipped while paused</td>
+</tr>
+<tr>
+<td><code>test_verbosity.py</code></td>
+<td>Verbosity resolution, presets, scoped overrides, invalid fallbacks, old-key migration, and rendering at <code>off</code>/<code>summary</code>/<code>full</code> for thinking, tools, subruns, and footer</td>
+</tr>
+<tr>
+<td><code>test_call_target.py</code></td>
+<td>Unified <code>call</code> target: role, team, sibling, old <code>role</code> param, unknown target denial, schema <code>target</code>/<code>kind</code>, and <code>call</code> permission resolution per target</td>
+</tr>
+<tr>
+<td><code>test_composite_sessions.py</code></td>
+<td>Composite sessions: <code>SessionManager.tree</code>, <code>/sessions list</code> roots only, <code>/history --tree</code>, <code>/print --tree</code>, and <code>--tree</code> JSON export</td>
 </tr>
 <tr>
 <td><code>test_run_buffer.py</code></td>
-<td>Per-run output buffers: <code>Run.append_buffer</code>/<code>buffer_text</code>/<code>clear_buffer</code> (leading blank skip, cap trims oldest), <code>BufferUI</code> plain-text line formatting (tokens split on newlines, partial flush on footer/info, tool/activity/error/result lines, <code>max_lines</code> sets the run cap), confirm denies and ask returns <code>None</code>, <code>/focus log [n]</code> prints the focused run's buffer (tail limit, empty)</td>
+<td>Per-run output buffers: <code>Run.append_buffer</code>/<code>buffer_text</code>/<code>clear_buffer</code> (leading blank skip, cap trims oldest), <code>BufferUI</code> plain-text line formatting (tokens split on newlines, partial flush on footer/info, tool/activity/error/result lines, <code>max_lines</code> sets the run cap), confirm denies and ask returns <code>None</code>, <code>/runs log [n]</code> prints the current run's buffer (tail limit, empty)</td>
 </tr>
 <tr>
 <td><code>test_run_resume.py</code></td>
@@ -1429,6 +1437,10 @@
 <tr>
 <td><code>test_runs.py</code></td>
 <td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, task recording, unknown-run tolerance. Engine runs: root run registration, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
+</tr>
+<tr>
+<td><code>test_runs_command.py</code></td>
+<td><code>/runs</code>: read-only tree, <code>log [n]</code> tail, unknown run with <code>#id</code></td>
 </tr>
 <tr>
 <td><code>test_server.py</code></td>
@@ -1500,7 +1512,7 @@
 </tr>
 <tr>
 <td><code>test_unattended.py</code></td>
-<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root user ask non-blocking / sub-agent ask consults the caller then parks when unattended (no <code>input</code>), full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
+<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root and sub-agent user asks park without reading stdin, full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
 </tr>
 <tr>
 <td><code>test_roles.py</code></td>
@@ -1512,7 +1524,7 @@
 </tr>
 <tr>
 <td><code>test_ui.py</code></td>
-<td>UI sinks: glyph activity lines, status oneliner fallback, headless verbose rendering, <code>!</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner, delegation status spinner (<code>status_begin</code>/<code>status_end</code> label, <code>status_spinner</code> off, Null no-op, <code>run_subagent</code> wraps it), confirm <code>?</code> glyph at line start, confirm re-raises KeyboardInterrupt / returns False on EOF, ask options inline vs numbered layout, number/letter/free-text selection, origin prefix, inline threshold config, ask prompt layout (question on its own line, plain color, context before options)</td>
+<td>UI sinks: glyph activity lines, tool summary/hidden body, status oneliner fallback, headless verbose rendering, <code>✗</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner and <code>✓ Thought</code>, flat <code>↳ Call</code>/<code>✓ Worked</code> status, confirm <code>?</code> glyph at line start, confirm hidden input / re-raises KeyboardInterrupt / returns False on EOF, ask numbered block and <code>&gt;</code> prompt, number/letter/free-text selection, origin prefix, ask prompt layout (question on its own line, context before options), and verbosity levels</td>
 </tr>
 </tbody>
 </table>

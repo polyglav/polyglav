@@ -404,6 +404,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0460" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.46.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0450-2026-10-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.45.0 - 2026-10-21
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0440-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1648,6 +1670,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0460" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.46.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v0450-2026-10-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.45.0 - 2026-10-21
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0440-2026-10-18" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2149,6 +2193,38 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0460">v0.46.0<a class="headerlink" href="#v0460" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Compacted <code>/config</code> to key/value/origin, with <code>/config &lt;key&gt;</code> and <code>--verbose</code> for descriptions. Tests: <code>test_commands.py</code></li>
+<li>Cleaned <code>/modes</code> to a plain list and added <code>/modes &lt;name&gt;</code> for the mode instruction. Tests: <code>test_commands.py</code></li>
+<li>Changed the live input prompt to a plain <code>_</code> marker; the submitted line reprints as a mode-colored <code>&gt;</code> or a magenta <code>/</code>. Tests: <code>test_repl_input.py</code>, <code>test_repl_output.py</code></li>
+</ul>
+<h2 id="v0450-2026-10-21">v0.45.0 - 2026-10-21<a class="headerlink" href="#v0450-2026-10-21" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added <code>/modes</code> to list the available modes, and kept <code>/mode</code> to a single current-mode line. Tests: <code>test_commands.py</code></li>
+<li>Fixed the submitted-line reprint so the whole prompt and text carry the mode or command color, and the live prompt leaves typed text in the mode color. Tests: <code>test_repl_input.py</code></li>
+<li>Added a composite session view - <code>/sessions</code> lists roots only, <code>/history --tree</code> and <code>/print --tree</code> render the run tree, and <code>--tree</code> exports include sub-runs. Tests: <code>test_composite_sessions.py</code></li>
+<li>Added a unified call target - <code>call target=&lt;role|team|sibling&gt;</code> with <code>kind</code> to disambiguate, one <code>call</code> permission key resolved per target, and the old <code>delegate</code> and <code>offload</code> tools kept for one version. Tests: <code>test_call_target.py</code>, <code>test_call.py</code></li>
+<li>Removed caller asks - the <code>ask</code> tool now routes to the user (or parks when unattended), and the caller model consultation and <code>target</code> parameter are gone. Tests: <code>test_ask.py</code>, <code>test_asks.py</code>, <code>test_delegation_permissions.py</code>, <code>test_unattended.py</code></li>
+<li>Removed handoff and focus switching - the REPL runs one context at a time, <code>/runs</code> is read-only, and <code>focus_on_delegate</code>, <code>prompt_role</code>, and the <code>SubRunUI</code> forwarding are gone. Tests: <code>test_runs_command.py</code>, <code>test_run_buffer.py</code></li>
+<li>Added a read-only <code>/runs</code> tree - run id, role, status, session, and a <code>log [n]</code> view of a run buffer, with no focus switch. Tests: <code>test_runs_command.py</code></li>
+<li>Added pause and resume - <code>/pause</code> holds the next turn, <code>/resume</code> clears it, and the state prints as <code>@ Paused #n</code> and <code>@ Resumed #n</code>. Tests: <code>test_pause.py</code></li>
+<li>Added verbosity rendering tests for thinking, tools, subruns, and footer levels. Tests: <code>test_verbosity.py</code></li>
+<li>Added the verbosity model - <code>quiet</code>, <code>normal</code>, and <code>verbose</code> presets plus <code>verbosity.thinking</code>, <code>verbosity.tools</code>, <code>verbosity.subruns</code>, and <code>verbosity.footer</code>; old display flags migrate on read, errors are always shown, and <code>/thinking</code> takes <code>off</code>, <code>summary</code>, or <code>full</code>. Tests: <code>test_verbosity.py</code>, <code>test_ui.py</code>, <code>test_engine.py</code>, <code>test_commands.py</code></li>
+<li>Added golden transcript tests for the REPL output vocabulary - header, prompts, thinking, tool summary, flat stages, ask block, warning, and error. Tests: <code>test_repl_output.py</code></li>
+<li>Changed sub-runs to flat stage lines - <code>↳ Call &lt;target&gt;</code>, <code>↲ &lt;result&gt;</code>, <code>✓ Worked: &lt;role&gt;</code>, and <code>✗ &lt;role&gt;</code> with no indentation. Tests: <code>test_ui.py</code>, <code>test_call.py</code>, <code>test_delegate_tool.py</code>, <code>test_run_buffer.py</code></li>
+<li>Changed the glyph set to the final vocabulary - <code>@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *</code>, <code>←</code>/<code>→</code>, and the braille spinner; dropped <code>☐</code>, <code>⎇</code>, <code>◈</code>, <code>·</code>, <code>…</code>, and <code>▸</code>. Tests: <code>test_ui.py</code></li>
+<li>Fixed status lines to start on a new line after streamed text. Tests: <code>test_ui.py</code></li>
+<li>Changed the tool confirm to hide typed input by default. Tests: <code>test_ui.py</code></li>
+<li>Changed the ask layout - a gray question, a numbered option block, and a <code>&gt;</code> answer prompt in the mode color. Tests: <code>test_ui.py</code></li>
+<li>Changed the REPL strings - <code>@ Model</code>, <code>@ Mode</code>, <code>✗</code> errors, <code>!</code> warnings, <code>✓ Done</code> footers, gray info, and an indented refine line. Git and MCP use the default glyph. Tests: <code>test_ui.py</code>, <code>test_commands.py</code>, <code>test_agent_loop.py</code></li>
+<li>Added glyph config - a <code>glyphs</code> override map and an <code>ascii</code> preset, with no runtime detection. Tests: <code>test_ui.py</code></li>
+<li>Removed the assistant prefix - streamed answers start at column 0 with no <code>&lt;&lt;&lt;</code> marker. Tests: <code>test_ui.py</code></li>
+<li>Changed tool output to hidden by default - the activity line keeps a one-line summary, the full body stays in the session log, and a one-time <code>/print</code> hint points at it. Tests: <code>test_ui.py</code></li>
+<li>Added the REPL header - bold <code>Polyglav vX.Y.Z</code> and location, a once-only <code>/help</code> hint, and a gray <code>@ &lt;mode&gt; (provider/model)</code> line. Tests: <code>test_agent_loop.py</code></li>
+<li>Changed the REPL prompts - chat uses <code>&gt;</code> in the mode color, commands reprint as <code>/</code> in magenta, and continuation uses <code>...</code>. Tests: <code>test_repl_input.py</code>, <code>test_focus.py</code></li>
+<li>Added the REPL palette constants - cyan read prompt, orange write prompt, magenta command line, green bash line, gray info, yellow warning, and red error. Tests: <code>test_ui.py</code></li>
+</ul>
 <h2 id="v0440-2026-10-18">v0.44.0 - 2026-10-18<a class="headerlink" href="#v0440-2026-10-18" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added model removal to <code>/models</code> - <code>/models remove &lt;provider&gt;/&lt;model&gt;</code> drops a registry entry, asking first when it is the active model. Docs (<code>commands.md</code>). Tests: <code>test_commands.py</code></li>

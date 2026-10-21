@@ -1322,23 +1322,24 @@
 <li><code>write</code> leaves write-class tools to <code>tool_permission</code>, so each write key is still bounded by its own <code>allow</code>/<code>ask</code>/<code>deny</code> action.</li>
 <li>Any value other than <code>read</code> or <code>write</code> resolves to <code>read</code> and prints a warning.</li>
 </ul>
-<p>The prompt color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The banner shows a <code>[read mode]</code> label.</p>
+<p>The submitted-line color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The live prompt is a plain <code>_</code>, and the line reprints in that color after Enter. The banner shows the current mode, for example <code>@ Read mode</code>.</p>
 <h2 id="access-classification">Access classification<a class="headerlink" href="#access-classification" title="Permanent link">&para;</a></h2>
 <p>Tools are classed by permission key, not by tool name. Config <code>access.read_tools</code> lists the read-class keys:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"access"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"handoff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Any key not listed is write-class, and an unknown key (for example a permission a new plugin introduces) defaults to write. This is fail-closed: a plugin cannot make a write tool readable by accident, the user has to add its key to <code>read_tools</code>.</p>
-<p>Default write keys include <code>edit</code>, <code>bash</code>, <code>vcs</code>, <code>mcp</code>, <code>call</code>, and <code>delegate</code>. Mixed tools gate per action: <code>catalog</code> allows <code>list</code>/<code>show</code> in read mode and denies <code>save</code>/<code>remove</code>/<code>reload</code>, <code>git</code> is read while <code>git_commit</code> is write (<code>vcs</code>), and the MCP management tools allow <code>mcp_list</code> in read mode while <code>mcp_connect</code>/<code>mcp_disconnect</code> and the imported remote tools are write (<code>mcp</code>).</p>
+<p>Default write keys include <code>edit</code>, <code>bash</code>, <code>vcs</code>, <code>mcp</code>, <code>call</code>, and <code>delegate</code>. The <code>call</code> tool resolves a role or team per target; a sibling target is read-only. Mixed tools gate per action: <code>catalog</code> allows <code>list</code>/<code>show</code> in read mode and denies <code>save</code>/<code>remove</code>/<code>reload</code>, <code>git</code> is read while <code>git_commit</code> is write (<code>vcs</code>), and the MCP management tools allow <code>mcp_list</code> in read mode while <code>mcp_connect</code>/<code>mcp_disconnect</code> and the imported remote tools are write (<code>mcp</code>).</p>
 <h2 id="the-mode-cap">The mode cap<a class="headerlink" href="#the-mode-cap" title="Permanent link">&para;</a></h2>
 <p>The mode is the outermost bound, applied last. It is enforced in <code>ToolPolicy</code> after grants and per-invocation resolvers, so neither a grant nor a role carve can widen past it. A sub-agent inherits its caller's mode, and <code>read</code> clamps the delegation ceiling, so a granted <code>bash</code> still cannot run in read mode.</p>
 <p>A request in <code>read</code> mode for a write key, or for a read-class category with declared write actions such as <code>catalog save</code>, is redirected to a mode switch, because the action cannot take effect under the read cap.</p>
 <h2 id="switching">Switching<a class="headerlink" href="#switching" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>/mode</code> shows the current mode and the available names.</li>
+<li><code>/mode</code> shows the current mode.</li>
+<li><code>/modes</code> lists the available names, marking the current one. <code>/modes &lt;name&gt;</code> prints that mode's instruction.</li>
 <li><code>/mode &lt;name&gt;</code> switches the mode for the current session. It does not write the config.</li>
 <li><code>/config mode &lt;value&gt;</code> persists the mode to the local config.</li>
 <li><code>--mode &lt;name&gt;</code> sets the mode for <code>polyglav run</code> and <code>polyglav serve</code>.</li>

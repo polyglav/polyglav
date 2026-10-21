@@ -1433,9 +1433,13 @@
 <li><strong>Local</strong> - <code>.polyglav/config.json</code> in the project path (project overrides).</li>
 </ol>
 <p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns, per-key description)</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns)</span>
 /config
-<span class="c1"># a value too long for the value column prints as an indented value/source/description block</span>
+<span class="c1"># one key with its description</span>
+/config<span class="w"> </span>temperature
+<span class="c1"># every key with its description on an indented line</span>
+/config<span class="w"> </span>--verbose
+<span class="c1"># a value too long for the value column prints as an indented value/source block</span>
 <span class="c1"># set a value (project-local, Git-like default)</span>
 /config<span class="w"> </span>temperature<span class="w"> </span><span class="m">0</span>.3
 <span class="c1"># set a structured value</span>
@@ -1469,17 +1473,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>access</code></td>
 <td><code>{"read_tools": [...]}</code></td>
-<td>Read-class permission keys (<code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>handoff</code>, <code>offload</code>). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See <a href="../modes/">modes.md</a></td>
+<td>Read-class permission keys (<code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>offload</code>). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>ask_min_question_chars</code></td>
 <td><code>8</code></td>
 <td>Minimum length of a <code>kind='direction'</code> ask question when it has no <code>context</code> and no <code>options</code>. A shorter question is rejected with an error so the model asks a self-contained question. <code>0</code> disables the guard</td>
-</tr>
-<tr>
-<td><code>ask_options_inline_chars</code></td>
-<td><code>60</code></td>
-<td>Render an ask's options inline after the question when the line fits this many characters (<code>question  (a) opt  (b) opt</code>). Longer content prints the question first, then one option per line as <code>1) opt</code>. The answer accepts a number, a letter, or the option text. <code>0</code> always uses the multiline layout</td>
 </tr>
 <tr>
 <td><code>ask_policy</code></td>
@@ -1522,29 +1521,14 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Test the provider connection on config changes: <code>/connect</code> probes before saving (broken values rejected unless confirmed), <code>/provider</code> warns on a failed probe. <code>false</code> skips all probes</td>
 </tr>
 <tr>
-<td><code>delegate_echo</code></td>
-<td><code>true</code></td>
-<td>When a <code>call</code>, <code>delegate</code>, or <code>offload</code> runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output</td>
-</tr>
-<tr>
-<td><code>focus_on_delegate</code></td>
-<td><code>"on"</code></td>
-<td>After a <code>call</code> or team <code>delegate</code> run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. <code>off</code> leaves focus alone, <code>on</code> focuses automatically, <code>ask</code> prompts the user first (skipped under <a href="#unattended-mode">unattended mode</a>). The root turn still finishes, so its answer is not lost. REPL-only</td>
-</tr>
-<tr>
 <td><code>footer_tokens</code></td>
 <td><code>["context"]</code></td>
 <td>Token counts the footer shows, in order, joined by <code>/</code>. <code>context</code> = <code>&lt;n&gt; tokens</code> (context/input size, chars/4 fallback), <code>in</code>/<code>out</code>/<code>thinking</code> = <code>&lt;n&gt;t</code> from provider usage (unavailable counts skipped). Empty list hides the section</td>
 </tr>
 <tr>
-<td><code>glyph_lines</code></td>
-<td><code>true</code></td>
-<td>Typed <code>&lt;glyph&gt; &lt;verb&gt; &lt;arg&gt;</code> status lines for mapped categories. Off or unmapped categories fall back to the <code>[tool: arg]</code> oneliner</td>
-</tr>
-<tr>
-<td><code>glyph_params</code></td>
-<td><code>true</code></td>
-<td>Append tool call parameters to glyph status lines and confirm prompts (e.g. <code>← Read engine.py [offset=299, limit=85]</code>). Off for bare <code>&lt;glyph&gt; &lt;verb&gt; &lt;arg&gt;</code></td>
+<td><code>glyphs</code></td>
+<td><code>{}</code></td>
+<td>Glyph overrides by meaning (<code>read</code>, <code>write</code>, <code>search</code>, <code>exec</code>, <code>ask</code>, <code>todo</code>, <code>call</code>, <code>delegate</code>, <code>offload</code>, <code>enter</code>, <code>return</code>, <code>warning</code>, <code>question</code>, <code>default</code>, <code>spinner</code>), or <code>"ascii"</code> for the ASCII preset. No runtime detection</td>
 </tr>
 <tr>
 <td><code>grant_permission</code></td>
@@ -1553,7 +1537,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>hide_confirm_input</code></td>
-<td><code>false</code></td>
+<td><code>true</code></td>
 <td>Hide the typed input for the REPL <code>[Y/n]</code> tool confirm prompt (the answer is not echoed). Free-text <code>ask</code> answers stay visible</td>
 </tr>
 <tr>
@@ -1647,11 +1631,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Per-worktree instructions file auto-loaded into the system prompt (e.g. <code>AGENTS.md</code>, <code>CLAUDE.md</code>). <code>""</code> disables. Absent files skipped, content capped at 20000 chars</td>
 </tr>
 <tr>
-<td><code>prompt_role</code></td>
-<td><code>true</code></td>
-<td>Prefix the REPL prompt with the active role when focus is not the root (e.g. <code>writer &gt;&gt;&gt;</code>), lower-cased, in the default text color, so the stage is visible. <code>false</code> keeps the plain <code>&gt;&gt;&gt;</code> in the mode color. The root <code>&gt;&gt;&gt;</code> shows the mode color (cyan read, orange write) on both GNU readline and macOS/libedit</td>
-</tr>
-<tr>
 <td><code>provider</code></td>
 <td><code>"ollama"</code></td>
 <td>Provider name. Bundled provider plugins (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>) register <code>ollama</code>, <code>openai</code>, <code>groq</code>, <code>anthropic</code>, <code>opencode</code>, <code>opencode-go</code>. <code>openai-compatible</code> is the generic fallback. External plugins can register more</td>
@@ -1684,7 +1663,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>run_buffer_max_lines</code></td>
 <td><code>2000</code></td>
-<td>Cap lines kept in a run's per-run output buffer (<code>BufferUI</code>). Oldest lines are trimmed past the cap. <code>0</code> = unlimited. Read back with <code>/focus log</code></td>
+<td>Cap lines kept in a run's per-run output buffer (<code>BufferUI</code>). Oldest lines are trimmed past the cap. <code>0</code> = unlimited. Read back with <code>/runs log</code></td>
 </tr>
 <tr>
 <td><code>search_results</code></td>
@@ -1692,39 +1671,9 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Number of search results to fetch</td>
 </tr>
 <tr>
-<td><code>show_context_size</code></td>
-<td><code>true</code></td>
-<td>Dimmed context-size line after each response</td>
-</tr>
-<tr>
-<td><code>show_errors</code></td>
-<td><code>true</code></td>
-<td>Show a red <code>! Error: ...</code> line (first line of the result) when a tool call fails. Off hides the line</td>
-</tr>
-<tr>
-<td><code>show_notes</code></td>
-<td><code>true</code></td>
-<td>Show a dimmed info line for soft tool results (e.g. <code>(empty file)</code>, <code>(no matches for "x")</code>). Off hides the line</td>
-</tr>
-<tr>
-<td><code>show_thinking</code></td>
-<td><code>false</code></td>
-<td>Stream reasoning tokens dimmed under a blue <code>- Thinking</code> header. When off, thinking shows as an animated spinner plus a <code>+ Thought N.Ns</code> summary (display only - what is sent to the model is unchanged)</td>
-</tr>
-<tr>
-<td><code>show_thought_duration</code></td>
-<td><code>true</code></td>
-<td>When thinking is streamed (<code>show_thinking</code> on), print a dimmed <code>(Thought N.Ns)</code> line after each thinking block. Off hides it</td>
-</tr>
-<tr>
 <td><code>show_version</code></td>
 <td><code>true</code></td>
 <td>Show the version in the REPL banner</td>
-</tr>
-<tr>
-<td><code>status_spinner</code></td>
-<td><code>true</code></td>
-<td>Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. The spinner always yields while a confirm or <code>ask</code> prompt waits for input, so the prompt is never overwritten, and each stage prints a dim <code>↔ Switch &lt;run&gt;</code> marker. Off hides the animation. Headless and Null sinks ignore it</td>
 </tr>
 <tr>
 <td><code>stream_retries</code></td>
@@ -1735,11 +1684,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>stream_retry_delay</code></td>
 <td><code>0.5</code></td>
 <td>Seconds to wait between stream retries</td>
-</tr>
-<tr>
-<td><code>subrun_verbosity</code></td>
-<td><code>"quiet"</code></td>
-<td>How much of a delegated sub-run reaches the terminal while the caller waits. <code>quiet</code> buffers the whole run (read it with <code>/focus log</code>), <code>summary</code> forwards only the sub-run's write and edit activity lines, <code>full</code> forwards every activity line. The run's own <code>✓ &lt;stage&gt; (Ns, N tokens)</code> line always prints on completion</td>
 </tr>
 <tr>
 <td><code>system_prompt</code></td>
@@ -1812,6 +1756,31 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Unattended mode: no stdin is read at any depth. Confirms auto-deny and <code>ask target='user'</code> parks as a pending request (<code>.polyglav/asks.json</code>) instead of prompting. See <a href="#unattended-mode">Unattended mode</a></td>
 </tr>
 <tr>
+<td><code>verbosity</code></td>
+<td><code>"normal"</code></td>
+<td>Display volume: <code>quiet</code>, <code>normal</code>, or <code>verbose</code></td>
+</tr>
+<tr>
+<td><code>verbosity.footer</code></td>
+<td><code>"inherit"</code></td>
+<td>Footer detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+</tr>
+<tr>
+<td><code>verbosity.subruns</code></td>
+<td><code>"inherit"</code></td>
+<td>Sub-run detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+</tr>
+<tr>
+<td><code>verbosity.thinking</code></td>
+<td><code>"inherit"</code></td>
+<td>Thinking detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+</tr>
+<tr>
+<td><code>verbosity.tools</code></td>
+<td><code>"inherit"</code></td>
+<td>Tool detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+</tr>
+<tr>
 <td><code>web_search</code></td>
 <td><code>false</code></td>
 <td>Auto-search mode: search the web before answering</td>
@@ -1824,7 +1793,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tbody>
 </table>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
-<p>There are two modes: <code>read</code> (default) and <code>write</code>. <code>read</code> allows only read-class permission keys and denies every write-class key, while <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may override its instruction block and prompt color:</p>
+<p>There are two modes: <code>read</code> (default) and <code>write</code>. <code>read</code> allows only read-class permission keys and denies every write-class key, while <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may override its instruction block and submitted-line color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"modes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -1835,7 +1804,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">    </span><span class="nt">"write"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orange"</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">"access"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"handoff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1849,7 +1818,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="nt">"catalog"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"handoff"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"mcp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"offload"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
@@ -1858,7 +1826,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target role: a configured role uses its own <code>tool_permission</code> overrides (category <code>call</code> defaulting to <code>allow</code>), while a role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> category gates the team pipeline tool (default <code>allow</code>), separate from <code>call</code> so a role can be a call target yet be barred from running pipelines. The <code>offload</code> category gates the <code>offload</code> tool (default <code>allow</code>, read-class). The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user or the caller agent, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>handoff</code> category gates the <code>handoff</code> tool (default <code>allow</code>). It only moves the REPL's focus between runs (see <a href="../tools/#handing-off-control">tools.md</a>). The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
+<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target: a role uses its own <code>tool_permission.call</code>, a team uses its stage roles' <code>call</code> actions, and a sibling is read-only. A role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> and <code>offload</code> compatibility tools keep their own categories (<code>delegate</code> for a team pipeline, <code>offload</code> for a read-class sibling) for one version. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
 <h3 id="ask_policy"><code>ask_policy</code><a class="headerlink" href="#ask_policy" title="Permanent link">&para;</a></h3>
 <p>Routes the <code>ask</code> tool by kind:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1868,9 +1836,10 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
+<p><code>permission</code> is <code>auto</code> (ask the user) or <code>deny</code> (disable permission asks). <code>direction</code> always asks the user; <code>caller</code> and <code>auto</code> are accepted as <code>user</code> for one version. A sub-agent inherits the root <code>ReplUI</code> as <code>_ask_ui</code>, so its asks reach the terminal; under unattended mode they park instead.</p>
 <ul>
-<li><code>permission</code> - a sub-agent's request for a tool or write category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). An explicit <code>target</code> on the ask overrides the route (<code>user</code> forces the user, <code>caller</code> forces the caller), and when the route resolves to a caller but there is none, the root falls back to the terminal user. In <code>read</code> mode a request for a write key or for a category with declared write actions (for example <code>catalog save</code>) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use <code>ask(kind="direction")</code>). In <code>write</code> mode <code>auto</code> has the caller decide and grants one use, <code>user</code> routes to the user, <code>deny</code> disables grants. A request above the mode-derived ceiling is always denied. When the ceiling itself is <code>ask</code> for that category, the request is routed to the user, because the caller may not grant above a user-gated category. The user may grant <code>always</code> (reusable for the rest of that sub-agent's run), the caller only ever grants <code>once</code>. A user-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
-<li><code>direction</code> - a decision or scope change. <code>user</code> routes to the user, <code>caller</code> (and <code>auto</code>) routes to the caller, and <code>""</code> (the default) is automatic: a delegated run routes to its caller so it stays automated, while the root, which has no caller, routes to the user. An explicit <code>target</code> on the ask always overrides this.</li>
+<li><code>permission</code> - a sub-agent's request for a tool or write category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). The user answers at the terminal. In <code>read</code> mode a request for a write key or for a category with declared write actions (for example <code>catalog save</code>) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use <code>ask(kind="direction")</code>). In <code>write</code> mode <code>auto</code> prompts the user, <code>deny</code> disables grants. A request above the mode-derived ceiling is always denied. The user may grant <code>always</code> (reusable for the rest of that sub-agent's run) or <code>once</code>. A user-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
+<li><code>direction</code> - a decision or scope change. It always asks the user; <code>caller</code> and <code>auto</code> are accepted as <code>user</code> for one version. An explicit <code>target</code> is no longer part of the schema.</li>
 </ul>
 <h3 id="permission-authority">Permission authority<a class="headerlink" href="#permission-authority" title="Permanent link">&para;</a></h3>
 <p>Every engine has two permission axes:</p>
@@ -1878,7 +1847,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>tool_permission</code> - what the engine itself may use.</li>
 <li><code>grant_permission</code> - the ceiling on what it may hand down to sub-agents.</li>
 </ul>
-<p>Both take permission keys, not tool categories: <code>bash</code>, <code>edit</code>, <code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>handoff</code>, <code>offload</code>, <code>call</code>, <code>delegate</code>, <code>mcp</code>, <code>vcs</code>. A <code>catalog</code> save normalizes a category name (<code>write</code> -&gt; <code>edit</code>, <code>exec</code>/<code>shell</code>/<code>cmd</code> -&gt; <code>bash</code>, <code>search</code> -&gt; <code>web</code>), rejects an unknown key with the valid list, and accepts an action of <code>allow</code>/<code>ask</code>/<code>deny</code> (<code>true</code>/<code>false</code> are accepted as <code>allow</code>/<code>deny</code>).</p>
+<p>Both take permission keys, not tool categories: <code>bash</code>, <code>edit</code>, <code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>offload</code>, <code>call</code>, <code>delegate</code>, <code>mcp</code>, <code>vcs</code>. A <code>catalog</code> save normalizes a category name (<code>write</code> -&gt; <code>edit</code>, <code>exec</code>/<code>shell</code>/<code>cmd</code> -&gt; <code>bash</code>, <code>search</code> -&gt; <code>web</code>), rejects an unknown key with the valid list, and accepts an action of <code>allow</code>/<code>ask</code>/<code>deny</code> (<code>true</code>/<code>false</code> are accepted as <code>allow</code>/<code>deny</code>).</p>
 <p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the mode-derived ceiling. The mode sets that ceiling: <code>write</code> makes write keys grantable, <code>read</code> denies them, and <code>grant_permission</code> (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.</p>
 <p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them, as long as the session is in <code>write</code> mode.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The user may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>
@@ -1886,7 +1855,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <p><code>unattended: true</code> guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:</p>
 <ul>
 <li><strong>Confirms auto-deny.</strong> A tool whose policy action is <code>ask</code> (e.g. <code>run_command</code> with <code>bash: ask</code>) returns <code>[cancelled] User declined the &lt;name&gt; call</code> instead of prompting.</li>
-<li><strong><code>ask target='user'</code> parks instead of prompting.</strong> The root engine drops its terminal UI (<code>_ask_ui</code> is not propagated down the tree), and any user-routed ask becomes a pending request persisted in <code>.polyglav/asks.json</code>, returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code> so it continues or finishes. A sub-agent's user ask parks rather than falling back to its caller, so the user decides. Permission asks routed <code>user</code> park the same way. Routed <code>auto</code> still go to the caller (a one-shot grant).</li>
+<li><strong><code>ask target='user'</code> parks instead of prompting.</strong> The root engine drops its terminal UI (<code>_ask_ui</code> is not propagated down the tree), and any user-routed ask becomes a pending request persisted in <code>.polyglav/asks.json</code>, returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code> so it continues or finishes. A sub-agent's user ask parks rather than consulting a caller, so the user decides. Permission asks park the same way.</li>
 <li><strong>Model approval is not prompted.</strong> An unapproved role/team model is denied (the run reports the error) unless the headless <code>approve_models</code> flag was passed. Launch with <code>--approve-model</code> if the run needs to approve one itself.</li>
 </ul>
 <p>Enable it per run with <code>polyglav --unattended</code> (not persisted), in config with <code>unattended: true</code>, or live with <code>/unattended</code>. Parked asks are listed and answered with <code>/asks</code> or the serve API (<code>GET /asks</code>, <code>POST /asks/&lt;id&gt;/answer</code>). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the user's decision in context. Scheduled/durable job engines run unattended, so a job parks its user asks the same way. <code>confirm_timeout</code> (seconds, default <code>0</code> = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.</p>

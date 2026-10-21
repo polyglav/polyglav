@@ -1403,7 +1403,7 @@
 <h1 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h1>
 <p><strong>One agent, many heads</strong></p>
 <p>Polyglav is an agent harness: the runtime that turns a language model into an agent that can act. The model plans, the harness executes, and one streaming loop drives an interactive REPL, a headless CLI, and an HTTP API. Polyglav is deliberately small, zero-dependency, and auditable, so the whole runtime fits in one review.</p>
-<p>The main agent, <strong>assistant</strong>, is the point of contact: it greets you on first run and asks what you want to do, answers small tasks inline in the current run, delegates bigger tasks to sub-agents or whole teams instead of blocking, runs recurring work in the background, watches your other agents for health, and reports back. Everything you need to see is reachable from one place: sessions, running agents, and configured jobs on the machine. Users never see the machinery. They feel supported and do less work.</p>
+<p>The main agent, <strong>assistant</strong>, is the point of contact: it greets you on first run and asks what you want to do, answers small tasks inline in the current run, delegates bigger tasks to sub-agents or whole teams one context at a time, runs recurring work in the background, watches your other agents for health, and reports back. Everything you need to see is reachable from one place: sessions, running agents, and configured jobs on the machine. Users never see the machinery. They feel supported and do less work.</p>
 <h2 id="what-polyglav-is">What Polyglav is<a class="headerlink" href="#what-polyglav-is" title="Permanent link">&para;</a></h2>
 <p>An agent is a model plus a harness:</p>
 <ul>
@@ -1431,7 +1431,7 @@
 </tr>
 <tr>
 <td>Orchestration</td>
-<td>runs, focus, delegation, teams, jobs, and the fleet supervisor</td>
+<td>runs, pause and resume, delegation, teams, jobs, and the fleet supervisor</td>
 </tr>
 <tr>
 <td>Capability</td>
@@ -1466,8 +1466,8 @@
 <li><strong>Ask</strong> - the user states an outcome to the <code>assistant</code>, in one sentence.</li>
 <li><strong>Compose</strong> - for work beyond one task, the assistant engages the <code>composer</code> role, which designs a team: the specialists, the skills each needs, the stage order, and an optional review loop. The team is saved to the catalog, so it can be reused and extended.</li>
 <li><strong>Run</strong> - the assistant starts the team. Stages run in order, each with its own role, skills, and permission carve, and each writing its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.</li>
-<li><strong>Hand off</strong> - as phases change, control moves from one run to the next. The assistant hands focus to the composer, the composer to a planning agent, the planning agent to a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.</li>
-<li><strong>Watch or stay out</strong> - the user can follow progress, jump into any run with <code>/focus</code>, or let it run silently. A status line shows what each agent is doing.</li>
+<li><strong>Continue</strong> - as phases change, the next call continues from the previous result. The assistant calls the composer, then a planning agent, then a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.</li>
+<li><strong>Watch or stay out</strong> - the user can follow progress with <code>/runs</code>, read a run buffer, or let it run silently. A status line shows what the active agent is doing.</li>
 <li><strong>Remember</strong> - after the run, the team and its members update bounded memory. The next run continues from the change, not from a replayed transcript.</li>
 <li><strong>Report</strong> - finished and failed runs surface a summary, and recurring work reports out of band.</li>
 </ol>
@@ -1486,34 +1486,34 @@
 <li><strong>Assistant is the single point of contact</strong> - the main agent is the user's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).</li>
 <li><strong>Modes are the posture</strong> - the root agent is <code>config.system_prompt</code> plus the active mode, not a bound role. <code>read</code> is the default (read, search, and role-less read-only sibling offload, no writes, no named-role calls, and no grants), and <code>write</code> is opt-in (filesystem writes, named-role <code>call</code>, team <code>delegate</code>, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).</li>
 <li><strong>Run-owned sessions</strong> - a session belongs to a run. Whoever starts a run creates its session: the root at startup, <code>delegate</code>/<code>team</code> at delegation, the scheduler per job run. A role is an identity a run borrows, never a session owner, so there is no <code>agent_&lt;role&gt;</code> and no <code>sub_&lt;key&gt;</code>.</li>
-<li><strong>Focus navigates, handoff moves</strong> - <code>/focus</code> shows the run tree and jumps into existing runs, and never creates a session. <code>handoff</code> moves focus between runs and pauses or finishes the current one, without creating or naming a session.</li>
+<li><strong>Runs are history, pause and resume hold the next turn</strong> - <code>/runs</code> shows the run tree and a run's buffer, and never switches control. <code>/pause</code> holds the next turn and <code>/resume</code> clears it, so the operator controls a long run without a live focus or a handoff.</li>
 <li><strong>Memory, not replay</strong> - continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per role, team, and job, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.</li>
-<li><strong>Sequential-first</strong> - team stages run one member after another via <code>run_subagent</code> (existing, battle-tested). In-process threaded concurrency is the later milestone for watching and joining a live run (cuts wall-clock and lets the user jump in, not tokens).</li>
-<li><strong>No pre-saved run prompts</strong> - briefs, handoff, and memory are generated per run. Stored artifacts are roles, teams, and skills in the registries.</li>
+<li><strong>Sequential-only</strong> - team stages and sub-agents run one at a time via <code>run_subagent</code>. The REPL runs one process and one context at a time; there is no live focus, handoff, or concurrent run. Pause and resume hold the next turn, and <code>/runs</code> shows the history tree read-only.</li>
+<li><strong>No pre-saved run prompts</strong> - briefs, stage notes, and memory are generated per run. Stored artifacts are roles, teams, and skills in the registries.</li>
 <li><strong>Core stays thin and publishable</strong> - registries plus the sequential runner plus plugin hooks. Everything customer-specific lives in local <code>roles.json</code>, <code>teams.json</code>, <code>skills/</code>, or plugins, and moves toward plugins entirely.</li>
 </ul>
 <h2 id="context-economics-why-this-costs-what-it-costs">Context economics (why this costs what it costs)<a class="headerlink" href="#context-economics-why-this-costs-what-it-costs" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Sub-engines are separate <code>Engine</code>s, with no in-memory context sharing. The persistence channels are session logs and memory files.</li>
 <li>Cold starts cost: file re-reads by multiple members and brief duplication. Mitigations are facts-in-briefs (not just paths), research stages summarizing into team memory (<code>.polyglav/memory/teams/&lt;name&gt;.md</code>), and bounded role/team/job memory, so recurring work never replays a whole session.</li>
-<li>Honest limit: per-run redundancy will not go to zero. Sequential wall-clock is accepted until concurrent runs land.</li>
+<li>Honest limit: per-run redundancy will not go to zero. Sequential wall-clock is accepted; there are no concurrent runs.</li>
 </ul>
 <h2 id="phases">Phases<a class="headerlink" href="#phases" title="Permanent link">&para;</a></h2>
 <p>The task mapping lives in <code>PLAN.md</code> (work packages). The phases below name the verifiable stages, ordered by dependency:</p>
 <ul>
 <li><strong>Runtime and docs</strong> - one runtime for many agents, the five replaceable layers, and the plugin direction, reflected in VISION, README, and the site.</li>
 <li><strong>Modes-first</strong> - <code>read</code>/<code>write</code> modes as the only posture, access classified by permission key (fail-closed), per-tool grants replaced by a session-scoped mode switch, the root as <code>system_prompt</code> + mode, and the tool taxonomy <code>offload</code>/<code>call</code>/<code>delegate</code>.</li>
-<li><strong>Runs, focus, and memory</strong> - run-owned sessions, focus that only navigates, handoff between runs, bounded memory per role/team/job, and non-blocking runs with live focus.</li>
+<li><strong>Runs and memory</strong> - run-owned sessions, a read-only run tree, pause and resume, and bounded memory per role/team/job.</li>
 <li><strong>Onboarding</strong> - the assistant introduces itself on first run and asks what to do. Defaults and docs for simple users.</li>
 <li><strong>One-window status</strong> - <code>/status</code> shows sessions, running agents, and configured jobs on the machine. Logs are reachable from the same surface.</li>
-<li><strong>Non-blocking delegation</strong> - the assistant delegates big tasks to sub-agents or teams without blocking, with progress reporting, jump-into-session, and per-agent todo lists that can be marked done.</li>
+<li><strong>Delegation</strong> - the assistant delegates big tasks to sub-agents or teams, one context at a time, with progress reporting, a read-only run tree, and per-agent todo lists that can be marked done.</li>
 <li><strong>Recurring tasks with roles</strong> - jobs carry their own role and skills, so recurring behavior is encoded per task.</li>
 <li><strong>Health monitoring</strong> - the assistant watches agent endpoints and warns on failures.</li>
 <li><strong>Report-back connectors</strong> - job summaries delivered out-of-band.</li>
 <li><strong>Governance mode</strong> - the full control surface when needed, invisible otherwise.</li>
 </ul>
 <h2 id="todomd-placement">TODO.md placement<a class="headerlink" href="#todomd-placement" title="Permanent link">&para;</a></h2>
-<p>The vision, runtime, and docs track is at the top of <code>TODO.md</code> and <code>PLAN.md</code> (Vision, positioning, and docs). The runs, focus, and memory redesign is the next package (Runs, focus, and memory). The assistant track is tracked as open tasks and as work packages in <code>PLAN.md</code> (Control &amp; governance, Delegation &amp; swarm, Jobs operations + report-back).</p>
+<p>The vision, runtime, and docs track is at the top of <code>TODO.md</code> and <code>PLAN.md</code> (Vision, positioning, and docs). The runs and memory redesign is the next package (Runs and memory). The assistant track is tracked as open tasks and as work packages in <code>PLAN.md</code> (Control &amp; governance, Delegation &amp; swarm, Jobs operations + report-back).</p>
 <h2 id="out-of-scope-later-milestones-listed-not-planned">Out of scope (later milestones, listed not planned)<a class="headerlink" href="#out-of-scope-later-milestones-listed-not-planned" title="Permanent link">&para;</a></h2>
 <p>Remote messaging channels (Telegram, WhatsApp, Discord, and more), multi-machine fleet orchestration, sandboxed execution with namespace or container isolation, and a plugin registry or marketplace.</p>
 
