@@ -276,6 +276,7 @@ class ReplUI:
         self._spinner_label = 'Thinking'
         self._prompting = threading.Event()
         self._word_buffer = ''
+        self._thinking_streamed = False
         self._hints_shown: set[str] = set()
 
     def _write(self, text, ansi=''):
@@ -330,11 +331,8 @@ class ReplUI:
     def thinking_begin(self):
         self.flush()
         self._ensure_newline()
-        if not self._loop.config.get('show_thinking', True):
-            self._start_spinner('Thinking')
-            return
-        self._emit('- Thinking', DIM)
-        self.content_newline = True
+        self._thinking_streamed = False
+        self._start_spinner('Thinking')
 
     def status_begin(self, label: str):
         self.flush()
@@ -342,7 +340,8 @@ class ReplUI:
         if not self._loop.config.get('status_spinner', True):
             return
         text = str(label or 'Working')
-        self._emit(f'↔ Switch {text.rstrip(".").strip()}', DIM)
+        mark = glyph(self._loop.config, 'enter', '↳')
+        self._emit(f'{mark} {text.rstrip(".").strip()}', DIM)
         self._start_spinner(text)
 
     def status_end(self, note: str = ''):
@@ -413,6 +412,9 @@ class ReplUI:
         self.flush()
         if not self._loop.config.get('show_thinking', True):
             return
+        if not self._thinking_streamed:
+            self._stop_spinner()
+            self._thinking_streamed = True
         self._write(text, DIM)
         self.content_newline = text.endswith('\n')
 
@@ -420,28 +422,29 @@ class ReplUI:
         self.flush()
         self._stop_spinner()
         self._ensure_newline()
-        if self._loop.config.get('show_thinking', True):
-            if self._loop.config.get('show_thought_duration', True):
-                self._emit(f'(Thought {duration:.1f}s)', DIM)
-        else:
-            self._emit(f'+ Thought {duration:.1f}s', DIM)
+        if self._loop.config.get('show_thought_duration', True):
+            mark = glyph(self._loop.config, 'done', '✓')
+            self._emit(f'{mark} Thought {duration:.1f}s', DIM)
         self.content_newline = True
 
     def warning(self, msg):
         self.flush()
         self._ensure_newline()
-        self._emit(f'[warning] {msg}', YELLOW)
+        mark = glyph(self._loop.config, 'warning', '!')
+        self._emit(f'{mark} {msg}', YELLOW)
 
     def error(self, code, msg):
         self.flush()
         self._ensure_newline()
-        label = f'[Error {code}]' if code else '[Error]'
-        self._emit(f'{label} {msg}', RED)
+        mark = glyph(self._loop.config, 'error', '✗')
+        text = f'{mark} [{code}] {msg}' if code else f'{mark} {msg}'
+        self._emit(text, RED)
 
     def tool_status(self, name, value, body):
         self.flush()
         self._ensure_newline()
-        self._emit(f'[{name}: {value}]', DIM)
+        mark = glyph(self._loop.config, 'default', '*')
+        self._emit(f'{mark} {name} {value}', DIM)
         if self._loop.config.get('show_tool_output', False):
             for line in body:
                 self._emit(line, DIM)
@@ -462,14 +465,19 @@ class ReplUI:
     def tool_error(self, msg):
         self.flush()
         self._ensure_newline()
-        mark = glyph(self._loop.config, 'warning', '!')
+        mark = glyph(self._loop.config, 'error', '✗')
         self._emit(f'{mark} {msg.split(chr(10), 1)[0]}', RED)
 
     def tool_error_result(self, output):
         self.flush()
         self._ensure_newline()
-        for line in output.splitlines():
-            self._emit(line, RED)
+        lines = output.splitlines()
+        if not lines:
+            return
+        mark = glyph(self._loop.config, 'error', '✗')
+        self._emit(f'{mark} {lines[0]}', RED)
+        for line in lines[1:]:
+            self._emit(f'  {line}', DIM)
 
     def tool_note(self, output):
         self.flush()
@@ -500,7 +508,7 @@ class ReplUI:
     def tool_refine(self, old, new):
         self.flush()
         self._ensure_newline()
-        self._emit(f'[refine: "{old}" → "{new}"]', DIM)
+        self._emit(f'  Refine query to: {new}', DIM)
 
     def _footer_tokens(self, counts):
         parts = []
@@ -517,11 +525,12 @@ class ReplUI:
     def footer(self, duration, counts, note=''):
         self.flush()
         self._ensure_newline()
+        mark = glyph(self._loop.config, 'done', '✓')
         if self._loop.config.get('show_context_size', True):
             seg = self._footer_tokens(counts)
-            body = f'({duration:.1f}s, {seg})' if seg else f'({duration:.1f}s)'
+            body = f'{mark} Done {duration:.1f}s ({seg})' if seg else f'{mark} Done {duration:.1f}s'
         else:
-            body = f'({duration:.1f}s)'
+            body = f'{mark} Done {duration:.1f}s'
         if note:
             body += f'  {note}'
         self._emit(body, DIM)
@@ -530,7 +539,7 @@ class ReplUI:
     def info(self, msg):
         self.flush()
         self._ensure_newline()
-        self._emit(msg)
+        self._emit(msg, DIM)
 
     def confirm(self, name, label):
         self.flush()
@@ -538,7 +547,8 @@ class ReplUI:
         timeout = self._confirm_timeout()
         hidden = bool(self._loop.config.get('hide_confirm_input', False))
         mark = glyph(self._loop.config, 'question', '?')
-        prompt = f'\001{ORANGE}\002{mark} {label} - approve? [Y/n] \001{RESET}\002'
+        done = glyph(self._loop.config, 'done', '✓')
+        prompt = f'\001{DIM}\002{mark} {label} - approve? [Y/n] \001{RESET}\002'
         self._prompting.set()
         self._clear_spinner_line()
         try:
@@ -552,15 +562,18 @@ class ReplUI:
                     sys.stdout.write('\n')
                     raise
                 if answer is None:
-                    sys.stdout.write(
-                        f'{mark} {label} - no answer in {timeout:g}s, denied\n')
+                    self._emit(
+                        f'{mark} {label} - no answer in {timeout:g}s, denied',
+                        YELLOW)
                     return False
                 normalized = answer.strip().lower()
                 if normalized in ('', 'y', 'yes'):
+                    self._emit(f'{done} approved', DIM)
                     return True
                 if normalized in ('n', 'no'):
+                    self._emit(f'{done} declined', DIM)
                     return False
-                sys.stdout.write(f'{mark} please answer y or n\n')
+                self._emit(f'{mark} please answer y or n', YELLOW)
         finally:
             self._prompting.clear()
 

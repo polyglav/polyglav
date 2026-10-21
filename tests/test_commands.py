@@ -478,7 +478,7 @@ class TestConnectCommand(unittest.TestCase):
         with patch.object(self.chat, 'check_connection',
                           return_value=(False, 'HTTP 401: bad key', [])):
             output = self._dispatch('/connect ollama', ['sk-bad', 'n'])
-        self.assertIn('[Error] Connection test failed: HTTP 401: bad key', output)
+        self.assertIn('✗ Connection test failed: HTTP 401: bad key', output)
         self.assertIn('Connection not saved', output)
         self.assertIsNone(self.chat.providers.find('ollama'))
         self.assertEqual(self.chat.config.get('base_url'), 'https://test.api.com')
@@ -547,7 +547,7 @@ class TestModelCommand(unittest.TestCase):
     def test_model_switch_touches_registry(self):
         self.chat.models.put('ollama', 'test-model')
         output = self._dispatch('/model test-model')
-        self.assertIn('Model set to: test-model', output)
+        self.assertIn('@ Model: ollama/test-model', output)
         entry = self.chat.models.find('ollama', 'test-model')
         self.assertIsNotNone(entry)
 
@@ -556,7 +556,7 @@ class TestModelCommand(unittest.TestCase):
         self.chat.providers.put('opencode-go',
                                 'https://opencode.ai/zen/go/v1', 'k')
         output = self._dispatch('/model opencode-go/deepseek-v4-flash')
-        self.assertIn('Model set to: opencode-go/deepseek-v4-flash', output)
+        self.assertIn('@ Model: opencode-go/deepseek-v4-flash', output)
         self.assertEqual(self.chat.config.get('provider'), 'opencode-go')
         self.assertEqual(self.chat.config.get('model'), 'deepseek-v4-flash')
         self.assertEqual(self.chat.config.get('base_url'),
@@ -578,7 +578,7 @@ class TestModelCommand(unittest.TestCase):
                                 'https://opencode.ai/zen/go/v1', 'k')
         with patch('builtins.input', return_value='y'):
             output = self._dispatch('/model opencode-go/deepseek-v4-flash')
-        self.assertIn('Model set to: opencode-go/deepseek-v4-flash', output)
+        self.assertIn('@ Model: opencode-go/deepseek-v4-flash', output)
         self.assertIsNotNone(
             self.chat.models.find('opencode-go', 'deepseek-v4-flash'))
 
@@ -589,8 +589,7 @@ class TestModelCommand(unittest.TestCase):
 
     def test_model_bare_shows_current(self):
         output = self._dispatch('/model')
-        self.assertIn('Current model: test-model', output)
-        self.assertIn('(ollama @ https://test.api.com)', output)
+        self.assertIn('@ Model: ollama/test-model', output)
 
 
 class TestModelsCommand(unittest.TestCase):
@@ -694,7 +693,7 @@ class TestModelsCommand(unittest.TestCase):
         with patch.object(self.chat, 'list_models',
                           return_value=([], 'HTTP 401: bad key')):
             output = self._dispatch('/models list')
-        self.assertIn('[Error] Failed to list models: HTTP 401: bad key', output)
+        self.assertIn('✗ Failed to list models: HTTP 401: bad key', output)
         self.assertIn('run /connect to fix', output)
 
     def test_models_list_empty(self):
@@ -859,13 +858,15 @@ class TestModeCommand(unittest.TestCase):
 
     def test_mode_shows_current_and_list(self):
         output = self._dispatch('/mode')
-        self.assertIn('Current mode: read', output)
+        self.assertIn('@ Read mode', output)
         self.assertIn('write', output)
         self.assertIn('read  <-- current', output)
 
     def test_mode_switch_is_session_scoped(self):
         output = self._dispatch('/mode write')
-        self.assertIn('Mode set to: write', output)
+        self.assertIn('@ Write mode', output)
+        self.assertNotIn('this session', output)
+        self.assertNotIn('Persist', output)
         self.assertEqual(self.chat.current_session.mode, 'write')
         self.assertEqual(self.chat.config.get('mode'), 'read')
 

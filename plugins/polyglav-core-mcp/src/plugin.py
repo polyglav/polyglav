@@ -6,7 +6,7 @@ import server as mcp_server
 
 CONNECTIONS: dict[str, client.MCPClient] = {}
 
-GLYPH = '◈'
+GLYPH = '*'
 
 
 def _log(text: str):

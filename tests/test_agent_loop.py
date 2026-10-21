@@ -301,7 +301,7 @@ class TestAgentLoop(unittest.TestCase):
         with patch('sys.stdout', new=out):
             self.chat._agent_loop()
         value = out.getvalue()
-        self.assertIn('s, ', value)
+        self.assertIn('✓ Done 0.0s (', value)
         self.assertIn('tokens', value)
 
     def test_footer_uses_provider_usage(self):

@@ -49,7 +49,7 @@ class TestGlyphActivityLines(unittest.TestCase):
         with patch('sys.stdout', new=out):
             self.chat._ui.tool_error('Error: boom\nsecond line')
         value = out.getvalue()
-        self.assertIn('! Error: boom', value)
+        self.assertIn('✗ Error: boom', value)
         self.assertNotIn('second line', value)
 
     def test_headless_tool_error_renders_when_verbose(self):
@@ -74,7 +74,7 @@ class TestGlyphActivityLines(unittest.TestCase):
     def test_status_falls_back_to_oneliner_when_disabled(self):
         self.chat.config.set('glyph_lines', False)
         value = self._capture_status('write_file', {'path': 'a.md', 'content': 'x'})
-        self.assertIn('[write_file: a.md]', value)
+        self.assertIn('* write_file a.md', value)
         self.assertNotIn('→', value)
 
     def test_status_falls_back_to_oneliner_for_unmapped_category(self):
@@ -82,7 +82,7 @@ class TestGlyphActivityLines(unittest.TestCase):
         self.chat._tool_registry.register(
             'xyz_case', 'Do something', params, category='custom')(lambda: 'ok')
         value = self._capture_status('xyz_case', {})
-        self.assertIn('[xyz_case: xyz_case]', value)
+        self.assertIn('* xyz_case xyz_case', value)
 
     def test_glyph_ascii_preset(self):
         self.chat.config.set('glyphs', 'ascii')
@@ -122,10 +122,11 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIsNotNone(self.chat._ui._spinner_thread)
         self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
-    def test_no_spinner_when_thinking_visible(self):
+    def test_spinner_starts_when_thinking_visible(self):
         self.chat.config.set('show_thinking', True)
         self.chat._ui.thinking_begin()
-        self.assertIsNone(self.chat._ui._spinner_thread)
+        self.assertIsNotNone(self.chat._ui._spinner_thread)
+        self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
     def test_thinking_end_stops_spinner_and_prints_thought(self):
         self.chat.config.set('show_thinking', False)
@@ -138,7 +139,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIsNone(self.chat._ui._spinner_thread)
         value = out.getvalue()
         self.assertIn('\r\033[K', value)
-        self.assertIn('+ Thought 2.5s', value)
+        self.assertIn('✓ Thought 2.5s', value)
 
     def test_thinking_end_without_spinner_is_clean(self):
         self.chat.config.set('show_thinking', False)
@@ -146,7 +147,7 @@ class TestThinkingSpinner(unittest.TestCase):
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(1.0)
         self.assertIsNone(self.chat._ui._spinner_thread)
-        self.assertIn('+ Thought 1.0s', out.getvalue())
+        self.assertIn('✓ Thought 1.0s', out.getvalue())
 
     def test_status_begin_and_end_use_label(self):
         out = io.StringIO()
@@ -160,6 +161,7 @@ class TestThinkingSpinner(unittest.TestCase):
             self.chat._ui.status_end()
         self.assertFalse(thread.is_alive())
         self.assertIsNone(self.chat._ui._spinner_thread)
+        self.assertIn('↳ Delegating to writer', out.getvalue())
         self.assertIn('\r\033[K', out.getvalue())
 
     def test_status_spinner_disabled(self):
@@ -199,12 +201,12 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('✓ dev: planner', value)
         self.assertIn('(1.2s, 300 tokens)', value)
 
-    def test_status_begin_prints_switch_marker(self):
+    def test_status_begin_prints_enter_marker(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.status_begin('dev: programmer...')
             self.chat._ui.status_end()
-        self.assertIn('↔ Switch dev: programmer', out.getvalue())
+        self.assertIn('↳ dev: programmer', out.getvalue())
 
     def test_confirm_sets_prompting_during_input(self):
         seen = []
@@ -296,7 +298,7 @@ class TestThinkingSpinner(unittest.TestCase):
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(2.5)
         value = out.getvalue()
-        self.assertIn('(Thought 2.5s)', value)
+        self.assertIn('✓ Thought 2.5s', value)
         self.assertNotIn('+ Thought', value)
 
     def test_thinking_end_streamed_hides_thought_duration_when_off(self):
@@ -385,23 +387,23 @@ class TestWordStreaming(unittest.TestCase):
             self.ui.footer(3.0, {'context': 10})
         value = self._capture(run)
         self.assertIn('hard', value)
-        self.assertIn('(3.0s, 10 tokens)', value)
+        self.assertIn('✓ Done 3.0s (10 tokens)', value)
         self.assertIn('hard\n', value)
-        self.assertLess(value.index('hard'), value.index('(3.0s'))
+        self.assertLess(value.index('hard'), value.index('Done 3.0s'))
 
     def test_footer_token_parts_selected(self):
         self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12, 'thinking': 5, 'out': 8})
         value = self._capture(run)
-        self.assertIn('(3.0s, 12t/5t/8t)', value)
+        self.assertIn('✓ Done 3.0s (12t/5t/8t)', value)
 
     def test_footer_token_parts_skip_unavailable(self):
         self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12})
         value = self._capture(run)
-        self.assertIn('(3.0s, 12t)', value)
+        self.assertIn('✓ Done 3.0s (12t)', value)
         self.assertNotIn('thinking', value)
 
     def test_footer_token_parts_empty_hides_tokens(self):
@@ -409,7 +411,7 @@ class TestWordStreaming(unittest.TestCase):
         def run():
             self.ui.footer(3.0, {'context': 10})
         value = self._capture(run)
-        self.assertIn('(3.0s)', value)
+        self.assertIn('✓ Done 3.0s', value)
         self.assertNotIn('tokens', value)
 
     def test_footer_show_context_size_off_hides_tokens(self):
@@ -418,7 +420,7 @@ class TestWordStreaming(unittest.TestCase):
         def run():
             self.ui.footer(3.0, {'in': 12, 'out': 8})
         value = self._capture(run)
-        self.assertIn('(3.0s)', value)
+        self.assertIn('✓ Done 3.0s', value)
         self.assertNotIn('t', value)
 
     def test_word_streaming_off_writes_immediately(self):
@@ -764,10 +766,11 @@ class TestReplColors(unittest.TestCase):
         self.assertIn('boom', value)
         self.assertIn(RED, value)
 
-    def test_thinking_header_dim(self):
+    def test_thinking_begin_is_quiet(self):
         self.chat.config.set('show_thinking', True)
         value = self._capture(lambda: self.ui.thinking_begin())
-        self.assertIn(DIM, value)
+        self.assertNotIn('- Thinking', value)
+        self.ui._stop_spinner()
 
     def test_reasoning_body_dim(self):
         self.chat.config.set('show_thinking', True)
@@ -779,13 +782,13 @@ class TestReplColors(unittest.TestCase):
         self.chat.config.set('show_thought_duration', True)
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
-        self.assertIn('(Thought 2.5s)', value)
+        self.assertIn('✓ Thought 2.5s', value)
 
     def test_hidden_thought_dim(self):
         self.chat.config.set('show_thinking', False)
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
-        self.assertIn('+ Thought 2.5s', value)
+        self.assertIn('✓ Thought 2.5s', value)
 
     def test_status_line_starts_on_new_line_after_text(self):
         def run():

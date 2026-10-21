@@ -66,7 +66,7 @@
   - [ ] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
   - [x] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
   - [x] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
-  - [ ] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
+  - [x] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
   - [ ] Golden transcripts - assert the header, input, tool, stage, and footer lines against the design mocks
 - [ ] Unified call target - collapse `call`, `delegate`, and `offload` into one `call <target>` tool, where the target is a role, a team, or a role-less sibling:
   - [ ] Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling
@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed status, warning, error, model, and mode strings to the glyph forms
 - [x] Added glyph overrides and an ASCII preset with no runtime detection
 - [x] Removed the assistant prefix
 - [x] Added a once-only gray print hint for hidden tool output

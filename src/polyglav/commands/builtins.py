@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .. import get_version
 from ..sessions.render import render_session, render_turn, session_to_json, turn_summary
+from ..ui import DIM, RED, RESET
 
 SUB_INDENT = 4
 
@@ -415,7 +416,7 @@ def _render_online_models(chat, provider_arg):
     except Exception as e:
         models, error = [], str(e)
     if error:
-        print(f'[Error] Failed to list models: {error}')
+        print(f'{RED}✗ Failed to list models: {error}{RESET}')
         print(f'  probing {provider} ({base_url}) - run /connect to fix')
         return
     if not models:
@@ -535,7 +536,7 @@ def _connect_save(chat, providers, provider, base_url, api_key):
             base_url=base_url, api_key=api_key, provider=provider)
         models = _models
         if not ok:
-            print(f'  [Error] Connection test failed: {msg}')
+            print(f'  {RED}✗ Connection test failed: {msg}{RESET}')
             try:
                 answer = input('  Save anyway? [Y/n] ').strip().lower()
             except (EOFError, KeyboardInterrupt):
@@ -666,8 +667,9 @@ def register_builtins(registry):
     def model_cmd(arg=''):
         arg = arg.strip()
         if not arg:
-            print(f'Current model: {chat.config.get("model")} '
-                  f'({chat.config.get("provider")} @ {chat.config.get("base_url")})')
+            provider = chat.config.get('provider')
+            model = chat.config.get('model')
+            print(f'{DIM}@ Model: {provider}/{model}{RESET}')
             return
         ref = chat.unfold_ref(arg)
         if ref is not None:
@@ -675,14 +677,14 @@ def register_builtins(registry):
             if chat._ensure_model_approved(provider, model):
                 chat.config.set('model', f'{provider}/{model}')
                 chat._reinit_provider()
-                print(f'Model set to: {provider}/{model}')
+                print(f'{DIM}@ Model: {provider}/{model}{RESET}')
             else:
-                print(f'Model not approved: {provider}/{model}')
+                print(f'{RED}✗ Model not approved: {provider}/{model}{RESET}')
             return
         chat.config.set('model', arg)
         chat.provider.model = chat.config.get('model')
         chat.models.put(chat.config.get('provider'), arg)
-        print(f'Model set to: {arg}')
+        print(f'{DIM}@ Model: {chat.config.get("provider")}/{arg}{RESET}')
 
     @registry.register('provider', description='Show or switch the active provider')
     def provider_cmd(arg=''):
@@ -752,28 +754,27 @@ def register_builtins(registry):
                 chat.set_unattended(new)
             print(f'Unattended mode: {"on" if new else "off"}')
 
-    @registry.register('mode', description='Show or switch the agent mode for this session (read = read-only, write); persist with /config mode')
+    @registry.register('mode', description='Show or switch the agent mode for this session (read or write)')
     def mode_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
         session_mode = chat.current_session.mode or None
         current, names = resolve_mode(chat.config, session_mode)
         arg = arg.strip()
         if not arg or arg in ('?', 'status'):
-            print(f'Current mode: {current.name}')
+            print(f'{DIM}@ {current.name.capitalize()} mode{RESET}')
             specs = {m.name: m for m in mode_list(chat.config)}
             for m in sorted(specs.values(), key=lambda s: s.name):
                 label = '  ' + m.name + ('  <-- current' if m.name == current.name else '')
-                print(f'{label}')
+                print(f'{DIM}{label}{RESET}')
                 if m.instruction:
-                    print(f'    {m.instruction.splitlines()[0][:80]}')
+                    print(f'{DIM}    {m.instruction.splitlines()[0][:80]}{RESET}')
             return
         if arg not in names:
-            print(f'Unknown mode "{arg}" - valid modes: ' + ', '.join(names))
+            print(f'{RED}✗ Unknown mode "{arg}" - valid modes: ' + ', '.join(names) + RESET)
             return
         chat.current_session.mode = arg
         chat.session_auto_save()
-        print(f'Mode set to: {arg} (this session)')
-        print(f'  Persist with: /config mode {arg}')
+        print(f'{DIM}@ {arg.capitalize()} mode{RESET}')
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),
