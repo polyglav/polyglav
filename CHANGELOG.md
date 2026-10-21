@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Removed caller asks - the `ask` tool now routes to the user (or parks when unattended), and the caller model consultation and `target` parameter are gone. Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`
 - Removed handoff and focus switching - the REPL runs one context at a time, `/runs` is read-only, and `focus_on_delegate`, `prompt_role`, and the `SubRunUI` forwarding are gone. Tests: `test_runs.py`, `test_run_buffer.py`
 - Added a read-only `/runs` tree - run id, role, status, session, and a `log [n]` view of a run buffer, with no focus switch. Tests: `test_runs.py`
 - Added pause and resume - `/pause` holds the next turn, `/resume` clears it, and the state prints as `@ Paused #n` and `@ Resumed #n`. Tests: `test_pause.py`

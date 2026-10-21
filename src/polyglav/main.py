@@ -287,7 +287,7 @@ def main(argv=None):
     parser.add_argument('--path', '-p', help='Project path (default: current directory)')
     parser.add_argument('--unattended', action='store_true',
                         help='Run the REPL without touching stdin from any depth '
-                             '(confirms auto-deny, user asks route to the caller or '
+                             '(confirms auto-deny, user asks park or '
                              'return without pausing)')
     parser.add_argument('--version', '-v', action='version',
                         help='Print version and exit', version=_version())

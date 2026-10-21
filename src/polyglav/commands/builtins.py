@@ -621,7 +621,7 @@ def register_builtins(registry):
 
     @registry.register('unattended',
                        description='Show or toggle unattended mode (no stdin from any depth: '
-                                   'confirms auto-deny, user asks route to the caller or '
+                                   'confirms auto-deny, user asks park or '
                                    'return without pausing)')
     def unattended_cmd(arg=''):
         arg = arg.strip().lower()

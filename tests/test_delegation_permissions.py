@@ -204,14 +204,14 @@ class TestAskPermission(unittest.TestCase):
         sub._init_tooling()
         return sub
 
-    def test_auto_route_grants_once_via_lead(self):
+    def test_user_grants_once(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            chat.provider.chat_nonstreaming.return_value = {'content': 'yes - needed'}
             sub = self._worker(chat)
-            out = sub._run_tool('ask', {
-                'question': 'may I run a command?',
-                'kind': 'permission', 'permission': 'bash'})
+            with patch('builtins.input', return_value='yes'):
+                out = sub._run_tool('ask', {
+                    'question': 'may I run a command?',
+                    'kind': 'permission', 'permission': 'bash'})
             self.assertIn('[granted]', out)
             grant = sub._tool_policy.grant_for('run_command', 'bash')
             self.assertIsNotNone(grant)
@@ -219,27 +219,27 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_auto_route_denies_when_lead_says_no(self):
+    def test_user_denies(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            chat.provider.chat_nonstreaming.return_value = {'content': 'no'}
             sub = self._worker(chat)
-            out = sub._run_tool('ask', {
-                'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            with patch('builtins.input', return_value='no'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
             self.assertIn('[denied]', out)
             self.assertFalse(sub._tool_policy.has_grant('run_command', 'bash'))
         finally:
             chat._tmp.cleanup()
 
-    def test_auto_route_never_grants_always(self):
+    def test_user_can_grant_always(self):
         chat = make_chat({'mode': 'write', 'grant_permission': {'read': 'allow', 'bash': 'allow'}})
         try:
-            chat.provider.chat_nonstreaming.return_value = {'content': 'yes always'}
             sub = self._worker(chat)
-            sub._run_tool('ask', {
-                'question': 'q', 'kind': 'permission', 'permission': 'bash'})
+            with patch('builtins.input', return_value='yes always'):
+                sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'bash'})
             grant = sub._tool_policy.grant_for('run_command', 'bash')
-            self.assertEqual(grant['scope'], 'once')
+            self.assertEqual(grant['scope'], 'always')
         finally:
             chat._tmp.cleanup()
 
@@ -248,12 +248,12 @@ class TestAskPermission(unittest.TestCase):
                           'grant_permission': {'read': 'allow', 'edit': 'allow'}})
         try:
             chat.roles.put(Role(name='worker', tool_permission={'edit': 'ask'},
-                                ask_policy={'permission': 'caller'}), scope='local')
+                                ask_policy={'permission': 'user'}), scope='local')
             sub = chat._new_sub_engine('worker')
             sub._init_tooling()
-            chat.provider.chat_nonstreaming.return_value = {'content': 'yes'}
-            out = sub._run_tool('ask', {
-                'question': 'q', 'kind': 'permission', 'permission': 'edit'})
+            with patch('builtins.input', return_value='yes'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'edit'})
             self.assertIn('[granted]', out)
             grant = sub._tool_policy.grant_for('file_write', 'edit')
             self.assertIsNotNone(grant)
@@ -269,12 +269,12 @@ class TestAskPermission(unittest.TestCase):
                           'grant_permission': {'read': 'allow', 'edit': 'allow'}})
         try:
             chat.roles.put(Role(name='worker', tool_permission={'edit': 'ask'},
-                                ask_policy={'permission': 'caller'}), scope='local')
+                                ask_policy={'permission': 'user'}), scope='local')
             sub = chat._new_sub_engine('worker')
             sub._init_tooling()
-            chat.provider.chat_nonstreaming.return_value = {'content': 'yes'}
-            out = sub._run_tool('ask', {
-                'question': 'q', 'kind': 'permission', 'permission': 'file_write'})
+            with patch('builtins.input', return_value='yes'):
+                out = sub._run_tool('ask', {
+                    'question': 'q', 'kind': 'permission', 'permission': 'file_write'})
             self.assertIn('[granted]', out)
             grant = sub._tool_policy.grant_for('file_write', 'edit')
             self.assertIsNotNone(grant)
@@ -394,15 +394,14 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_direction_ask_defaults_to_caller(self):
+    def test_direction_ask_defaults_to_user(self):
         chat = make_chat()
         try:
             sub = self._worker(chat)
-            chat.provider.chat_nonstreaming.return_value = {
-                'content': 'caller answer'}
-            out = sub._run_tool('ask', {'question': 'which option?'})
-            self.assertEqual(out, 'caller answer')
-            chat.provider.chat_nonstreaming.assert_called_once()
+            with patch('builtins.input', return_value='user answer'):
+                out = sub._run_tool('ask', {'question': 'which option?'})
+            self.assertEqual(out, 'user answer')
+            chat.provider.chat_nonstreaming.assert_not_called()
         finally:
             chat._tmp.cleanup()
 
@@ -417,14 +416,13 @@ class TestAskPermission(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_direction_ask_policy_caller(self):
+    def test_direction_ask_policy_caller_falls_back_to_user(self):
         chat = make_chat()
         try:
             sub = self._worker(chat, ask_policy={'direction': 'caller'})
-            chat.provider.chat_nonstreaming.return_value = {
-                'content': 'caller answer'}
-            out = sub._run_tool('ask', {'question': 'which option?'})
-            self.assertEqual(out, 'caller answer')
+            with patch('builtins.input', return_value='user answer'):
+                out = sub._run_tool('ask', {'question': 'which option?'})
+            self.assertEqual(out, 'user answer')
         finally:
             chat._tmp.cleanup()
 

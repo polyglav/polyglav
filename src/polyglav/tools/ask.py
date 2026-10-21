@@ -1,24 +1,10 @@
 from typing import Callable
 
 
-_ASK_SYSTEM = (
-    'You are the caller agent coordinating delegated agents. A sub-agent asks you '
-    'for a decision or permission. Answer concisely with just the decision, and '
-    'add a one-line reason only if it helps. Do not ask questions back; commit '
-    'to the decision the sub-agent needs.'
-)
-
-_PERMISSION_SYSTEM = (
-    'You are the caller agent coordinating delegated agents. A sub-agent asks for '
-    'permission to use a tool. Decide whether to grant one use. Answer with '
-    '"yes" or "no" as the first word, and add a one-line reason only if it '
-    'helps. Do not ask questions back; commit to the decision.'
-)
-
 _NO_ANSWER = ('[cancelled] No answer given - decide autonomously or return the '
               'question as an open item')
-_NO_ONE = ('Error: ask has no one to answer (no caller agent and no interactive '
-           'terminal) - decide autonomously or return the question as an open item')
+_NO_ONE = ('Error: ask has no one to answer (no interactive terminal) - '
+           'decide autonomously or return the question as an open item')
 _CLARITY_ERROR = ('Error: the ask question is too short to answer without '
                   'context. Ask a self-contained question, and include context '
                   'or options when the answerer needs them.')
@@ -61,45 +47,6 @@ def _park(engine, question: str, context: str, options: list,
             'as an open item')
 
 
-def _task_preview(engine) -> str:
-    for turn in engine.current_session.turns:
-        for part in turn.get('parts') or []:
-            if part.get('type') == 'user' and part.get('text'):
-                text = str(part['text']).strip().replace('\n', ' ')
-                return text[:500]
-    return ''
-
-
-def _caller_answer(engine, question: str, context: str, options,
-                   system: str = _ASK_SYSTEM) -> str | None:
-    caller = getattr(engine, '_caller', None)
-    if caller is None:
-        return None
-    parts = [f'Question: {question}']
-    if context:
-        parts.append(f'Context: {context}')
-    if options:
-        parts.append('Options: ' + ' / '.join(options))
-    task = _task_preview(engine)
-    if task:
-        parts.append(f'Delegated task: {task}')
-    try:
-        result = caller.provider.chat_nonstreaming(
-            [
-                {'role': 'system', 'content': system},
-                {'role': 'user', 'content': '\n'.join(parts)},
-            ],
-            tools=None,
-        )
-    except Exception:
-        return None
-    content = result.get('content') if isinstance(result, dict) else None
-    if not isinstance(content, str):
-        return None
-    content = content.strip()
-    return content or None
-
-
 def _permission_key(engine, permission: str) -> str:
     if permission in engine.permission_categories():
         return permission
@@ -109,17 +56,9 @@ def _permission_key(engine, permission: str) -> str:
     return permission
 
 
-def _ceiling_for(engine) -> dict:
-    caller = getattr(engine, '_caller', None)
-    if caller is not None and hasattr(caller, '_grant'):
-        return caller._grant()
-    return engine._grant()
-
-
 def _switch_write(engine) -> None:
-    root = engine
-    while getattr(root, '_caller', None) is not None:
-        root = root._caller
+    ui = getattr(engine, '_ask_ui', None)
+    root = getattr(ui, '_loop', None) or engine
     engine.current_session.mode = 'write'
     root.current_session.mode = 'write'
     for target in {id(engine): engine, id(root): root}.values():
@@ -153,7 +92,7 @@ def _prompt_permission(engine, question: str, context: str,
 
 
 def _ask_permission(engine, question: str, context: str, options: list,
-                    permission: str, target: str = '') -> str:
+                    permission: str) -> str:
     key = _permission_key(engine, permission)
     mode = engine._mode() if hasattr(engine, '_mode') else 'write'
     from ..modes import is_write_key
@@ -179,37 +118,13 @@ def _ask_permission(engine, question: str, context: str, options: list,
         return (f'[denied] Permission "{permission}" needs write mode. '
                 "Request it with ask(kind='direction') to switch this session "
                 'to write mode.')
-    cap = _ceiling_for(engine).get(key, 'deny')
+    cap = engine._grant().get(key, 'deny')
     if cap == 'deny':
         return (f'[denied] Permission "{permission}" cannot be granted '
                 '(above the delegation ceiling).')
     ask_policy = engine.config.get('ask_policy') or {}
-    route = str(ask_policy.get('permission', 'auto'))
-    if cap == 'ask' or target == 'user':
-        route = 'user'
-    elif target == 'caller':
-        route = 'caller'
-    if route == 'deny':
+    if str(ask_policy.get('permission', 'auto')) == 'deny':
         return f'[denied] Permission "{permission}" grants are disabled.'
-    caller = getattr(engine, '_caller', None)
-    if route == 'user':
-        result = _prompt_permission(engine, question, context, permission, key)
-        if result is not None:
-            return result
-        if engine._is_unattended():
-            return _park(engine, question, context or '', options or [],
-                         'permission', permission)
-    if caller is not None:
-        answer = _caller_answer(engine, question, context, options,
-                                system=_PERMISSION_SYSTEM)
-        if answer is None:
-            return _NO_ONE
-        if answer.strip().lower().startswith('y'):
-            engine.grant_permission(permission, key, scope='once',
-                                    origin='supervisor')
-            return (f'[granted] Permission "{permission}" approved for one '
-                    'use.')
-        return f'[denied] Permission "{permission}" not approved by the caller.'
     result = _prompt_permission(engine, question, context, permission, key)
     if result is not None:
         return result
@@ -230,19 +145,6 @@ def _clarity_guard(engine, question: str, context: str,
     return _CLARITY_ERROR
 
 
-def _direction_route(engine, target: str) -> str:
-    if target in ('user', 'caller'):
-        return target
-    policy = engine.config.get('ask_policy') or {}
-    value = str(policy.get('direction') or '').strip().lower()
-    if value == 'user':
-        return 'user'
-    if value in ('caller', 'auto'):
-        return 'caller'
-    caller = getattr(engine, '_caller', None)
-    return 'caller' if caller is not None else 'user'
-
-
 def _prompt_direction(engine, question: str, context: str,
                       options: list) -> str | None:
     ui = getattr(engine, '_ask_ui', None)
@@ -253,45 +155,25 @@ def _prompt_direction(engine, question: str, context: str,
     return answer or _NO_ANSWER
 
 
-def _ask_direction(engine, question: str, context: str, options: list,
-                   target: str = '') -> str:
-    route = _direction_route(engine, target)
-    caller = getattr(engine, '_caller', None)
-    if route == 'caller':
-        if caller is not None:
-            answer = _caller_answer(engine, question, context or '', options or [])
-            if answer is not None:
-                return answer
-        if engine._is_unattended():
-            return _park(engine, question, context or '', options or [],
-                         'direction', '')
-        result = _prompt_direction(engine, question, context, options)
-        return result if result is not None else _NO_ONE
+def _ask_direction(engine, question: str, context: str, options: list) -> str:
     if engine._is_unattended():
         return _park(engine, question, context or '', options or [],
                      'direction', '')
     result = _prompt_direction(engine, question, context, options)
-    if result is not None:
-        return result
-    if caller is not None:
-        answer = _caller_answer(engine, question, context or '', options or [])
-        if answer is not None:
-            return answer
-    return _NO_ONE
+    return result if result is not None else _NO_ONE
 
 
 def register_ask_tool(registry, engine) -> Callable:
     @registry.register(
         name='ask',
         description=(
-            "Ask a question and pause until it is answered, to get a decision or "
-            "permission mid-run instead of leaving it open. With target='user' "
-            "the user answers at the terminal. With target='caller' the agent "
-            "type or engine that delegated this run decides. For a permission "
-            "request set kind='permission' and name the tool or category in "
-            "permission; an approved request grants one use (or the rest of the "
-            "run when the user grants it). Use it when a choice cannot be "
-            "resolved from the task alone, then continue from the answer."
+            "Ask the user a question and pause until it is answered, to get a "
+            "decision or permission mid-run instead of leaving it open. For a "
+            "permission request set kind='permission' and name the tool or "
+            "category in permission; an approved request grants one use (or the "
+            "rest of the run when the user grants it). Use it when a choice "
+            "cannot be resolved from the task alone, then continue from the "
+            "answer."
         ),
         parameters={
             'type': 'object',
@@ -314,20 +196,12 @@ def register_ask_tool(registry, engine) -> Callable:
                     'description': 'Suggested answers. The answerer picks one or gives '
                                    'their own.',
                 },
-                'target': {
-                    'type': 'string',
-                    'enum': ['user', 'caller'],
-                    'description': "'user' asks the user at the terminal (or the "
-                                   "caller agent when headless). 'caller' asks the agent "
-                                   "type or engine that delegated this run to decide. "
-                                   "Omit to follow the configured ask_policy.",
-                },
                 'kind': {
                     'type': 'string',
                     'enum': ['permission', 'direction'],
                     'description': "'direction' (default) asks for a decision or "
                                    "scope change. 'permission' requests a tool or "
-                                   "category the sub-agent is not allowed to use.",
+                                   "category the run is not allowed to use.",
                 },
                 'permission': {
                     'type': 'string',
@@ -340,18 +214,17 @@ def register_ask_tool(registry, engine) -> Callable:
         category='ask',
         permission='ask',
         key_arg='question',
-        short='Ask the user or the caller agent for a decision',
+        short='Ask the user for a decision',
         confirm=False,
     )
     def ask(question: str, context: str = '', options: list | None = None,
-            target: str = '', kind: str = 'direction',
-            permission: str = '', _config=None) -> str:
+            kind: str = 'direction', permission: str = '',
+            _config=None) -> str:
         if kind == 'permission' and permission:
             return _ask_permission(engine, question, context or '',
-                                   options or [], permission, target)
+                                   options or [], permission)
         guard = _clarity_guard(engine, question, context or '', options or [])
         if guard is not None:
             return guard
-        return _ask_direction(engine, question, context or '', options or [],
-                              target)
+        return _ask_direction(engine, question, context or '', options or [])
     return ask

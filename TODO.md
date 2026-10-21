@@ -65,7 +65,7 @@
   - [x] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
   - [x] Remove focus switching - `/focus` becomes a read-only `/runs` tree
   - [x] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
-  - [ ] Cleanup - drop `focus_on_delegate`, the `SubRunUI` forwarding, and `ask target='caller'`
+  - [x] Cleanup - drop `focus_on_delegate`, the `SubRunUI` forwarding, and `ask target='caller'`
   - [ ] Keep jobs and fleet - they are separate OS processes, not in-REPL concurrency
 - [ ] Composite session view - show one transcript while keeping separate files:
   - [ ] `/sessions` - list roots only and hide `sub_` sessions
@@ -168,6 +168,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Removed caller asks and kept user asks
 - [x] Removed handoff and focus switching from the REPL
 - [x] Removed sub-run UI forwarding and kept the buffer for the runs log
 - [x] Added a read-only runs tree with a run log

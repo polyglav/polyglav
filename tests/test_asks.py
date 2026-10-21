@@ -112,7 +112,7 @@ class TestParking(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_subagent_ask_consults_caller_then_parks_when_silent(self):
+    def test_subagent_ask_parks_when_unattended(self):
         chat = make_chat({'unattended': True})
         try:
             chat.roles.put(Role(name='w', system_prompt='Writer'),
@@ -122,7 +122,7 @@ class TestParking(unittest.TestCase):
             with patch('builtins.input', side_effect=self._no_input):
                 out = sub._run_tool('ask', {'question': 'which port?'})
             self.assertIn('[parked]', out)
-            chat.provider.chat_nonstreaming.assert_called_once()
+            chat.provider.chat_nonstreaming.assert_not_called()
             asks = chat.asks.list()
             self.assertEqual(len(asks), 1)
             self.assertEqual(asks[0].origin, sub.current_session.session_name)
@@ -188,20 +188,19 @@ class TestParking(unittest.TestCase):
         finally:
             chat._tmp.cleanup()
 
-    def test_permission_auto_route_still_lead_when_unattended(self):
+    def test_permission_ask_parks_when_unattended(self):
         chat = make_chat({'unattended': True})
         try:
             chat.roles.put(Role(name='w', system_prompt='Writer'),
                            scope='local')
-            chat.provider.chat_nonstreaming.return_value = {'content': 'yes'}
             sub = chat._new_sub_engine('w')
             sub._init_tooling()
             out = sub._run_tool('ask', {
                 'kind': 'permission', 'permission': 'read',
                 'question': 'may I read?'})
-            self.assertIn('[granted]', out)
-            chat.provider.chat_nonstreaming.assert_called_once()
-            self.assertEqual(len(chat.asks.list()), 0)
+            self.assertIn('[parked]', out)
+            chat.provider.chat_nonstreaming.assert_not_called()
+            self.assertEqual(len(chat.asks.list()), 1)
         finally:
             chat._tmp.cleanup()
 
