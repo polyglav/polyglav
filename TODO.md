@@ -59,7 +59,7 @@
   - [x] Palette - default assistant text, cyan read prompt, orange write prompt, magenta slash-command input, green bash command line, gray info and state lines, yellow warning, red error
   - [x] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
   - [x] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
-  - [ ] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
+  - [x] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
   - [x] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
   - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
   - [ ] Status newline - a status line never prints inline after streamed text
@@ -106,7 +106,7 @@
 - [ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown
 - [ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay
 - [ ] Docs writer commits each added task - the docs writer commits the tasks right after the operator's prompt and then works through the single points one at a time
-- [ ] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden
+- [x] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden
 - [ ] Batched structured asks - `ask` handles one question at a time, so several decisions cannot be asked in one call
 - [ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work
 - [ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context
@@ -187,6 +187,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed the input style to a mode-colored chat marker, magenta commands, and hidden confirm
+- [x] Changed confirm input to hidden by default
 - [x] Changed ask options to a numbered block with a chat marker
 - [x] Changed status, warning, error, model, and mode strings to the glyph forms
 - [x] Added glyph overrides and an ASCII preset with no runtime detection

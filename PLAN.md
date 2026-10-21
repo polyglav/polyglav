@@ -23,7 +23,6 @@ One terminal language for input, output, tools, and state. A small glyph set and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Input - `> ` chat and ask, `/ ` commands, the submitted line reprinted in its color, hidden confirm | S-M | one input style |
 | Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
 | Flat stages - no `<<<`, no indentation, `(i/n)` stage markers, `✓ Worked: <role>` and `✓ Done` footers | S-M | readable long runs |
 | Status newline - a status line never prints inline after streamed text | S | clean output boundaries |

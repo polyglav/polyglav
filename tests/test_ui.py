@@ -579,6 +579,7 @@ class TestLinePrompts(unittest.TestCase):
         hidden.assert_called_once()
 
     def test_confirm_timeout_denies(self):
+        self.chat.config.set('hide_confirm_input', False)
         self.chat.config.set('confirm_timeout', 2)
         with patch('polyglav.ui.select.select', return_value=([], [], [])):
             with patch('polyglav.ui.input', side_effect=AssertionError(

@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
     'glyph_params': True,
     'glyphs': {},
     'grant_permission': {},
-    'hide_confirm_input': False,
+    'hide_confirm_input': True,
     'list_dir_max_entries': 200,
     'markdown_streaming': False,
     'max_team_depth': 2,
