@@ -34,7 +34,8 @@ A request in `read` mode for a write key, or for a read-class category with decl
 
 ## Switching
 
-- `/mode` shows the current mode and the available names.
+- `/mode` shows the current mode.
+- `/modes` lists the available names, marking the current one.
 - `/mode <name>` switches the mode for the current session. It does not write the config.
 - `/config mode <value>` persists the mode to the local config.
 - `--mode <name>` sets the mode for `polyglav run` and `polyglav serve`.

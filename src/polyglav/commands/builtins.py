@@ -671,18 +671,12 @@ def register_builtins(registry):
 
     @registry.register('mode', description='Show or switch the agent mode for this session (read or write)')
     def mode_cmd(arg=''):
-        from ..modes import mode_list, resolve_mode
+        from ..modes import resolve_mode
         session_mode = chat.current_session.mode or None
         current, names = resolve_mode(chat.config, session_mode)
         arg = arg.strip()
         if not arg or arg in ('?', 'status'):
             print(f'{DIM}@ {current.name.capitalize()} mode{RESET}')
-            specs = {m.name: m for m in mode_list(chat.config)}
-            for m in sorted(specs.values(), key=lambda s: s.name):
-                label = '  ' + m.name + ('  <-- current' if m.name == current.name else '')
-                print(f'{DIM}{label}{RESET}')
-                if m.instruction:
-                    print(f'{DIM}    {m.instruction.splitlines()[0][:80]}{RESET}')
             return
         if arg not in names:
             print(f'{RED}✗ Unknown mode "{arg}" - valid modes: ' + ', '.join(names) + RESET)
@@ -690,6 +684,20 @@ def register_builtins(registry):
         chat.current_session.mode = arg
         chat.session_auto_save()
         print(f'{DIM}@ {arg.capitalize()} mode{RESET}')
+
+    @registry.register('modes', description='List the available agent modes')
+    def modes_cmd(arg=''):
+        from ..modes import mode_list, resolve_mode
+        session_mode = chat.current_session.mode or None
+        current, _ = resolve_mode(chat.config, session_mode)
+        print(f'{DIM}@ Modes{RESET}')
+        for mode in sorted(mode_list(chat.config), key=lambda m: m.name):
+            label = '  ' + mode.name
+            if mode.name == current.name:
+                label += '  <-- current'
+            print(f'{DIM}{label}{RESET}')
+            if mode.instruction:
+                print(f'{DIM}    {mode.instruction.splitlines()[0][:80]}{RESET}')
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),

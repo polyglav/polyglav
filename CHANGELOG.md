@@ -2,6 +2,7 @@
 
 ## v0.45.0 - 2026-10-21
 
+- Added `/modes` to list the available modes, and kept `/mode` to a single current-mode line. Tests: `test_commands.py`
 - Fixed the submitted-line reprint so the whole prompt and text carry the mode or command color, and the live prompt leaves typed text in the mode color. Tests: `test_repl_input.py`
 - Added a composite session view - `/sessions` lists roots only, `/history --tree` and `/print --tree` render the run tree, and `--tree` exports include sub-runs. Tests: `test_composite_sessions.py`
 - Added a unified call target - `call target=<role|team|sibling>` with `kind` to disambiguate, one `call` permission key resolved per target, and the old `delegate` and `offload` tools kept for one version. Tests: `test_call_target.py`, `test_call.py`

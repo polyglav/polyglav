@@ -856,9 +856,16 @@ class TestModeCommand(unittest.TestCase):
             self.chat.registry.dispatch(line)
         return out.getvalue()
 
-    def test_mode_shows_current_and_list(self):
+    def test_mode_shows_current_only(self):
         output = self._dispatch('/mode')
         self.assertIn('@ Read mode', output)
+        self.assertNotIn('write', output)
+        self.assertNotIn('<-- current', output)
+
+    def test_modes_lists_available(self):
+        output = self._dispatch('/modes')
+        self.assertIn('@ Modes', output)
+        self.assertIn('read', output)
         self.assertIn('write', output)
         self.assertIn('read  <-- current', output)
 
