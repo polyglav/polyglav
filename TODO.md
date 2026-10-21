@@ -57,8 +57,8 @@
 
 - [ ] REPL output vocabulary - one terminal language for the REPL:
   - [x] Palette - default assistant text, cyan read prompt, orange write prompt, magenta slash-command input, green bash command line, gray info and state lines, yellow warning, red error
-  - [ ] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
-  - [ ] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
+  - [x] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
+  - [x] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
   - [ ] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
   - [ ] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
   - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
@@ -187,6 +187,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added the header, once-only help hint, and gray mode and model line
+- [x] Changed mode lines to gray and kept the prompt in the mode color
 - [x] Changed prompts to cyan read, orange write, and magenta commands, with submitted-line reprint
 - [x] Added palette constants for cyan read, orange write, magenta commands, green bash, and gray info
 - [x] Updated commit guidelines for version bumps and normal case

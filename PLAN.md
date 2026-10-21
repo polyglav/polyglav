@@ -23,8 +23,6 @@ One terminal language for input, output, tools, and state. A small glyph set and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Palette and mode - gray state lines, cyan read prompt, orange write prompt, magenta command input, green bash line, gray info, yellow warning, red error | S | one calm palette |
-| Header and hints - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line | S | a short start screen |
 | Input - `> ` chat and ask, `/ ` commands, the submitted line reprinted in its color, hidden confirm | S-M | one input style |
 | Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
 | Glyph config - a `glyphs` override map and an ASCII preset, no runtime detection | S | usable in any terminal |

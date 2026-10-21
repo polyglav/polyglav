@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import readline
 from pathlib import Path
@@ -5,7 +6,7 @@ from pathlib import Path
 from .config import Config
 from .engine import Engine
 from .focus import FocusManager
-from .ui import MAGENTA, ReplUI
+from .ui import DIM, MAGENTA, RESET, ReplUI
 from .modes import PROMPT_COLORS, mode_color, resolve_mode, unknown_mode
 from . import get_version
 
@@ -17,6 +18,25 @@ _DEFAULT = PROMPT_COLORS['cyan']
 
 def _prompt_text(color: str, label: str) -> str:
     return f'\001{color}\002{label}{_RST} '
+
+
+def _display_path(path: Path) -> str:
+    try:
+        rel = path.resolve().relative_to(Path.home())
+    except ValueError:
+        return str(path)
+    return '~' if str(rel) == '.' else f'~/{rel}'
+
+
+def _git_branch(path: Path) -> str:
+    try:
+        proc = subprocess.run(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            cwd=str(path), capture_output=True, text=True, timeout=1)
+    except (OSError, subprocess.SubprocessError):
+        return ''
+    branch = proc.stdout.strip()
+    return branch if proc.returncode == 0 and branch != 'HEAD' else ''
 
 
 MAIN_PROMPT = _prompt_text(_DEFAULT, '>')
@@ -347,15 +367,16 @@ class ChatLoop(Engine):
         if unknown:
             print(f'Unknown mode "{unknown}" - using read mode')
         spec, _ = resolve_mode(self.config, session_mode)
-        mode_str = spec.name
-        if mode_str != 'write':
-            suffix = f'  [{mode_color(spec)}{mode_str} mode\033[0m]'
-        else:
-            suffix = ''
-        if self.config.get('show_version', True):
-            print(f'Polyglav v{get_version()} ({provider_str}: {model_str}){suffix}  /help for commands')
-        else:
-            print(f'Polyglav ({provider_str}: {model_str}){suffix}  /help for commands')
+        mode_str = spec.name.capitalize()
+        worktree = self.config.local_path.parent.parent
+        location = _display_path(worktree)
+        branch = _git_branch(worktree)
+        if branch:
+            location = f'{location}:{branch}'
+        title = f'Polyglav v{get_version()}' if self.config.get('show_version', True) else 'Polyglav'
+        print(f'\033[1m{title}\033[0m {DIM}{location}{RESET}')
+        print(f'{DIM}\033[3m/help to list commands{RESET}')
+        print(f'{DIM}@ {mode_str} mode ({provider_str}/{model_str}){RESET}')
 
         self._run_startup()
 

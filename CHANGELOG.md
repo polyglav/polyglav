@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added the REPL header - bold `Polyglav vX.Y.Z` and location, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line. Tests: `test_agent_loop.py`
 - Changed the REPL prompts - chat uses `> ` in the mode color, commands reprint as `/ ` in magenta, and continuation uses `... `. Tests: `test_repl_input.py`, `test_focus.py`
 - Added the REPL palette constants - cyan read prompt, orange write prompt, magenta command line, green bash line, gray info, yellow warning, and red error. Tests: `test_ui.py`
 

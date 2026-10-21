@@ -349,6 +349,31 @@ class TestAgentLoop(unittest.TestCase):
                 self.chat.run()
         self.assertNotIn(f'v{get_version()}', out.getvalue())
 
+    def test_banner_shows_mode_and_model_line(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            with patch('polyglav.chat.input', side_effect=EOFError):
+                self.chat.run()
+        self.assertIn('@ Read mode (ollama/test-model)', out.getvalue())
+        self.assertIn('\033[90m@ Read mode', out.getvalue())
+
+    def test_banner_shows_location_and_help_hint(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            with patch('polyglav.chat.input', side_effect=EOFError):
+                self.chat.run()
+        value = out.getvalue()
+        self.assertIn(str(self.chat.config.local_path.parent.parent), value)
+        self.assertIn('/help to list commands', value)
+
+    def test_banner_shows_write_mode(self):
+        self.chat.current_session.mode = 'write'
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            with patch('polyglav.chat.input', side_effect=EOFError):
+                self.chat.run()
+        self.assertIn('@ Write mode (ollama/test-model)', out.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()
