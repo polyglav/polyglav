@@ -36,6 +36,8 @@ def _add_export_parser(sub):
     p.add_argument('--out', help='Output file (default: .polyglav/exports/<name>.md, - for stdout)')
     p.add_argument('--json', action='store_true',
                    help='Export as JSON (default: .polyglav/exports/<name>.json)')
+    p.add_argument('--tree', action='store_true',
+                   help='Include sub-runs in the export')
     p.add_argument('--path', default=argparse.SUPPRESS,
                    help='Project path (default: current directory)')
 

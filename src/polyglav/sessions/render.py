@@ -68,6 +68,17 @@ def session_to_json(session: Session) -> str:
     return json.dumps(export_document(session), indent=2) + '\n'
 
 
+def render_session_tree(sessions: list[tuple[int, Session]]) -> str:
+    blocks = [render_session(session) for _, session in sessions]
+    return '\n\n---\n\n'.join(blocks)
+
+
+def session_tree_to_json(sessions: list[tuple[int, Session]]) -> str:
+    return json.dumps(
+        {'sessions': [export_document(session) for _, session in sessions]},
+        indent=2) + '\n'
+
+
 def render_session(session: Session) -> str:
     lines = [
         f'# Session: {session.session_name}',

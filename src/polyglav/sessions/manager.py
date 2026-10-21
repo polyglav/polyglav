@@ -380,6 +380,34 @@ class SessionManager:
     def list(self) -> list[str]:
         return sorted(p.stem for p in self.sessions_dir.glob('*.json'))
 
+    def tree(self, session_name: str) -> list[tuple[int, Session]]:
+        root = self.read(session_name)
+        if root is None:
+            return []
+        out: list[tuple[int, Session]] = []
+        seen: set[str] = set()
+        names = self.list()
+
+        def walk(session: Session, depth: int):
+            if session.session_name in seen:
+                return
+            seen.add(session.session_name)
+            out.append((depth, session))
+            children = list(session.sub_sessions or [])
+            for name in names:
+                if name in children or name in seen:
+                    continue
+                child = self.read(name)
+                if child is not None and child.parent_id == session.session_name:
+                    children.append(name)
+            for name in children:
+                child = self.read(name)
+                if child is not None:
+                    walk(child, depth + 1)
+
+        walk(root, 0)
+        return out
+
     @property
     def tmp_dir(self) -> Path:
         return self.sessions_dir.parent / 'tmp'

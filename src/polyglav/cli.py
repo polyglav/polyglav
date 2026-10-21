@@ -42,19 +42,28 @@ def cmd_run(args) -> int:
 
 def cmd_export(args) -> int:
     from .sessions.manager import SessionManager
-    from .sessions.render import render_session, session_to_json
+    from .sessions.render import (
+        render_session, render_session_tree, session_to_json,
+        session_tree_to_json,
+    )
     config = Config(path=getattr(args, 'path', None))
     sessions = SessionManager(config.local_path.parent / 'sessions')
     session = sessions.read(args.name)
     if session is None:
         print(f'Session not found: {args.name}', file=sys.stderr)
         return 1
-    if getattr(args, 'json', False):
-        content = session_to_json(session)
-        ext = '.json'
+    ext = '.json' if getattr(args, 'json', False) else '.md'
+    if getattr(args, 'tree', False):
+        nodes = sessions.tree(args.name)
+        content = (session_tree_to_json(nodes)
+                   if getattr(args, 'json', False)
+                   else render_session_tree(nodes))
+        default = f'{args.name}_tree{ext}'
     else:
-        content = render_session(session)
-        ext = '.md'
+        content = (session_to_json(session)
+                   if getattr(args, 'json', False)
+                   else render_session(session))
+        default = f'{args.name}{ext}'
     out = getattr(args, 'out', None)
     if out == '-':
         sys.stdout.write(content)
@@ -62,7 +71,7 @@ def cmd_export(args) -> int:
     if out:
         path = Path(out)
     else:
-        path = sessions.sessions_dir.parent / 'exports' / f'{args.name}{ext}'
+        path = sessions.sessions_dir.parent / 'exports' / default
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
     print(f'Exported session: {args.name} -> {path}')

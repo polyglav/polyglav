@@ -5,7 +5,10 @@ from pathlib import Path
 
 from .. import get_version
 from ..config import verbosity_level
-from ..sessions.render import render_session, render_turn, session_to_json, turn_summary
+from ..sessions.render import (
+    render_session, render_session_tree, render_turn, session_to_json,
+    session_tree_to_json, turn_summary,
+)
 from ..ui import DIM, RED, RESET
 
 SUB_INDENT = 4
@@ -126,7 +129,7 @@ def _target_error(target):
 
 HISTORY_DEFAULT_LIMIT = 10
 HISTORY_USAGE = ('Usage: /history [n|all] [--thoughts [all]] '
-                 '[--run <target>]')
+                 '[--run <target>] [--tree]')
 
 
 def _parse_history(arg):
@@ -134,6 +137,7 @@ def _parse_history(arg):
     limit = HISTORY_DEFAULT_LIMIT
     thoughts: bool | str = False
     run_target = ''
+    tree = False
     positional: list[str] = []
     tokens = shlex.split(arg)
     i = 0
@@ -148,17 +152,20 @@ def _parse_history(arg):
             i += 1
         elif tok == '--run':
             if i + 1 >= len(tokens):
-                return None, None, None, HISTORY_USAGE
+                return None, None, None, None, HISTORY_USAGE
             run_target = tokens[i + 1]
             i += 2
         elif tok.startswith('--run='):
             run_target = tok.split('=', 1)[1]
             i += 1
+        elif tok == '--tree':
+            tree = True
+            i += 1
         else:
             positional.append(tok)
             i += 1
     if len(positional) > 1:
-        return None, None, None, HISTORY_USAGE
+        return None, None, None, None, HISTORY_USAGE
     if positional:
         tok = positional[0]
         if tok == 'all':
@@ -166,11 +173,11 @@ def _parse_history(arg):
         elif tok.isdigit() and int(tok) > 0:
             limit = int(tok)
         else:
-            return None, None, None, f'Unknown argument: {tok}'
-    return limit, thoughts, run_target, ''
+            return None, None, None, None, f'Unknown argument: {tok}'
+    return limit, thoughts, run_target, tree, ''
 
 
-PRINT_USAGE = 'Usage: /print <n>[.<m>] [--full] [--run <target>]'
+PRINT_USAGE = 'Usage: /print <n>[.<m>] [--full] [--run <target>] [--tree]'
 
 
 def _parse_print(arg):
@@ -178,6 +185,7 @@ def _parse_print(arg):
     spec = ''
     full = False
     run_target = ''
+    tree = False
     positional: list[str] = []
     tokens = shlex.split(arg)
     i = 0
@@ -188,22 +196,25 @@ def _parse_print(arg):
             i += 1
         elif tok == '--run':
             if i + 1 >= len(tokens):
-                return None, None, None, PRINT_USAGE
+                return None, None, None, None, PRINT_USAGE
             run_target = tokens[i + 1]
             i += 2
         elif tok.startswith('--run='):
             run_target = tok.split('=', 1)[1]
             i += 1
+        elif tok == '--tree':
+            tree = True
+            i += 1
         else:
             positional.append(tok)
             i += 1
     if len(positional) > 1:
-        return None, None, None, PRINT_USAGE
+        return None, None, None, None, PRINT_USAGE
     if positional:
         spec = positional[0]
-    if not spec:
-        return None, None, None, PRINT_USAGE
-    return spec, full, run_target, ''
+    if not spec and not tree:
+        return None, None, None, None, PRINT_USAGE
+    return spec, full, run_target, tree, ''
 
 
 def _parse_turn_ref(spec):
@@ -1195,17 +1206,13 @@ def register_builtins(registry):
         action = parts[0] if parts else ''
 
         if not action or action == 'list':
-            sessions = chat.sessions.list()
+            sessions = [s for s in chat.sessions.list()
+                        if not s.startswith('sub_')]
             if sessions:
                 current = chat.sessions.current.session_name if chat.sessions.current else ''
                 for s in sessions:
                     marker = '  <-- current' if s == current else ''
-                    child = ''
-                    if s.startswith('sub_'):
-                        data = chat.sessions.read(s)
-                        if data and getattr(data, 'parent_id', ''):
-                            child = f'  (child of {data.parent_id})'
-                    print(f'  {s}{marker}{child}')
+                    print(f'  {s}{marker}')
             else:
                 print('  No sessions found')
             return
@@ -1227,23 +1234,28 @@ def register_builtins(registry):
             else:
                 print(f'Session not found: {name}')
         elif action == 'export':
-            tokens = [t for t in arg.strip().split()[1:] if t != '--json']
+            tree = '--tree' in arg.split()
+            tokens = [t for t in arg.strip().split()[1:]
+                      if t not in ('--json', '--tree')]
             as_json = '--json' in arg.split()
             name = tokens[0] if tokens else ''
             out = tokens[1] if len(tokens) > 1 else ''
             if not name:
-                print('Usage: /sessions export <name> [out] [--json]')
+                print('Usage: /sessions export <name> [out] [--json] [--tree]')
                 return
             s = chat.sessions.read(name)
             if s is None:
                 print(f'Session not found: {name}')
                 return
-            if as_json:
-                content = session_to_json(s)
-                ext = '.json'
+            ext = '.json' if as_json else '.md'
+            if tree:
+                nodes = chat.sessions.tree(name)
+                content = (session_tree_to_json(nodes) if as_json
+                           else render_session_tree(nodes))
+                default = f'{name}_tree{ext}'
             else:
-                content = render_session(s)
-                ext = '.md'
+                content = session_to_json(s) if as_json else render_session(s)
+                default = f'{name}{ext}'
             if out == '-':
                 sys.stdout.write(content)
                 return
@@ -1251,7 +1263,7 @@ def register_builtins(registry):
                 path = Path(out)
             else:
                 path = (chat.sessions.sessions_dir.parent / 'exports'
-                        / f'{name}{ext}')
+                        / default)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
             print(f'Exported session: {name} -> {path}')
@@ -1280,9 +1292,10 @@ def register_builtins(registry):
 
     @registry.register('history',
                        description='List the session turns as a numbered index '
-                                   '(/history [n|all] [--thoughts [all]] [--run <target>])')
+                                   '(/history [n|all] [--thoughts [all]] '
+                                   '[--run <target>] [--tree])')
     def history_cmd(arg=''):
-        limit, thoughts, run_target, error = _parse_history(arg)
+        limit, thoughts, run_target, tree, error = _parse_history(arg)
         if error:
             print(error)
             return
@@ -1292,6 +1305,16 @@ def register_builtins(registry):
             if session is None:
                 print(error)
                 return
+        if tree:
+            for depth, item in chat.sessions.tree(session.session_name):
+                role = f' [{item.role}]' if item.role else ''
+                print(f'{"  " * depth}{item.session_name} - '
+                      f'{len(item.turns)} turns{role}')
+                shown = item.turns if limit == 0 else item.turns[-limit:]
+                for turn in shown:
+                    print(f'{"  " * (depth + 1)}'
+                          f'{turn_summary(turn, thoughts=thoughts)}')
+            return
         turns = session.turns or []
         shown = turns if limit == 0 else turns[-limit:]
         role = f' [{session.role}]' if session.role else ''
@@ -1303,13 +1326,10 @@ def register_builtins(registry):
 
     @registry.register('print',
                        description='Reprint a turn (or one part) in full - '
-                                   '/print <n>[.<m>] [--full] [--run <target>]')
+                                   '/print <n>[.<m>] [--full] [--run <target>] '
+                                   '[--tree]')
     def print_cmd(arg=''):
-        spec, full, run_target, error = _parse_print(arg)
-        if error:
-            print(error)
-            return
-        n, m, error = _parse_turn_ref(spec)
+        spec, full, run_target, tree, error = _parse_print(arg)
         if error:
             print(error)
             return
@@ -1319,6 +1339,19 @@ def register_builtins(registry):
             if session is None:
                 print(error)
                 return
+        cap = chat.config.get('print_max_chars', 4000)
+        if tree:
+            for depth, item in chat.sessions.tree(session.session_name):
+                print(f'\n# Session: {item.session_name} '
+                      f'({item.role or "root"})')
+                for turn in item.turns:
+                    print(render_turn(turn, full=full, cap=cap))
+                    print()
+            return
+        n, m, error = _parse_turn_ref(spec)
+        if error:
+            print(error)
+            return
         turn = next((t for t in (session.turns or [])
                      if t.get('index') == n), None)
         if turn is None:
@@ -1328,7 +1361,6 @@ def register_builtins(registry):
         if m is not None and m > len(parts):
             print(f'Turn {n} has no part {m} (1-{len(parts)})')
             return
-        cap = chat.config.get('print_max_chars', 4000)
         print(render_turn(turn, part=m, full=full, cap=cap))
 
     @registry.register('asks', description='List parked asks and answer them', subcommands=[

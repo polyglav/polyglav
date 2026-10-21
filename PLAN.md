@@ -25,16 +25,6 @@ Delegation speaks one verb. `call <target>` names a role, a team, or a role-less
 |------|--------|----------|
 | Docs and prompts - update the tool, swarm, role, and team references | S-M | one vocabulary |
 
-## Composite session view
-
-Separate session files stay the storage model, and the operator sees one transcript.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| `/sessions` roots only - hide `sub_` sessions from the catalog | S | a short catalog |
-| Recursive `/print` and `/history` - follow `sub_sessions` and `parent_id` to render the whole run tree | S-M | one transcript |
-| Export - include sub-runs in the Markdown and JSON export | S | complete artifacts |
-
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
