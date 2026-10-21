@@ -64,7 +64,7 @@
   - [ ] Vision and plan docs - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
   - [ ] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
   - [ ] Remove focus switching - `/focus` becomes a read-only `/runs` tree
-  - [ ] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
+  - [x] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
   - [ ] Cleanup - drop `focus_on_delegate`, the `SubRunUI` forwarding, and `ask target='caller'`
   - [ ] Keep jobs and fleet - they are separate OS processes, not in-REPL concurrency
 - [ ] Composite session view - show one transcript while keeping separate files:
@@ -168,6 +168,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added pause and resume at safe turn boundaries
 - [x] Added verbosity rendering tests for thinking, tools, subruns, and footer
 - [x] Added the verbosity model
 - [x] Added verbosity presets and scoped thinking, tools, subruns, and footer levels

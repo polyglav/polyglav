@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added pause and resume - `/pause` holds the next turn, `/resume` clears it, and the state prints as `@ Paused #n` and `@ Resumed #n`. Tests: `test_pause.py`
 - Added verbosity rendering tests for thinking, tools, subruns, and footer levels. Tests: `test_verbosity.py`
 - Added the verbosity model - `quiet`, `normal`, and `verbose` presets plus `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`; old display flags migrate on read, errors are always shown, and `/thinking` takes `off`, `summary`, or `full`. Tests: `test_verbosity.py`, `test_ui.py`, `test_engine.py`, `test_commands.py`
 - Added golden transcript tests for the REPL output vocabulary - header, prompts, thinking, tool summary, flat stages, ask block, warning, and error. Tests: `test_repl_output.py`

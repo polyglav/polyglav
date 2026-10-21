@@ -135,6 +135,7 @@ class Engine:
         self.role = ''
         self._pending_handoff = None
         self._pending_focus = None
+        self._paused = False
         self._provider_error = None
         self._ui = ui
         self._sub_run = False

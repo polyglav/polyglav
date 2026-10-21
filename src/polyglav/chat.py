@@ -396,6 +396,9 @@ class ChatLoop(Engine):
                     engine.current_session.add_command(line)
                     engine.registry.dispatch(line)
                     engine.session_auto_save()
+                elif getattr(engine, '_paused', False):
+                    label = engine.role or 'root'
+                    print(f'{DIM}@ Paused #{engine.current_run.id} {label}{RESET}')
                 else:
                     engine.chat(line)
             except Exception as e:

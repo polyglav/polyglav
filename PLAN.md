@@ -23,7 +23,6 @@ The REPL runs one process and one context at a time. A run can pause at a safe b
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and state prints as `@ Paused #n` and `@ Resumed #n` | M | control a long run |
 | Read-only `/runs` - replace focus switching with a history tree, and drop `handoff` and `focus_on_delegate` | S-M | see the run tree without switching |
 | Sequential cleanup - remove the `SubRunUI` forwarding and `ask target='caller'`, and align VISION with one context at a time | S-M | one simple run model |
 

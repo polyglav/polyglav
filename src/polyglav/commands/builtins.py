@@ -757,6 +757,20 @@ def register_builtins(registry):
                 chat.set_unattended(new)
             print(f'Unattended mode: {"on" if new else "off"}')
 
+    @registry.register('pause', description='Pause this run at the next turn boundary')
+    def pause_cmd(arg=''):
+        engine = chat.active() if hasattr(chat, 'active') else chat
+        engine._paused = True
+        label = engine.role or 'root'
+        print(f'{DIM}@ Paused #{engine.current_run.id} {label}{RESET}')
+
+    @registry.register('resume', description='Resume this paused run')
+    def resume_cmd(arg=''):
+        engine = chat.active() if hasattr(chat, 'active') else chat
+        engine._paused = False
+        label = engine.role or 'root'
+        print(f'{DIM}@ Resumed #{engine.current_run.id} {label}{RESET}')
+
     @registry.register('mode', description='Show or switch the agent mode for this session (read or write)')
     def mode_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
