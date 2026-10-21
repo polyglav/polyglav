@@ -51,13 +51,13 @@ class TestBufferUI(unittest.TestCase):
         self.ui.token('world')
         self.assertEqual(self.run.buffer, [])
         self.ui.footer(1.0, {})
-        self.assertEqual(self.run.buffer, ['hello world', '(1.0s)'])
+        self.assertEqual(self.run.buffer, ['hello world', '✓ Done 1.0s'])
 
     def test_token_newlines_split(self):
         self.ui.token('a\nb\nc')
         self.assertEqual(self.run.buffer, ['a', 'b'])
         self.ui.footer(1.0, {})
-        self.assertEqual(self.run.buffer, ['a', 'b', 'c', '(1.0s)'])
+        self.assertEqual(self.run.buffer, ['a', 'b', 'c', '✓ Done 1.0s'])
 
     def test_tool_and_error_formatting(self):
         self.ui.tool_status('bash', 'ls', ['+ file.py'])
@@ -65,8 +65,8 @@ class TestBufferUI(unittest.TestCase):
         self.ui.error(0, 'boom')
         self.ui.tool_error('Error: no\nsecond')
         self.assertEqual(self.run.buffer, [
-            '[bash: ls]', '+ file.py', '[warning] careful', '[Error] boom',
-            '! Error: no'])
+            '* bash ls', '+ file.py', '! careful', '✗ boom',
+            '✗ Error: no'])
 
     def test_tool_result_each_line(self):
         self.ui.tool_result('one\ntwo\n')

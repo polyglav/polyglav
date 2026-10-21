@@ -61,9 +61,9 @@
   - [x] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
   - [x] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
   - [x] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
-  - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
-  - [ ] Status newline - a status line never prints inline after streamed text
-  - [ ] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
+  - [x] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
+  - [x] Status newline - a status line never prints inline after streamed text
+  - [x] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
   - [x] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
   - [x] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
   - [x] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
@@ -187,6 +187,9 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed sub-runs to flat stage lines with call, return, worked, and done markers
+- [x] Changed the glyph set to the final vocabulary
+- [x] Fixed status lines to start on a new line after streamed text
 - [x] Changed the input style to a mode-colored chat marker, magenta commands, and hidden confirm
 - [x] Changed confirm input to hidden by default
 - [x] Changed ask options to a numbered block with a chat marker

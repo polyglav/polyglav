@@ -2,6 +2,9 @@
 
 ## v0.45.0
 
+- Changed sub-runs to flat stage lines - `↳ Call <target>`, `↲ <result>`, `✓ Worked: <role>`, and `✗ <role>` with no indentation. Tests: `test_ui.py`, `test_call.py`, `test_delegate_tool.py`, `test_run_buffer.py`
+- Changed the glyph set to the final vocabulary - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, `←`/`→`, and the braille spinner; dropped `☐`, `⎇`, `◈`, `·`, `…`, and `▸`. Tests: `test_ui.py`
+- Fixed status lines to start on a new line after streamed text. Tests: `test_ui.py`
 - Changed the tool confirm to hide typed input by default. Tests: `test_ui.py`
 - Changed the ask layout - a gray question, a numbered option block, and a `> ` answer prompt in the mode color. Tests: `test_ui.py`
 - Changed the REPL strings - `@ Model`, `@ Mode`, `✗` errors, `!` warnings, `✓ Done` footers, gray info, and an indented refine line. Git and MCP use the default glyph. Tests: `test_ui.py`, `test_commands.py`, `test_agent_loop.py`

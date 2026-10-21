@@ -49,13 +49,6 @@ class TestDelegateTool(unittest.TestCase):
             if json.loads(f.read_text()).get('parent_id')
             == self.chat.current_session.session_name)
 
-    def _sub_footer_called(self):
-        for c in self.chat._ui.footer.call_args_list:
-            args = c[0]
-            if len(args) == 2 and not args[1]:
-                return True
-        return False
-
     def test_allowed_type_runs_subagent(self):
         self._allow_delegate()
         self.chat.provider.chat.side_effect = [
@@ -73,10 +66,9 @@ class TestDelegateTool(unittest.TestCase):
         self.assertIn('[call writer] Draft text.', tools[0]['output'])
         self.assertTrue(self._delegate_logs('writer'))
 
-    def test_echo_on_prints_result_and_footer(self):
+    def test_echo_on_prints_result(self):
         self._allow_delegate()
-        self.chat._ui.tool_result = MagicMock()
-        self.chat._ui.footer = MagicMock()
+        self.chat._ui.sub_result = MagicMock()
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
             [{'type': 'token', 'content': 'Draft text.'},
@@ -85,14 +77,12 @@ class TestDelegateTool(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self._run()
-        self.chat._ui.tool_result.assert_called()
-        self.assertTrue(self._sub_footer_called())
+        self.chat._ui.sub_result.assert_called()
 
-    def test_echo_off_hides_result_and_footer(self):
+    def test_echo_off_hides_result(self):
         self._allow_delegate()
         self.chat.config.apply('delegate_echo', False)
-        self.chat._ui.tool_result = MagicMock()
-        self.chat._ui.footer = MagicMock()
+        self.chat._ui.sub_result = MagicMock()
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
             [{'type': 'token', 'content': 'Draft text.'},
@@ -101,8 +91,7 @@ class TestDelegateTool(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self._run()
-        self.chat._ui.tool_result.assert_not_called()
-        self.assertFalse(self._sub_footer_called())
+        self.chat._ui.sub_result.assert_not_called()
 
     def test_default_allow_does_not_prompt(self):
         self.chat._ui.confirm = MagicMock()
@@ -178,7 +167,10 @@ class TestDelegateTool(unittest.TestCase):
             self.chat.registry.dispatch(
                 '/tool call {"role": "writer", "task": "write"}')
         out = buf.getvalue()
-        self.assertEqual(out.count('[call writer] Sub result.'), 1)
+        self.assertEqual(out.count('Sub result.'), 1)
+        self.assertIn('↳ Call writer', out)
+        self.assertIn('✓ Worked: writer', out)
+        self.assertIn('↲ Sub result.', out)
         self.assertTrue(self._delegate_logs('writer'))
 
     def test_tool_command_delegate_runs_loop_turn(self):

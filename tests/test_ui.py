@@ -157,7 +157,7 @@ class TestThinkingSpinner(unittest.TestCase):
             self.assertIsNotNone(thread)
             self.assertTrue(thread.is_alive())
             self.assertEqual(self.chat._ui._spinner_label,
-                             'Delegating to writer...')
+                             'Delegating to writer')
             self.chat._ui.status_end()
         self.assertFalse(thread.is_alive())
         self.assertIsNone(self.chat._ui._spinner_thread)
@@ -184,8 +184,8 @@ class TestThinkingSpinner(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         calls = []
-        self.chat._ui.status_begin = lambda label: calls.append(('begin', label))
-        self.chat._ui.status_end = lambda note='': calls.append(('end', note))
+        self.chat._ui.status_begin = lambda label, name='': calls.append(('begin', label))
+        self.chat._ui.status_end = lambda note='', ok=True: calls.append(('end', note))
         with patch('sys.stdout', new=io.StringIO()):
             self.chat.run_subagent('writer', 'draft it')
         self.assertEqual(calls[0][0], 'begin')
@@ -198,7 +198,7 @@ class TestThinkingSpinner(unittest.TestCase):
             self.chat._ui.status_begin('dev: planner...')
             self.chat._ui.status_end('(1.2s, 300 tokens)')
         value = out.getvalue()
-        self.assertIn('✓ dev: planner', value)
+        self.assertIn('✓ Worked: dev: planner', value)
         self.assertIn('(1.2s, 300 tokens)', value)
 
     def test_status_begin_prints_enter_marker(self):
@@ -251,12 +251,12 @@ class TestThinkingSpinner(unittest.TestCase):
         from polyglav.engine import TurnResult
         result = TurnResult(duration=2.5, usage={'prompt_tokens': 100,
                                                 'completion_tokens': 20})
-        self.assertEqual(self.chat._run_stats(result), '(2.5s, 120 tokens)')
+        self.assertEqual(self.chat._run_stats(result), '2.5s (120 tokens)')
 
     def test_run_stats_omits_tokens_without_usage(self):
         from polyglav.engine import TurnResult
         self.assertEqual(self.chat._run_stats(TurnResult(duration=1.0)),
-                         '(1.0s)')
+                         '1.0s')
 
     def test_subrun_summary_forwards_only_writes(self):
         from polyglav.ui import SubRunUI

@@ -106,16 +106,21 @@ def _read_key(fd: int, timeout: float) -> str | None:
     return data.decode('utf-8', 'ignore')
 
 
+def _stdin_ready(timeout: float) -> bool:
+    if not (timeout and timeout > 0):
+        return True
+    try:
+        ready, _, _ = select.select([sys.stdin], [], [], timeout)
+    except (OSError, ValueError, TypeError):
+        return True
+    return bool(ready)
+
+
 def _timed_input(prompt: str, timeout: float, hidden: bool = False) -> str | None:
     if hidden:
         return _hidden_input(prompt, timeout)
-    if timeout and timeout > 0:
-        try:
-            ready, _, _ = select.select([sys.stdin], [], [], timeout)
-        except (OSError, ValueError, TypeError):
-            return input(prompt)
-        if not ready:
-            return None
+    if not _stdin_ready(timeout):
+        return None
     return input(prompt)
 
 
@@ -150,19 +155,21 @@ def _hidden_input_stdin(prompt: str, timeout: float) -> str | None:
     try:
         fd = sys.stdin.fileno()
     except (AttributeError, ValueError, OSError):
+        if not _stdin_ready(timeout):
+            return None
         return input(prompt)
     try:
         attrs = termios.tcgetattr(fd)
     except (termios.error, OSError, ValueError):
+        if not _stdin_ready(timeout):
+            return None
         return input(prompt)
     sys.stdout.write(prompt)
     sys.stdout.flush()
     try:
         tty.setcbreak(fd)
-        if timeout and timeout > 0:
-            ready, _, _ = select.select([sys.stdin], [], [], timeout)
-            if not ready:
-                return None
+        if not _stdin_ready(timeout):
+            return None
         line = sys.stdin.readline()
         if not line:
             raise EOFError()
@@ -277,6 +284,7 @@ class ReplUI:
         self._prompting = threading.Event()
         self._word_buffer = ''
         self._thinking_streamed = False
+        self._status_name = ''
         self._hints_shown: set[str] = set()
 
     def _write(self, text, ansi=''):
@@ -334,28 +342,35 @@ class ReplUI:
         self._thinking_streamed = False
         self._start_spinner('Thinking')
 
-    def status_begin(self, label: str):
+    def status_begin(self, label: str, name: str = ''):
         self.flush()
         self._ensure_newline()
+        text = str(label or 'Working').rstrip('.').strip()
+        self._status_name = (name or text).rstrip('.').strip()
         if not self._loop.config.get('status_spinner', True):
+            self._emit(f'↳ {text}', DIM)
             return
-        text = str(label or 'Working')
         mark = glyph(self._loop.config, 'enter', '↳')
-        self._emit(f'{mark} {text.rstrip(".").strip()}', DIM)
+        self._emit(f'{mark} {text}', DIM)
         self._start_spinner(text)
 
-    def status_end(self, note: str = ''):
+    def status_end(self, note: str = '', ok: bool = True):
         if not self._loop.config.get('status_spinner', True):
-            if note:
-                self._emit(note, DIM)
+            self.worked(self._status_name, note, ok=ok)
             return
-        label = self._spinner_label.rstrip('.').strip()
+        label = self._status_name
         self._stop_spinner()
-        done = glyph(self._loop.config, 'done', '✓')
-        body = f'{done} {label}' if label else f'{done} done'
+        self.worked(label, note, ok=ok)
+
+    def worked(self, name: str, note: str = '', ok: bool = True):
+        self.flush()
+        self._ensure_newline()
+        key = 'done' if ok else 'error'
+        mark = glyph(self._loop.config, key, '✓' if ok else '✗')
+        body = f'{mark} Worked: {name}' if ok else f'{mark} {name}'
         if note:
             body += f' {note}'
-        self._emit(body, DIM)
+        self._emit(body, DIM if ok else RED)
 
     def _spinner_frames(self):
         raw = glyph_map(self._loop.config).get('spinner')
@@ -493,6 +508,16 @@ class ReplUI:
             return
         for line in output.splitlines():
             self._emit(line, DIM)
+
+    def sub_result(self, text):
+        self.flush()
+        self._ensure_newline()
+        mark = glyph(self._loop.config, 'return', '↲')
+        lines = str(text or '').splitlines() or ['']
+        first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
+        self._emit(f'{mark} {first}', DIM)
+        for line in lines[1:]:
+            self._emit(f'  {line}', DIM)
 
     def _tool_output_hint(self):
         session = getattr(self._loop, 'current_session', None)
@@ -639,10 +664,16 @@ class NullUI:
     def thinking_end(self, duration):
         pass
 
-    def status_begin(self, label):
+    def status_begin(self, label, name=''):
         pass
 
-    def status_end(self, note=''):
+    def status_end(self, note='', ok=True):
+        pass
+
+    def worked(self, name, note='', ok=True):
+        pass
+
+    def sub_result(self, text):
         pass
 
     def warning(self, msg):
@@ -689,6 +720,7 @@ class BufferUI:
     def __init__(self, run, max_lines: int = 0):
         self.run = run
         self._partial = ''
+        self._status_name = ''
         if max_lines:
             run.max_buffer_lines = int(max_lines)
 
@@ -721,23 +753,30 @@ class BufferUI:
     def thinking_end(self, duration):
         self._flush()
 
-    def status_begin(self, label):
-        self._flush()
+    def status_begin(self, label, name=''):
+        self._status_name = name or label
+        self._line(f'↳ {label}')
 
-    def status_end(self, note=''):
-        self._flush()
+    def status_end(self, note='', ok=True):
+        self.worked(self._status_name, note, ok=ok)
+
+    def worked(self, name, note='', ok=True):
+        mark = '✓' if ok else '✗'
+        body = f'{mark} Worked: {name}' if ok else f'{mark} {name}'
         if note:
-            self._line(note)
+            body += f' {note}'
+        self._line(body)
 
     def warning(self, msg):
-        self._line(f'[warning] {msg}')
+        self._line(f'! {msg}')
 
     def error(self, code, msg):
-        label = f'[Error {code}]' if code else '[Error]'
-        self._line(f'{label} {msg}')
+        mark = '✗'
+        body = f'{mark} [{code}] {msg}' if code else f'{mark} {msg}'
+        self._line(body)
 
     def tool_status(self, name, value, body):
-        self._line(f'[{name}: {value}]')
+        self._line(f'* {name} {value}')
         for line in body:
             self._line(line)
 
@@ -747,11 +786,15 @@ class BufferUI:
             self._line(line)
 
     def tool_error(self, msg):
-        self._line(f'! {msg.split(chr(10), 1)[0]}')
+        self._line(f'✗ {msg.split(chr(10), 1)[0]}')
 
     def tool_error_result(self, output):
-        for line in output.splitlines():
-            self._line(line)
+        lines = output.splitlines()
+        if not lines:
+            return
+        self._line(f'✗ {lines[0]}')
+        for line in lines[1:]:
+            self._line(f'  {line}')
 
     def tool_note(self, output):
         lines = [l for l in output.splitlines() if l]
@@ -762,11 +805,21 @@ class BufferUI:
         for line in output.splitlines():
             self._line(line)
 
+    def sub_result(self, text):
+        lines = str(text or '').splitlines() or ['']
+        first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
+        self._line(f'↲ {first}')
+        for line in lines[1:]:
+            self._line(f'  {line}')
+
     def tool_refine(self, old, new):
-        self._line(f'[refine: "{old}" → "{new}"]')
+        self._line(f'  Refine query to: {new}')
 
     def footer(self, duration, counts, note=''):
-        self._line(f'({duration:.1f}s)')
+        body = f'✓ Done {duration:.1f}s'
+        if note:
+            body += f'  {note}'
+        self._line(body)
 
     def info(self, msg):
         self._line(msg)
@@ -826,12 +879,28 @@ class HeadlessUI:
         else:
             sys.stderr.write(f'+ Thought {duration:.1f}s\n')
 
-    def status_begin(self, label):
+    def status_begin(self, label, name=''):
         pass
 
-    def status_end(self, note=''):
+    def status_end(self, note='', ok=True):
         if self.verbose and note:
             sys.stderr.write(f'{note}\n')
+
+    def worked(self, name, note='', ok=True):
+        if self.verbose:
+            mark = '✓' if ok else '✗'
+            body = f'{mark} Worked: {name}' if ok else f'{mark} {name}'
+            if note:
+                body += f' {note}'
+            sys.stderr.write(body + '\n')
+
+    def sub_result(self, text):
+        if self.verbose:
+            lines = str(text or '').splitlines() or ['']
+            first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
+            sys.stderr.write(f'↲ {first}\n')
+            for line in lines[1:]:
+                sys.stderr.write(f'  {line}\n')
 
     def warning(self, msg):
         sys.stderr.write(f'[warning] {msg}\n')

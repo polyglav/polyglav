@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import BufferUI, NullUI, ReplUI, SubRunUI, glyph_map
+from .ui import BufferUI, NullUI, ReplUI, SubRunUI, glyph, glyph_map
 
 
 @dataclass
@@ -725,18 +725,17 @@ class Engine:
             self.runs.reactivate(run.id)
         if ctx == 'compact':
             sub.compact_session()
-        label = role_name or 'offload'
-        stack = list(getattr(self, '_team_stack', []))
-        if stack:
-            label = f'{stack[-1]}: {role_name}'
-        self.ui.status_begin(f'{label}...')
+        label = getattr(self, '_stage_label', '') or (role_name or 'sibling')
+        name = getattr(self, '_stage_name', '') or (role_name or 'sibling')
+        self.ui.status_begin(f'Call {label}', name=name)
         try:
             result = sub.chat(task, origin=self.role or 'root')
         except Exception:
-            self.ui.status_end()
+            self.ui.status_end(ok=False)
             self.runs.finish(sub.current_run.id, 'error')
             raise
-        self.ui.status_end(self._run_stats(result))
+        ok = result.status in ('ok', 'truncated')
+        self.ui.status_end(self._run_stats(result), ok=ok)
         status = 'done' if result.status in ('ok', 'truncated') else 'error'
         self.runs.finish(sub.current_run.id, status)
         if result.session and result.session not in self.current_session.sub_sessions:
@@ -757,8 +756,27 @@ class Engine:
                 (usage.get('completion_tokens') or 0)
         parts = [f'{duration:.1f}s']
         if total:
-            parts.append(f'{int(total):,} tokens')
-        return f'({", ".join(parts)})'
+            parts.append(f'({int(total):,} tokens)')
+        return ' '.join(parts)
+
+    def _team_stats(self, result) -> str:
+        duration = 0.0
+        total = 0
+        for stage in (getattr(result, 'stages', None) or []):
+            try:
+                duration += float(getattr(stage, 'duration', 0.0) or 0.0)
+            except (TypeError, ValueError):
+                pass
+            usage = getattr(stage, 'usage', None) or {}
+            count = usage.get('total_tokens')
+            if count is None:
+                count = ((usage.get('prompt_tokens') or 0)
+                         + (usage.get('completion_tokens') or 0))
+            total += int(count or 0)
+        parts = [f'{duration:.1f}s']
+        if total:
+            parts.append(f'({total:,} tokens)')
+        return ' '.join(parts)
 
     def _update_role_memory(self, role: str, session_name: str):
         if not role or not session_name:
@@ -896,9 +914,13 @@ class Engine:
                          f'Team nesting limit reached ({max_depth}): {team.name}'}])
         self._team_stack = stack + [team.name]
         self._team_depth = depth + 1
+        self.ui.info(f'{glyph(self.config, "enter", "↳")} Delegate {team.name}')
         try:
-            return self._run_team_stages(
+            result = self._run_team_stages(
                 team, task, skills=skills, resume=resume, context=context)
+            ok = result.status in ('ok', 'truncated')
+            self.ui.worked(team.name, self._team_stats(result), ok=ok)
+            return result
         finally:
             self._team_stack = stack
             self._team_depth = depth
@@ -910,12 +932,19 @@ class Engine:
         for name in (stage.skills or []):
             if name and name not in stage_skills:
                 stage_skills.append(name)
-        if stage is team.stages[0] and resume:
+        index = team.stages.index(stage)
+        self._stage_label = f'{stage.role} ({index + 1}/{len(team.stages)})'
+        self._stage_name = stage.role
+        try:
+            if stage is team.stages[0] and resume:
+                return self.run_subagent(stage.role, brief, mode=mode,
+                                         skills=stage_skills, resume=resume,
+                                         context=context)
             return self.run_subagent(stage.role, brief, mode=mode,
-                                     skills=stage_skills, resume=resume,
-                                     context=context)
-        return self.run_subagent(stage.role, brief, mode=mode,
-                                 skills=stage_skills)
+                                     skills=stage_skills)
+        finally:
+            self._stage_label = ''
+            self._stage_name = ''
 
     def _build_iteration_brief(self, team, task: str, memory: str, stage,
                                prior: list, iteration: int,

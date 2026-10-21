@@ -60,26 +60,6 @@ def _format_result(team_name: str, res) -> str:
             f'{len(res.stages)} stage(s) ran)')
 
 
-def _team_footer(engine, res):
-    duration = 0.0
-    out = 0
-    for stage in (res.stages or []):
-        duration += float(getattr(stage, 'duration', 0.0) or 0.0)
-        usage = getattr(stage, 'usage', None)
-        if isinstance(usage, dict):
-            comp = usage.get('completion_tokens')
-            if isinstance(comp, int) and comp > 0:
-                out += comp
-    counts = {}
-    if out:
-        counts['out'] = out
-    last_session = ''
-    if res.stages:
-        last_session = getattr(res.stages[-1], 'session', '') or ''
-    note = ' '.join(p for p in (getattr(res, 'status', ''), last_session) if p)
-    engine.ui.footer(round(duration, 1), counts, note=note)
-
-
 def register_delegate_tool(registry, engine) -> Callable:
     @registry.register(
         name='delegate',
@@ -162,7 +142,6 @@ def register_delegate_tool(registry, engine) -> Callable:
             result += _offer_focus(engine, res.stages[-1].run_id, _config)
         if (_echo and _config is not None and _config.get('delegate_echo', True)
                 and not result.startswith('Error')):
-            engine.ui.tool_result(result)
-            _team_footer(engine, res)
+            engine.ui.sub_result(result)
         return result
     return delegate

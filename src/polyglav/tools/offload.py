@@ -1,7 +1,5 @@
 from typing import Callable
 
-from .call import _sub_footer
-
 
 def _format_result(res) -> str:
     if res.status == 'error':
@@ -75,7 +73,6 @@ def register_offload_tool(registry, engine) -> Callable:
         result = _format_result(res)
         if (_echo and _config is not None and _config.get('delegate_echo', True)
                 and not result.startswith('Error')):
-            engine.ui.tool_result(result)
-            _sub_footer(engine, res)
+            engine.ui.sub_result(result)
         return result
     return offload

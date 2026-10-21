@@ -58,6 +58,25 @@ class TestTeamTool(unittest.TestCase):
         self.assertEqual(self.chat.provider.chat.call_count, 2)
         self.assertEqual(len(self.chat.current_session.sub_sessions), 2)
 
+    def test_team_output_is_flat(self):
+        self.chat._init_tooling()
+        self._team('doc', TeamStage(role='researcher'), TeamStage(role='writer'))
+        self.chat.provider.chat.side_effect = [
+            self._result('Research done.'), self._result('Draft done.'),
+        ]
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._run_tool('delegate', {'name': 'doc',
+                                             'task': 'write a report'})
+        value = out.getvalue()
+        self.assertIn('↳ Delegate doc', value)
+        self.assertIn('↳ Call researcher (1/2)', value)
+        self.assertIn('↳ Call writer (2/2)', value)
+        self.assertIn('✓ Worked: researcher', value)
+        self.assertIn('✓ Worked: writer', value)
+        self.assertIn('✓ Worked: doc', value)
+        self.assertIn('↲ Draft done.', value)
+
     def test_team_offers_focus_on_last_stage(self):
         self._team('doc', TeamStage(role='writer'))
         self.chat.provider.chat.side_effect = [self._result('done')]

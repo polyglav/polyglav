@@ -110,7 +110,7 @@ class TestToolCalling(unittest.TestCase):
         search_mock.assert_called_once_with('latest AI news')
         self.assertEqual(self._texts()[-1], 'Done.')
 
-    def test_shown_thinking_announces_and_streams(self):
+    def test_shown_thinking_streams_and_summarizes(self):
         self.chat.config.data['show_thinking'] = True
         self.chat.provider.chat.side_effect = [
             [{'type': 'thinking', 'content': 'reasoning...'},
@@ -121,7 +121,7 @@ class TestToolCalling(unittest.TestCase):
         with patch('sys.stdout', new=buf):
             self.chat._agent_loop()
         out = buf.getvalue()
-        self.assertIn('- Thinking', out)
+        self.assertIn('✓ Thought', out)
         self.assertIn('reasoning...', out)
         self.assertIn('Visible', out)
 
@@ -137,7 +137,7 @@ class TestToolCalling(unittest.TestCase):
             self.chat._agent_loop()
         out = buf.getvalue()
         self.assertNotIn('secret reasoning', out)
-        self.assertRegex(out, r'\+ Thought \d+\.\ds')
+        self.assertRegex(out, r'✓ Thought \d+\.\ds')
         self.assertIn('Visible', out)
 
 

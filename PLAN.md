@@ -23,9 +23,6 @@ One terminal language for input, output, tools, and state. A small glyph set and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
-| Flat stages - no `<<<`, no indentation, `(i/n)` stage markers, `✓ Worked: <role>` and `✓ Done` footers | S-M | readable long runs |
-| Status newline - a status line never prints inline after streamed text | S | clean output boundaries |
 | Golden transcripts - assert header, input, tool, stage, and footer lines against the design mocks | S-M | no doc drift |
 
 ## Verbosity model

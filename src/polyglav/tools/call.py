@@ -96,16 +96,6 @@ def _format_result(engine, role_name: str, res) -> str:
     return f'[call {role_name}] (no content)'
 
 
-def _sub_footer(engine, res):
-    counts = {}
-    usage = res.usage if isinstance(res.usage, dict) else None
-    comp = usage.get('completion_tokens') if usage else None
-    if isinstance(comp, int) and comp > 0:
-        counts['out'] = comp
-    note = ' '.join(p for p in (getattr(res, 'status', ''), res.session) if p)
-    engine.ui.footer(res.duration, counts, note=note)
-
-
 def register_call_tool(registry, engine) -> Callable:
     @registry.register(
         name='call',
@@ -178,7 +168,6 @@ def register_call_tool(registry, engine) -> Callable:
             result += _offer_focus(engine, res.run_id, _config)
         if (_echo and _config is not None and _config.get('delegate_echo', True)
                 and not result.startswith('Error')):
-            engine.ui.tool_result(result)
-            _sub_footer(engine, res)
+            engine.ui.sub_result(result)
         return result
     return call
