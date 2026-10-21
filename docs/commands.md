@@ -19,7 +19,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/mode`                 |                | Show the current agent mode, or switch it (`/mode <name>`). See [modes.md](modes.md) |
 | `/model`                 |                | Show or switch the active model. `/model <name>` sets it on the current provider. `/model <provider>/<model>` switches provider and model together, approving the model on confirm |
 | `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key), marking `(unused)` when a model never completed a run and `(failed)` when its last run errored. `/models list [provider]` probes a provider's advertised models live (default: current provider), and `/models remove <provider>/<model>` drops a model from the registry, asking first when it is the active one |
-| `/modes`                |                | List the available agent modes, marking the current one. See [modes.md](modes.md) |
+| `/modes`                |                | List the available agent modes, marking the current one. `/modes <name>` prints that mode's instruction. See [modes.md](modes.md) |
 | `/onboard`              |                | Set up this project (purpose, assistant, output log). See [plugins.md](plugins.md) |
 | `/pause`                |                | Hold the next turn at the turn boundary; `/resume` clears it. State prints as `@ Paused #n` and `@ Resumed #n` |
 | `/plugins`              | `/plugin`      | Manage plugins: `disable`, `enable`, `install`, `list`, `uninstall`, `update` |

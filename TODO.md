@@ -150,6 +150,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Cleaned /modes and added /modes <name>
 - [x] Changed the live input prompt to a plain underline marker
 - [x] Added /modes and cleaned /mode output
 - [x] Fixed the whole-line input reprint color

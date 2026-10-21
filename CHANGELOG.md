@@ -2,6 +2,7 @@
 
 ## v0.46.0
 
+- Cleaned `/modes` to a plain list and added `/modes <name>` for the mode instruction. Tests: `test_commands.py`
 - Changed the live input prompt to a plain `_` marker; the submitted line reprints as a mode-colored `>` or a magenta `/`. Tests: `test_repl_input.py`, `test_repl_output.py`
 
 ## v0.45.0 - 2026-10-21

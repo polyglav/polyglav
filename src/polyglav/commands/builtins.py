@@ -685,19 +685,30 @@ def register_builtins(registry):
         chat.session_auto_save()
         print(f'{DIM}@ {arg.capitalize()} mode{RESET}')
 
-    @registry.register('modes', description='List the available agent modes')
+    @registry.register('modes', description='List the available agent modes, or show one mode\'s instruction')
     def modes_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
+        arg = arg.strip()
+        specs = {m.name: m for m in mode_list(chat.config)}
+        if arg:
+            spec = specs.get(arg)
+            if spec is None:
+                valid = ', '.join(sorted(specs))
+                print(f'{RED}✗ Unknown mode "{arg}" - valid modes: {valid}{RESET}')
+                return
+            if spec.instruction:
+                for line in spec.instruction.splitlines():
+                    print(f'  {line}')
+            else:
+                print('  (no instruction)')
+            return
         session_mode = chat.current_session.mode or None
         current, _ = resolve_mode(chat.config, session_mode)
-        print(f'{DIM}@ Modes{RESET}')
-        for mode in sorted(mode_list(chat.config), key=lambda m: m.name):
+        for mode in sorted(specs.values(), key=lambda m: m.name):
             label = '  ' + mode.name
             if mode.name == current.name:
                 label += '  <-- current'
-            print(f'{DIM}{label}{RESET}')
-            if mode.instruction:
-                print(f'{DIM}    {mode.instruction.splitlines()[0][:80]}{RESET}')
+            print(label)
 
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),
