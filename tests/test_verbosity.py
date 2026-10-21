@@ -32,8 +32,95 @@ class TestVerbosityResolution(unittest.TestCase):
         self.assertEqual(verbosity_level(None, 'tools'), 'summary')
 
 
-class TestVerbosityMigration(unittest.TestCase):
+class TestVerbosityRendering(unittest.TestCase):
 
+    def setUp(self):
+        from tests.helpers import make_chat
+        self.chat = make_chat()
+        self.ui = self.chat._ui
+
+    def tearDown(self):
+        self.ui._stop_spinner()
+        self.chat._tmp.cleanup()
+
+    def _capture(self, fn):
+        import io
+        from unittest.mock import patch
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            fn()
+        return out.getvalue()
+
+    def test_thinking_levels(self):
+        self.chat.config.set('verbosity.thinking', 'off')
+        value = self._capture(lambda: (
+            self.ui.thinking_begin(), self.ui.thinking('secret'),
+            self.ui.thinking_end(1.0)))
+        self.assertNotIn('secret', value)
+        self.assertNotIn('Thought', value)
+        self.chat.config.set('verbosity.thinking', 'summary')
+        value = self._capture(lambda: (
+            self.ui.thinking_begin(), self.ui.thinking('secret'),
+            self.ui.thinking_end(1.0)))
+        self.assertNotIn('secret', value)
+        self.assertIn('✓ Thought 1.0s', value)
+        self.chat.config.set('verbosity.thinking', 'full')
+        value = self._capture(lambda: (
+            self.ui.thinking_begin(), self.ui.thinking('secret'),
+            self.ui.thinking_end(1.0)))
+        self.assertIn('secret', value)
+        self.assertIn('✓ Thought 1.0s', value)
+
+    def test_tool_levels(self):
+        self.chat.config.set('verbosity.tools', 'off')
+        value = self._capture(lambda: (
+            self.ui.activity('→', 'Write', 'a.md', ['+ body']),
+            self.ui.tool_result('output')))
+        self.assertNotIn('→', value)
+        self.assertNotIn('+ body', value)
+        self.assertNotIn('output', value)
+        self.chat.config.set('verbosity.tools', 'summary')
+        value = self._capture(
+            lambda: self.ui.activity('→', 'Write', 'a.md', ['+ body']))
+        self.assertIn('→ Write a.md', value)
+        self.assertNotIn('+ body', value)
+        self.assertIn('/print', value)
+        self.chat.config.set('verbosity.tools', 'full')
+        value = self._capture(lambda: (
+            self.ui.activity('→', 'Write', 'a.md', ['+ body']),
+            self.ui.tool_result('output')))
+        self.assertIn('+ body', value)
+        self.assertIn('output', value)
+
+    def test_footer_levels(self):
+        self.chat.config.set('verbosity.footer', 'off')
+        value = self._capture(lambda: self.ui.footer(1.0, {'context': 42}))
+        self.assertNotIn('Done', value)
+        self.chat.config.set('verbosity.footer', 'summary')
+        value = self._capture(lambda: self.ui.footer(1.0, {'context': 42}))
+        self.assertIn('✓ Done 1.0s (42 tokens)', value)
+        self.chat.config.set('verbosity.footer', 'full')
+        self.chat.config.set('footer_tokens', ['in', 'out'])
+        value = self._capture(
+            lambda: self.ui.footer(1.0, {'in': 3, 'out': 4}))
+        self.assertIn('✓ Done 1.0s (3t/4t)', value)
+
+    def test_subrun_level_controls_status(self):
+        self.chat.config.set('verbosity.subruns', 'off')
+        value = self._capture(lambda: (
+            self.ui.status_begin('Call writer', name='writer'),
+            self.ui.status_end('1.0s')))
+        self.assertNotIn('Call writer', value)
+        self.assertNotIn('Worked', value)
+        self.chat.config.set('verbosity.subruns', 'summary')
+        value = self._capture(lambda: (
+            self.ui.status_begin('Call writer', name='writer'),
+            self.ui.status_end('1.0s')))
+        self.assertIn('↳ Call writer', value)
+        self.assertIn('✓ Worked: writer 1.0s', value)
+
+
+class TestVerbosityMigration(unittest.TestCase):
     def setUp(self):
         self._old_global = Config.GLOBAL_DIR
         self._tmp = tempfile.TemporaryDirectory()

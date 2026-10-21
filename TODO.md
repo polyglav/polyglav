@@ -168,6 +168,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added verbosity rendering tests for thinking, tools, subruns, and footer
 - [x] Added the verbosity model
 - [x] Added verbosity presets and scoped thinking, tools, subruns, and footer levels
 - [x] Added the REPL output vocabulary
