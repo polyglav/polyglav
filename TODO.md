@@ -150,6 +150,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Compacted /config and added key detail and --verbose
 - [x] Cleaned /modes and added /modes <name>
 - [x] Changed the live input prompt to a plain underline marker
 - [x] Added /modes and cleaned /mode output

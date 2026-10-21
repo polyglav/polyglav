@@ -2,6 +2,7 @@
 
 ## v0.46.0
 
+- Compacted `/config` to key/value/origin, with `/config <key>` and `--verbose` for descriptions. Tests: `test_commands.py`
 - Cleaned `/modes` to a plain list and added `/modes <name>` for the mode instruction. Tests: `test_commands.py`
 - Changed the live input prompt to a plain `_` marker; the submitted line reprints as a mode-colored `>` or a magenta `/`. Tests: `test_repl_input.py`, `test_repl_output.py`
 

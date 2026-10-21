@@ -8,7 +8,7 @@ An agent has one posture at a time: `read` or `write`. `read` is the default. Th
 - `write` leaves write-class tools to `tool_permission`, so each write key is still bounded by its own `allow`/`ask`/`deny` action.
 - Any value other than `read` or `write` resolves to `read` and prints a warning.
 
-The prompt color signals the posture: cyan for `read`, orange for `write`. The banner shows a `[read mode]` label.
+The submitted-line color signals the posture: cyan for `read`, orange for `write`. The live prompt is a plain `_ `, and the line reprints in that color after Enter. The banner shows the current mode, for example `@ Read mode`.
 
 ## Access classification
 

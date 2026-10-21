@@ -198,15 +198,24 @@ class TestToolCommand(unittest.TestCase):
                 keys.append(line.strip().split()[0].rstrip(':'))
         self.assertEqual(keys, sorted(keys))
 
-    def test_config_listing_shows_description(self):
+    def test_config_listing_hides_descriptions(self):
         output = self._dispatch('/config')
+        self.assertNotIn('Sampling temperature', output)
+
+    def test_config_key_shows_description(self):
+        output = self._dispatch('/config temperature')
+        self.assertIn('temperature: 0.7', output)
+        self.assertIn('Sampling temperature', output)
+
+    def test_config_verbose_shows_descriptions(self):
+        output = self._dispatch('/config --verbose')
         self.assertIn('Sampling temperature', output)
 
     def test_config_listing_blocks_long_values(self):
         output = self._dispatch('/config')
         self.assertIn('\n    value: ', output)
         self.assertIn('\n    source: default', output)
-        self.assertIn('\n    description: ', output)
+        self.assertNotIn('\n    description: ', output)
 
     def test_config_listing_sorts_extra_key(self):
         output = self._dispatch('/config')

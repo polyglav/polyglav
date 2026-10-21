@@ -232,7 +232,7 @@ def _parse_turn_ref(spec):
     return int(n_str), m, ''
 
 
-def _render_config_listing(chat):
+def _render_config_listing(chat, verbose=False):
     from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
     keys = sorted(chat.config.data)
     key_width = max((len(k) for k in keys), default=0)
@@ -241,16 +241,32 @@ def _render_config_listing(chat):
         origin = chat.config.origin(key)
         desc = CONFIG_DESCRIPTIONS.get(key, '')
         if len(value) <= CONFIG_VALUE_INLINE:
-            line = f'  {key:<{key_width}}  {value:<{CONFIG_VALUE_INLINE}}  ({origin})'
-            if desc:
-                line += f'  {desc}'
-            print(line)
+            print(f'  {key:<{key_width}}  {value}  ({origin})')
+            if verbose and desc:
+                print(f'    {desc}')
         else:
             print(f'  {key}:')
             print(f'    value: {value}')
             print(f'    source: {origin}')
-            if desc:
+            if verbose and desc:
                 print(f'    description: {desc}')
+
+
+def _render_config_detail(chat, key):
+    from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
+    value = str(chat.config.get(key))
+    origin = chat.config.origin(key)
+    desc = CONFIG_DESCRIPTIONS.get(key, '')
+    if len(value) <= CONFIG_VALUE_INLINE:
+        print(f'  {key}: {value}  ({origin})')
+        if desc:
+            print(f'    {desc}')
+        return
+    print(f'  {key}:')
+    print(f'    value: {value}')
+    print(f'    source: {origin}')
+    if desc:
+        print(f'    description: {desc}')
 
 
 def _remove_model(chat, ref):
@@ -1048,17 +1064,32 @@ def register_builtins(registry):
                       '(e.g. /connect ollama or /connect https://...):')
                 _render_provider_list(chat, providers)
 
-    @registry.register('config', description='Show, get, set, or unset config values (--global for the global config)')
+    @registry.register('config', description='Show, get, set, or unset config values (--global for the global config, --verbose for descriptions)')
     def config_cmd(arg=''):
         scope = 'local'
+        verbose = False
         text = arg.strip()
-        while text.startswith('--global') or text.startswith('--local'):
-            scope = 'global' if text.startswith('--global') else 'local'
-            flag_len = len('--global') if text.startswith('--global') else len('--local')
-            text = text[flag_len:].lstrip()
+        while text:
+            if text.startswith('--global'):
+                scope = 'global'
+                text = text[len('--global'):].lstrip()
+            elif text.startswith('--local'):
+                scope = 'local'
+                text = text[len('--local'):].lstrip()
+            elif text == '-v' or text == '--verbose':
+                verbose = True
+                text = ''
+            elif text.startswith('--verbose '):
+                verbose = True
+                text = text[len('--verbose'):].lstrip()
+            elif text.startswith('-v '):
+                verbose = True
+                text = text[len('-v'):].lstrip()
+            else:
+                break
         parts = text.split(maxsplit=1)
         if not text:
-            _render_config_listing(chat)
+            _render_config_listing(chat, verbose=verbose)
             return
         key = parts[0]
         rest = parts[1].strip() if len(parts) > 1 else ''
@@ -1079,8 +1110,7 @@ def register_builtins(registry):
             return
 
         if not rest:
-            val = chat.config.get(key)
-            print(f'  {key}: {val}  ({chat.config.origin(key)})')
+            _render_config_detail(chat, key)
             return
 
         if rest in ('-a', '-r') or rest.startswith('-a ') or rest.startswith('-r '):

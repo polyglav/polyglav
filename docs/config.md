@@ -8,9 +8,13 @@ Config is a single JSON object read from two files and merged per key, with proj
 Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the **local** file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (`~/.config/polyglav/providers.json`), managed through `/connect` (see [Models](#model-registry-not-config)).
 
 ```bash
-# inspect in the REPL (alphabetical, key/value/source columns, per-key description)
+# inspect in the REPL (alphabetical, key/value/source columns)
 /config
-# a value too long for the value column prints as an indented value/source/description block
+# one key with its description
+/config temperature
+# every key with its description on an indented line
+/config --verbose
+# a value too long for the value column prints as an indented value/source block
 # set a value (project-local, Git-like default)
 /config temperature 0.3
 # set a structured value
