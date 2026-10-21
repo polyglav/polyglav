@@ -17,14 +17,6 @@ The target REPL look is approved from annotated transcripts before any applicati
 |------|--------|----------|
 | Annotated mocks - `repl0.md` and `repl2-7.md` under `.polyglav/`, with the palette and glyph legend | S | a reviewable target |
 
-## REPL output vocabulary
-
-One terminal language for input, output, tools, and state. A small glyph set and a few ANSI roles replace the current mix, and tool detail stays out of the way until asked for.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Golden transcripts - assert header, input, tool, stage, and footer lines against the design mocks | S-M | no doc drift |
-
 ## Verbosity model
 
 Display volume becomes one predictable model instead of a dozen flags. The session log stays complete, and verbosity only changes what the REPL renders.

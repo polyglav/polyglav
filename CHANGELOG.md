@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added golden transcript tests for the REPL output vocabulary - header, prompts, thinking, tool summary, flat stages, ask block, warning, and error. Tests: `test_repl_output.py`
 - Changed sub-runs to flat stage lines - `↳ Call <target>`, `↲ <result>`, `✓ Worked: <role>`, and `✗ <role>` with no indentation. Tests: `test_ui.py`, `test_call.py`, `test_delegate_tool.py`, `test_run_buffer.py`
 - Changed the glyph set to the final vocabulary - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, `←`/`→`, and the braille spinner; dropped `☐`, `⎇`, `◈`, `·`, `…`, and `▸`. Tests: `test_ui.py`
 - Fixed status lines to start on a new line after streamed text. Tests: `test_ui.py`
