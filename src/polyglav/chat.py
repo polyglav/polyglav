@@ -15,8 +15,9 @@ _RST = '\001\033[0m\002'
 _DEFAULT = PROMPT_COLORS['cyan']
 
 
-def _prompt_text(color: str, label: str) -> str:
-    return f'\001{color}\002{label}{_RST} '
+def _prompt_text(color: str, label: str, reset: bool = True) -> str:
+    tail = f'\001{_RST}\002' if reset else ''
+    return f'\001{color}\002{label}{tail} '
 
 
 def _display_path(path: Path) -> str:
@@ -228,7 +229,7 @@ class ChatLoop(Engine):
 
     def _read_line(self) -> str | None:
         try:
-            raw = input(self._prompt())
+            raw = self._read_input(self._prompt())
         except (EOFError, KeyboardInterrupt):
             print()
             return None
@@ -240,6 +241,13 @@ class ChatLoop(Engine):
         if line.endswith('\\'):
             return self._read_continued(line)
         return line
+
+    def _read_input(self, prompt: str) -> str:
+        try:
+            return input(prompt)
+        finally:
+            sys.stdout.write('\033[0m')
+            sys.stdout.flush()
 
     def _reprint_line(self, text: str) -> None:
         if not text:
@@ -262,7 +270,7 @@ class ChatLoop(Engine):
         parts = [line]
         while True:
             try:
-                nxt = input(self._cont_prompt()).rstrip()
+                nxt = self._read_input(self._cont_prompt()).rstrip()
             except (EOFError, KeyboardInterrupt):
                 print()
                 return None
@@ -281,7 +289,7 @@ class ChatLoop(Engine):
         parts = [line[:-1].rstrip()]
         while True:
             try:
-                nxt = input(self._cont_prompt()).rstrip()
+                nxt = self._read_input(self._cont_prompt()).rstrip()
             except (EOFError, KeyboardInterrupt):
                 print()
                 return None
@@ -307,7 +315,7 @@ class ChatLoop(Engine):
 
     def _make_prompt(self, marker: str) -> str:
         spec, _ = resolve_mode(self.config, self._mode())
-        return _prompt_text(mode_color(spec), marker)
+        return _prompt_text(mode_color(spec), marker, reset=False)
 
     def _open_output_log(self):
         if not self.config.get('output_log', False):

@@ -2,7 +2,7 @@
 
 ## v0.45.0 - 2026-10-21
 
-- Fixed the submitted-line reprint so the whole prompt and text carry the mode or command color, not only the marker. Tests: `test_repl_input.py`
+- Fixed the submitted-line reprint so the whole prompt and text carry the mode or command color, and the live prompt leaves typed text in the mode color. Tests: `test_repl_input.py`
 - Added a composite session view - `/sessions` lists roots only, `/history --tree` and `/print --tree` render the run tree, and `--tree` exports include sub-runs. Tests: `test_composite_sessions.py`
 - Added a unified call target - `call target=<role|team|sibling>` with `kind` to disambiguate, one `call` permission key resolved per target, and the old `delegate` and `offload` tools kept for one version. Tests: `test_call_target.py`, `test_call.py`
 - Removed caller asks - the `ask` tool now routes to the user (or parks when unattended), and the caller model consultation and `target` parameter are gone. Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`
