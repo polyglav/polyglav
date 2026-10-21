@@ -84,6 +84,28 @@ class TestGlyphActivityLines(unittest.TestCase):
         value = self._capture_status('xyz_case', {})
         self.assertIn('[xyz_case: xyz_case]', value)
 
+    def test_glyph_ascii_preset(self):
+        self.chat.config.set('glyphs', 'ascii')
+        self.assertIn('> Write a.md', self._capture_status(
+            'file_write', {'path': 'a.md', 'content': 'x'}))
+        self.assertIn('< Read a.md', self._capture_status(
+            'file_read', {'path': 'a.md'}))
+
+    def test_glyph_override_by_category(self):
+        self.chat.config.set('glyphs', {'write': 'W'})
+        value = self._capture_status(
+            'file_write', {'path': 'a.md', 'content': 'x'})
+        self.assertIn('W Write a.md', value)
+
+    def test_glyph_override_default(self):
+        self.chat.config.set('glyphs', {'default': '+'})
+        value = self._capture_status('list_dir', {'path': '.'})
+        self.assertIn('+ List .', value)
+
+    def test_ascii_spinner_frames(self):
+        self.chat.config.set('glyphs', 'ascii')
+        self.assertEqual(self.chat._ui._spinner_frames(), tuple('|/-\\'))
+
 
 class TestThinkingSpinner(unittest.TestCase):
 

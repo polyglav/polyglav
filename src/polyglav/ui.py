@@ -9,6 +9,24 @@ import time
 SPINNER_FRAMES = ('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
 SPINNER_INTERVAL = 0.08
 
+ASCII_GLYPHS = {
+    'read': '<',
+    'write': '>',
+    'search': '%',
+    'exec': '$',
+    'ask': '?',
+    'todo': '-',
+    'call': '>',
+    'delegate': '>',
+    'offload': '>',
+    'enter': '>',
+    'return': '<',
+    'warning': '!',
+    'question': '?',
+    'default': '*',
+    'spinner': '|/-\\',
+}
+
 DIM = '\033[90m'
 RED = '\033[91m'
 CYAN = '\033[96m'
@@ -18,6 +36,17 @@ GREEN = '\033[92m'
 YELLOW = '\033[93m'
 ITALIC_GRAY = '\033[3;90m'
 RESET = '\033[0m'
+
+
+def glyph_map(config) -> dict:
+    raw = config.get('glyphs') if config is not None else {}
+    if isinstance(raw, str):
+        return dict(ASCII_GLYPHS) if raw.strip().lower() == 'ascii' else {}
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
+def glyph(config, key: str, default: str) -> str:
+    return str(glyph_map(config).get(key, default))
 
 _ANSI_RE = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
 
@@ -323,17 +352,25 @@ class ReplUI:
             return
         label = self._spinner_label.rstrip('.').strip()
         self._stop_spinner()
-        body = f'✓ {label}' if label else '✓ done'
+        done = glyph(self._loop.config, 'done', '✓')
+        body = f'{done} {label}' if label else f'{done} done'
         if note:
             body += f' {note}'
         self._emit(body, DIM)
+
+    def _spinner_frames(self):
+        raw = glyph_map(self._loop.config).get('spinner')
+        if isinstance(raw, str) and raw:
+            return tuple(raw)
+        return SPINNER_FRAMES
 
     def _spinner_run(self):
         while not self._spinner_stop.is_set():
             if self._prompting.is_set():
                 time.sleep(SPINNER_INTERVAL)
                 continue
-            frame = SPINNER_FRAMES[self._spinner_frame % len(SPINNER_FRAMES)]
+            frames = self._spinner_frames()
+            frame = frames[self._spinner_frame % len(frames)]
             self._spinner_frame += 1
             with self._spinner_lock:
                 if self._spinner_stop.is_set():
@@ -425,7 +462,8 @@ class ReplUI:
     def tool_error(self, msg):
         self.flush()
         self._ensure_newline()
-        self._emit(f'! {msg.split(chr(10), 1)[0]}', RED)
+        mark = glyph(self._loop.config, 'warning', '!')
+        self._emit(f'{mark} {msg.split(chr(10), 1)[0]}', RED)
 
     def tool_error_result(self, output):
         self.flush()
@@ -499,7 +537,8 @@ class ReplUI:
         self._ensure_newline()
         timeout = self._confirm_timeout()
         hidden = bool(self._loop.config.get('hide_confirm_input', False))
-        prompt = f'\001{ORANGE}\002? {label} - approve? [Y/n] \001{RESET}\002'
+        mark = glyph(self._loop.config, 'question', '?')
+        prompt = f'\001{ORANGE}\002{mark} {label} - approve? [Y/n] \001{RESET}\002'
         self._prompting.set()
         self._clear_spinner_line()
         try:
@@ -514,14 +553,14 @@ class ReplUI:
                     raise
                 if answer is None:
                     sys.stdout.write(
-                        f'? {label} - no answer in {timeout:g}s, denied\n')
+                        f'{mark} {label} - no answer in {timeout:g}s, denied\n')
                     return False
                 normalized = answer.strip().lower()
                 if normalized in ('', 'y', 'yes'):
                     return True
                 if normalized in ('n', 'no'):
                     return False
-                sys.stdout.write('? please answer y or n\n')
+                sys.stdout.write(f'{mark} please answer y or n\n')
         finally:
             self._prompting.clear()
 
@@ -573,7 +612,8 @@ class ReplUI:
         if options and not inline_ok:
             for i, opt in enumerate(options, 1):
                 self._emit(f'{i}) {opt}', DIM)
-        prompt = f'\001{ORANGE}\002? Answer: \001{RESET}\002'
+        mark = glyph(self._loop.config, 'question', '?')
+        prompt = f'\001{ORANGE}\002{mark} Answer: \001{RESET}\002'
         try:
             answer = _timed_input(prompt, timeout)
         except EOFError:
@@ -585,7 +625,7 @@ class ReplUI:
         finally:
             self._prompting.clear()
         if answer is None:
-            sys.stdout.write('? no answer given\n')
+            sys.stdout.write(f'{mark} no answer given\n')
             return None
         text = answer.strip()
         if not text:

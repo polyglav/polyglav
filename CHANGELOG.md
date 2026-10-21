@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added glyph config - a `glyphs` override map and an `ascii` preset, with no runtime detection. Tests: `test_ui.py`
 - Removed the assistant prefix - streamed answers start at column 0 with no `<<<` marker. Tests: `test_ui.py`
 - Changed tool output to hidden by default - the activity line keeps a one-line summary, the full body stays in the session log, and a one-time `/print` hint points at it. Tests: `test_ui.py`
 - Added the REPL header - bold `Polyglav vX.Y.Z` and location, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line. Tests: `test_agent_loop.py`

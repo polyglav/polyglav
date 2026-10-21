@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import BufferUI, NullUI, ReplUI, SubRunUI
+from .ui import BufferUI, NullUI, ReplUI, SubRunUI, glyph_map
 
 
 @dataclass
@@ -1579,7 +1579,8 @@ class Engine:
 
     def _show_tool_status(self, name, arguments):
         value, body = self._tool_registry.status_parts(name, arguments)
-        activity = self._tool_registry.activity(name, arguments)
+        activity = self._tool_registry.activity(
+            name, arguments, glyphs=glyph_map(self.config))
         if activity is not None and self.config.get('glyph_lines', True):
             glyph, verb, label, params = activity
             if (params and self.config.get('glyph_params', True)

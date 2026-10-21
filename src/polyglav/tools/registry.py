@@ -215,13 +215,15 @@ class ToolRegistry:
             parts.append(f'{k}={text}')
         return ', '.join(parts)
 
-    def activity(self, name: str, arguments: dict) -> tuple[str, str, str, str] | None:
+    def activity(self, name: str, arguments: dict,
+                 glyphs: dict | None = None) -> tuple[str, str, str, str] | None:
         canon, tool = self._canonical(name)
         if not tool:
             return None
         args = self.clean_args(name, arguments)
         glyph = tool.get('glyph')
         verb = tool.get('verb')
+        explicit = bool(glyph)
         if not glyph or not verb:
             defaults = ACTIVITY_DEFAULTS.get(tool['category'])
             if defaults is None:
@@ -229,6 +231,15 @@ class ToolRegistry:
             d_glyph, d_verb = defaults
             glyph = glyph or d_glyph
             verb = verb or d_verb
+        overrides = glyphs or {}
+        if not explicit:
+            if tool['category'] in overrides:
+                glyph = str(overrides[tool['category']])
+            elif (tool['category'] in ('call', 'delegate', 'offload')
+                  and 'enter' in overrides):
+                glyph = str(overrides['enter'])
+        if glyph == '*' and 'default' in overrides:
+            glyph = str(overrides['default'])
         label = None
         status_fn = tool.get('status')
         if status_fn:

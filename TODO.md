@@ -64,7 +64,7 @@
   - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
   - [ ] Status newline - a status line never prints inline after streamed text
   - [ ] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
-  - [ ] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
+  - [x] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
   - [x] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
   - [ ] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
   - [ ] Golden transcripts - assert the header, input, tool, stage, and footer lines against the design mocks
@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added glyph overrides and an ASCII preset with no runtime detection
 - [x] Removed the assistant prefix
 - [x] Added a once-only gray print hint for hidden tool output
 - [x] Changed tool output to hidden with a one-line summary and print on demand

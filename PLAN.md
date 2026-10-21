@@ -25,7 +25,6 @@ One terminal language for input, output, tools, and state. A small glyph set and
 |------|--------|----------|
 | Input - `> ` chat and ask, `/ ` commands, the submitted line reprinted in its color, hidden confirm | S-M | one input style |
 | Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
-| Glyph config - a `glyphs` override map and an ASCII preset, no runtime detection | S | usable in any terminal |
 | Flat stages - no `<<<`, no indentation, `(i/n)` stage markers, `✓ Worked: <role>` and `✓ Done` footers | S-M | readable long runs |
 | String cleanup - grouped `/models`, `@ Model:`, `✗ [code] message`, indented refine, unified footer | S | consistent wording |
 | Status newline - a status line never prints inline after streamed text | S | clean output boundaries |
