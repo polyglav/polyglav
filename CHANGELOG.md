@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added a read-only `/runs` tree - run id, role, status, session, and a `log [n]` view of a run buffer, with no focus switch. Tests: `test_runs.py`
 - Added pause and resume - `/pause` holds the next turn, `/resume` clears it, and the state prints as `@ Paused #n` and `@ Resumed #n`. Tests: `test_pause.py`
 - Added verbosity rendering tests for thinking, tools, subruns, and footer levels. Tests: `test_verbosity.py`
 - Added the verbosity model - `quiet`, `normal`, and `verbose` presets plus `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`; old display flags migrate on read, errors are always shown, and `/thinking` takes `off`, `summary`, or `full`. Tests: `test_verbosity.py`, `test_ui.py`, `test_engine.py`, `test_commands.py`

@@ -73,7 +73,7 @@ def _focus_label(engine):
     return f'{prefix}{role} ({engine.current_session.session_name}{session_id})'
 
 
-def _focus_run_line(run, current_id, indent=0):
+def _focus_run_line(run, current_id, indent=0, switch=True):
     mark = '*' if run.id == current_id else ' '
     role = run.role or 'root'
     task = (run.task or '').strip().splitlines()
@@ -83,15 +83,15 @@ def _focus_run_line(run, current_id, indent=0):
         line += f' {run.session_id}'
     if head:
         line += f'  {head}'
-    if run.id != current_id:
+    if switch and run.id != current_id:
         line += f'  ↔ Switch to {role}'
     return line
 
 
-def _focus_tree(runs, run, current_id, indent=0):
-    print(_focus_run_line(run, current_id, indent))
+def _focus_tree(runs, run, current_id, indent=0, switch=True):
+    print(_focus_run_line(run, current_id, indent, switch))
     for child in runs.children(run.id):
-        _focus_tree(runs, child, current_id, indent + 1)
+        _focus_tree(runs, child, current_id, indent + 1, switch)
 
 
 def _focus_index(arg):
@@ -1255,6 +1255,37 @@ def register_builtins(registry):
             print('Session saved')
         else:
             _render_commands(registry, ['session'])
+
+    @registry.register('runs', description='Show the run tree without switching runs', subcommands=[
+        ('log [n]', "Print a run's buffered output"),
+    ])
+    def runs_cmd(arg=''):
+        parts = arg.strip().split()
+        if parts and parts[0] == 'log':
+            current = getattr(chat.active(), 'current_run', None) \
+                if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
+            n = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() \
+                else (current.id if current is not None else 0)
+            run = chat.runs.get(n)
+            if run is None:
+                print(f'{RED}✗ Unknown run #{n}{RESET}')
+                return
+            lines = run.buffer_text().splitlines()
+            if not lines:
+                print(f'{DIM}@ Run #{run.id} has no buffered output{RESET}')
+                return
+            print(f'{DIM}@ Run #{run.id} {run.role or "root"} '
+                  f'[{run.status}] ({run.session}){RESET}')
+            for line in lines:
+                print(f'{DIM}{line}{RESET}')
+            return
+        current = getattr(chat.active(), 'current_run', None) \
+            if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
+        current_id = current.id if current is not None else -1
+        print(f'{DIM}@ Runs{RESET}')
+        for run in chat.runs.runs():
+            if run.parent is None:
+                _focus_tree(chat.runs, run, current_id, switch=False)
 
     @registry.register('focus', description='Show and switch the focused agent run', subcommands=[
         ('', 'Show the current run, the run tree, and the run log'),

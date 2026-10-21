@@ -168,6 +168,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added a read-only runs tree with a run log
 - [x] Added pause and resume at safe turn boundaries
 - [x] Added verbosity rendering tests for thinking, tools, subruns, and footer
 - [x] Added the verbosity model
