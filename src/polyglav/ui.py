@@ -584,16 +584,6 @@ class ReplUI:
             return 0.0
         return max(0.0, float(config.get('confirm_timeout', 0) or 0))
 
-    def _ask_inline_limit(self) -> int:
-        loop = getattr(self, '_loop', None)
-        config = getattr(loop, 'config', None) if loop is not None else None
-        if config is None:
-            return 60
-        try:
-            return int(config.get('ask_options_inline_chars', 60) or 0)
-        except (TypeError, ValueError):
-            return 60
-
     def ask(self, question, context='', options=None, origin=''):
         self.flush()
         self._prompting.set()
@@ -604,29 +594,16 @@ class ReplUI:
         if origin and origin != self._loop.current_session.session_name:
             prefix = f'[{origin}] '
         options = list(options or [])
-        inline = ''
-        if options:
-            parts = []
-            for i, opt in enumerate(options):
-                if i < 26:
-                    parts.append(f'({chr(ord("a") + i)}) {opt}')
-                else:
-                    parts.append(f'{i + 1}) {opt}')
-            inline = '  ' + '  '.join(parts)
-        limit = self._ask_inline_limit()
-        inline_ok = bool(options) and limit > 0 and len(
-            f'{prefix}{question}{inline}') <= limit
-        line = f'{prefix}{question}'
-        if inline_ok:
-            line += inline
-        self._emit(line)
-        if context:
-            self._emit(context, DIM)
-        if options and not inline_ok:
-            for i, opt in enumerate(options, 1):
-                self._emit(f'{i}) {opt}', DIM)
         mark = glyph(self._loop.config, 'question', '?')
-        prompt = f'\001{ORANGE}\002{mark} Answer: \001{RESET}\002'
+        self._emit(f'{mark} {prefix}{question}', DIM)
+        if context:
+            self._emit(f'  {context}', DIM)
+        for i, opt in enumerate(options, 1):
+            self._emit(f'  {i}) {opt}', DIM)
+        from .modes import mode_color, resolve_mode
+        spec, _ = resolve_mode(self._loop.config, self._loop._mode())
+        color = mode_color(spec)
+        prompt = f'\001{color}\002>\001{RESET}\002 '
         try:
             answer = _timed_input(prompt, timeout)
         except EOFError:
@@ -638,7 +615,7 @@ class ReplUI:
         finally:
             self._prompting.clear()
         if answer is None:
-            sys.stdout.write(f'{mark} no answer given\n')
+            self._emit(f'{mark} no answer given', YELLOW)
             return None
         text = answer.strip()
         if not text:

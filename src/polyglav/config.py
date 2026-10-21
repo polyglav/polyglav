@@ -9,7 +9,6 @@ DEFAULT_CONFIG = {
                        'offload'],
     },
     'ask_min_question_chars': 8,
-    'ask_options_inline_chars': 60,
     'ask_policy': {
         'permission': 'auto',
         'direction': '',
@@ -131,7 +130,6 @@ CONFIG_DESCRIPTIONS = {
     'access': 'Read-class permission keys; any key not listed is write-class',
     'api_key': 'Legacy, ignored (API keys live in providers.json)',
     'ask_min_question_chars': 'Minimum direction-ask question length without context or options',
-    'ask_options_inline_chars': 'Inline ask options when the question fits this many chars',
     'ask_policy': 'Routing for the ask tool by kind',
     'auto_continue': 'Re-request on truncation and stitch the parts',
     'auto_continue_max': 'Max continuation rounds per turn',

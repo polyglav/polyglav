@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Changed the ask layout - a gray question, a numbered option block, and a `> ` answer prompt in the mode color. Tests: `test_ui.py`
 - Changed the REPL strings - `@ Model`, `@ Mode`, `✗` errors, `!` warnings, `✓ Done` footers, gray info, and an indented refine line. Git and MCP use the default glyph. Tests: `test_ui.py`, `test_commands.py`, `test_agent_loop.py`
 - Added glyph config - a `glyphs` override map and an `ascii` preset, with no runtime detection. Tests: `test_ui.py`
 - Removed the assistant prefix - streamed answers start at column 0 with no `<<<` marker. Tests: `test_ui.py`

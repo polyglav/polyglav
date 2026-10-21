@@ -622,11 +622,14 @@ class TestLinePrompts(unittest.TestCase):
                     'input must not be called on timeout')):
                 self.assertIsNone(self.ui.ask('which?', options=['a', 'b']))
 
-    def test_ask_options_rendered_inline(self):
+    def test_ask_options_rendered_as_numbered_block(self):
         with patch('polyglav.ui.input', return_value='1'):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
-        self.assertIn('which?  (a) a  (b) b', value)
+        self.assertIn('? which?', value)
+        self.assertIn('  1) a', value)
+        self.assertIn('  2) b', value)
+        self.assertNotIn('(a) a', value)
 
     def test_ask_letter_returns_option_text(self):
         with patch('polyglav.ui.input', return_value='b'):
@@ -642,12 +645,23 @@ class TestLinePrompts(unittest.TestCase):
         self.assertIn('2) b', value)
         self.assertNotIn('(a) a', value)
 
-    def test_ask_inline_threshold_config_disables_inline(self):
-        self.chat.config.set('ask_options_inline_chars', 0)
+    def test_ask_options_always_numbered(self):
         with patch('polyglav.ui.input', return_value='1'):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
-        self.assertIn('1) a', value)
+        self.assertIn('  1) a', value)
+
+    def test_ask_answer_prompt_uses_mode_color(self):
+        with patch('polyglav.ui.input', return_value='1') as inp:
+            self.ui.ask('which?', options=['a', 'b'])
+        prompt = inp.call_args[0][0]
+        self.assertIn('\033[96m', prompt)
+        self.assertIn('>', prompt)
+        self.chat.config.set('mode', 'write')
+        with patch('polyglav.ui.input', return_value='1') as inp:
+            self.ui.ask('which?', options=['a', 'b'])
+        prompt = inp.call_args[0][0]
+        self.assertIn('\033[38;5;208m', prompt)
 
     def test_ask_origin_prefix_present(self):
         with patch('polyglav.ui.input', return_value='1'):
@@ -660,7 +674,9 @@ class TestLinePrompts(unittest.TestCase):
         with patch('polyglav.ui.input', return_value='1'):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
-        self.assertTrue(value.startswith('which?  (a) a'))
+        first = value.splitlines()[0]
+        self.assertIn('? which?', first)
+        self.assertNotIn('1) a', first)
 
     def test_ask_context_precedes_options(self):
         question = 'x' * 70

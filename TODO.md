@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed ask options to a numbered block with a chat marker
 - [x] Changed status, warning, error, model, and mode strings to the glyph forms
 - [x] Added glyph overrides and an ASCII preset with no runtime detection
 - [x] Removed the assistant prefix
