@@ -60,12 +60,6 @@
   - [ ] Permissions - one `call` permission key, resolved per target from the role or team entry
   - [ ] Compatibility - keep the old names as aliases for one version
   - [ ] Docs and prompts - update `docs/tools.md`, `docs/swarm.md`, `docs/roles.md`, and the role and team prompts
-- [ ] Verbosity model - replace the scattered display flags with one model:
-  - [ ] Global `verbosity` - `quiet`, `normal`, or `verbose`
-  - [ ] Scoped overrides - `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`, each `off`, `summary`, `full`, or `inherit`
-  - [ ] Migration - map and remove `show_thinking`, `show_thought_duration`, `show_notes`, `delegate_echo`, `subrun_verbosity`, `status_spinner`, `glyph_lines`, `glyph_params`, and `show_context_size`
-  - [ ] Errors - remove `show_errors`, since errors are never hidden
-  - [ ] Persistence - verbosity only changes rendering, never the session log
 - [ ] Sequential-only run model - remove the concurrency vocabulary and make pause and resume the control surface:
   - [ ] Vision and plan docs - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
   - [ ] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
@@ -174,6 +168,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added the verbosity model
+- [x] Added verbosity presets and scoped thinking, tools, subruns, and footer levels
 - [x] Added the REPL output vocabulary
 - [x] Added golden transcript tests for the REPL output vocabulary
 - [x] Changed sub-runs to flat stage lines with call, return, worked, and done markers

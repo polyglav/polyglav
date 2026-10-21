@@ -20,11 +20,8 @@ DEFAULT_CONFIG = {
     'compact_keep': 4,
     'confirm_timeout': 0,
     'connect_check': True,
-    'delegate_echo': True,
     'focus_on_delegate': 'on',
     'footer_tokens': ['context'],
-    'glyph_lines': True,
-    'glyph_params': True,
     'glyphs': {},
     'grant_permission': {},
     'hide_confirm_input': True,
@@ -82,17 +79,9 @@ DEFAULT_CONFIG = {
     'report.webhook': '',
     'run_buffer_max_lines': 2000,
     'search_results': 5,
-    'show_context_size': True,
-    'show_errors': True,
-    'show_notes': True,
-    'show_tool_output': False,
-    'show_thinking': False,
-    'show_thought_duration': True,
     'show_version': True,
-    'status_spinner': True,
     'stream_retries': 2,
     'stream_retry_delay': 0.5,
-    'subrun_verbosity': 'quiet',
     'system_prompt': '',
     'temperature': 0.7,
     'tool_analysis': False,
@@ -122,9 +111,42 @@ DEFAULT_CONFIG = {
     'tools_output_spill': False,
     'tools_output_tmp_max_bytes': 50000000,
     'unattended': False,
+    'verbosity': 'normal',
+    'verbosity.footer': 'inherit',
+    'verbosity.subruns': 'inherit',
+    'verbosity.thinking': 'inherit',
+    'verbosity.tools': 'inherit',
     'web_search': False,
     'word_streaming': True,
 }
+
+VERBOSITY_SCOPES = ('thinking', 'tools', 'subruns', 'footer')
+VERBOSITY_LEVELS = ('off', 'summary', 'full')
+VERBOSITY_PRESETS = {
+    'quiet': {'thinking': 'off', 'tools': 'off',
+              'subruns': 'summary', 'footer': 'summary'},
+    'normal': {'thinking': 'summary', 'tools': 'summary',
+               'subruns': 'summary', 'footer': 'summary'},
+    'verbose': {'thinking': 'full', 'tools': 'full',
+                'subruns': 'full', 'footer': 'full'},
+}
+VERBOSITY_OLD_KEYS = (
+    'delegate_echo', 'glyph_lines', 'glyph_params', 'show_context_size',
+    'show_errors', 'show_notes', 'show_tool_output', 'show_thinking',
+    'show_thought_duration', 'status_spinner', 'subrun_verbosity',
+)
+
+
+def verbosity_level(config, scope: str) -> str:
+    name = str(scope or '').strip().lower()
+    if config is None or name not in VERBOSITY_SCOPES:
+        return 'summary'
+    value = str(config.get(f'verbosity.{name}', 'inherit') or 'inherit')
+    value = value.strip().lower()
+    if value in VERBOSITY_LEVELS:
+        return value
+    preset = str(config.get('verbosity', 'normal') or 'normal').strip().lower()
+    return VERBOSITY_PRESETS.get(preset, VERBOSITY_PRESETS['normal'])[name]
 
 CONFIG_DESCRIPTIONS = {
     'access': 'Read-class permission keys; any key not listed is write-class',
@@ -138,11 +160,8 @@ CONFIG_DESCRIPTIONS = {
     'compact_keep': 'Turns to keep when compacting the provider context',
     'confirm_timeout': 'Seconds a confirm or ask prompt waits before auto-denying',
     'connect_check': 'Probe the provider connection on config changes',
-    'delegate_echo': 'Show a sub-agent final answer and sub footer',
     'focus_on_delegate': 'Move focus to a delegated run (on/off/ask)',
     'footer_tokens': 'Token counts the footer shows, in order',
-    'glyph_lines': 'Typed glyph status lines for mapped categories',
-    'glyph_params': 'Append tool call parameters to glyph status lines',
     'glyphs': 'Glyph overrides, or "ascii" for the ASCII preset',
     'grant_permission': 'Ceiling on what a run may hand down to sub-agents',
     'hide_confirm_input': 'Hide typed input for the tool confirm prompt',
@@ -175,17 +194,9 @@ CONFIG_DESCRIPTIONS = {
     'run_buffer_max_lines': 'Cap lines kept in a run output buffer',
     'search_results': 'Number of search results to fetch',
     'session_tool_max_chars': 'Legacy, renamed tools_output_max_chars',
-    'show_context_size': 'Dimmed context-size line after each response',
-    'show_errors': 'Show an error line when a tool call fails',
-    'show_notes': 'Show a dimmed info line for soft tool results',
-    'show_tool_output': 'Show the full tool result body in the REPL',
-    'show_thinking': 'Stream reasoning tokens under a Thinking header',
-    'show_thought_duration': 'Print a dimmed thought duration line',
     'show_version': 'Show the version in the REPL banner',
-    'status_spinner': 'Animated status line while a sub-run runs',
     'stream_retries': 'Extra attempts when a stream ends without content',
     'stream_retry_delay': 'Seconds between stream retries',
-    'subrun_verbosity': 'How much of a delegated sub-run reaches the terminal',
     'system_prompt': 'The root instruction, composed with the active mode',
     'temperature': 'Sampling temperature',
     'tool_analysis': 'Model-generated one-line analysis of each tool result',
@@ -200,6 +211,11 @@ CONFIG_DESCRIPTIONS = {
     'tools_output_spill': 'Write dropped or capped output to .polyglav/tmp/',
     'tools_output_tmp_max_bytes': 'Cap on total spilled tool output size',
     'unattended': 'No stdin at any depth; confirms auto-deny, user asks park',
+    'verbosity': 'Display volume: quiet, normal, or verbose',
+    'verbosity.footer': 'Footer detail: off, summary, full, or inherit',
+    'verbosity.subruns': 'Sub-run detail: off, summary, full, or inherit',
+    'verbosity.thinking': 'Thinking detail: off, summary, full, or inherit',
+    'verbosity.tools': 'Tool detail: off, summary, full, or inherit',
     'web_search': 'Search the web before answering',
     'word_streaming': 'Buffer output to word boundaries',
 }
@@ -254,6 +270,7 @@ class Config:
         self.data = self._merged()
         self._migrate_plugins()
         self._migrate_output_keys()
+        self._migrate_verbosity()
 
     def _merged(self) -> dict:
         return _merge(_merge(DEFAULT_CONFIG, self._global_raw), self._local_raw)
@@ -279,6 +296,57 @@ class Config:
             raw.pop(old, None)
             changed = True
         return changed
+
+    def _migrate_verbosity(self):
+        local = self._migrate_verbosity_raw(self._local_raw)
+        global_ = self._migrate_verbosity_raw(self._global_raw)
+        if local or global_:
+            self.data = self._merged()
+        if local:
+            self._save_local()
+        if global_:
+            self._write_global({})
+
+    @staticmethod
+    def _migrate_verbosity_raw(raw: dict) -> bool:
+        old = [key for key in VERBOSITY_OLD_KEYS if key in raw]
+        if not old:
+            return False
+        if ('verbosity.thinking' not in raw
+                and any(key in raw for key in
+                        ('show_thinking', 'show_thought_duration'))):
+            if raw.get('show_thinking') is True:
+                raw['verbosity.thinking'] = 'full'
+            elif raw.get('show_thought_duration') is False:
+                raw['verbosity.thinking'] = 'off'
+            else:
+                raw['verbosity.thinking'] = 'summary'
+        if ('verbosity.tools' not in raw
+                and any(key in raw for key in
+                        ('show_tool_output', 'show_notes',
+                         'glyph_lines', 'glyph_params'))):
+            if raw.get('show_tool_output') is True:
+                raw['verbosity.tools'] = 'full'
+            elif raw.get('glyph_lines') is False or raw.get('show_notes') is False:
+                raw['verbosity.tools'] = 'off'
+            else:
+                raw['verbosity.tools'] = 'summary'
+        if ('verbosity.subruns' not in raw
+                and any(key in raw for key in
+                        ('subrun_verbosity', 'delegate_echo', 'status_spinner'))):
+            if str(raw.get('subrun_verbosity', '')).lower() == 'full':
+                raw['verbosity.subruns'] = 'full'
+            elif (raw.get('delegate_echo') is False
+                  or raw.get('status_spinner') is False):
+                raw['verbosity.subruns'] = 'off'
+            else:
+                raw['verbosity.subruns'] = 'summary'
+        if 'verbosity.footer' not in raw and 'show_context_size' in raw:
+            raw['verbosity.footer'] = (
+                'full' if raw.get('show_context_size') is not False else 'summary')
+        for key in old:
+            raw.pop(key, None)
+        return True
 
     def _migrate_plugins(self):
         plugins = self.data.get('plugins')

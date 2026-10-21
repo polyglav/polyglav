@@ -148,7 +148,7 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(self.engine.current_session.turns[0]['reasoning'], 'high')
 
     def test_reasoning_persisted_when_thinking_hidden_from_display(self):
-        self.engine.config.set('show_thinking', False)
+        self.engine.config.set('verbosity.thinking', 'off')
         self.engine.config.set('reasoning', 'auto')
         self.engine.provider.chat.return_value = [
             {'type': 'thinking', 'content': 'still logged'},
@@ -291,6 +291,7 @@ class TestEngine(unittest.TestCase):
         ui = _CaptureUI()
         self.engine._init_tooling()
         self.engine._ui = ui
+        self.engine.config.set('verbosity.tools', 'full')
         self.engine._show_tool_status(
             'run_command', {'command': 'ls', 'cwd': '/workspace', 'timeout': 10000})
         self.assertEqual(ui.labels, ['$ Run ls [cwd=/workspace, timeout=10000]'])
@@ -299,7 +300,7 @@ class TestEngine(unittest.TestCase):
         ui = _CaptureUI()
         self.engine._init_tooling()
         self.engine._ui = ui
-        self.engine.config.set('glyph_params', False)
+        self.engine.config.set('verbosity.tools', 'summary')
         self.engine._show_tool_status('run_command', {'command': 'ls', 'cwd': '/workspace'})
         self.assertEqual(ui.labels, ['$ Run ls'])
 
@@ -307,6 +308,7 @@ class TestEngine(unittest.TestCase):
         ui = _CaptureUI()
         self.engine._init_tooling()
         self.engine._ui = ui
+        self.engine.config.set('verbosity.tools', 'full')
         self.engine._confirm_tool('run_command', {'command': 'ls', 'cwd': '/x'})
         self.assertEqual(ui.labels, ['confirm: run_command ls [cwd=/x]'])
 
@@ -322,16 +324,13 @@ class TestEngine(unittest.TestCase):
             '! Error: file not found: /definitely/not/here.txt',
         ])
 
-    def test_run_tool_error_suppressed_when_hidden(self):
+    def test_run_tool_error_always_renders(self):
         ui = _CaptureUI()
         self.engine._init_tooling()
         self.engine._ui = ui
-        self.engine.config.set('show_errors', False)
         self.engine._run_tool('read_file', {'path': '/definitely/not/here.txt'})
-        self.assertEqual(ui.labels, [
-            'confirm: read_file /definitely/not/here.txt',
-            '← Read /definitely/not/here.txt',
-        ])
+        self.assertIn('! Error: file not found: /definitely/not/here.txt',
+                      ui.labels)
 
     def test_run_tool_success_no_error_line(self):
         ui = _CaptureUI()
@@ -353,16 +352,6 @@ class TestEngine(unittest.TestCase):
             f'← Read {empty}',
             '[(empty file)]',
         ])
-
-    def test_run_tool_note_suppressed_when_hidden(self):
-        ui = _CaptureUI()
-        self.engine._init_tooling()
-        self.engine._ui = ui
-        self.engine.config.set('show_notes', False)
-        empty = Path(self.engine._tmp.name) / 'empty.txt'
-        empty.write_text('')
-        self.engine._run_tool('read_file', {'path': str(empty)})
-        self.assertEqual(ui.labels, [f'← Read {empty}'])
 
     def test_run_tool_no_note_for_normal_result(self):
         ui = _CaptureUI()

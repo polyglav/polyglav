@@ -25,9 +25,9 @@ class TestGlyphActivityLines(unittest.TestCase):
             self.chat._show_tool_status(name, args)
         return out.getvalue()
 
-    def test_glyph_lines_default_true(self):
+    def test_verbosity_default_normal(self):
         from polyglav.config import DEFAULT_CONFIG
-        self.assertTrue(DEFAULT_CONFIG['glyph_lines'])
+        self.assertEqual(DEFAULT_CONFIG['verbosity'], 'normal')
 
     def test_repl_activity_renders_glyph_line(self):
         out = io.StringIO()
@@ -71,12 +71,6 @@ class TestGlyphActivityLines(unittest.TestCase):
         self.assertIn('→ Write a.md', value)
         self.assertNotIn('[write_file:', value)
 
-    def test_status_falls_back_to_oneliner_when_disabled(self):
-        self.chat.config.set('glyph_lines', False)
-        value = self._capture_status('write_file', {'path': 'a.md', 'content': 'x'})
-        self.assertIn('* write_file a.md', value)
-        self.assertNotIn('→', value)
-
     def test_status_falls_back_to_oneliner_for_unmapped_category(self):
         params = {'type': 'object', 'properties': {}, 'required': []}
         self.chat._tool_registry.register(
@@ -117,19 +111,19 @@ class TestThinkingSpinner(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def test_spinner_starts_when_thinking_hidden(self):
-        self.chat.config.set('show_thinking', False)
+        self.chat.config.set('verbosity.thinking', 'summary')
         self.chat._ui.thinking_begin()
         self.assertIsNotNone(self.chat._ui._spinner_thread)
         self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
     def test_spinner_starts_when_thinking_visible(self):
-        self.chat.config.set('show_thinking', True)
+        self.chat.config.set('verbosity.thinking', 'full')
         self.chat._ui.thinking_begin()
         self.assertIsNotNone(self.chat._ui._spinner_thread)
         self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
     def test_thinking_end_stops_spinner_and_prints_thought(self):
-        self.chat.config.set('show_thinking', False)
+        self.chat.config.set('verbosity.thinking', 'summary')
         self.chat._ui.thinking_begin()
         thread = self.chat._ui._spinner_thread
         out = io.StringIO()
@@ -142,7 +136,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('✓ Thought 2.5s', value)
 
     def test_thinking_end_without_spinner_is_clean(self):
-        self.chat.config.set('show_thinking', False)
+        self.chat.config.set('verbosity.thinking', 'summary')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(1.0)
@@ -164,8 +158,8 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('↳ Delegating to writer', out.getvalue())
         self.assertIn('\r\033[K', out.getvalue())
 
-    def test_status_spinner_disabled(self):
-        self.chat.config.set('status_spinner', False)
+    def test_subruns_off_hides_status(self):
+        self.chat.config.set('verbosity.subruns', 'off')
         self.chat._ui.status_begin('Delegating...')
         self.assertIsNone(self.chat._ui._spinner_thread)
 
@@ -284,16 +278,18 @@ class TestThinkingSpinner(unittest.TestCase):
         from polyglav.ui import BufferUI, SubRunUI
         self.chat.roles.put(
             Role(name='writer', system_prompt='w'), scope='local')
-        self.chat.config.set('subrun_verbosity', 'summary')
+        self.chat.config.set('verbosity.subruns', 'full')
         self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
                               SubRunUI)
-        self.chat.config.set('subrun_verbosity', 'quiet')
+        self.chat.config.set('verbosity.subruns', 'summary')
+        self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
+                              BufferUI)
+        self.chat.config.set('verbosity.subruns', 'off')
         self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
                               BufferUI)
 
     def test_thinking_end_streamed_prints_thought_duration(self):
-        self.chat.config.set('show_thinking', True)
-        self.chat.config.set('show_thought_duration', True)
+        self.chat.config.set('verbosity.thinking', 'full')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(2.5)
@@ -302,8 +298,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertNotIn('+ Thought', value)
 
     def test_thinking_end_streamed_hides_thought_duration_when_off(self):
-        self.chat.config.set('show_thinking', True)
-        self.chat.config.set('show_thought_duration', False)
+        self.chat.config.set('verbosity.thinking', 'off')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(1.0)
@@ -392,6 +387,7 @@ class TestWordStreaming(unittest.TestCase):
         self.assertLess(value.index('hard'), value.index('Done 3.0s'))
 
     def test_footer_token_parts_selected(self):
+        self.chat.config.set('verbosity.footer', 'full')
         self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12, 'thinking': 5, 'out': 8})
@@ -399,6 +395,7 @@ class TestWordStreaming(unittest.TestCase):
         self.assertIn('✓ Done 3.0s (12t/5t/8t)', value)
 
     def test_footer_token_parts_skip_unavailable(self):
+        self.chat.config.set('verbosity.footer', 'full')
         self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12})
@@ -414,14 +411,13 @@ class TestWordStreaming(unittest.TestCase):
         self.assertIn('✓ Done 3.0s', value)
         self.assertNotIn('tokens', value)
 
-    def test_footer_show_context_size_off_hides_tokens(self):
-        self.chat.config.set('show_context_size', False)
+    def test_footer_off_hides_footer(self):
+        self.chat.config.set('verbosity.footer', 'off')
         self.chat.config.set('footer_tokens', ['in', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12, 'out': 8})
         value = self._capture(run)
-        self.assertIn('✓ Done 3.0s', value)
-        self.assertNotIn('t', value)
+        self.assertNotIn('Done', value)
 
     def test_word_streaming_off_writes_immediately(self):
         self.chat.config.set('word_streaming', False)
@@ -762,7 +758,7 @@ class TestReplColors(unittest.TestCase):
         self.assertIn('/print', value)
 
     def test_tool_result_shown_when_enabled(self):
-        self.chat.config.set('show_tool_output', True)
+        self.chat.config.set('verbosity.tools', 'full')
         value = self._capture(lambda: self.ui.tool_result('secret output'))
         self.assertIn('secret output', value)
         self.assertNotIn('/print', value)
@@ -784,25 +780,24 @@ class TestReplColors(unittest.TestCase):
         self.assertIn(RED, value)
 
     def test_thinking_begin_is_quiet(self):
-        self.chat.config.set('show_thinking', True)
+        self.chat.config.set('verbosity.thinking', 'full')
         value = self._capture(lambda: self.ui.thinking_begin())
         self.assertNotIn('- Thinking', value)
         self.ui._stop_spinner()
 
     def test_reasoning_body_dim(self):
-        self.chat.config.set('show_thinking', True)
+        self.chat.config.set('verbosity.thinking', 'full')
         value = self._capture(lambda: self.ui.thinking('reason'))
         self.assertIn(DIM, value)
 
     def test_thought_summary_dim(self):
-        self.chat.config.set('show_thinking', True)
-        self.chat.config.set('show_thought_duration', True)
+        self.chat.config.set('verbosity.thinking', 'summary')
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
         self.assertIn('✓ Thought 2.5s', value)
 
     def test_hidden_thought_dim(self):
-        self.chat.config.set('show_thinking', False)
+        self.chat.config.set('verbosity.thinking', 'summary')
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
         self.assertIn('✓ Thought 2.5s', value)

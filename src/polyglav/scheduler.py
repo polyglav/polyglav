@@ -4,7 +4,7 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import Config
+from .config import Config, verbosity_level
 from .engine import Engine, TurnResult
 from .sessions import turns
 from .jobs import (Job, JobRun, JobRegistry, compute_next_run, job_session_name,
@@ -74,7 +74,8 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     if job.tools_deny:
         sub_config.apply('tools.deny', job.tools_deny)
     ui = HeadlessUI(auto='deny', verbose=verbose, stream=stream,
-                    show_thinking=sub_config.get('show_thinking', True),
+                    thinking_level=verbosity_level(sub_config, 'thinking'),
+                    footer_level=verbosity_level(sub_config, 'footer'),
                     footer_tokens=sub_config.get('footer_tokens', ['context']))
     engine = Engine(sub_config, ui=ui,
                     approve_models=job.approve_model or bool(job.model))

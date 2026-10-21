@@ -817,29 +817,29 @@ class TestThinkingCommand(unittest.TestCase):
 
     def test_thinking_reports_current_state(self):
         output = self._dispatch('/thinking')
-        self.assertIn('Thinking streaming: off', output)
+        self.assertIn('@ Thinking: summary', output)
 
     def test_thinking_off(self):
         output = self._dispatch('/thinking off')
-        self.assertIn('Thinking streaming: off', output)
-        self.assertIs(self.chat.config.get('show_thinking'), False)
+        self.assertIn('@ Thinking: off', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'off')
 
     def test_thinking_on(self):
         output = self._dispatch('/thinking on')
-        self.assertIn('Thinking streaming: on', output)
-        self.assertIs(self.chat.config.get('show_thinking'), True)
+        self.assertIn('@ Thinking: full', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
 
     def test_thinking_status_no_change(self):
         self._dispatch('/thinking on')
         output = self._dispatch('/thinking status')
-        self.assertIn('Thinking streaming: on', output)
-        self.assertIs(self.chat.config.get('show_thinking'), True)
+        self.assertIn('@ Thinking: full', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
 
     def test_thinking_invalid_arg(self):
         self._dispatch('/thinking on')
         output = self._dispatch('/thinking bogus')
         self.assertIn('Usage: /thinking', output)
-        self.assertIs(self.chat.config.get('show_thinking'), True)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
 
 
 class TestModeCommand(unittest.TestCase):

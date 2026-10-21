@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from .config import Config
+from .config import Config, verbosity_level
 from .runs import Run, RunRegistry
 from .sessions.manager import SessionManager, coded_session_name
 from .sessions import turns
@@ -605,12 +605,8 @@ class Engine:
                      runs=self.runs, parent_run=self.current_run.id, run=run)
         if ui is None:
             max_lines = int(self.config.get('run_buffer_max_lines', 0) or 0)
-            verbosity = str(
-                self.config.get('subrun_verbosity', 'quiet') or 'quiet').lower()
-            if verbosity == 'summary':
-                sub._ui = SubRunUI(sub.current_run, self.ui,
-                                   max_lines=max_lines)
-            elif verbosity == 'full':
+            level = verbosity_level(self.config, 'subruns')
+            if level == 'full':
                 sub._ui = SubRunUI(sub.current_run, self.ui,
                                    max_lines=max_lines, forward_all=True)
             else:
@@ -727,15 +723,19 @@ class Engine:
             sub.compact_session()
         label = getattr(self, '_stage_label', '') or (role_name or 'sibling')
         name = getattr(self, '_stage_name', '') or (role_name or 'sibling')
-        self.ui.status_begin(f'Call {label}', name=name)
+        subrun_level = verbosity_level(self.config, 'subruns')
+        if subrun_level != 'off':
+            self.ui.status_begin(f'Call {label}', name=name)
         try:
             result = sub.chat(task, origin=self.role or 'root')
         except Exception:
-            self.ui.status_end(ok=False)
+            if subrun_level != 'off':
+                self.ui.status_end(ok=False)
             self.runs.finish(sub.current_run.id, 'error')
             raise
         ok = result.status in ('ok', 'truncated')
-        self.ui.status_end(self._run_stats(result), ok=ok)
+        if subrun_level != 'off':
+            self.ui.status_end(self._run_stats(result), ok=ok)
         status = 'done' if result.status in ('ok', 'truncated') else 'error'
         self.runs.finish(sub.current_run.id, status)
         if result.session and result.session not in self.current_session.sub_sessions:
@@ -914,12 +914,15 @@ class Engine:
                          f'Team nesting limit reached ({max_depth}): {team.name}'}])
         self._team_stack = stack + [team.name]
         self._team_depth = depth + 1
-        self.ui.info(f'{glyph(self.config, "enter", "↳")} Delegate {team.name}')
+        subrun_level = verbosity_level(self.config, 'subruns')
+        if subrun_level != 'off':
+            self.ui.info(f'{glyph(self.config, "enter", "↳")} Delegate {team.name}')
         try:
             result = self._run_team_stages(
                 team, task, skills=skills, resume=resume, context=context)
-            ok = result.status in ('ok', 'truncated')
-            self.ui.worked(team.name, self._team_stats(result), ok=ok)
+            if subrun_level != 'off':
+                ok = result.status in ('ok', 'truncated')
+                self.ui.worked(team.name, self._team_stats(result), ok=ok)
             return result
         finally:
             self._team_stack = stack
@@ -1542,8 +1545,7 @@ class Engine:
             result = f'Error: unknown tool "{name}"'
             if available:
                 result += f'. Available tools: {available}'
-            if self.config.get('show_errors', True):
-                self.ui.tool_error(result)
+            self.ui.tool_error(result)
             return result
         cleaned = registry.clean_args(name, args)
         path_arg = registry.path_arg_for(name)
@@ -1581,10 +1583,9 @@ class Engine:
         if self.config.get('tool_status_visible', True):
             self._show_tool_status(name, args)
         result = registry.execute(name, args, config=self.config, echo=echo)
-        if result.startswith('Error') and self.config.get('show_errors', True):
+        if result.startswith('Error'):
             self.ui.tool_error(result)
-        elif (registry.is_note_result(name, result)
-              and self.config.get('show_notes', True)):
+        elif registry.is_note_result(name, result):
             self.ui.tool_note(result)
         self._denied_streak = 0
         return result
@@ -1602,18 +1603,20 @@ class Engine:
             value = str(args[key_arg])
             label = f'{name} {value[:80]}'
         params = self._tool_registry.params_str(name, args)
-        if params and self.config.get('glyph_params', True):
+        if params and verbosity_level(self.config, 'tools') == 'full':
             label = f'{label} [{params}]'
         return self.ui.confirm(name, label)
 
     def _show_tool_status(self, name, arguments):
+        level = verbosity_level(self.config, 'tools')
+        if level == 'off':
+            return
         value, body = self._tool_registry.status_parts(name, arguments)
         activity = self._tool_registry.activity(
             name, arguments, glyphs=glyph_map(self.config))
-        if activity is not None and self.config.get('glyph_lines', True):
+        if activity is not None:
             glyph, verb, label, params = activity
-            if (params and self.config.get('glyph_params', True)
-                    and self.config.get('show_tool_output', False)):
+            if params and level == 'full':
                 label = f'{label} [{params}]'
             self.ui.activity(glyph, verb, label, body)
         else:

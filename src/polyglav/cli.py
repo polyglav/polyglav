@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from .config import Config
+from .config import Config, verbosity_level
 from .engine import Engine
 from .ui import HeadlessUI
 
@@ -23,8 +23,8 @@ def _engine_from_args(args) -> Engine:
     auto = 'allow' if getattr(args, 'approve', None) is True else 'deny'
     ui = HeadlessUI(auto=auto, verbose=getattr(args, 'verbose', False),
                     stream=getattr(args, 'output', 'json') == 'text',
-                    show_thinking=config.get('show_thinking', True),
-                    show_thought_duration=config.get('show_thought_duration', True),
+                    thinking_level=verbosity_level(config, 'thinking'),
+                    footer_level=verbosity_level(config, 'footer'),
                     footer_tokens=config.get('footer_tokens', ['context']))
     approve_models = bool(getattr(args, 'model', None)) or bool(
         getattr(args, 'approve_model', False))
@@ -181,7 +181,8 @@ def cmd_serve(args) -> int:
     if getattr(args, 'mode', None):
         config.apply('mode', args.mode)
     ui = HeadlessUI(auto='deny', verbose=False, stream=False,
-                    show_thinking=config.get('show_thinking', True),
+                    thinking_level=verbosity_level(config, 'thinking'),
+                    footer_level=verbosity_level(config, 'footer'),
                     footer_tokens=config.get('footer_tokens', ['context']))
     engine = Engine(config, ui=ui)
     pm = getattr(engine, '_plugin_manager', None)
@@ -203,7 +204,8 @@ def cmd_serve(args) -> int:
 def cmd_mcp(args) -> int:
     config = Config(path=args.path)
     ui = HeadlessUI(auto='deny', verbose=False, stream=False,
-                    show_thinking=config.get('show_thinking', True),
+                    thinking_level=verbosity_level(config, 'thinking'),
+                    footer_level=verbosity_level(config, 'footer'),
                     footer_tokens=config.get('footer_tokens', ['context']))
     engine = Engine(config, ui=ui)
     pm = getattr(engine, '_plugin_manager', None)

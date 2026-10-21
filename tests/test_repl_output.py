@@ -47,7 +47,7 @@ class TestReplOutput(unittest.TestCase):
         self.assertIn('mode write', value)
 
     def test_thinking_and_footer(self):
-        self.chat.config.set('show_thought_duration', True)
+        self.chat.config.set('verbosity.thinking', 'summary')
 
         def run():
             self.ui.thinking_begin()

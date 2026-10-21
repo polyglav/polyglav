@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from .. import get_version
+from ..config import verbosity_level
 from ..sessions.render import render_session, render_turn, session_to_json, turn_summary
 from ..ui import DIM, RED, RESET
 
@@ -710,24 +711,26 @@ def register_builtins(registry):
         _render_provider_status(chat, providers)
 
     @registry.register('thinking', aliases=['reasoning'],
-                       description='Show or toggle streaming of thinking/reasoning tokens')
+                       description='Show or set thinking detail (off, summary, full)')
     def thinking_cmd(arg=''):
         arg = arg.strip().lower()
-        current = chat.config.get('show_thinking', False)
+        current = verbosity_level(chat.config, 'thinking')
         if arg in ('on', '1', 'true', 'yes', 'show'):
-            new = True
+            new = 'full'
         elif arg in ('off', '0', 'false', 'no', 'hide'):
-            new = False
+            new = 'off'
+        elif arg in ('summary', 'sum'):
+            new = 'summary'
         elif arg in ('', '?', 'status'):
             new = None
         else:
-            print(f"Usage: /thinking [on|off]  (current: {'on' if current else 'off'})")
+            print(f'Usage: /thinking [off|summary|full]  (current: {current})')
             return
         if new is None:
-            print(f'Thinking streaming: {"on" if current else "off"}')
+            print(f'{DIM}@ Thinking: {current}{RESET}')
         else:
-            chat.config.set('show_thinking', new)
-            print(f'Thinking streaming: {"on" if new else "off"}')
+            chat.config.set('verbosity.thinking', new)
+            print(f'{DIM}@ Thinking: {new}{RESET}')
 
     @registry.register('unattended',
                        description='Show or toggle unattended mode (no stdin from any depth: '

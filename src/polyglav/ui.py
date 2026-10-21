@@ -5,6 +5,8 @@ import sys
 import threading
 import time
 
+from .config import verbosity_level
+
 
 SPINNER_FRAMES = ('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
 SPINNER_INTERVAL = 0.08
@@ -339,28 +341,27 @@ class ReplUI:
     def thinking_begin(self):
         self.flush()
         self._ensure_newline()
+        if verbosity_level(self._loop.config, 'thinking') == 'off':
+            return
         self._thinking_streamed = False
         self._start_spinner('Thinking')
 
     def status_begin(self, label: str, name: str = ''):
         self.flush()
         self._ensure_newline()
+        if verbosity_level(self._loop.config, 'subruns') == 'off':
+            return
         text = str(label or 'Working').rstrip('.').strip()
         self._status_name = (name or text).rstrip('.').strip()
-        if not self._loop.config.get('status_spinner', True):
-            self._emit(f'↳ {text}', DIM)
-            return
         mark = glyph(self._loop.config, 'enter', '↳')
         self._emit(f'{mark} {text}', DIM)
         self._start_spinner(text)
 
     def status_end(self, note: str = '', ok: bool = True):
-        if not self._loop.config.get('status_spinner', True):
-            self.worked(self._status_name, note, ok=ok)
+        if verbosity_level(self._loop.config, 'subruns') == 'off':
             return
-        label = self._status_name
         self._stop_spinner()
-        self.worked(label, note, ok=ok)
+        self.worked(self._status_name, note, ok=ok)
 
     def worked(self, name: str, note: str = '', ok: bool = True):
         self.flush()
@@ -425,7 +426,7 @@ class ReplUI:
 
     def thinking(self, text):
         self.flush()
-        if not self._loop.config.get('show_thinking', True):
+        if verbosity_level(self._loop.config, 'thinking') != 'full':
             return
         if not self._thinking_streamed:
             self._stop_spinner()
@@ -437,7 +438,7 @@ class ReplUI:
         self.flush()
         self._stop_spinner()
         self._ensure_newline()
-        if self._loop.config.get('show_thought_duration', True):
+        if verbosity_level(self._loop.config, 'thinking') != 'off':
             mark = glyph(self._loop.config, 'done', '✓')
             self._emit(f'{mark} Thought {duration:.1f}s', DIM)
         self.content_newline = True
@@ -456,22 +457,28 @@ class ReplUI:
         self._emit(text, RED)
 
     def tool_status(self, name, value, body):
+        level = verbosity_level(self._loop.config, 'tools')
+        if level == 'off':
+            return
         self.flush()
         self._ensure_newline()
         mark = glyph(self._loop.config, 'default', '*')
         self._emit(f'{mark} {name} {value}', DIM)
-        if self._loop.config.get('show_tool_output', False):
+        if level == 'full':
             for line in body:
                 self._emit(line, DIM)
         elif body:
             self._tool_output_hint()
 
     def activity(self, glyph, verb, label, body):
+        level = verbosity_level(self._loop.config, 'tools')
+        if level == 'off':
+            return
         self.flush()
         self._ensure_newline()
         color = GREEN if glyph == '$' else DIM
         self._emit(f'{glyph} {verb} {label}', color)
-        if self._loop.config.get('show_tool_output', False):
+        if level == 'full':
             for line in body:
                 self._emit(line, DIM)
         elif body:
@@ -495,15 +502,20 @@ class ReplUI:
             self._emit(f'  {line}', DIM)
 
     def tool_note(self, output):
+        if verbosity_level(self._loop.config, 'tools') == 'off':
+            return
         self.flush()
         self._ensure_newline()
         lines = [l for l in output.splitlines() if l]
         self._emit(lines[-1], DIM)
 
     def tool_result(self, output):
+        level = verbosity_level(self._loop.config, 'tools')
+        if level == 'off':
+            return
         self.flush()
         self._ensure_newline()
-        if not self._loop.config.get('show_tool_output', False):
+        if level == 'summary':
             self._tool_output_hint()
             return
         for line in output.splitlines():
@@ -548,14 +560,20 @@ class ReplUI:
         return '/'.join(parts)
 
     def footer(self, duration, counts, note=''):
+        level = verbosity_level(self._loop.config, 'footer')
+        if level == 'off':
+            return
         self.flush()
         self._ensure_newline()
         mark = glyph(self._loop.config, 'done', '✓')
-        if self._loop.config.get('show_context_size', True):
+        if level == 'full':
             seg = self._footer_tokens(counts)
             body = f'{mark} Done {duration:.1f}s ({seg})' if seg else f'{mark} Done {duration:.1f}s'
         else:
             body = f'{mark} Done {duration:.1f}s'
+            parts = self._loop.config.get('footer_tokens', ['context'])
+            if 'context' in parts and counts.get('context') is not None:
+                body += f' ({counts["context"]:,} tokens)'
         if note:
             body += f'  {note}'
         self._emit(body, DIM)
@@ -846,13 +864,25 @@ class SubRunUI(BufferUI):
 
 class HeadlessUI:
     def __init__(self, auto: str = 'deny', verbose: bool = False, stream: bool = True,
-                 show_thinking: bool = True, show_thought_duration: bool = True,
-                 footer_tokens: list | None = None):
+                 show_thinking: bool | None = None,
+                 show_thought_duration: bool | None = None,
+                 footer_tokens: list | None = None,
+                 thinking_level: str | None = None,
+                 footer_level: str | None = None):
         self.auto = auto
         self.verbose = verbose
         self.stream = stream
-        self.show_thinking = show_thinking
-        self.show_thought_duration = show_thought_duration
+        if thinking_level is None:
+            if show_thinking is True:
+                thinking_level = 'full'
+            elif show_thought_duration is False:
+                thinking_level = 'off'
+            else:
+                thinking_level = 'summary'
+        self.thinking_level = thinking_level
+        self.footer_level = footer_level or 'summary'
+        self.show_thinking = thinking_level == 'full'
+        self.show_thought_duration = thinking_level != 'off'
         self.footer_tokens = footer_tokens or ['context']
 
     def token(self, text):
@@ -861,23 +891,18 @@ class HeadlessUI:
             sys.stdout.flush()
 
     def thinking(self, text):
-        if self.verbose and self.stream:
+        if self.verbose and self.stream and self.thinking_level == 'full':
             sys.stderr.write(text)
             sys.stderr.flush()
 
     def thinking_begin(self):
-        if self.verbose and self.stream and self.show_thinking:
-            sys.stderr.write('- Thinking\n')
+        pass
 
     def thinking_end(self, duration):
         if not (self.verbose and self.stream):
             return
-        if self.show_thinking:
-            sys.stderr.write('\n')
-            if self.show_thought_duration:
-                sys.stderr.write(f'(Thought {duration:.1f}s)\n')
-        else:
-            sys.stderr.write(f'+ Thought {duration:.1f}s\n')
+        if self.thinking_level != 'off':
+            sys.stderr.write(f'✓ Thought {duration:.1f}s\n')
 
     def status_begin(self, label, name=''):
         pass
@@ -943,7 +968,10 @@ class HeadlessUI:
             sys.stderr.write(f'[refine: "{old}" → "{new}"]\n')
 
     def footer(self, duration, counts, note=''):
-        if self.stream:
+        if not self.stream or self.footer_level == 'off':
+            return
+        tail = f'  {note}' if note else ''
+        if self.footer_level == 'full':
             parts = []
             for key in self.footer_tokens:
                 n = counts.get(key)
@@ -951,11 +979,12 @@ class HeadlessUI:
                     continue
                 parts.append(f'{n:,} tokens' if key == 'context' else f'{n}t')
             seg = '/'.join(parts)
-            tail = f'  {note}' if note else ''
             if seg:
-                sys.stderr.write(f'({duration:.1f}s, {seg}){tail}\n')
+                sys.stderr.write(f'✓ Done {duration:.1f}s ({seg}){tail}\n')
             else:
-                sys.stderr.write(f'({duration:.1f}s){tail}\n')
+                sys.stderr.write(f'✓ Done {duration:.1f}s{tail}\n')
+        else:
+            sys.stderr.write(f'✓ Done {duration:.1f}s{tail}\n')
 
     def info(self, msg):
         if self.verbose:

@@ -111,7 +111,7 @@ class TestToolCalling(unittest.TestCase):
         self.assertEqual(self._texts()[-1], 'Done.')
 
     def test_shown_thinking_streams_and_summarizes(self):
-        self.chat.config.data['show_thinking'] = True
+        self.chat.config.data['verbosity.thinking'] = 'full'
         self.chat.provider.chat.side_effect = [
             [{'type': 'thinking', 'content': 'reasoning...'},
              {'type': 'token', 'content': 'Visible'},
@@ -126,7 +126,7 @@ class TestToolCalling(unittest.TestCase):
         self.assertIn('Visible', out)
 
     def test_hidden_thinking_announces_duration_only(self):
-        self.chat.config.data['show_thinking'] = False
+        self.chat.config.data['verbosity.thinking'] = 'summary'
         self.chat.provider.chat.side_effect = [
             [{'type': 'thinking', 'content': 'secret reasoning'},
              {'type': 'token', 'content': 'Visible'},

@@ -1,5 +1,7 @@
 from typing import Callable
 
+from ..config import verbosity_level
+
 
 def _format_result(res) -> str:
     if res.status == 'error':
@@ -71,7 +73,8 @@ def register_offload_tool(registry, engine) -> Callable:
         except ValueError as e:
             return f'Error: {e}'
         result = _format_result(res)
-        if (_echo and _config is not None and _config.get('delegate_echo', True)
+        if (_echo and _config is not None
+                and verbosity_level(_config, 'subruns') != 'off'
                 and not result.startswith('Error')):
             engine.ui.sub_result(result)
         return result

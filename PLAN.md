@@ -17,16 +17,6 @@ The target REPL look is approved from annotated transcripts before any applicati
 |------|--------|----------|
 | Annotated mocks - `repl0.md` and `repl2-7.md` under `.polyglav/`, with the palette and glyph legend | S | a reviewable target |
 
-## Verbosity model
-
-Display volume becomes one predictable model instead of a dozen flags. The session log stays complete, and verbosity only changes what the REPL renders.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Global `verbosity` - `quiet`, `normal`, or `verbose` | S | one preset |
-| Scoped overrides - `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`, each `off`, `summary`, `full`, or `inherit` | S-M | per-area control |
-| Migration and cleanup - map the old display keys, remove `show_errors`, and keep rendering separate from persistence | S-M | no dead flags |
-
 ## Sequential run control
 
 The REPL runs one process and one context at a time. A run can pause at a safe boundary and resume later, and `/runs` shows the history tree without switching control.

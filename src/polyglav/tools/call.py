@@ -1,5 +1,7 @@
 from typing import Callable
 
+from ..config import verbosity_level
+
 _WRITE_PREFIXES = ('Created ', 'Overwritten ', 'Appended ')
 
 _FOCUS_MODES = ('off', 'ask', 'on')
@@ -166,7 +168,8 @@ def register_call_tool(registry, engine) -> Callable:
         result = _format_result(engine, role, res)
         if not result.startswith('Error'):
             result += _offer_focus(engine, res.run_id, _config)
-        if (_echo and _config is not None and _config.get('delegate_echo', True)
+        if (_echo and _config is not None
+                and verbosity_level(_config, 'subruns') != 'off'
                 and not result.startswith('Error')):
             engine.ui.sub_result(result)
         return result

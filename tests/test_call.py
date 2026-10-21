@@ -81,7 +81,7 @@ class TestDelegateTool(unittest.TestCase):
 
     def test_echo_off_hides_result(self):
         self._allow_delegate()
-        self.chat.config.apply('delegate_echo', False)
+        self.chat.config.apply('verbosity.subruns', 'off')
         self.chat._ui.sub_result = MagicMock()
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],

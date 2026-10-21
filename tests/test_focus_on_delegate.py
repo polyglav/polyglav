@@ -84,7 +84,7 @@ class TestFocusOnDelegateLoop(unittest.TestCase):
         self.chat = make_chat()
         seed_roles(self.chat, 'writer')
         self.chat.config.set('mode', 'write')
-        self.chat.config.set('delegate_echo', False)
+        self.chat.config.set('verbosity.subruns', 'off')
 
     def tearDown(self):
         self.chat._tmp.cleanup()
