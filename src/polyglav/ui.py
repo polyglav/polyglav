@@ -11,8 +11,12 @@ SPINNER_INTERVAL = 0.08
 
 DIM = '\033[90m'
 RED = '\033[91m'
-BLUE = '\033[94m'
+CYAN = '\033[96m'
 ORANGE = '\033[38;5;208m'
+MAGENTA = '\033[95m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+ITALIC_GRAY = '\033[3;90m'
 RESET = '\033[0m'
 
 _ANSI_RE = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
@@ -307,7 +311,7 @@ class ReplUI:
         if not self._loop.config.get('show_thinking', True):
             self._start_spinner('Thinking')
             return
-        self._emit('- Thinking', BLUE)
+        self._emit('- Thinking', DIM)
         self.content_newline = True
 
     def status_begin(self, label: str):
@@ -390,13 +394,13 @@ class ReplUI:
             if self._loop.config.get('show_thought_duration', True):
                 self._emit(f'(Thought {duration:.1f}s)', DIM)
         else:
-            self._emit(f'+ Thought {duration:.1f}s', BLUE)
+            self._emit(f'+ Thought {duration:.1f}s', DIM)
         self.content_newline = True
 
     def warning(self, msg):
         self.flush()
         self._ensure_newline()
-        self._emit(f'[warning] {msg}', '\033[93m')
+        self._emit(f'[warning] {msg}', YELLOW)
 
     def error(self, code, msg):
         self.flush()

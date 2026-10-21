@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from tests.helpers import make_chat
 from polyglav.engine import Engine
-from polyglav.ui import HeadlessUI, DIM, RED, BLUE, ORANGE, _hidden_input
+from polyglav.ui import HeadlessUI, DIM, RED, ORANGE, _hidden_input
 
 
 class TestGlyphActivityLines(unittest.TestCase):
@@ -712,10 +712,10 @@ class TestReplColors(unittest.TestCase):
         self.assertIn('boom', value)
         self.assertIn(RED, value)
 
-    def test_thinking_header_blue(self):
+    def test_thinking_header_dim(self):
         self.chat.config.set('show_thinking', True)
         value = self._capture(lambda: self.ui.thinking_begin())
-        self.assertIn(BLUE, value)
+        self.assertIn(DIM, value)
 
     def test_reasoning_body_dim(self):
         self.chat.config.set('show_thinking', True)
@@ -728,12 +728,11 @@ class TestReplColors(unittest.TestCase):
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
         self.assertIn('(Thought 2.5s)', value)
-        self.assertNotIn(BLUE, value)
 
-    def test_hidden_thought_blue(self):
+    def test_hidden_thought_dim(self):
         self.chat.config.set('show_thinking', False)
         value = self._capture(lambda: self.ui.thinking_end(2.5))
-        self.assertIn(BLUE, value)
+        self.assertIn(DIM, value)
         self.assertIn('+ Thought 2.5s', value)
 
     def test_status_line_starts_on_new_line_after_text(self):

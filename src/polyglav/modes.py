@@ -1,11 +1,12 @@
 from typing import NamedTuple
 
 from .config import Config
+from .ui import CYAN, ORANGE
 
 
 PROMPT_COLORS = {
-    'cyan': '\033[1;36m',
-    'orange': '\033[1;38;5;208m',
+    'cyan': CYAN,
+    'orange': ORANGE,
 }
 
 DEFAULT_PROMPT_COLOR = 'orange'

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.45.0
+
+- Added the REPL palette constants - cyan read prompt, orange write prompt, magenta command line, green bash line, gray info, yellow warning, and red error. Tests: `test_ui.py`
+
 ## v0.44.0 - 2026-10-18
 
 - Added model removal to `/models` - `/models remove <provider>/<model>` drops a registry entry, asking first when it is the active model. Docs (`commands.md`). Tests: `test_commands.py`
