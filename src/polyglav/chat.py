@@ -5,7 +5,7 @@ from pathlib import Path
 from .config import Config
 from .engine import Engine
 from .focus import FocusManager
-from .ui import ReplUI
+from .ui import MAGENTA, ReplUI
 from .modes import PROMPT_COLORS, mode_color, resolve_mode, unknown_mode
 from . import get_version
 
@@ -19,7 +19,7 @@ def _prompt_text(color: str, label: str) -> str:
     return f'\001{color}\002{label}{_RST} '
 
 
-MAIN_PROMPT = _prompt_text(_DEFAULT, '>>>')
+MAIN_PROMPT = _prompt_text(_DEFAULT, '>')
 CONT_PROMPT = _prompt_text(_DEFAULT, '...')
 
 
@@ -213,16 +213,35 @@ class ChatLoop(Engine):
 
     def _read_line(self) -> str | None:
         try:
-            line = input(self._prompt()).strip()
+            raw = input(self._prompt())
         except (EOFError, KeyboardInterrupt):
             print()
             return None
+        line = raw.strip()
+        self._reprint_line(line)
         delim = _open_delim(line)
         if delim is not None:
             return self._read_block(line, delim)
         if line.endswith('\\'):
             return self._read_continued(line)
         return line
+
+    def _reprint_line(self, text: str) -> None:
+        if not text:
+            return
+        engine = self.active()
+        if text.startswith('/'):
+            color = MAGENTA
+            label = '/'
+            body = text[1:].strip()
+        else:
+            spec, _ = resolve_mode(self.config, engine._mode())
+            color = mode_color(spec)
+            label = '>'
+            body = text
+        sys.stdout.write('\033[A\r\033[K')
+        sys.stdout.write(_prompt_text(color, label) + body + '\n')
+        sys.stdout.flush()
 
     def _read_block(self, line: str, delim: str) -> str | None:
         parts = [line]
@@ -269,7 +288,7 @@ class ChatLoop(Engine):
         role = ''
         if self.config.get('prompt_role', False):
             role = str(getattr(self.active(), 'role', '') or '')
-        return self._make_prompt('>>>', role)
+        return self._make_prompt('>', role)
 
     def _cont_prompt(self) -> str:
         return self._make_prompt('...', '')

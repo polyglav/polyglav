@@ -129,6 +129,19 @@ class TestReplInput(unittest.TestCase):
         self._run(['a\\b', EOFError])
         self.chat.chat.assert_called_once_with('a\\b')
 
+    def test_chat_input_reprinted_in_mode_color(self):
+        output = self._run(['hello', EOFError])
+        self.assertIn('\001\033[96m\002>\001\033[0m\002 hello', output)
+
+    def test_command_input_reprinted_in_magenta(self):
+        output = self._run(['/sessions list', EOFError])
+        self.assertIn('\001\033[95m\002/\001\033[0m\002 sessions list', output)
+
+    def test_write_input_reprinted_in_orange(self):
+        self.chat.config.set('mode', 'write')
+        output = self._run(['hello', EOFError])
+        self.assertIn('\001\033[38;5;208m\002>\001\033[0m\002 hello', output)
+
 
 class TestOutputLog(unittest.TestCase):
 

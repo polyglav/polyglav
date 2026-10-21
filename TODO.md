@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed prompts to cyan read, orange write, and magenta commands, with submitted-line reprint
 - [x] Added palette constants for cyan read, orange write, magenta commands, green bash, and gray info
 - [x] Updated commit guidelines for version bumps and normal case
 - [x] Added model removal

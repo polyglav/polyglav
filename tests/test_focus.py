@@ -139,10 +139,10 @@ class TestFocusRouting(unittest.TestCase):
         child = self._child()
         self.chat.focus.enter(child.id)
         prompt = self.chat._prompt()
-        self.assertIn('writer >>>', prompt)
+        self.assertIn('writer >', prompt)
         self.assertIn('\033[0m', prompt)
-        self.assertNotIn('\033[1;36m', prompt)
-        self.assertNotIn('\033[1;38;5;208m', prompt)
+        self.assertNotIn('\033[96m', prompt)
+        self.assertNotIn('\033[38;5;208m', prompt)
 
     def test_prompt_role_off_hides_label(self):
         self.chat.config.set('prompt_role', False)
@@ -153,14 +153,14 @@ class TestFocusRouting(unittest.TestCase):
     def test_prompt_role_on_by_default(self):
         child = self._child()
         self.chat.focus.enter(child.id)
-        self.assertIn('writer >>>', self.chat._prompt())
+        self.assertIn('writer >', self.chat._prompt())
 
     def test_prompt_color_tracks_mode(self):
-        self.assertIn('\033[1;36m', self.chat._prompt())
-        self.assertIn('\033[1;36m', self.chat._cont_prompt())
+        self.assertIn('\033[96m', self.chat._prompt())
+        self.assertIn('\033[96m', self.chat._cont_prompt())
         self.chat.config.set('mode', 'write')
-        self.assertIn('\033[1;38;5;208m', self.chat._prompt())
-        self.assertIn('\033[1;38;5;208m', self.chat._cont_prompt())
+        self.assertIn('\033[38;5;208m', self.chat._prompt())
+        self.assertIn('\033[38;5;208m', self.chat._cont_prompt())
 
     def test_prompt_text_wraps_escapes_on_libedit(self):
         with patch('polyglav.chat.readline') as rl:
