@@ -1316,7 +1316,7 @@
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
-<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under <code>/tool</code>, mode-filtered listings), <code>/modes</code> list and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, <code>connect_check</code> off, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>api_key</code> as a normal key incl. global writes, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
+<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under <code>/tool</code>, mode-filtered listings), <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, <code>connect_check</code> off, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> scope flags (<code>--global</code>/<code>--local</code>, <code>api_key</code> as a normal key incl. global writes, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
 </tr>
 <tr>
 <td><code>test_completion.py</code></td>
@@ -1372,7 +1372,7 @@
 </tr>
 <tr>
 <td><code>test_modes.py</code></td>
-<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), submitted-line color</td>
+<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), prompt color</td>
 </tr>
 <tr>
 <td><code>test_offload.py</code></td>
@@ -1404,11 +1404,11 @@
 </tr>
 <tr>
 <td><code>test_repl_output.py</code></td>
-<td>Golden REPL vocabulary: header, plain live prompt, colored submitted-line reprint, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
+<td>Golden REPL vocabulary: header, read/write prompts, command reprint, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
 </tr>
 <tr>
 <td><code>test_repl_input.py</code></td>
-<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, plain live prompt, submitted-line reprint in the mode and command colors</td>
+<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, submitted-line reprint in the mode and command colors</td>
 </tr>
 <tr>
 <td><code>test_pause.py</code></td>
