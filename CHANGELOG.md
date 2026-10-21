@@ -2,6 +2,7 @@
 
 ## v0.45.0
 
+- Added a unified call target - `call target=<role|team|sibling>` with `kind` to disambiguate, one `call` permission key resolved per target, and the old `delegate` and `offload` tools kept for one version. Tests: `test_call_target.py`, `test_call.py`
 - Removed caller asks - the `ask` tool now routes to the user (or parks when unattended), and the caller model consultation and `target` parameter are gone. Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`
 - Removed handoff and focus switching - the REPL runs one context at a time, `/runs` is read-only, and `focus_on_delegate`, `prompt_role`, and the `SubRunUI` forwarding are gone. Tests: `test_runs.py`, `test_run_buffer.py`
 - Added a read-only `/runs` tree - run id, role, status, session, and a `log [n]` view of a run buffer, with no focus switch. Tests: `test_runs.py`

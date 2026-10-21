@@ -3,15 +3,61 @@ from typing import Callable
 from ..config import verbosity_level
 
 _WRITE_PREFIXES = ('Created ', 'Overwritten ', 'Appended ')
+_RANK = {'deny': 0, 'ask': 1, 'allow': 2}
 
 
-def _call_action(engine, args: dict) -> str:
-    role_name = (args or {}).get('role', '')
+def _role_action(engine, role_name: str) -> str:
     entry = engine.roles.find(role_name)
     if entry is None:
         return 'deny'
     action = (entry.tool_permission or {}).get('call', 'allow')
-    return action if action in ('allow', 'ask', 'deny') else 'allow'
+    return action if action in _RANK else 'allow'
+
+
+def _team_action(engine, team) -> str:
+    action = 'allow'
+    for stage in team.stages:
+        entry = engine.roles.find(stage.role)
+        if entry is None:
+            continue
+        stage_action = (entry.tool_permission or {}).get('call', 'allow')
+        if stage_action == 'deny':
+            return 'deny'
+        if stage_action == 'ask':
+            action = 'ask'
+    return action
+
+
+def _resolve_target(engine, target: str, kind: str = 'auto') -> tuple[str | None, str]:
+    text = str(target or '').strip()
+    kind = str(kind or 'auto').strip().lower()
+    if kind == 'sibling' or text in ('sibling', 'offload'):
+        return 'sibling', ''
+    if kind == 'team' or text.startswith('team:'):
+        name = text.split(':', 1)[1].strip() if text.startswith('team:') else text
+        return ('team', name) if engine.teams.find(name) is not None else (None, name)
+    if kind == 'role' or text.startswith('role:'):
+        name = text.split(':', 1)[1].strip() if text.startswith('role:') else text
+        return ('role', name) if engine.roles.find(name) is not None else (None, name)
+    if engine.roles.find(text) is not None:
+        return 'role', text
+    if engine.teams.find(text) is not None:
+        return 'team', text
+    return None, text
+
+
+def _target_action(engine, args: dict) -> str:
+    args = args or {}
+    target = args.get('target') or args.get('role') or args.get('name') or ''
+    kind, name = _resolve_target(engine, target, args.get('kind', 'auto'))
+    if kind == 'role':
+        return _role_action(engine, name)
+    if kind == 'team':
+        team = engine.teams.find(name)
+        return _team_action(engine, team) if team is not None else 'deny'
+    if kind == 'sibling':
+        return 'allow'
+    return 'deny'
 
 
 def _summarize_session(engine, result) -> str:
@@ -52,87 +98,111 @@ def _summarize_session(engine, result) -> str:
     return summary
 
 
-def _format_result(engine, role_name: str, res) -> str:
+def _format_result(engine, kind: str, name: str, res) -> str:
+    label = name or 'sibling'
     if res.status == 'error':
-        msgs = '; '.join(e.get('message', '') for e in (res.errors or []) if e.get('message'))
-        return f'Error: call to "{role_name}" failed: {msgs or "unknown error"}'
+        msgs = '; '.join(
+            e.get('message', '') for e in (res.errors or [])
+            if isinstance(e, dict) and e.get('message'))
+        if kind == 'team':
+            return f'Error: team "{label}" failed: {msgs or "unknown error"}'
+        return f'Error: call to "{label}" failed: {msgs or "unknown error"}'
     content = (res.content or '').strip()
     if content:
-        return f'[call {role_name}] {content}'
-    summary = _summarize_session(engine, res)
-    if summary:
-        return f'[call {role_name}] (no final text; {summary})'
-    return f'[call {role_name}] (no content)'
+        return f'[call {label}] {content}'
+    if kind == 'role':
+        summary = _summarize_session(engine, res)
+        if summary:
+            return f'[call {label}] (no final text; {summary})'
+    return f'[call {label}] (no content)'
 
 
 def register_call_tool(registry, engine) -> Callable:
     @registry.register(
         name='call',
         description=(
-            "Bring in a named role as a sub-agent and return its final answer. "
-            "A named role is write-class, so it is only available in write mode "
-            "and the role's own permissions bound it. Use it for specialized work "
-            "(research, writing, review), then continue from the returned result. "
-            "For an anonymous read-only helper, use offload. To run a whole "
-            "pipeline, use delegate."
+            "Call a role, a team, or a role-less sibling and return its final "
+            "answer. `target` names a role or a team, or `sibling` for an "
+            "anonymous read-only helper. A role or team is write-class and its "
+            "own permissions bound it. Use `kind` to disambiguate a name that is "
+            "both a role and a team. The old `delegate` and `offload` tools remain "
+            "for one version."
         ),
         parameters={
             'type': 'object',
             'properties': {
-                'role': {
+                'target': {
                     'type': 'string',
-                    'description': 'Name of the role to delegate to',
+                    'description': 'Role name, team name, or `sibling` for an '
+                                   'anonymous read-only helper.',
+                },
+                'kind': {
+                    'type': 'string',
+                    'enum': ['auto', 'role', 'team', 'sibling'],
+                    'description': 'How to read the target. Auto prefers a role, '
+                                   'then a team, and treats `sibling` specially.',
                 },
                 'task': {
                     'type': 'string',
-                    'description': 'Task for the sub-agent to complete',
+                    'description': 'Task for the target to complete',
                 },
                 'skills': {
                     'type': 'array',
                     'items': {'type': 'string'},
-                    'description': 'Skill names to add to the role for '
-                                   'this run, layered over the role\'s own '
-                                   'skills. Use it to extend a reusable agent '
-                                   'with task, technology, stack, or framework '
-                                   'instructions.',
+                    'description': 'Skill names to add for this run, layered over '
+                                   'the target\'s own skills.',
                 },
                 'resume': {
                     'type': 'string',
                     'description': 'Resume an existing run or session so the '
-                                   'agent keeps its prior context: a run id '
+                                   'target keeps its prior context: a run id '
                                    '(#3), a session id (#ab12cd), a session name, '
-                                   'or session:<name>. Omit for a fresh one-off '
-                                   'session.',
+                                   'or session:<name>.',
                 },
                 'context': {
                     'type': 'string',
                     'enum': ['continue', 'compact', 'new'],
                     'description': 'How to treat a resumed context when resume '
                                    'is set: continue (append, default), compact '
-                                   '(summarize first), or new (ignore resume and '
-                                   'start fresh).',
+                                   '(summarize first), or new (start fresh).',
                 },
             },
-            'required': ['role', 'task'],
+            'required': ['target', 'task'],
         },
         category='call',
         permission='call',
-        key_arg='role',
-        short='Run a task with a named role',
+        key_arg='target',
+        param_aliases={'role': 'target', 'name': 'target'},
+        short='Call a role, team, or sibling',
         glyph='↳',
         verb='Call',
         loop=True,
-        permission_fn=lambda args: _call_action(engine, args),
+        permission_fn=lambda args: _target_action(engine, args),
     )
-    def call(role: str, task: str, skills: list | None = None,
-             resume: str = '', context: str = 'continue',
+    def call(target: str, task: str, skills: list | None = None,
+             resume: str = '', context: str = 'continue', kind: str = 'auto',
              _config=None, _echo: bool = True) -> str:
+        resolved, name = _resolve_target(engine, target, kind)
+        if resolved is None:
+            return f'Error: unknown call target "{target}"'
         try:
-            res = engine.run_subagent(role, task, skills=skills,
+            if resolved == 'role':
+                res = engine.run_subagent(name, task, skills=skills,
+                                          resume=resume, context=context)
+            elif resolved == 'team':
+                team = engine.teams.find(name)
+                if team is None:
+                    return f'Error: unknown team "{name}"'
+                if not team.stages:
+                    return f'Error: team "{name}" has no stages'
+                res = engine.run_team(team, task, skills=skills,
                                       resume=resume, context=context)
+            else:
+                res = engine.run_subagent('', task, skills=skills,
+                                          resume=resume, context=context)
         except ValueError as e:
             return f'Error: {e}'
-        result = _format_result(engine, role, res)
+        result = _format_result(engine, resolved, name, res)
         if (_echo and _config is not None
                 and verbosity_level(_config, 'subruns') != 'off'
                 and not result.startswith('Error')):

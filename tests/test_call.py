@@ -234,7 +234,7 @@ class TestDelegateTool(unittest.TestCase):
         self.chat.sessions.save(sess)
         result = SimpleNamespace(status='ok', content='', session=subname,
                                  errors=[], usage=None)
-        out = _format_result(self.chat, 'programmer', result)
+        out = _format_result(self.chat, 'role', 'programmer', result)
         self.assertIn('no final text', out)
         self.assertIn('2 tool calls', out)
         self.assertIn('wrote:', out)

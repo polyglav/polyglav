@@ -56,9 +56,9 @@
 ## Open
 
 - [ ] Unified call target - collapse `call`, `delegate`, and `offload` into one `call <target>` tool, where the target is a role, a team, or a role-less sibling:
-  - [ ] Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling
-  - [ ] Permissions - one `call` permission key, resolved per target from the role or team entry
-  - [ ] Compatibility - keep the old names as aliases for one version
+  - [x] Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling
+  - [x] Permissions - one `call` permission key, resolved per target from the role or team entry
+  - [x] Compatibility - keep the old names as aliases for one version
   - [ ] Docs and prompts - update `docs/tools.md`, `docs/swarm.md`, `docs/roles.md`, and the role and team prompts
 - [ ] Composite session view - show one transcript while keeping separate files:
   - [ ] `/sessions` - list roots only and hide `sub_` sessions
@@ -161,6 +161,9 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added a unified call target for roles, teams, and siblings
+- [x] Added call permissions resolved per target
+- [x] Kept delegate and offload for one version
 - [x] Added the sequential-only run model
 - [x] Updated the vision and docs for one context at a time
 - [x] Removed caller asks and kept user asks

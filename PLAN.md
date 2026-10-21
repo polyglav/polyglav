@@ -23,9 +23,6 @@ Delegation speaks one verb. `call <target>` names a role, a team, or a role-less
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling | M | one delegation verb |
-| Permissions - one `call` permission key, resolved per target from the role or team entry | S-M | one permission path |
-| Compatibility - keep the old names as aliases for one version | S | a safe migration |
 | Docs and prompts - update the tool, swarm, role, and team references | S-M | one vocabulary |
 
 ## Composite session view
