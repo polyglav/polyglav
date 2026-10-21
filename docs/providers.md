@@ -78,11 +78,11 @@ The loop runs one SSE stream per turn. Content-only output is a single round tri
 
 ## Session binding
 
-A provider carries a `session_id` bound to the run's own session. The engine sets it when it builds its own provider (the root, or a sub-agent whose type pins a model) and rebinds it whenever `load_or_create_session` switches sessions, so a resumed or focused run reuses the same provider-side session. Shared providers (a sub-agent without its own model reuses the caller's) keep the caller's binding. Vendors that support server-side sessions read the attribute (for example the OpenCode providers send it as `x-opencode-session`), and a provider that mints its own id uses it unless one is passed in.
+A provider carries a `session_id` bound to the run's own session. The engine sets it when it builds its own provider (the root, or a sub-agent whose type pins a model) and rebinds it whenever `load_or_create_session` switches sessions, so a resumed run reuses the same provider-side session. Shared providers (a sub-agent without its own model reuses the caller's) keep the caller's binding. Vendors that support server-side sessions read the attribute (for example the OpenCode providers send it as `x-opencode-session`), and a provider that mints its own id uses it unless one is passed in.
 
 ## Requesting reasoning
 
-The `reasoning` config (default `"auto"`) tells the model reasoning is desired and controls its token budget. It is orthogonal to `show_thinking`, which only controls display. Values: `false`/`"off"` = do not request, `true`/`"on"`/`"auto"` = request with the provider default, `"low"`/`"medium"`/`"high"` = explicit budget hint. The provider maps it to its own parameter:
+The `reasoning` config (default `"auto"`) tells the model reasoning is desired and controls its token budget. It is orthogonal to `verbosity.thinking`, which only controls display. Values: `false`/`"off"` = do not request, `true`/`"on"`/`"auto"` = request with the provider default, `"low"`/`"medium"`/`"high"` = explicit budget hint. The provider maps it to its own parameter:
 
 | Provider | off / false | low / medium / high | on / auto |
 |----------|-------------|----------------------|-----------|

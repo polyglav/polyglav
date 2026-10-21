@@ -1,12 +1,12 @@
 # Changelog
 
-## v0.45.0
+## v0.45.0 - 2026-10-21
 
 - Added a composite session view - `/sessions` lists roots only, `/history --tree` and `/print --tree` render the run tree, and `--tree` exports include sub-runs. Tests: `test_composite_sessions.py`
 - Added a unified call target - `call target=<role|team|sibling>` with `kind` to disambiguate, one `call` permission key resolved per target, and the old `delegate` and `offload` tools kept for one version. Tests: `test_call_target.py`, `test_call.py`
 - Removed caller asks - the `ask` tool now routes to the user (or parks when unattended), and the caller model consultation and `target` parameter are gone. Tests: `test_ask.py`, `test_asks.py`, `test_delegation_permissions.py`, `test_unattended.py`
-- Removed handoff and focus switching - the REPL runs one context at a time, `/runs` is read-only, and `focus_on_delegate`, `prompt_role`, and the `SubRunUI` forwarding are gone. Tests: `test_runs.py`, `test_run_buffer.py`
-- Added a read-only `/runs` tree - run id, role, status, session, and a `log [n]` view of a run buffer, with no focus switch. Tests: `test_runs.py`
+- Removed handoff and focus switching - the REPL runs one context at a time, `/runs` is read-only, and `focus_on_delegate`, `prompt_role`, and the `SubRunUI` forwarding are gone. Tests: `test_runs_command.py`, `test_run_buffer.py`
+- Added a read-only `/runs` tree - run id, role, status, session, and a `log [n]` view of a run buffer, with no focus switch. Tests: `test_runs_command.py`
 - Added pause and resume - `/pause` holds the next turn, `/resume` clears it, and the state prints as `@ Paused #n` and `@ Resumed #n`. Tests: `test_pause.py`
 - Added verbosity rendering tests for thinking, tools, subruns, and footer levels. Tests: `test_verbosity.py`
 - Added the verbosity model - `quiet`, `normal`, and `verbose` presets plus `verbosity.thinking`, `verbosity.tools`, `verbosity.subruns`, and `verbosity.footer`; old display flags migrate on read, errors are always shown, and `/thinking` takes `off`, `summary`, or `full`. Tests: `test_verbosity.py`, `test_ui.py`, `test_engine.py`, `test_commands.py`

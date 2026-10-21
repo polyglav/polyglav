@@ -40,9 +40,8 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 | Key                         | Default                | Description                                                            |
 |-----------------------------|------------------------|------------------------------------------------------------------------|
-| `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
+| `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `offload`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
 | `ask_min_question_chars`    | `8`                    | Minimum length of a `kind='direction'` ask question when it has no `context` and no `options`. A shorter question is rejected with an error so the model asks a self-contained question. `0` disables the guard |
-| `ask_options_inline_chars`  | `60`                   | Render an ask's options inline after the question when the line fits this many characters (`question  (a) opt  (b) opt`). Longer content prints the question first, then one option per line as `1) opt`. The answer accepts a number, a letter, or the option text. `0` always uses the multiline layout |
 | `ask_policy`                | *(see below)*          | Routing for the `ask` tool by kind (`permission`/`direction`)          |
 | `auto_continue`             | `true`                 | On truncation (`finish_reason=length`) with a partial answer, re-request with a "continue" instruction and stitch the parts into one message |
 | `auto_continue_max`         | `2`                    | Max continuation rounds per turn before reporting truncation     |
@@ -51,13 +50,10 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth, so an unattended-but-watched run still cannot freeze on a prompt. See [Unattended mode](#unattended-mode) |
 | `connect_check`             | `true`                 | Test the provider connection on config changes: `/connect` probes before saving (broken values rejected unless confirmed), `/provider` warns on a failed probe. `false` skips all probes |
-| `delegate_echo`             | `true`                 | When a `call`, `delegate`, or `offload` runs, show the sub-agent's final answer and a sub footer (duration + completion tokens) in the REPL. Off hides the result. The footer shows only when on, alongside the sub-agent's own output |
-| `focus_on_delegate`         | `"on"`                 | After a `call` or team `delegate` run, move the REPL focus to the child run just created (for a team, the last stage), so its output is shown automatically. `off` leaves focus alone, `on` focuses automatically, `ask` prompts the user first (skipped under [unattended mode](#unattended-mode)). The root turn still finishes, so its answer is not lost. REPL-only |
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
-| `glyph_lines`               | `true`                 | Typed `<glyph> <verb> <arg>` status lines for mapped categories. Off or unmapped categories fall back to the `[tool: arg]` oneliner |
-| `glyph_params`              | `true`                 | Append tool call parameters to glyph status lines and confirm prompts (e.g. `← Read engine.py [offset=299, limit=85]`). Off for bare `<glyph> <verb> <arg>` |
+| `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `offload`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |
 | `grant_permission`          | `{}`                   | Optional narrowing of the mode-derived delegation ceiling. In `write` mode the mode itself grants write keys, in `read` mode grants are denied, and this key can only narrow the result (for example `{"bash": "ask"}`). See [Permission authority](#permission-authority) |
-| `hide_confirm_input`        | `false`                | Hide the typed input for the REPL `[Y/n]` tool confirm prompt (the answer is not echoed). Free-text `ask` answers stay visible |
+| `hide_confirm_input`        | `true`                 | Hide the typed input for the REPL `[Y/n]` tool confirm prompt (the answer is not echoed). Free-text `ask` answers stay visible |
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
 | `max_team_depth`            | `2`                    | Maximum nested team runs (a `delegate` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
@@ -76,25 +72,17 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
-| `prompt_role`               | `true`                 | Prefix the REPL prompt with the active role when focus is not the root (e.g. `writer >>>`), lower-cased, in the default text color, so the stage is visible. `false` keeps the plain `>>>` in the mode color. The root `>>>` shows the mode color (cyan read, orange write) on both GNU readline and macOS/libedit |
 | `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
 | `query_refine`              | `false`                | Auto-refine short web-search queries via a lightweight model call      |
 | `query_refine_context`      | `4`                    | Recent-message context to inject into refinement                       |
 | `query_refine_min_words`    | `3`                    | Minimum query length before refinement applies                         |
 | `reasoning`                 | `"auto"`               | Request reasoning and control its token budget: `false`/`"off"` = none, `true`/`"on"`/`"auto"` = provider default, `"low"`/`"medium"`/`"high"` = explicit budget hint. Mapping is provider-specific (OpenAI `reasoning_effort`, Claude `thinking.budget_tokens`, Qwen `enable_thinking`) |
 | `report.webhook`            | `""`                   | URL the bundled `polyglav-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
-| `run_buffer_max_lines`      | `2000`                 | Cap lines kept in a run's per-run output buffer (`BufferUI`). Oldest lines are trimmed past the cap. `0` = unlimited. Read back with `/focus log` |
+| `run_buffer_max_lines`      | `2000`                 | Cap lines kept in a run's per-run output buffer (`BufferUI`). Oldest lines are trimmed past the cap. `0` = unlimited. Read back with `/runs log` |
 | `search_results`            | `5`                    | Number of search results to fetch                                      |
-| `show_context_size`         | `true`                 | Dimmed context-size line after each response                           |
-| `show_errors`               | `true`                 | Show a red `! Error: ...` line (first line of the result) when a tool call fails. Off hides the line |
-| `show_notes`                | `true`                 | Show a dimmed info line for soft tool results (e.g. `(empty file)`, `(no matches for "x")`). Off hides the line |
-| `show_thinking`             | `false`                | Stream reasoning tokens dimmed under a blue `- Thinking` header. When off, thinking shows as an animated spinner plus a `+ Thought N.Ns` summary (display only - what is sent to the model is unchanged) |
-| `show_thought_duration`     | `true`                 | When thinking is streamed (`show_thinking` on), print a dimmed `(Thought N.Ns)` line after each thinking block. Off hides it |
 | `show_version`              | `true`                 | Show the version in the REPL banner                                    |
-| `status_spinner`            | `true`                 | Show an animated Braille status line while a delegated agent or team stage runs. The REPL is blocked, so the spinner runs on its own thread. The spinner always yields while a confirm or `ask` prompt waits for input, so the prompt is never overwritten, and each stage prints a dim `↔ Switch <run>` marker. Off hides the animation. Headless and Null sinks ignore it |
 | `stream_retries`            | `2`                    | Extra attempts (after the first) when a provider stream ends before a completion event without content |
 | `stream_retry_delay`        | `0.5`                  | Seconds to wait between stream retries                                  |
-| `subrun_verbosity`          | `"quiet"`              | How much of a delegated sub-run reaches the terminal while the caller waits. `quiet` buffers the whole run (read it with `/focus log`), `summary` forwards only the sub-run's write and edit activity lines, `full` forwards every activity line. The run's own `✓ <stage> (Ns, N tokens)` line always prints on completion |
 | `system_prompt`             | `""`                   | The root instruction, injected for every front-end (REPL, `run`, `serve`) and composed with the active mode. Onboarding sets it later, and empty means no root persona |
 | `temperature`               | `0.7`                  | Sampling temperature                                                   |
 | `tool_analysis`             | `false`                | Model-generated one-line analysis of each tool result (log-only)      |
@@ -109,6 +97,11 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tools_output_spill`        | `false`                | Write the full dropped or capped tool output to `.polyglav/tmp/<session>/<turn>_<part>.txt` and record the `ref` in the `dropped` marker, so the content is recallable without re-calling the tool |
 | `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of `.polyglav/tmp/` spilled tool output. Oldest files are removed past the cap. `0` = unlimited |
 | `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
+| `verbosity`                 | `"normal"`             | Display volume: `quiet`, `normal`, or `verbose`                         |
+| `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
+| `verbosity.subruns`         | `"inherit"`            | Sub-run detail: `off`, `summary`, `full`, or `inherit`                  |
+| `verbosity.thinking`        | `"inherit"`            | Thinking detail: `off`, `summary`, `full`, or `inherit`                 |
+| `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
 | `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 
@@ -127,7 +120,7 @@ There are two modes: `read` (default) and `write`. `read` allows only read-class
     "write": { "system_prompt": "", "color": "orange" }
   },
   "access": {
-    "read_tools": ["read", "list", "web", "catalog", "ask", "handoff", "offload"]
+    "read_tools": ["read", "list", "web", "catalog", "ask", "offload"]
   }
 }
 ```
@@ -145,7 +138,6 @@ Access is classified by permission key. Any key not in `access.read_tools` is wr
   "catalog": "allow",
   "delegate": "allow",
   "edit": "allow",
-  "handoff": "allow",
   "list": "allow",
   "mcp": "ask",
   "offload": "allow",
@@ -155,7 +147,7 @@ Access is classified by permission key. Any key not in `access.read_tools` is wr
 }
 ```
 
-Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `call` category gates the `call` tool. On top of the category action, a call resolves its permission from the target role: a configured role uses its own `tool_permission` overrides (category `call` defaulting to `allow`), while a role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `delegate` category gates the team pipeline tool (default `allow`), separate from `call` so a role can be a call target yet be barred from running pipelines. The `offload` category gates the `offload` tool (default `allow`, read-class). The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the user or the caller agent, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `handoff` category gates the `handoff` tool (default `allow`). It only moves the REPL's focus between runs (see [tools.md](tools.md#handing-off-control)). The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
+Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `call` category gates the `call` tool. On top of the category action, a call resolves its permission from the target: a role uses its own `tool_permission.call`, a team uses its stage roles' `call` actions, and a sibling is read-only. A role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `delegate` and `offload` compatibility tools keep their own categories (`delegate` for a team pipeline, `offload` for a read-class sibling) for one version. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the user, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
 
 ### `ask_policy`
 
@@ -170,8 +162,10 @@ Routes the `ask` tool by kind:
 }
 ```
 
-- `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). An explicit `target` on the ask overrides the route (`user` forces the user, `caller` forces the caller), and when the route resolves to a caller but there is none, the root falls back to the terminal user. In `read` mode a request for a write key or for a category with declared write actions (for example `catalog save`) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` has the caller decide and grants one use, `user` routes to the user, `deny` disables grants. A request above the mode-derived ceiling is always denied. When the ceiling itself is `ask` for that category, the request is routed to the user, because the caller may not grant above a user-gated category. The user may grant `always` (reusable for the rest of that sub-agent's run), the caller only ever grants `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
-- `direction` - a decision or scope change. `user` routes to the user, `caller` (and `auto`) routes to the caller, and `""` (the default) is automatic: a delegated run routes to its caller so it stays automated, while the root, which has no caller, routes to the user. An explicit `target` on the ask always overrides this.
+`permission` is `auto` (ask the user) or `deny` (disable permission asks). `direction` always asks the user; `caller` and `auto` are accepted as `user` for one version. A sub-agent inherits the root `ReplUI` as `_ask_ui`, so its asks reach the terminal; under unattended mode they park instead.
+
+- `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). The user answers at the terminal. In `read` mode a request for a write key or for a category with declared write actions (for example `catalog save`) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` prompts the user, `deny` disables grants. A request above the mode-derived ceiling is always denied. The user may grant `always` (reusable for the rest of that sub-agent's run) or `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
+- `direction` - a decision or scope change. It always asks the user; `caller` and `auto` are accepted as `user` for one version. An explicit `target` is no longer part of the schema.
 
 ### Permission authority
 
@@ -180,7 +174,7 @@ Every engine has two permission axes:
 - `tool_permission` - what the engine itself may use.
 - `grant_permission` - the ceiling on what it may hand down to sub-agents.
 
-Both take permission keys, not tool categories: `bash`, `edit`, `read`, `list`, `web`, `catalog`, `ask`, `handoff`, `offload`, `call`, `delegate`, `mcp`, `vcs`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), rejects an unknown key with the valid list, and accepts an action of `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`).
+Both take permission keys, not tool categories: `bash`, `edit`, `read`, `list`, `web`, `catalog`, `ask`, `offload`, `call`, `delegate`, `mcp`, `vcs`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), rejects an unknown key with the valid list, and accepts an action of `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`).
 
 A sub-agent's effective permissions are the parent's `tool_permission`, narrowed by the role's `tool_permission` carve and capped by the mode-derived ceiling. The mode sets that ceiling: `write` makes write keys grantable, `read` denies them, and `grant_permission` (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.
 
@@ -193,7 +187,7 @@ An approved permission request creates a one-shot grant on the asking sub-agent 
 `unattended: true` guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:
 
 - **Confirms auto-deny.** A tool whose policy action is `ask` (e.g. `run_command` with `bash: ask`) returns `[cancelled] User declined the <name> call` instead of prompting.
-- **`ask target='user'` parks instead of prompting.** The root engine drops its terminal UI (`_ask_ui` is not propagated down the tree), and any user-routed ask becomes a pending request persisted in `.polyglav/asks.json`, returned to the agent as `[parked] Ask #<id> ...` so it continues or finishes. A sub-agent's user ask parks rather than falling back to its caller, so the user decides. Permission asks routed `user` park the same way. Routed `auto` still go to the caller (a one-shot grant).
+- **`ask target='user'` parks instead of prompting.** The root engine drops its terminal UI (`_ask_ui` is not propagated down the tree), and any user-routed ask becomes a pending request persisted in `.polyglav/asks.json`, returned to the agent as `[parked] Ask #<id> ...` so it continues or finishes. A sub-agent's user ask parks rather than consulting a caller, so the user decides. Permission asks park the same way.
 - **Model approval is not prompted.** An unapproved role/team model is denied (the run reports the error) unless the headless `approve_models` flag was passed. Launch with `--approve-model` if the run needs to approve one itself.
 
 Enable it per run with `polyglav --unattended` (not persisted), in config with `unattended: true`, or live with `/unattended`. Parked asks are listed and answered with `/asks` or the serve API (`GET /asks`, `POST /asks/<id>/answer`). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the user's decision in context. Scheduled/durable job engines run unattended, so a job parks its user asks the same way. `confirm_timeout` (seconds, default `0` = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.

@@ -9,22 +9,6 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Design approval
-
-The target REPL look is approved from annotated transcripts before any application change. The files stay in the git-ignored `.polyglav/` directory.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Annotated mocks - `repl0.md` and `repl2-7.md` under `.polyglav/`, with the palette and glyph legend | S | a reviewable target |
-
-## Unified call target
-
-Delegation speaks one verb. `call <target>` names a role, a team, or a role-less sibling, and the target carries the behavior.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Docs and prompts - update the tool, swarm, role, and team references | S-M | one vocabulary |
-
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

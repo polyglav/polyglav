@@ -17,14 +17,14 @@ Tools are classed by permission key, not by tool name. Config `access.read_tools
 ```json
 {
   "access": {
-    "read_tools": ["read", "list", "web", "catalog", "ask", "handoff", "offload"]
+    "read_tools": ["read", "list", "web", "catalog", "ask", "offload"]
   }
 }
 ```
 
 Any key not listed is write-class, and an unknown key (for example a permission a new plugin introduces) defaults to write. This is fail-closed: a plugin cannot make a write tool readable by accident, the user has to add its key to `read_tools`.
 
-Default write keys include `edit`, `bash`, `vcs`, `mcp`, `call`, and `delegate`. Mixed tools gate per action: `catalog` allows `list`/`show` in read mode and denies `save`/`remove`/`reload`, `git` is read while `git_commit` is write (`vcs`), and the MCP management tools allow `mcp_list` in read mode while `mcp_connect`/`mcp_disconnect` and the imported remote tools are write (`mcp`).
+Default write keys include `edit`, `bash`, `vcs`, `mcp`, `call`, and `delegate`. The `call` tool resolves a role or team per target; a sibling target is read-only. Mixed tools gate per action: `catalog` allows `list`/`show` in read mode and denies `save`/`remove`/`reload`, `git` is read while `git_commit` is write (`vcs`), and the MCP management tools allow `mcp_list` in read mode while `mcp_connect`/`mcp_disconnect` and the imported remote tools are write (`mcp`).
 
 ## The mode cap
 

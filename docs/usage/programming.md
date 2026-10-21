@@ -279,7 +279,7 @@ Then either `/tool` runs a sub-agent, or the lead model proposes it as any other
 /tool delegate {"type": "programmer", "task": "Implement the task against the plan, run the tests and report changed files."}
 ```
 
-The result is the sub-agent's final answer, printed in the REPL (`delegate_echo`, default on) and fed back to the caller model. Every delegation writes its own complete `sub_<ts>_<id>` session log under the lead's `.polyglav/sessions/`, linked to the caller session via `sub_sessions`/`parent_id`, so the audit trail is per sub-agent. If the sub-agent finishes without prose, the delegate result summarizes its activity (files written, test runs) from that log instead of reporting empty.
+The result is the sub-agent's final answer, printed in the REPL (`verbosity.subruns` at `summary` or `full`) and fed back to the caller model. Every call writes its own complete `sub_<ts>_<id>` session log under the lead's `.polyglav/sessions/`, linked to the caller session via `sub_sessions`/`parent_id`, so the audit trail is per sub-agent. If the sub-agent finishes without prose, the call result summarizes its activity (files written, test runs) from that log instead of reporting empty.
 
 The trust trade-off is the deciding factor between the two paths:
 

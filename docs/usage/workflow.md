@@ -9,7 +9,7 @@ A larger task moves through the same steps every time:
 1. **Ask** - the user tells the `assistant` what they want, in a sentence. Small tasks are answered inline. Bigger ones move on.
 2. **Compose** - the `composer` role designs a team for the task: which specialists, which skills each one needs, the order of stages, and whether a review loop should run. The team is saved to the catalog and can be reused.
 3. **Run** - the team runs stage by stage. Each stage is its own sub-agent with its own role, skills, and permission carve, and it writes its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.
-4. **Hand off** - as the work changes shape, control moves between runs. One agent finishes and hands focus to the next, which continues with its own session intact.
+4. **Continue** - as the work changes shape, the next call continues from the previous result. One agent finishes and the assistant calls the next, which continues with its own session intact.
 5. **Watch or stay out** - the user can follow along, jump into any run, or leave it running in the background.
 6. **Remember** - after the run, the team and its members refresh their memory, so the next run continues from the change instead of replaying a whole transcript.
 7. **Report** - a summary surfaces when the run finishes or fails, and recurring work reports out of band.
@@ -22,11 +22,11 @@ A writing or research goal often needs two cooperating teams. A lead team keeps 
 
 The lead team leads and the support team serves. Each stage is a role with its own prompt and permissions, and each writer can carry more than one skill, so the same writer drafts an expose and later the full work by switching skills per task.
 
-### Focus and handoff
+### Sequential calls and the run tree
 
-Agents hand control to one another as the work moves through phases. The assistant does not have the permissions to build a team itself, so it hands focus to the composer. The composer builds the team, starts it, and finishes. A planning agent picks up, creates the task list, and starts a developer. The developer works, and when it reports a task done, the planner can hand it another one, because the developer still has its session and remembers what it just did.
+Agents continue one another as the work moves through phases. The assistant does not have the permissions to build a team itself, so it calls the composer. The composer builds the team, starts it, and finishes. A planning agent picks up, creates the task list, and calls a developer. The developer works, and when it reports a task done, the planner can call it again with another one, because the developer still has its session and remembers what it just did.
 
-The user can watch this flow, stay out of it, or jump in with `/focus`, which shows the run tree and lets them attach to any run. Handoff moves focus and stops the current run, and never disturbs the target's session.
+The user can watch this flow, stay out of it, or inspect it with `/runs`, which shows the run tree read-only and prints a run buffer. `/pause` holds the next turn and `/resume` clears it; control never jumps into a live run and the target's session is never disturbed.
 
 ### Scheduled maintainer
 

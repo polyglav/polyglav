@@ -10,13 +10,13 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 
 | Tool | Plugin | Category | Permission | Purpose |
 |------|--------|----------|------------|---------|
-| `ask` | core | `ask` | `ask` | Ask the user or the caller agent for a decision, pausing until answered |
-| `call` | core | `call` | `call` | Run a task under a named role as a sub-agent |
+| `ask` | core | `ask` | `ask` | Ask the user for a decision, pausing until answered |
+| `call` | core | `call` | `call` | Call a role, a team, or a role-less sibling (`target`, `kind`) |
 | `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/validate/remove, plus reload |
 | `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
 | `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
-| `delegate` | core | `delegate` | `delegate` | Run a named team (an ordered chain of role stages) and return the final stage's answer |
+| `delegate` | core | `delegate` | `delegate` | Compatibility shim for a named team; prefer `call target=<team> kind=team` |
 | `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
 | `file_read` | polyglav-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
 | `file_write` | polyglav-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |
@@ -24,32 +24,26 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `git_commit` | polyglav-core-git | `write` | `vcs` | Stage/commit git changes, confirm-gated unless the `vcs` carve is `allow` (`all=true` always asks). Alias `commit` |
 | `glob` | polyglav-core-fs | `search` | `read` | Recursive pattern lookup |
 | `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
-| `handoff` | core | `handoff` | `handoff` | Pause or finish this run and hand control to a parent/sibling/child/root/run id |
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
-| `offload` | core | `offload` | `offload` | Hand a self-contained sub-task to an anonymous read-only sibling |
+| `offload` | core | `offload` | `offload` | Compatibility shim for a read-class sibling; prefer `call target=sibling` |
 | `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
 Plugins register additional tools the same way and automatically inherit tool policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. See [plugins.md](plugins.md).
 
-## Asking the user or the caller
+## Asking the user
 
-The `ask` tool (core, like `call`) pauses the run and routes a decision or permission request to an answerer, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: `question` (required), `context`, `options` (suggested answers), `target`, `kind` (`permission`/`direction`, default `direction`), and `permission` (the tool or category for a permission request):
+The `ask` tool (core, like `call`) pauses the run and routes a decision or permission request to the user, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: `question` (required), `context`, `options` (suggested answers), `kind` (`permission`/`direction`, default `direction`), and `permission` (the tool or category for a permission request):
 
-- `target='user'` - the user answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its `sub_<...>` session name so the user knows who is asking (delegation and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues. When `target` is omitted, `ask_policy` decides the route. A delegated run defaults to its caller, so a running team stays automated and only reaches you when a role sets `ask_policy.direction='user'` or the ask passes `target='user'`. The root falls back to the terminal user when there is no caller to consult.
-- `target='caller'` - the role or engine that delegated this run decides. The caller answers through a lightweight non-streaming consultation (a bounded prompt with the question, context, options, and the sub-agent's delegated task), not a full parent turn. A root engine has no caller, so `target='caller'` falls back to `user`, and `user` falls back to `caller` when no terminal is reachable.
-- `kind='permission'` - a request for a tool or category the sub-agent is not allowed to use. Naming a category (`edit`, `bash`, `read`) grants the whole category, so every tool in it is covered, while naming a specific tool (`file_write`) grants only that tool. Routing follows `ask_policy.permission` (`auto` = the caller decides and grants one use, `user` = the user, `deny` = disabled), capped by the caller's `grant_permission` ceiling. An approval creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may answer `always` to make it reusable for the rest of that sub-agent's run. The caller only ever grants `once`. See [config.md](config.md#permission-authority).
+- The user answers at the terminal. The root loop prompts directly. A sub-agent's ask is prefixed with its `sub_<...>` session name so the user knows who is asking (calls and team stages run synchronously in-process, so the terminal is free while a sub-agent runs). The answer feeds back into the asking agent's context and the run continues.
+- `kind='permission'` - a request for a tool or category the run is not allowed to use. Naming a category (`edit`, `bash`, `read`) grants the whole category, so every tool in it is covered, while naming a specific tool (`file_write`) grants only that tool. `ask_policy.permission` may be `auto` (prompt the user) or `deny` (disabled), capped by the mode-derived `grant_permission` ceiling. An approval creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may answer `always` to make it reusable for the rest of that sub-agent's run. See [config.md](config.md#permission-authority).
 - A `kind='direction'` ask must be self-contained. A question shorter than `ask_min_question_chars` with no `context` and no `options` is rejected with an error, so a placeholder such as `probe` cannot reach a person. `0` disables the guard.
-- Options render inline after the question when the line fits `ask_options_inline_chars` (for example `which?  (a) a  (b) b`), otherwise the question prints first and each option follows on its own line as `1) opt`. The answer accepts a number, a letter (`a`, `b`), or the option text, and any other input is a free-text answer. Only `? Answer: ` is the input prompt, so the question and options stay in the transcript.
-- The ask prints as its own block: the origin header for a sub-agent ask, the question on a fresh line, then the context, then the options, then `? Answer: `. The question is plain text, the context and options are dim, and the spinner stops before the block so the question is never appended to a status line.
-- When no one can answer (headless `run`/`serve`/jobs: no terminal and no caller at the root), `ask` returns an `Error: ask has no one to answer ...` result and the run continues autonomously. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see [jobs.md](jobs.md)).
+- Options render as a numbered block (`  1) opt`), and the answer prompt is `> ` at column 0 in the mode color. The answer accepts a number, a letter (`a`, `b`), or the option text, and any other input is a free-text answer.
+- The ask prints as its own block: the origin header for a sub-agent ask, the gray question, then the context, then the numbered options, then the `> ` prompt. The spinner stops before the block so the question is never appended to a status line.
+- When no one can answer (headless `run`/`serve`/jobs with no terminal), `ask` returns an `Error: ask has no one to answer ...` result and the run continues autonomously, or parks under unattended mode. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see [jobs.md](jobs.md)).
 
 The ask is not additionally gated: `tool_permission.ask` defaults to `allow`, since the question and answer are the point. Users can block it with `tools.deny: ["ask"]`. The question (tool arguments) and answer (tool result) persist in the asking session's log, and the call is recorded in the session `permissions` audit array like any tool call. A permission grant adds `scope` and `granted_by` fields to that audit entry.
-
-## Handing off control
-
-The `handoff` tool (core) pauses or finishes the current run and hands control to another run, with the user's focus following the target. Schema: `target` (required) and `done` (default false). Targets resolve against the run registry: `parent`, `child`, `sibling`, `root`, a run id (`3` or `#3`), a session id (`#ab12cd`), or a session name. The tool marks the current run `done` (when `done=true`) or `paused`, then records a pending handoff on the focus root. The turn ends immediately, because the loop does not stream another round after the tool batch, and `ChatLoop` applies the pending handoff once the turn returns, focusing the target run (a root-run target resets to the assistant). It is REPL-only: a delegated sub-agent has no focus manager and gets an `Error: handoff is only available in the REPL focus session ...` result. Gated by `tool_permission.handoff` (default `allow`).
 
 ## The tool loop
 
@@ -72,8 +66,8 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | Key | Description |
 |-----|-------------|
 | `refine` | Auto-refine short `query` args via a lightweight model call, gated by `query_refine` |
-| `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `handoff` / `mcp` / `offload` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
-| `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `handoff` / `list` / `mcp` / `offload` / `read` / `vcs` / `web` |
+| `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `mcp` / `offload` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
+| `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `list` / `mcp` / `offload` / `read` / `vcs` / `web` |
 | `permission_fn` | Optional `Callable[[dict], str]` resolving the action (`allow`/`ask`/`deny`) from the current arguments - refines a non-`deny` base action at call time, or returns `None` to defer to the category action (see `call`, `git_commit`) |
 | `write_actions` | Optional list of argument-level actions that count as write-class even under a read-class `permission` key (for example the `catalog` tool's `save`/`remove`/`reload`), so a read-mode permission ask is redirected to a mode switch |
 | `path_arg` | Which parameter is a filesystem path, for worktree scope checks |
@@ -157,7 +151,7 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 
 | Key | Default | Controls |
 |-----|---------|----------|
-| `glyph_lines` | `true` | Typed activity lines for mapped categories, else the `[tool: arg]` oneliner |
+| `glyphs` | `{}` | Glyph overrides by meaning, or `"ascii"` for the ASCII preset |
 | `list_dir_max_entries` | `200` | Cap the number of entries `list_dir` returns (`0` = unlimited) |
 | `project_instructions` | `"AGENTS.md"` | Per-worktree instructions file auto-loaded into the system prompt, `""` disables |
 | `query_refine` | `false` | Auto-refine short `query` args via a lightweight model call |
@@ -174,6 +168,7 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 | `tools.deny` | `[]` | Name-level deny list (takes precedence over allow) |
 | `tools_output_drop` | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions |
 | `tools_output_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
+| `verbosity.tools` | `"inherit"` | `off` hides tool lines, `summary` shows the one-line summary, `full` shows params and the result body |
 
 Handlers read config at runtime via the `_config` keyword argument, passed only when declared.
 
@@ -181,10 +176,10 @@ See [config.md](config.md) for the `tools.allow`, `tools.deny`, and `tool_permis
 
 ## Status and activity lines
 
-Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `glyph_lines` (default `true`). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `~` Ask, todo `-` Todo, call `↳` Call, delegate `↳` Delegate, offload `↳` Offload. Unmapped categories fall back to the `[tool: key_arg]` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`.
+Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `verbosity.tools` (`off` hides it, `summary` and `full` show it). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `?` Ask, todo `-` Todo, call `↳` Call, delegate `↳` Delegate, offload `↳` Offload, catalog `+` Catalog. Unmapped categories fall back to the `* <name> <value>` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`. MCP and Git use `*`.
 
-When `glyph_params` is on (default `true`), the parameters the model passed (excluding the one already shown in the label) are appended: `← Read engine.py [offset=299, limit=85]`, `$ Run pytest [cwd=/workspace, timeout=600]`. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving.
+At `verbosity.tools = full`, the parameters the model passed (excluding the one already shown in the label) are appended: `← Read engine.py [offset=299, limit=85]`, `$ Run pytest [cwd=/workspace, timeout=600]`. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving. At `summary`, only the one-line summary shows.
 
-When a tool call fails, the first line of its `Error:` result is echoed as a dimmed `! Error: ...` line under the activity line (gated by `show_errors`, default `true`). This applies to every tool through the shared dispatch point: the agent loop, `/tool`, and policy-denied calls alike.
+When a tool call fails, the first line of its `Error:` result is echoed as a red `✗ ...` line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop, `/tool`, and policy-denied calls alike.
 
-Soft tool results (short one-line informational notes a tool returns instead of content, like `(empty file)`, `(empty directory)`, `(no matches for "x")`, `(end of content)`, or `No search results found.`) surface as a dimmed info line under the activity line (gated by `show_notes`, default `true`). A tool opts in by declaring a `note` predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.
+Soft tool results (short one-line informational notes a tool returns instead of content, like `(empty file)`, `(empty directory)`, `(no matches for "x")`, `(end of content)`, or `No search results found.`) surface as a dimmed info line under the activity line at `summary`/`full`; `verbosity.tools = off` hides them. A tool opts in by declaring a `note` predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.

@@ -3,15 +3,13 @@ import sys
 WELCOME = 'Welcome to Polyglav. A few questions to set up this project.'
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
-PROMPT_FOLLOW = 'Follow delegated runs automatically? [Y/n] '
-PROMPT_LABEL = 'Show the active role in the prompt? [Y/n] '
 PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
 
 DEFAULT_PERSONA = ("You are the assistant for this project and the "
                    "user's single point of contact.")
 OPERATING = ('Delegate work bigger than one step: create the roles, teams, and '
-             'skills you need with the catalog tool, hand the task off, and '
-             'report back. Before composing a team, confirm the design with the '
+             'skills you need with the catalog tool, call the next role or team, '
+             'and report back. Before composing a team, confirm the design with the '
              'user: the deliverable, whether the manager is a sequential stage '
              'or a hierarchical orchestrator that calls roles, and the per-role '
              'permissions. Keep answers short.')
@@ -69,16 +67,9 @@ def run(chat, force: bool = False, ask=input) -> bool:
     _info(chat, WELCOME)
     purpose = _ask(ask, PROMPT_PURPOSE)
     persona = _ask(ask, PROMPT_PERSONA)
-    follow = _ask(ask, PROMPT_FOLLOW, 'y')
-    label = _ask(ask, PROMPT_LABEL, 'y')
     output = _ask(ask, PROMPT_OUTPUT, 'n')
     config = chat.config
     config.set('system_prompt', compose_prompt(purpose, persona), scope='local')
-    config.set('focus_on_delegate',
-               'off' if str(follow).strip().lower().startswith('n') else 'on',
-               scope='local')
-    config.set('prompt_role',
-               str(label).strip().lower().startswith('y'), scope='local')
     config.set('output_log',
                str(output).strip().lower().startswith('y'), scope='local')
     _info(chat, f'Saved project setup to {config.local_path}')
@@ -95,4 +86,4 @@ def register_commands(registry) -> None:
 
     registry.register(
         'onboard', handler=onboard_cmd,
-        description='Set up this project (purpose, assistant, focus, prompt, output log)')
+        description='Set up this project (purpose, assistant, output log)')

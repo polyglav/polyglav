@@ -1,7 +1,6 @@
 # TODO
 
 - First-run onboarding - the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users
-  - Also ask whether the prompt names the active role (`prompt_role`), off by default
 - One-window status - `/status` shows sessions, running agents, and configured jobs on the current machine, with logs reachable from the same place (the journalctl-style alternative)
 - Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding
 - Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)
@@ -55,12 +54,6 @@
 
 ## Open
 
-- [ ] Unified call target - collapse `call`, `delegate`, and `offload` into one `call <target>` tool, where the target is a role, a team, or a role-less sibling:
-  - [x] Schema - one `call` tool with a `target` parameter and a read-only distinction for the sibling
-  - [x] Permissions - one `call` permission key, resolved per target from the role or team entry
-  - [x] Compatibility - keep the old names as aliases for one version
-  - [ ] Docs and prompts - update `docs/tools.md`, `docs/swarm.md`, `docs/roles.md`, and the role and team prompts
-- [ ] Design mock transcripts - keep annotated `repl*.md` mocks under the git-ignored `.polyglav/` directory to approve the vocabulary before code
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
@@ -157,6 +150,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added the unified call target
+- [x] Added the REPL design mocks
 - [x] Added the composite session view
 - [x] Added a unified call target for roles, teams, and siblings
 - [x] Added call permissions resolved per target
@@ -187,7 +182,7 @@
 - [x] Added the header, once-only help hint, and gray mode and model line
 - [x] Changed mode lines to gray and kept the prompt in the mode color
 - [x] Changed prompts to cyan read, orange write, and magenta commands, with submitted-line reprint
-- [x] Added palette constants for cyan read, orange write, magenta commands, green bash, and gray info
+- [x] Added palette constants for cyan read, orange write, magenta commands, green bash, gray info
 - [x] Updated commit guidelines for version bumps and normal case
 - [x] Added model removal
 - [x] Marked unusable models
