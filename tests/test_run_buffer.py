@@ -82,7 +82,7 @@ class TestBufferUI(unittest.TestCase):
         self.assertIsNone(self.ui.ask('which one?'))
 
 
-class TestFocusLogCommand(unittest.TestCase):
+class TestRunsLogCommand(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
@@ -90,30 +90,30 @@ class TestFocusLogCommand(unittest.TestCase):
     def tearDown(self):
         self.chat._tmp.cleanup()
 
-    def test_focus_log_prints_buffer(self):
+    def test_runs_log_prints_buffer(self):
         self.chat.current_run.append_buffer('first')
         self.chat.current_run.append_buffer('second')
         out = io.StringIO()
         with redirect_stdout(out):
-            self.chat.registry.dispatch('/focus log')
+            self.chat.registry.dispatch('/runs log')
         text = out.getvalue()
         self.assertIn('Run #1', text)
         self.assertIn('first', text)
         self.assertIn('second', text)
 
-    def test_focus_log_tail_limit(self):
+    def test_runs_log_tail_limit(self):
         for i in range(5):
             self.chat.current_run.append_buffer(str(i))
         out = io.StringIO()
         with redirect_stdout(out):
-            self.chat.registry.dispatch('/focus log 2')
+            self.chat.registry.dispatch('/runs log 2')
         lines = out.getvalue().splitlines()
         self.assertEqual(lines[-2:], ['3', '4'])
 
-    def test_focus_log_empty(self):
+    def test_runs_log_empty(self):
         out = io.StringIO()
         with redirect_stdout(out):
-            self.chat.registry.dispatch('/focus log')
+            self.chat.registry.dispatch('/runs log')
         self.assertIn('no buffered output', out.getvalue())
 
 

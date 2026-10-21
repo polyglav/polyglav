@@ -61,19 +61,7 @@ def _active_model(chat, entry):
             and entry.model == chat.config.get('model'))
 
 
-def _focus_manager(chat):
-    return getattr(chat, '_focus', None) or getattr(chat, 'focus', None)
-
-
-def _focus_label(engine):
-    run = getattr(engine, 'current_run', None)
-    prefix = f'#{run.id} ' if run is not None else ''
-    role = engine.role or 'root'
-    session_id = f' [{run.session_id}]' if run is not None and run.session_id else ''
-    return f'{prefix}{role} ({engine.current_session.session_name}{session_id})'
-
-
-def _focus_run_line(run, current_id, indent=0, switch=True):
+def _run_line(run, current_id, indent=0, switch=False):
     mark = '*' if run.id == current_id else ' '
     role = run.role or 'root'
     task = (run.task or '').strip().splitlines()
@@ -83,120 +71,21 @@ def _focus_run_line(run, current_id, indent=0, switch=True):
         line += f' {run.session_id}'
     if head:
         line += f'  {head}'
-    if switch and run.id != current_id:
-        line += f'  ↔ Switch to {role}'
     return line
 
 
-def _focus_tree(runs, run, current_id, indent=0, switch=True):
-    print(_focus_run_line(run, current_id, indent, switch))
+def _run_tree(runs, run, current_id, indent=0):
+    print(_run_line(run, current_id, indent))
     for child in runs.children(run.id):
-        _focus_tree(runs, child, current_id, indent + 1, switch)
-
-
-def _focus_index(arg):
-    parts = arg.split()
-    if len(parts) > 1 and parts[1].isdigit():
-        return int(parts[1])
-    return 1
-
-
-def _focus_target(focus, runs, arg):
-    current = getattr(focus.active, 'current_run', None)
-    low = arg.lower()
-    if low == 'back':
-        return 'back', None
-    if low == 'parent':
-        if current is None or current.parent is None:
-            return None, None
-        return 'run', runs.get(current.parent)
-    if low == 'child' or low.startswith('child '):
-        if current is None:
-            return None, None
-        kids = runs.children(current.id)
-        n = _focus_index(arg)
-        return ('run', kids[n - 1]) if 1 <= n <= len(kids) else (None, None)
-    if low == 'sibling' or low.startswith('sibling '):
-        if current is None or current.parent is None:
-            return None, None
-        sibs = [r for r in runs.children(current.parent) if r.id != current.id]
-        n = _focus_index(arg)
-        return ('run', sibs[n - 1]) if 1 <= n <= len(sibs) else (None, None)
-    if low in ('next', 'prev'):
-        ordered = runs.runs()
-        if current is None or current not in ordered:
-            return None, None
-        i = ordered.index(current) + (1 if low == 'next' else -1)
-        return ('run', ordered[i]) if 0 <= i < len(ordered) else (None, None)
-    if low == 'root':
-        return 'run', focus.root.current_run
-    explicit = arg.startswith('#')
-    token = arg[1:] if explicit else arg
-    if token.isdigit():
-        run = runs.get(int(token))
-        if run is not None:
-            return 'run', run
-        if not explicit:
-            return None, None
-    if explicit:
-        return 'run', runs.find_by_session_id(token)
-    if low.startswith('run:'):
-        token = arg.split(':', 1)[1].strip()
-        if token.isdigit():
-            return 'run', runs.get(int(token))
-        return 'run', runs.find_by_session_id(token)
-    if low.startswith('session:'):
-        name = arg.split(':', 1)[1].strip()
-        found = next((r for r in runs.runs() if r.session == name), None)
-        if found is not None:
-            return 'run', found
-        return 'session', name
-    found = next((r for r in runs.runs() if r.session == arg), None)
-    if found is not None:
-        return 'run', found
-    return None, None
-
-
-def _focus_show(focus, runs):
-    engine = focus.active
-    current = getattr(engine, 'current_run', None)
-    current_id = current.id if current is not None else -1
-    print(f'Focused: {_focus_label(engine)}')
-    print('Runs:')
-    for run in runs.runs():
-        if run.parent is None:
-            _focus_tree(runs, run, current_id)
-    print('Log:')
-    for run in runs.runs():
-        print('  ' + _focus_run_line(run, current_id))
-
-
-def _focus_log(focus, parts):
-    run = getattr(focus.active, 'current_run', None)
-    if run is None:
-        print('No focused run')
-        return
-    n = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
-    lines = run.buffer_text().splitlines()
-    if n and len(lines) > n:
-        lines = lines[-n:]
-    if not lines:
-        print(f'Run #{run.id} has no buffered output')
-        return
-    header = f'Run #{run.id} {run.role or "root"} [{run.status}] ({run.session})'
-    print(header)
-    for line in lines:
-        print(line)
+        _run_tree(runs, child, current_id, indent + 1)
 
 
 def _live_session_for_run(chat, run_id):
-    focus = _focus_manager(chat)
-    engines = focus.engines() if focus is not None else [chat]
-    for engine in engines:
-        run = getattr(engine, 'current_run', None)
-        if run is not None and run.id == run_id:
-            return engine.current_session
-    return None
+    current = getattr(chat, 'current_run', None)
+    if current is not None and current.id == run_id:
+        return chat.current_session
+    engine = chat.runs.engine_for(run_id)
+    return engine.current_session if engine is not None else None
 
 
 def _target_session(chat, target):
@@ -219,16 +108,14 @@ def _target_session(chat, target):
     if explicit:
         session = chat.sessions.find_by_session_id(token)
         return (session, '') if session is not None else _target_error(target)
-    focus = _focus_manager(chat)
-    if focus is not None:
-        for run in chat.runs.runs():
-            if run.role != target and run.session != target:
-                continue
-            engine = chat.runs.engine_for(run.id)
-            if engine is not None:
-                return engine.current_session, ''
-            session = chat.sessions.read(run.session)
-            return (session, '') if session is not None else _target_error(target)
+    for run in chat.runs.runs():
+        if run.role != target and run.session != target:
+            continue
+        engine = chat.runs.engine_for(run.id)
+        if engine is not None:
+            return engine.current_session, ''
+        session = chat.sessions.read(run.session)
+        return (session, '') if session is not None else _target_error(target)
     session = chat.sessions.read(target)
     return (session, '') if session is not None else _target_error(target)
 
@@ -1264,20 +1151,29 @@ def register_builtins(registry):
         if parts and parts[0] == 'log':
             current = getattr(chat.active(), 'current_run', None) \
                 if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
-            n = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() \
-                else (current.id if current is not None else 0)
-            run = chat.runs.get(n)
+            token = parts[1] if len(parts) > 1 else ''
+            tail = 0
+            if token.startswith('#'):
+                run_id = int(token[1:]) if token[1:].isdigit() else -1
+            elif token.isdigit() and chat.runs.get(int(token)) is not None:
+                run_id = int(token)
+            else:
+                run_id = current.id if current is not None else 0
+                tail = int(token) if token.isdigit() else 0
+            run = chat.runs.get(run_id)
             if run is None:
-                print(f'{RED}✗ Unknown run #{n}{RESET}')
+                print(f'{RED}✗ Unknown run #{run_id}{RESET}')
                 return
             lines = run.buffer_text().splitlines()
+            if tail and len(lines) > tail:
+                lines = lines[-tail:]
             if not lines:
                 print(f'{DIM}@ Run #{run.id} has no buffered output{RESET}')
                 return
             print(f'{DIM}@ Run #{run.id} {run.role or "root"} '
                   f'[{run.status}] ({run.session}){RESET}')
             for line in lines:
-                print(f'{DIM}{line}{RESET}')
+                print(line)
             return
         current = getattr(chat.active(), 'current_run', None) \
             if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
@@ -1285,51 +1181,7 @@ def register_builtins(registry):
         print(f'{DIM}@ Runs{RESET}')
         for run in chat.runs.runs():
             if run.parent is None:
-                _focus_tree(chat.runs, run, current_id, switch=False)
-
-    @registry.register('focus', description='Show and switch the focused agent run', subcommands=[
-        ('', 'Show the current run, the run tree, and the run log'),
-        ('<id|#id>', 'Attach to the run with that id'),
-        ('#<session_id>', 'Attach to the run with that session id'),
-        ('log [n]', "Print the focused run's buffered output"),
-        ('session:<name>', 'Attach to the run using that session'),
-        ('root', 'Attach to the root run'),
-        ('parent', 'Attach to the parent run'),
-        ('child [n]', 'Attach to the nth child run'),
-        ('sibling [n]', 'Attach to the nth sibling run'),
-        ('next', 'Attach to the next run in the call log'),
-        ('prev', 'Attach to the previous run in the call log'),
-        ('back', 'Return to the previous focus'),
-    ])
-    def focus_cmd(arg=''):
-        focus = _focus_manager(chat)
-        if focus is None:
-            print('Focus is only available in the REPL')
-            return
-        arg = arg.strip()
-        if not arg:
-            _focus_show(focus, chat.runs)
-            return
-        if arg == 'log' or arg.startswith('log '):
-            _focus_log(focus, arg.split())
-            return
-        kind, value = _focus_target(focus, chat.runs, arg)
-        if kind == 'back':
-            engine = focus.back()
-            print(f'Focused: {_focus_label(engine)}')
-            return
-        if kind is None or value is None:
-            print(f'Focus target not found: {arg}')
-            return
-        try:
-            if kind == 'session':
-                engine = focus.focus_session(value)
-            else:
-                engine = focus.enter(value.id)
-        except ValueError as e:
-            print(f'Cannot focus: {e}')
-            return
-        print(f'Focused: {_focus_label(engine)}')
+                _run_tree(chat.runs, run, current_id)
 
     @registry.register('sessions', description='List or manage saved sessions', subcommands=[
         ('list', 'List saved sessions'),

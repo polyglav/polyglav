@@ -62,8 +62,8 @@
   - [ ] Docs and prompts - update `docs/tools.md`, `docs/swarm.md`, `docs/roles.md`, and the role and team prompts
 - [ ] Sequential-only run model - remove the concurrency vocabulary and make pause and resume the control surface:
   - [ ] Vision and plan docs - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
-  - [ ] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
-  - [ ] Remove focus switching - `/focus` becomes a read-only `/runs` tree
+  - [x] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
+  - [x] Remove focus switching - `/focus` becomes a read-only `/runs` tree
   - [x] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
   - [ ] Cleanup - drop `focus_on_delegate`, the `SubRunUI` forwarding, and `ask target='caller'`
   - [ ] Keep jobs and fleet - they are separate OS processes, not in-REPL concurrency
@@ -168,6 +168,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Removed handoff and focus switching from the REPL
+- [x] Removed sub-run UI forwarding and kept the buffer for the runs log
 - [x] Added a read-only runs tree with a run log
 - [x] Added pause and resume at safe turn boundaries
 - [x] Added verbosity rendering tests for thinking, tools, subruns, and footer

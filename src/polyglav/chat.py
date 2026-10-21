@@ -5,7 +5,6 @@ from pathlib import Path
 
 from .config import Config
 from .engine import Engine
-from .focus import FocusManager
 from .ui import DIM, MAGENTA, RESET, ReplUI
 from .modes import PROMPT_COLORS, mode_color, resolve_mode, unknown_mode
 from . import get_version
@@ -80,7 +79,6 @@ class ChatLoop(Engine):
     def __init__(self, config: Config):
         ui = ReplUI(self)
         super().__init__(config, ui=ui)
-        self.focus = FocusManager(self)
         self._model_cache: dict[str, list[str]] = {}
         self._load_history(config)
         self._setup_readline()
@@ -95,10 +93,7 @@ class ChatLoop(Engine):
                 pass
 
     def active(self) -> Engine:
-        focus = getattr(self, 'focus', None)
-        if focus is None:
-            return self
-        return focus.active
+        return self
 
     def _load_history(self, config):
         hist = config.local_path.parent / HISTFILE
@@ -305,23 +300,14 @@ class ChatLoop(Engine):
             pass
 
     def _prompt(self) -> str:
-        role = ''
-        if self.config.get('prompt_role', False):
-            role = str(getattr(self.active(), 'role', '') or '')
-        return self._make_prompt('>', role)
+        return self._make_prompt('>')
 
     def _cont_prompt(self) -> str:
-        return self._make_prompt('...', '')
+        return self._make_prompt('...')
 
-    def _make_prompt(self, marker: str, role: str) -> str:
-        engine = self.active() if hasattr(self, 'active') else self
-        if role:
-            color = '\033[0m'
-        else:
-            spec, _ = resolve_mode(self.config, engine._mode())
-            color = mode_color(spec)
-        label = f'{role.lower()} {marker}' if role else marker
-        return _prompt_text(color, label)
+    def _make_prompt(self, marker: str) -> str:
+        spec, _ = resolve_mode(self.config, self._mode())
+        return _prompt_text(mode_color(spec), marker)
 
     def _open_output_log(self):
         if not self.config.get('output_log', False):
@@ -390,7 +376,7 @@ class ChatLoop(Engine):
             if not line:
                 continue
 
-            engine = self.active()
+            engine = self
             try:
                 if line.startswith('/'):
                     engine.current_session.add_command(line)
@@ -405,39 +391,7 @@ class ChatLoop(Engine):
                 engine.current_session.add_error(0, str(e))
                 print(f'\001\033[91m\002[Error]\001\033[0m\002 {e}')
 
-            self._apply_handoff()
-
         self._save_history()
 
-    def _apply_handoff(self):
-        pending = (getattr(self, '_pending_handoff', None)
-                   or getattr(self, '_pending_focus', None))
-        if not pending:
-            return
-        self._pending_handoff = None
-        self._pending_focus = None
-        focus = getattr(self, 'focus', None)
-        if focus is None:
-            return
-        run_id = pending.get('run')
-        session_name = pending.get('session')
-        try:
-            if run_id is not None:
-                engine = focus.enter(run_id)
-            elif session_name:
-                engine = focus.focus_session(session_name)
-            else:
-                return
-        except ValueError as e:
-            print(f'\001\033[91m\002[Cannot focus]\001\033[0m\002 {e}')
-            return
-        run = getattr(engine, 'current_run', None)
-        prefix = f'#{run.id} ' if run is not None else ''
-        label = f'{prefix}{engine.role or "root"} ({engine.current_session.session_name})'
-        print(f'Focused: {label}')
-
     def _save_sessions(self):
-        focus = getattr(self, 'focus', None)
-        engines = focus.engines() if focus is not None else [self]
-        for engine in engines:
-            engine.session_auto_save()
+        self.session_auto_save()

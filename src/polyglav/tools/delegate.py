@@ -2,8 +2,6 @@ from typing import Callable
 
 from ..config import verbosity_level
 
-from .call import _offer_focus
-
 _RANK = {'deny': 0, 'ask': 1, 'allow': 2}
 
 
@@ -140,8 +138,6 @@ def register_delegate_tool(registry, engine) -> Callable:
                            'ceiling; raise tool_permission/grant_permission or '
                            'run the team under a role whose grant_permission '
                            'widens it')
-        if not result.startswith('Error') and res.stages:
-            result += _offer_focus(engine, res.stages[-1].run_id, _config)
         if (_echo and _config is not None
                 and verbosity_level(_config, 'subruns') != 'off'
                 and not result.startswith('Error')):

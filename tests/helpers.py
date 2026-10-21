@@ -7,7 +7,6 @@ from polyglav.config import Config
 from polyglav.chat import ChatLoop
 from polyglav.sessions.manager import SessionManager
 from polyglav.runs import RunRegistry
-from polyglav.focus import FocusManager
 from polyglav.commands.registry import CommandRegistry
 from polyglav.commands.builtins import register_builtins
 from polyglav.plugins.manager import PluginManager
@@ -54,13 +53,10 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     chat._ask_ui = None if config.get('unattended') else chat._ui
     chat._caller = None
     chat.role = ''
-    chat._pending_handoff = None
-    chat._pending_focus = None
     chat.runs = RunRegistry()
     chat.current_run = chat.runs.start(
         role='', session=chat.current_session.session_name,
         session_id=chat.current_session.session_id)
-    chat.focus = FocusManager(chat)
 
     chat._plugin_manager = PluginManager(config)
     chat._plugin_manager.load()

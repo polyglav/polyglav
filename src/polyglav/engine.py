@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import BufferUI, NullUI, ReplUI, SubRunUI, glyph, glyph_map
+from .ui import BufferUI, NullUI, ReplUI, glyph, glyph_map
 
 
 @dataclass
@@ -133,8 +133,6 @@ class Engine:
         self.config = config
         self.approve_models = approve_models
         self.role = ''
-        self._pending_handoff = None
-        self._pending_focus = None
         self._paused = False
         self._provider_error = None
         self._ui = ui
@@ -606,12 +604,7 @@ class Engine:
                      runs=self.runs, parent_run=self.current_run.id, run=run)
         if ui is None:
             max_lines = int(self.config.get('run_buffer_max_lines', 0) or 0)
-            level = verbosity_level(self.config, 'subruns')
-            if level == 'full':
-                sub._ui = SubRunUI(sub.current_run, self.ui,
-                                   max_lines=max_lines, forward_all=True)
-            else:
-                sub._ui = BufferUI(sub.current_run, max_lines=max_lines)
+            sub._ui = BufferUI(sub.current_run, max_lines=max_lines)
         sub.role = role_name
         sub.current_run.role = role_name
         sub.current_run.task = task
@@ -633,29 +626,6 @@ class Engine:
         if link_parent:
             sub.current_session.parent_id = self.current_session.session_name
         self.runs.set_engine(sub.current_run.id, sub)
-        return sub
-
-    def run_engine(self, run: Run, ui=None) -> 'Engine':
-        if run.id == self.current_run.id:
-            return self
-        if run.role and self.roles.find(run.role) is not None:
-            sub = self._new_sub_engine(
-                run.role, session_name=run.session, ui=ui, link_parent=False,
-                run=run)
-        else:
-            sub = Engine(self.config, ui=ui if ui is not None else NullUI(),
-                         plugin_manager=self._plugin_manager,
-                         provider=self.provider, runs=self.runs, run=run)
-            sub.load_or_create_session(run.session)
-            sub._sub_run = True
-            sub._caller = self
-            sub._ask_ui = getattr(self, '_ask_ui', None)
-        sub.role = run.role
-        sub.current_run.role = run.role
-        sub.current_session.role = run.role
-        sub.current_session.parent_id = ''
-        self.runs.set_engine(run.id, sub)
-        self.runs.reactivate(run.id)
         return sub
 
     def resolve_target(self, target: str) -> tuple[Run | None, str]:
@@ -1155,7 +1125,6 @@ class Engine:
         return self._agent_loop(seed_tool=(name, arguments))
 
     def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
-        self._pending_handoff = None
         self._denied_streak = 0
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
@@ -1363,7 +1332,7 @@ class Engine:
                         self.ui.warning(msg)
                     status = 'error'
                     break
-                if aborted or not tool_calls_detected or self._pending_handoff:
+                if aborted or not tool_calls_detected:
                     break
         except KeyboardInterrupt:
             self.ui.info('(cancelled)')
@@ -1496,7 +1465,6 @@ class Engine:
         from .tools.offload import register_offload_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
-        from .tools.handoff import register_handoff_tool
         from .modes import merge_policy, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry()
@@ -1505,7 +1473,6 @@ class Engine:
         register_offload_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
-        register_handoff_tool(self._tool_registry, self)
         plugin_manager = getattr(self, '_plugin_manager', None)
         if plugin_manager is not None:
             plugin_manager.register_tools(self._tool_registry)

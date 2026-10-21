@@ -5,8 +5,7 @@ from pathlib import Path
 
 DEFAULT_CONFIG = {
     'access': {
-        'read_tools': ['read', 'list', 'web', 'catalog', 'ask', 'handoff',
-                       'offload'],
+        'read_tools': ['read', 'list', 'web', 'catalog', 'ask', 'offload'],
     },
     'ask_min_question_chars': 8,
     'ask_policy': {
@@ -20,7 +19,6 @@ DEFAULT_CONFIG = {
     'compact_keep': 4,
     'confirm_timeout': 0,
     'connect_check': True,
-    'focus_on_delegate': 'on',
     'footer_tokens': ['context'],
     'glyphs': {},
     'grant_permission': {},
@@ -70,7 +68,6 @@ DEFAULT_CONFIG = {
     ],
     'print_max_chars': 4000,
     'project_instructions': 'AGENTS.md',
-    'prompt_role': True,
     'provider': 'ollama',
     'query_refine': False,
     'query_refine_context': 4,
@@ -95,7 +92,6 @@ DEFAULT_CONFIG = {
         'catalog': 'allow',
         'delegate': 'allow',
         'edit': 'allow',
-        'handoff': 'allow',
         'list': 'allow',
         'mcp': 'ask',
         'offload': 'allow',
@@ -160,7 +156,6 @@ CONFIG_DESCRIPTIONS = {
     'compact_keep': 'Turns to keep when compacting the provider context',
     'confirm_timeout': 'Seconds a confirm or ask prompt waits before auto-denying',
     'connect_check': 'Probe the provider connection on config changes',
-    'focus_on_delegate': 'Move focus to a delegated run (on/off/ask)',
     'footer_tokens': 'Token counts the footer shows, in order',
     'glyphs': 'Glyph overrides, or "ascii" for the ASCII preset',
     'grant_permission': 'Ceiling on what a run may hand down to sub-agents',
@@ -184,7 +179,6 @@ CONFIG_DESCRIPTIONS = {
     'plugins': 'Plugins to load (empty loads all)',
     'print_max_chars': 'Cap characters /print shows per part',
     'project_instructions': 'Per-worktree instructions file loaded into the system prompt',
-    'prompt_role': 'Prefix the REPL prompt with the active role',
     'provider': 'Provider name',
     'query_refine': 'Auto-refine short web-search queries',
     'query_refine_context': 'Recent-message context for refinement',

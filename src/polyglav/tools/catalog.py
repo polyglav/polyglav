@@ -19,7 +19,7 @@ _PERMISSION_ALIASES = {
     'search': 'web',
 }
 
-_PERMISSION_KEY_LIST = ('bash, edit, read, list, web, catalog, ask, handoff, '
+_PERMISSION_KEY_LIST = ('bash, edit, read, list, web, catalog, ask, '
                         'offload, call, delegate, mcp, vcs')
 
 _VALID_ACTIONS = ('allow', 'ask', 'deny')

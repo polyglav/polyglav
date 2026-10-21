@@ -522,12 +522,19 @@ class ReplUI:
             self._emit(line, DIM)
 
     def sub_result(self, text):
+        level = verbosity_level(self._loop.config, 'subruns')
+        if level == 'off':
+            return
         self.flush()
         self._ensure_newline()
         mark = glyph(self._loop.config, 'return', '↲')
         lines = str(text or '').splitlines() or ['']
         first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
         self._emit(f'{mark} {first}', DIM)
+        if level == 'summary':
+            if len(lines) > 1:
+                self._emit('  ...', DIM)
+            return
         for line in lines[1:]:
             self._emit(f'  {line}', DIM)
 
@@ -847,19 +854,6 @@ class BufferUI:
 
     def ask(self, question, context='', options=None, origin=''):
         return None
-
-
-class SubRunUI(BufferUI):
-    def __init__(self, run, parent, max_lines: int = 0,
-                 forward_all: bool = False):
-        super().__init__(run, max_lines)
-        self._parent = parent
-        self._forward_all = forward_all
-
-    def activity(self, glyph, verb, label, body):
-        super().activity(glyph, verb, label, body)
-        if self._forward_all or glyph == '→':
-            self._parent.activity(glyph, verb, label, body)
 
 
 class HeadlessUI:

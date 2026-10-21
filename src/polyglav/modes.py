@@ -11,8 +11,7 @@ PROMPT_COLORS = {
 
 DEFAULT_PROMPT_COLOR = 'orange'
 
-DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'handoff',
-                     'offload']
+DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'offload']
 
 DEFAULT_WRITE_KEYS = ['bash', 'call', 'delegate', 'edit', 'mcp', 'vcs']
 

@@ -54,10 +54,6 @@ class TestConfigScopes(_IsolatedConfigBase):
         self.assertFalse(self.global_path.exists())
         self.assertEqual(c.get('temperature'), 0.3)
 
-    def test_prompt_role_default_is_on(self):
-        c = Config(path=str(self.project))
-        self.assertTrue(c.get('prompt_role'))
-
     def test_set_global_writes_global_not_local(self):
         c = Config(path=str(self.project))
         c.set('max_tokens', 0, scope='global')
@@ -172,7 +168,6 @@ class TestConfigMerge(_IsolatedConfigBase):
         permissions = c.get('tool_permission')
         self.assertEqual(permissions['ask'], 'allow')
         self.assertEqual(permissions['catalog'], 'allow')
-        self.assertEqual(permissions['handoff'], 'allow')
         self.assertEqual(permissions['delegate'], 'allow')
         self.assertEqual(permissions['call'], 'allow')
         self.assertEqual(permissions['mcp'], 'ask')
@@ -185,7 +180,6 @@ class TestConfigMerge(_IsolatedConfigBase):
         policy = ToolPolicy(c.get('tool_permission'))
         self.assertEqual(policy.action('ask', 'ask'), 'allow')
         self.assertEqual(policy.action('catalog', 'catalog'), 'allow')
-        self.assertEqual(policy.action('handoff', 'handoff'), 'allow')
         self.assertEqual(policy.action('delegate', 'delegate'), 'allow')
 
     def test_partial_mode_keeps_default_keys(self):

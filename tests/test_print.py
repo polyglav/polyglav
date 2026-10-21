@@ -125,10 +125,8 @@ class TestPrintCommand(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.chat.run_subagent('researcher', 'researcher prompt')
-        before = self.chat.focus.active
         out = self._dispatch('/print 1 --run researcher')
         self.assertIn('researcher prompt', out)
-        self.assertIs(self.chat.focus.active, before)
 
     def test_run_role_falls_back_to_saved(self):
         self._saved('writer', user='writer prompt')

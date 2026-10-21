@@ -252,41 +252,15 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertEqual(self.chat._run_stats(TurnResult(duration=1.0)),
                          '1.0s')
 
-    def test_subrun_summary_forwards_only_writes(self):
-        from polyglav.ui import SubRunUI
-        run = self.chat.current_run
-        forwarded = []
-        parent = type('P', (), {'activity': lambda self, *a: forwarded.append(a)})()
-        ui = SubRunUI(run, parent)
-        ui.activity('→', 'Write', 'a.md', [])
-        ui.activity('←', 'Read', 'a.md', [])
-        self.assertEqual(len(forwarded), 1)
-        self.assertEqual(forwarded[0][0], '→')
-
-    def test_subrun_verbosity_full_forwards_all(self):
-        from polyglav.ui import SubRunUI
-        run = self.chat.current_run
-        forwarded = []
-        parent = type('P', (), {'activity': lambda self, *a: forwarded.append(a)})()
-        ui = SubRunUI(run, parent, forward_all=True)
-        ui.activity('←', 'Read', 'a.md', [])
-        ui.activity('→', 'Write', 'a.md', [])
-        self.assertEqual(len(forwarded), 2)
-
-    def test_subrun_verbosity_selects_ui(self):
+    def test_subrun_verbosity_uses_buffer(self):
         from polyglav.roles import Role
-        from polyglav.ui import BufferUI, SubRunUI
+        from polyglav.ui import BufferUI
         self.chat.roles.put(
             Role(name='writer', system_prompt='w'), scope='local')
-        self.chat.config.set('verbosity.subruns', 'full')
-        self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
-                              SubRunUI)
-        self.chat.config.set('verbosity.subruns', 'summary')
-        self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
-                              BufferUI)
-        self.chat.config.set('verbosity.subruns', 'off')
-        self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
-                              BufferUI)
+        for level in ('full', 'summary', 'off'):
+            self.chat.config.set('verbosity.subruns', level)
+            self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
+                                  BufferUI)
 
     def test_thinking_end_streamed_prints_thought_duration(self):
         self.chat.config.set('verbosity.thinking', 'full')

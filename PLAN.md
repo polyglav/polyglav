@@ -23,7 +23,6 @@ The REPL runs one process and one context at a time. A run can pause at a safe b
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Read-only `/runs` - replace focus switching with a history tree, and drop `handoff` and `focus_on_delegate` | S-M | see the run tree without switching |
 | Sequential cleanup - remove the `SubRunUI` forwarding and `ask target='caller'`, and align VISION with one context at a time | S-M | one simple run model |
 
 ## Unified call target

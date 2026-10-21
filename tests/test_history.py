@@ -177,22 +177,13 @@ class TestHistoryCommand(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.chat.run_subagent('researcher', 'research prompt')
-        before = self.chat.focus.active
         out = self._dispatch('/history --run researcher')
         self.assertIn('research prompt', out)
-        self.assertIs(self.chat.focus.active, before)
 
     def test_run_role_falls_back_to_saved_session(self):
         self._saved('writer', user='writer prompt')
         out = self._dispatch('/history --run writer')
         self.assertIn('writer prompt', out)
-
-    def test_run_does_not_switch_focus(self):
-        add_turn(self.chat.current_session, user='root prompt')
-        self._saved('other', user='other prompt')
-        before = self.chat.focus.active
-        self._dispatch('/history --run other')
-        self.assertIs(self.chat.focus.active, before)
 
     def test_unknown_target(self):
         out = self._dispatch('/history --run nope')

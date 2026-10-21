@@ -34,7 +34,7 @@ class TestRunsCommand(unittest.TestCase):
         self.assertIn('second', out)
 
     def test_runs_log_unknown(self):
-        out = self._dispatch('/runs log 99')
+        out = self._dispatch('/runs log #99')
         self.assertIn('✗ Unknown run #99', out)
 
 
