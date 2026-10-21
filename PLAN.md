@@ -17,14 +17,6 @@ The target REPL look is approved from annotated transcripts before any applicati
 |------|--------|----------|
 | Annotated mocks - `repl0.md` and `repl2-7.md` under `.polyglav/`, with the palette and glyph legend | S | a reviewable target |
 
-## Sequential run control
-
-The REPL runs one process and one context at a time. A run can pause at a safe boundary and resume later, and `/runs` shows the history tree without switching control.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Sequential cleanup - remove the `SubRunUI` forwarding and `ask target='caller'`, and align VISION with one context at a time | S-M | one simple run model |
-
 ## Unified call target
 
 Delegation speaks one verb. `call <target>` names a role, a team, or a role-less sibling, and the target carries the behavior.
