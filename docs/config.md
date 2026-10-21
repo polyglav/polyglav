@@ -107,7 +107,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 ### `modes`
 
-There are two modes: `read` (default) and `write`. `read` allows only read-class permission keys and denies every write-class key, while `write` leaves write keys to `tool_permission`. A mode may override its instruction block and prompt color:
+There are two modes: `read` (default) and `write`. `read` allows only read-class permission keys and denies every write-class key, while `write` leaves write keys to `tool_permission`. A mode may override its instruction block and submitted-line color:
 
 ```json
 {

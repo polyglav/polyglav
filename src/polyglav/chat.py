@@ -6,18 +6,13 @@ from pathlib import Path
 from .config import Config
 from .engine import Engine
 from .ui import DIM, MAGENTA, RESET, ReplUI
-from .modes import PROMPT_COLORS, mode_color, resolve_mode, unknown_mode
+from .modes import mode_color, resolve_mode, unknown_mode
 from . import get_version
 
 HISTFILE = '.polyglav_history'
 
-_RST = '\001\033[0m\002'
-_DEFAULT = PROMPT_COLORS['cyan']
-
-
-def _prompt_text(color: str, label: str, reset: bool = True) -> str:
-    tail = f'\001{_RST}\002' if reset else ''
-    return f'\001{color}\002{label}{tail} '
+MAIN_PROMPT = '_ '
+CONT_PROMPT = '... '
 
 
 def _display_path(path: Path) -> str:
@@ -37,10 +32,6 @@ def _git_branch(path: Path) -> str:
         return ''
     branch = proc.stdout.strip()
     return branch if proc.returncode == 0 and branch != 'HEAD' else ''
-
-
-MAIN_PROMPT = _prompt_text(_DEFAULT, '>')
-CONT_PROMPT = _prompt_text(_DEFAULT, '...')
 
 
 def _open_delim(text: str) -> str | None:
@@ -308,14 +299,10 @@ class ChatLoop(Engine):
             pass
 
     def _prompt(self) -> str:
-        return self._make_prompt('>')
+        return MAIN_PROMPT
 
     def _cont_prompt(self) -> str:
-        return self._make_prompt('...')
-
-    def _make_prompt(self, marker: str) -> str:
-        spec, _ = resolve_mode(self.config, self._mode())
-        return _prompt_text(mode_color(spec), marker, reset=False)
+        return CONT_PROMPT
 
     def _open_output_log(self):
         if not self.config.get('output_log', False):

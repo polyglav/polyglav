@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from polyglav.ui import (
-    CYAN, DIM, ITALIC_GRAY, MAGENTA, ORANGE, RED, YELLOW,
+    CYAN, DIM, ITALIC_GRAY, MAGENTA, RED, YELLOW,
 )
 
 from tests.helpers import make_chat
@@ -36,10 +36,11 @@ class TestReplOutput(unittest.TestCase):
         self.assertIn('@ Read mode (ollama/test-model)', value)
         self.assertIn(DIM, value)
 
-    def test_read_and_write_prompts(self):
-        self.assertIn(CYAN, self.chat._prompt())
+    def test_prompt_is_plain_underline(self):
+        self.assertEqual(self.chat._prompt(), '_ ')
+        self.assertEqual(self.chat._cont_prompt(), '... ')
         self.chat.config.set('mode', 'write')
-        self.assertIn(ORANGE, self.chat._prompt())
+        self.assertEqual(self.chat._prompt(), '_ ')
 
     def test_command_reprint(self):
         value = self._capture(lambda: self.chat._reprint_line('/mode write'))

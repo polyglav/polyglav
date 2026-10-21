@@ -33,7 +33,7 @@ Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/p
 
 ## Focus
 
-`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack, handoff, or `SubRunUI` forwarding. `/runs` prints the run tree read-only, `/runs log [n]` reads a run's buffer, and `/pause`/`/resume` hold the next turn at the turn boundary. The `prompt_role` and `focus_on_delegate` config keys are gone; the prompt is the mode-colored `> `.
+`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack, handoff, or `SubRunUI` forwarding. `/runs` prints the run tree read-only, `/runs log [n]` reads a run's buffer, and `/pause`/`/resume` hold the next turn at the turn boundary. The `prompt_role` and `focus_on_delegate` config keys are gone; the live prompt is a plain `_ `, and the submitted line reprints as a mode-colored `>` or a magenta `/`.
 
 ## Memory
 

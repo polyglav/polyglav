@@ -150,8 +150,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed the live input prompt to a plain underline marker
 - [x] Added /modes and cleaned /mode output
-- [x] Changed live input to the mode color
 - [x] Fixed the whole-line input reprint color
 - [x] Added the unified call target
 - [x] Added the REPL design mocks
