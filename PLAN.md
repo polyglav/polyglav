@@ -15,15 +15,15 @@ The target REPL look is approved from annotated transcripts before any applicati
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Annotated transcripts - `example_session.txt`, `example_workflow.txt`, and `example_states.txt` under `.polyglav/`, with the palette and glyph legend as comments | S | a reviewable target |
+| Annotated mocks - `repl0.md` and `repl2-7.md` under `.polyglav/`, with the palette and glyph legend | S | a reviewable target |
 
 ## REPL output vocabulary
 
-One terminal language for input, output, tools, and state. A small glyph set and five ANSI roles replace the current mix, and tool detail stays out of the way until asked for.
+One terminal language for input, output, tools, and state. A small glyph set and a few ANSI roles replace the current mix, and tool detail stays out of the way until asked for.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Palette and mode - gray state lines, blue read prompt, orange write prompt, turquoise command input, green bash line, gray info, yellow warning, red error | S | one calm palette |
+| Palette and mode - gray state lines, cyan read prompt, orange write prompt, magenta command input, green bash line, gray info, yellow warning, red error | S | one calm palette |
 | Header and hints - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line | S | a short start screen |
 | Input - `> ` chat and ask, `/ ` commands, the submitted line reprinted in its color, hidden confirm | S-M | one input style |
 | Glyphs - `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *`, keep `←` and `→` for read and write, braille spinner, no decorative extras | S | one glyph per meaning |
@@ -32,7 +32,6 @@ One terminal language for input, output, tools, and state. A small glyph set and
 | Flat stages - no `<<<`, no indentation, `(i/n)` stage markers, `✓ Worked: <role>` and `✓ Done` footers | S-M | readable long runs |
 | String cleanup - grouped `/models`, `@ Model:`, `✗ [code] message`, indented refine, unified footer | S | consistent wording |
 | Status newline - a status line never prints inline after streamed text | S | clean output boundaries |
-| `/clear` command - empty the screen and reprint the header | S | a clean window mid-session |
 | Golden transcripts - assert header, input, tool, stage, and footer lines against the design mocks | S-M | no doc drift |
 
 ## Verbosity model

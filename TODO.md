@@ -56,7 +56,7 @@
 ## Open
 
 - [ ] REPL output vocabulary - one terminal language for the REPL:
-  - [ ] Palette - default assistant text, blue read prompt, orange write prompt, turquoise slash-command input, green bash command line, gray info and state lines, yellow warning, red error
+  - [ ] Palette - default assistant text, cyan read prompt, orange write prompt, magenta slash-command input, green bash command line, gray info and state lines, yellow warning, red error
   - [ ] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
   - [ ] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
   - [ ] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
@@ -80,7 +80,7 @@
   - [ ] Errors - remove `show_errors`, since errors are never hidden
   - [ ] Persistence - verbosity only changes rendering, never the session log
 - [ ] Sequential-only run model - remove the concurrency vocabulary and make pause and resume the control surface:
-  - [ ] VISION and PLAN - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
+  - [ ] Vision and plan docs - replace non-blocking delegation, live focus, and concurrent runs with one process that runs one context at a time
   - [ ] Remove `handoff` - the next step is the next `call`, so the tool and its permission key go
   - [ ] Remove focus switching - `/focus` becomes a read-only `/runs` tree
   - [ ] Pause and resume - `/pause` stops at a safe boundary, `/resume` continues, and the state prints as `@ Paused #n` and `@ Resumed #n`
@@ -90,7 +90,7 @@
   - [ ] `/sessions` - list roots only and hide `sub_` sessions
   - [ ] `/print` and `/history` - follow `sub_sessions` and `parent_id` to render the whole run tree
   - [ ] Export - include sub-runs in the Markdown and JSON export
-- [ ] Design mock transcripts - keep annotated `example_*.txt` files under the git-ignored `.polyglav/` directory to approve the vocabulary before code
+- [ ] Design mock transcripts - keep annotated `repl*.md` mocks under the git-ignored `.polyglav/` directory to approve the vocabulary before code
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
