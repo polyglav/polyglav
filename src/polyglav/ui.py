@@ -248,6 +248,7 @@ class ReplUI:
         self._spinner_label = 'Thinking'
         self._prompting = threading.Event()
         self._word_buffer = ''
+        self._hints_shown: set[str] = set()
 
     def _prefix(self):
         if self.first_content:
@@ -411,16 +412,23 @@ class ReplUI:
     def tool_status(self, name, value, body):
         self.flush()
         self._ensure_newline()
-        self._emit(f'[{name}: {value}]', ORANGE)
-        for line in body:
-            self._emit(line, DIM)
+        self._emit(f'[{name}: {value}]', DIM)
+        if self._loop.config.get('show_tool_output', False):
+            for line in body:
+                self._emit(line, DIM)
+        elif body:
+            self._tool_output_hint()
 
     def activity(self, glyph, verb, label, body):
         self.flush()
         self._ensure_newline()
-        self._emit(f'{glyph} {verb} {label}', ORANGE)
-        for line in body:
-            self._emit(line, DIM)
+        color = GREEN if glyph == '$' else DIM
+        self._emit(f'{glyph} {verb} {label}', color)
+        if self._loop.config.get('show_tool_output', False):
+            for line in body:
+                self._emit(line, DIM)
+        elif body:
+            self._tool_output_hint()
 
     def tool_error(self, msg):
         self.flush()
@@ -442,8 +450,22 @@ class ReplUI:
     def tool_result(self, output):
         self.flush()
         self._ensure_newline()
+        if not self._loop.config.get('show_tool_output', False):
+            self._tool_output_hint()
+            return
         for line in output.splitlines():
             self._emit(line, DIM)
+
+    def _tool_output_hint(self):
+        session = getattr(self._loop, 'current_session', None)
+        name = str(getattr(session, 'session_name', '') or '')
+        key = f'tool_output:{name}'
+        if key in self._hints_shown:
+            return
+        self._hints_shown.add(key)
+        turns = getattr(session, 'turns', None) or []
+        target = f' {len(turns)}' if turns else ''
+        self._emit(f'/print{target} to see the full output', ITALIC_GRAY)
 
     def tool_refine(self, old, new):
         self.flush()

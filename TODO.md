@@ -60,12 +60,12 @@
   - [x] Mode lines - `@ Read mode` and `@ Write mode` stay gray, and the `> ` prompt uses the mode color
   - [x] Header - `Polyglav vX.Y.Z  ~/cwd:branch`, a once-only `/help` hint, and a gray `@ <mode> (provider/model)` line
   - [ ] Input - `> ` for chat and ask answers, `/ ` for commands, the submitted line reprinted in its color, and hidden confirm input
-  - [ ] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
+  - [x] Tool output - hidden by default with a one-line summary, full output through `/history` and `/print`
   - [ ] Output shape - no `<<<` prefix, no indentation for sub-runs, flat stage lines with `(i/n)`, and `✓ Worked: <role>` plus `✓ Done` footers
   - [ ] Status newline - a status line never prints inline after streamed text
   - [ ] Glyphs - keep `←` and `→` for read and write, use `@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *` and the braille spinner, and drop `☐`, `⎇`, `◈`, `·`, `…`, and `▸`
   - [ ] Glyph config - a `glyphs` override map and an ASCII preset, with no runtime detection
-  - [ ] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
+  - [x] Hints - once per session, gray italic, no mode persistence hint, and no "(this session)" suffix
   - [ ] Strings - grouped `/models`, `@ Model: <provider>/<model>`, `✗ [code] message`, an indented refine detail, and a unified footer
   - [ ] Golden transcripts - assert the header, input, tool, stage, and footer lines against the design mocks
 - [ ] Unified call target - collapse `call`, `delegate`, and `offload` into one `call <target>` tool, where the target is a role, a team, or a role-less sibling:
@@ -187,6 +187,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added a once-only gray print hint for hidden tool output
+- [x] Changed tool output to hidden with a one-line summary and print on demand
 - [x] Added the header, once-only help hint, and gray mode and model line
 - [x] Changed mode lines to gray and kept the prompt in the mode color
 - [x] Changed prompts to cyan read, orange write, and magenta commands, with submitted-line reprint

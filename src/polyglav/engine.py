@@ -1582,7 +1582,8 @@ class Engine:
         activity = self._tool_registry.activity(name, arguments)
         if activity is not None and self.config.get('glyph_lines', True):
             glyph, verb, label, params = activity
-            if params and self.config.get('glyph_params', True):
+            if (params and self.config.get('glyph_params', True)
+                    and self.config.get('show_tool_output', False)):
                 label = f'{label} [{params}]'
             self.ui.activity(glyph, verb, label, body)
         else:

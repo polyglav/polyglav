@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from tests.helpers import make_chat
 from polyglav.engine import Engine
-from polyglav.ui import HeadlessUI, DIM, RED, ORANGE, _hidden_input
+from polyglav.ui import HeadlessUI, DIM, GREEN, ITALIC_GRAY, RED, ORANGE, _hidden_input
 
 
 class TestGlyphActivityLines(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestGlyphActivityLines(unittest.TestCase):
             self.chat._ui.activity('→', 'Write', 'a.md', ['+ hi'])
         value = out.getvalue()
         self.assertIn('→ Write a.md', value)
-        self.assertIn('+ hi', value)
+        self.assertNotIn('+ hi', value)
 
     def test_headless_activity_renders_when_verbose(self):
         ui = HeadlessUI(auto='deny', verbose=True)
@@ -696,10 +696,38 @@ class TestReplColors(unittest.TestCase):
             fn()
         return out.getvalue()
 
-    def test_activity_orange(self):
+    def test_activity_dim(self):
         value = self._capture(
             lambda: self.ui.activity('→', 'Write', 'a.md', []))
-        self.assertIn(ORANGE, value)
+        self.assertIn(DIM, value)
+
+    def test_bash_activity_green(self):
+        value = self._capture(
+            lambda: self.ui.activity('$', 'Run', 'pytest', []))
+        self.assertIn(GREEN, value)
+
+    def test_tool_body_hidden_by_default(self):
+        value = self._capture(
+            lambda: self.ui.activity('→', 'Write', 'a.md', ['+ secret']))
+        self.assertNotIn('+ secret', value)
+        self.assertIn('/print', value)
+        self.assertIn(ITALIC_GRAY, value)
+
+    def test_tool_result_hidden_by_default(self):
+        value = self._capture(lambda: self.ui.tool_result('secret output'))
+        self.assertNotIn('secret output', value)
+        self.assertIn('/print', value)
+
+    def test_tool_result_shown_when_enabled(self):
+        self.chat.config.set('show_tool_output', True)
+        value = self._capture(lambda: self.ui.tool_result('secret output'))
+        self.assertIn('secret output', value)
+        self.assertNotIn('/print', value)
+
+    def test_tool_hint_once_per_session(self):
+        self._capture(lambda: self.ui.tool_result('one'))
+        value = self._capture(lambda: self.ui.tool_result('two'))
+        self.assertNotIn('/print', value)
 
     def test_tool_error_red(self):
         value = self._capture(lambda: self.ui.tool_error('Error: boom'))
