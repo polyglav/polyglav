@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Updated commit guidelines for version bumps and normal case
 - [x] Added model removal
 - [x] Marked unusable models
 - [x] Added provider and model completion
