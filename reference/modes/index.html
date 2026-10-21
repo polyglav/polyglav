@@ -1322,7 +1322,7 @@
 <li><code>write</code> leaves write-class tools to <code>tool_permission</code>, so each write key is still bounded by its own <code>allow</code>/<code>ask</code>/<code>deny</code> action.</li>
 <li>Any value other than <code>read</code> or <code>write</code> resolves to <code>read</code> and prints a warning.</li>
 </ul>
-<p>The prompt color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The banner shows a <code>[read mode]</code> label.</p>
+<p>The submitted-line color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The live prompt is a plain <code>_</code>, and the line reprints in that color after Enter. The banner shows the current mode, for example <code>@ Read mode</code>.</p>
 <h2 id="access-classification">Access classification<a class="headerlink" href="#access-classification" title="Permanent link">&para;</a></h2>
 <p>Tools are classed by permission key, not by tool name. Config <code>access.read_tools</code> lists the read-class keys:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1339,7 +1339,7 @@
 <h2 id="switching">Switching<a class="headerlink" href="#switching" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>/mode</code> shows the current mode.</li>
-<li><code>/modes</code> lists the available names, marking the current one.</li>
+<li><code>/modes</code> lists the available names, marking the current one. <code>/modes &lt;name&gt;</code> prints that mode's instruction.</li>
 <li><code>/mode &lt;name&gt;</code> switches the mode for the current session. It does not write the config.</li>
 <li><code>/config mode &lt;value&gt;</code> persists the mode to the local config.</li>
 <li><code>--mode &lt;name&gt;</code> sets the mode for <code>polyglav run</code> and <code>polyglav serve</code>.</li>

@@ -1433,9 +1433,13 @@
 <li><strong>Local</strong> - <code>.polyglav/config.json</code> in the project path (project overrides).</li>
 </ol>
 <p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns, per-key description)</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns)</span>
 /config
-<span class="c1"># a value too long for the value column prints as an indented value/source/description block</span>
+<span class="c1"># one key with its description</span>
+/config<span class="w"> </span>temperature
+<span class="c1"># every key with its description on an indented line</span>
+/config<span class="w"> </span>--verbose
+<span class="c1"># a value too long for the value column prints as an indented value/source block</span>
 <span class="c1"># set a value (project-local, Git-like default)</span>
 /config<span class="w"> </span>temperature<span class="w"> </span><span class="m">0</span>.3
 <span class="c1"># set a structured value</span>
@@ -1789,7 +1793,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tbody>
 </table>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
-<p>There are two modes: <code>read</code> (default) and <code>write</code>. <code>read</code> allows only read-class permission keys and denies every write-class key, while <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may override its instruction block and prompt color:</p>
+<p>There are two modes: <code>read</code> (default) and <code>write</code>. <code>read</code> allows only read-class permission keys and denies every write-class key, while <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may override its instruction block and submitted-line color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"modes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
