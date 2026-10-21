@@ -187,6 +187,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Removed the assistant prefix
 - [x] Added a once-only gray print hint for hidden tool output
 - [x] Changed tool output to hidden with a one-line summary and print on demand
 - [x] Added the header, once-only help hint, and gray mode and model line

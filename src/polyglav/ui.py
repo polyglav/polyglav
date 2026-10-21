@@ -238,7 +238,6 @@ def render_markdown(token: str, state: dict) -> list[tuple[str, str]]:
 class ReplUI:
     def __init__(self, loop):
         self._loop = loop
-        self.first_content = True
         self.content_newline = True
         self.md_state = {'code_block': False, 'inline_code': False, 'bold': False}
         self._spinner_thread: threading.Thread | None = None
@@ -249,12 +248,6 @@ class ReplUI:
         self._prompting = threading.Event()
         self._word_buffer = ''
         self._hints_shown: set[str] = set()
-
-    def _prefix(self):
-        if self.first_content:
-            sys.stdout.write('\001\033[33m\002<<< \001\033[0m\002')
-            sys.stdout.flush()
-            self.first_content = False
 
     def _write(self, text, ansi=''):
         if ansi:
@@ -283,7 +276,6 @@ class ReplUI:
             self._render(text)
 
     def _render(self, text):
-        self._prefix()
         if self._loop.config.get('markdown_streaming'):
             for seg, ansi in render_markdown(text, self.md_state):
                 self._write(seg, ansi)

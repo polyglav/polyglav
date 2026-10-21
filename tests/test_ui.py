@@ -302,8 +302,6 @@ class TestEphemeralUI(unittest.TestCase):
 
 class TestWordStreaming(unittest.TestCase):
 
-    PREFIX = '\001\033[33m\002<<< \001\033[0m\002'
-
     def setUp(self):
         self.chat = make_chat()
         self.ui = self.chat._ui
@@ -327,8 +325,12 @@ class TestWordStreaming(unittest.TestCase):
             self.ui.token('rox ')
             self.ui.token('hard')
         value = self._capture(run)
-        self.assertEqual(value, self.PREFIX + 'approx ')
+        self.assertEqual(value, 'approx ')
         self.assertEqual(self.ui._word_buffer, 'hard')
+
+    def test_no_assistant_prefix(self):
+        value = self._capture(lambda: self.ui.token('hello '))
+        self.assertNotIn('<<<', value)
 
     def test_flush_writes_remainder(self):
         def run():
@@ -337,14 +339,14 @@ class TestWordStreaming(unittest.TestCase):
             self.ui.token('hard')
             self.ui.flush()
         value = self._capture(run)
-        self.assertEqual(value, self.PREFIX + 'approx hard')
+        self.assertEqual(value, 'approx hard')
         self.assertEqual(self.ui._word_buffer, '')
 
     def test_multi_word_token_flushes_through_last_space(self):
         def run():
             self.ui.token('word1 word2 par')
         value = self._capture(run)
-        self.assertEqual(value, self.PREFIX + 'word1 word2 ')
+        self.assertEqual(value, 'word1 word2 ')
         self.assertEqual(self.ui._word_buffer, 'par')
 
     def test_newline_flushes(self):
@@ -352,7 +354,7 @@ class TestWordStreaming(unittest.TestCase):
             self.ui.token('line1\n')
             self.ui.token('par')
         value = self._capture(run)
-        self.assertEqual(value, self.PREFIX + 'line1\n')
+        self.assertEqual(value, 'line1\n')
         self.assertEqual(self.ui._word_buffer, 'par')
 
     def test_footer_flushes_tail(self):
@@ -403,7 +405,7 @@ class TestWordStreaming(unittest.TestCase):
         def run():
             self.ui.token('app')
             self.ui.token('rox ')
-        self.assertEqual(self._capture(run), self.PREFIX + 'approx ')
+        self.assertEqual(self._capture(run), 'approx ')
         self.assertEqual(self.ui._word_buffer, '')
 
     def test_markdown_bold_across_flush_boundary(self):
