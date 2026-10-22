@@ -10,7 +10,7 @@ A larger task moves through the same steps every time:
 2. **Compose** - the `composer` role designs a team for the task: which specialists, which skills each one needs, the order of stages, and whether a review loop should run. The team is saved to the catalog and can be reused.
 3. **Run** - the team runs stage by stage. Each stage is its own sub-agent with its own role, skills, and permission carve, and it writes its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.
 4. **Continue** - as the work changes shape, the next call continues from the previous result. One agent finishes and the assistant calls the next, which continues with its own session intact.
-5. **Watch or stay out** - the user can follow along, jump into any run, or leave it running in the background.
+5. **Watch or pause** - follow along, read the run tree with `/runs`, or pause and resume at the next turn boundary.
 6. **Remember** - after the run, the team and its members refresh their memory, so the next run continues from the change instead of replaying a whole transcript.
 7. **Report** - a summary surfaces when the run finishes or fails, and recurring work reports out of band.
 
