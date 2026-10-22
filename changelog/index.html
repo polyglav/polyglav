@@ -404,10 +404,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0460" class="md-nav__link">
+  <a href="#v0460-2026-10-22" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.46.0
+        v0.46.0 - 2026-10-22
       
     </span>
   </a>
@@ -1670,10 +1670,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v0460" class="md-nav__link">
+  <a href="#v0460-2026-10-22" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.46.0
+        v0.46.0 - 2026-10-22
       
     </span>
   </a>
@@ -2193,8 +2193,13 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
-<h2 id="v0460">v0.46.0<a class="headerlink" href="#v0460" title="Permanent link">&para;</a></h2>
+<h2 id="v0460-2026-10-22">v0.46.0 - 2026-10-22<a class="headerlink" href="#v0460-2026-10-22" title="Permanent link">&para;</a></h2>
 <ul>
+<li>Fixed the Python 3.11 eager-annotation import error in the session manager. Tests: full suite on Python 3.11</li>
+<li>Added Python 3.14 to CI and disabled fail-fast so every matrix result is visible.</li>
+<li>Added provider, model, and mode to onboarding, with a warm welcome and a hint to the remaining options. Tests: <code>polyglav-core-onboarding</code></li>
+<li>Fixed long wrapped input so every row is cleared before the colored reprint. Tests: <code>test_repl_output.py</code></li>
+<li>Removed Python 3.10 support; the floor is now 3.11. Tests: full suite on Python 3.11</li>
 <li>Compacted <code>/config</code> to key/value/origin, with <code>/config &lt;key&gt;</code> and <code>--verbose</code> for descriptions. Tests: <code>test_commands.py</code></li>
 <li>Cleaned <code>/modes</code> to a plain list and added <code>/modes &lt;name&gt;</code> for the mode instruction. Tests: <code>test_commands.py</code></li>
 <li>Changed the live input prompt to a plain <code>_</code> marker; the submitted line reprints as a mode-colored <code>&gt;</code> or a magenta <code>/</code>. Tests: <code>test_repl_input.py</code>, <code>test_repl_output.py</code></li>

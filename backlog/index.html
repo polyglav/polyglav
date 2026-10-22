@@ -1280,6 +1280,12 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs</li>
+<li>[ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored <code>&gt;</code> or <code>/</code> line</li>
+<li>[ ] Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options</li>
+<li>[ ] Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary</li>
+<li>[ ] Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock</li>
+<li>[ ] Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible</li>
 <li>[ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today <code>delegate</code> is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option</li>
 <li>[ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md</li>
 <li>[ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of <code>{action, resource, effect}</code> rules. <code>action</code> is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), <code>resource</code> is a path, command prefix, URL, query, skill id, or role id, <code>effect</code> is allow/ask/deny, resources accept <code>*</code>/<code>?</code> wildcards, and the last matching rule wins so a broad rule precedes its exceptions. <code>ToolPolicy</code> evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt</li>
@@ -1377,6 +1383,11 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Updated site and SVG for v0.46.0</li>
+<li>[x] Added Python 3.14 to CI and disabled fail-fast</li>
+<li>[x] Added provider and model to onboarding</li>
+<li>[x] Fixed wrapped input reprint</li>
+<li>[x] Removed Python 3.10 support</li>
 <li>[x] Compacted /config and added key detail and --verbose</li>
 <li>[x] Cleaned /modes and added /modes <name></li>
 <li>[x] Changed the live input prompt to a plain underline marker</li>

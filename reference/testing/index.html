@@ -1276,7 +1276,7 @@
 <p>Run all tests:</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>tests
 </code></pre></div>
-<p>The canonical setup installs the package (<code>pip install -e .</code>), which is also what CI does. On a source checkout without installing, use <code>PYTHONPATH=$PWD/src</code> (absolute, because the detached-fleet daemon changes directory, so a relative <code>src</code> would not resolve). <code>PluginManager</code> then falls back to the repo-root <code>plugins/</code> directory for the bundled plugins.</p>
+<p>The canonical setup installs the package (<code>pip install -e .</code>), which is also what CI does. CI runs the suite on Python 3.11, 3.12, 3.13, and 3.14 with <code>fail-fast: false</code>. On a source checkout without installing, use <code>PYTHONPATH=$PWD/src</code> (absolute, because the detached-fleet daemon changes directory, so a relative <code>src</code> would not resolve). <code>PluginManager</code> then falls back to the repo-root <code>plugins/</code> directory for the bundled plugins.</p>
 <p>Run a single file:</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>tests.test_tool_calling
 </code></pre></div>
@@ -1404,7 +1404,7 @@
 </tr>
 <tr>
 <td><code>test_repl_output.py</code></td>
-<td>Golden REPL vocabulary: header, plain live prompt, colored submitted-line reprint, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
+<td>Golden REPL vocabulary: header, plain live prompt, colored submitted-line reprint, wrapped input clearing, wide-character width, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
 </tr>
 <tr>
 <td><code>test_repl_input.py</code></td>
