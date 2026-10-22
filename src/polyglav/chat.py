@@ -1,6 +1,8 @@
 import subprocess
 import sys
 import readline
+import shutil
+import unicodedata
 from pathlib import Path
 
 from .config import Config
@@ -13,6 +15,22 @@ HISTFILE = '.polyglav_history'
 
 MAIN_PROMPT = '_ '
 CONT_PROMPT = '... '
+
+
+def _display_width(text: str) -> int:
+    width = 0
+    for char in text:
+        if unicodedata.combining(char):
+            continue
+        width += 2 if unicodedata.east_asian_width(char) in ('W', 'F') else 1
+    return width
+
+
+def _terminal_columns() -> int:
+    try:
+        return max(1, shutil.get_terminal_size().columns)
+    except OSError:
+        return 80
 
 
 def _display_path(path: Path) -> str:
@@ -253,7 +271,12 @@ class ChatLoop(Engine):
             color = mode_color(spec)
             label = '>'
             body = text
-        sys.stdout.write('\033[A\r\033[K')
+        columns = _terminal_columns()
+        width = _display_width(MAIN_PROMPT) + _display_width(text)
+        rows = max(1, (width + columns - 1) // columns)
+        for _ in range(rows):
+            sys.stdout.write('\033[A')
+        sys.stdout.write('\r\033[J')
         sys.stdout.write(f'\001{color}\002{label} {body}\001\033[0m\002\n')
         sys.stdout.flush()
 

@@ -15,7 +15,6 @@ Close the v0.46.0 compatibility and input gaps before the public-facing refresh.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line | S | clean colored input on long lines |
 | Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible | S | visible matrix failures |
 
 ## First-run and public face

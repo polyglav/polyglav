@@ -2,6 +2,7 @@ import io
 import unittest
 from unittest.mock import patch
 
+from polyglav.chat import _display_width
 from polyglav.ui import (
     CYAN, DIM, ITALIC_GRAY, MAGENTA, RED, YELLOW,
 )
@@ -46,6 +47,23 @@ class TestReplOutput(unittest.TestCase):
         value = self._capture(lambda: self.chat._reprint_line('/mode write'))
         self.assertIn(MAGENTA, value)
         self.assertIn('mode write', value)
+
+    def test_short_reprint_clears_one_row(self):
+        value = self._capture(lambda: self.chat._reprint_line('hello'))
+        self.assertEqual(value.count('\033[A'), 1)
+        self.assertIn('\033[J', value)
+
+    def test_long_reprint_clears_all_wrapped_rows(self):
+        with patch('polyglav.chat._terminal_columns', return_value=10):
+            value = self._capture(lambda: self.chat._reprint_line('x' * 25))
+        self.assertEqual(value.count('\033[A'), 3)
+        self.assertIn('\033[J', value)
+        self.assertIn('> ' + 'x' * 25, value)
+
+    def test_display_width_counts_wide_and_combining(self):
+        self.assertEqual(_display_width('abc'), 3)
+        self.assertEqual(_display_width('漢字'), 4)
+        self.assertEqual(_display_width('e\u0301'), 1)
 
     def test_thinking_and_footer(self):
         self.chat.config.set('verbosity.thinking', 'summary')

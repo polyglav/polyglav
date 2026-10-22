@@ -156,6 +156,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Fixed wrapped input reprint
 - [x] Removed Python 3.10 support
 - [x] Compacted /config and added key detail and --verbose
 - [x] Cleaned /modes and added /modes <name>
