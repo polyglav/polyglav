@@ -156,6 +156,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added Python 3.14 to CI and disabled fail-fast
 - [x] Added provider and model to onboarding
 - [x] Fixed wrapped input reprint
 - [x] Removed Python 3.10 support

@@ -2,6 +2,8 @@
 
 ## v0.46.0
 
+- Fixed the Python 3.11 eager-annotation import error in the session manager. Tests: full suite on Python 3.11
+- Added Python 3.14 to CI and disabled fail-fast so every matrix result is visible.
 - Added provider, model, and mode to onboarding, with a warm welcome and a hint to the remaining options. Tests: `polyglav-core-onboarding`
 - Fixed long wrapped input so every row is cleared before the colored reprint. Tests: `test_repl_output.py`
 - Removed Python 3.10 support; the floor is now 3.11. Tests: full suite on Python 3.11
