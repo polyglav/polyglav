@@ -23,7 +23,6 @@ Make the first minute and the public pages match the current sequential REPL.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options | M | a usable first run |
 | Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary | S | accurate first impression |
 | Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock | M | a current public face |
 

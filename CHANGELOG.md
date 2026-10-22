@@ -2,6 +2,7 @@
 
 ## v0.46.0
 
+- Added provider, model, and mode to onboarding, with a warm welcome and a hint to the remaining options. Tests: `polyglav-core-onboarding`
 - Fixed long wrapped input so every row is cleared before the colored reprint. Tests: `test_repl_output.py`
 - Removed Python 3.10 support; the floor is now 3.11. Tests: full suite on Python 3.11
 - Compacted `/config` to key/value/origin, with `/config <key>` and `--verbose` for descriptions. Tests: `test_commands.py`

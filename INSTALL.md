@@ -33,16 +33,18 @@ polyglav
 
 ## First run
 
-Open the REPL and connect to a provider with `/connect`, then type any message. Tab-complete `/` commands and session names, and navigate history with arrow keys. Open a `"""` or `'''` block to type a multi-line prompt, close it with a matching delimiter on its own line or a blank line, or end a line with `\` to continue on the next line. The framing is stripped and the whole message is sent as one turn. Ctrl-C exits the REPL from anywhere, even inside an open block.
+On first run, Polyglav welcomes you and asks for the provider, model, mode, project purpose, assistant persona, and whether to keep an output log. Press Enter to accept a default. You can rerun it later with `/onboard`, and change the connection with `/connect` or `/model`.
+
+Tab-complete `/` commands and session names, and navigate history with arrow keys. Open a `"""` or `'''` block to type a multi-line prompt, close it with a matching delimiter on its own line or a blank line, or end a line with `\` to continue on the next line. The framing is stripped and the whole message is sent as one turn. Ctrl-C exits the REPL from anywhere, even inside an open block.
 
 ```
->>> /connect ollama
-  API key [stored]:
-Connected to ollama (https://api.ollama.com)
->>> /model gpt-oss:20b-cloud
->>> Hi
-<<< Hello! How can I help you today?
->>> /exit
+Welcome to Polyglav. Let's set up this project together.
+...
+/ connect ollama
+...
+/ model gpt-oss:20b-cloud
+> Hi
+Hello! How can I help you today?
 ```
 
 ## Usage
