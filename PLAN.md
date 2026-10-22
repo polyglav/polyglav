@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Public face
-
-Make the generated site and the terminal mock match the current sequential REPL.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock | M | a current public face |
-
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

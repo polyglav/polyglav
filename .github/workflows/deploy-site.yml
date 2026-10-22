@@ -33,6 +33,7 @@ jobs:
           cp CHANGELOG.md site/build/changelog.md
           cp docs/*.md site/build/reference/
           cp docs/usage/*.md site/build/reference/usage/
+          cp polyglav.svg site/build/polyglav.svg
           sed -i '/](compare\/)/d; /](use-cases\/)/d' site/build/reference/index.md
       - name: Build site
         run: mkdocs build -f site/mkdocs.yml

@@ -156,6 +156,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Updated site and SVG for v0.46.0
 - [x] Added Python 3.14 to CI and disabled fail-fast
 - [x] Added provider and model to onboarding
 - [x] Fixed wrapped input reprint
