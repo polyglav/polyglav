@@ -4,7 +4,7 @@ Polyglav is a terminal AI agent. This guide covers installation, first-run setup
 
 ## Requirements
 
-- Python >= 3.10
+- Python >= 3.11
 - No external dependencies (pure standard library)
 
 ## Install

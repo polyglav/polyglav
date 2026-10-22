@@ -2,7 +2,7 @@
 
 **One agent, many heads**
 
-Current version: **v0.37.0** (Python >= 3.10, MIT, zero external dependencies)
+Current version: **v0.37.0** (Python >= 3.11, MIT, zero external dependencies)
 
 An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers types, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.
 

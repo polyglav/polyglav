@@ -7,7 +7,7 @@
 <p>
   <a href="https://pypi.org/project/polyglav/"><img src="https://img.shields.io/pypi/v/polyglav" alt="PyPI version"></a>
   <a href="https://polyglav.github.io/polyglav/"><img src="https://img.shields.io/badge/docs-site-blue" alt="Site"></a>
-  <img src="https://img.shields.io/badge/python-%3E%3D3.10-blue" alt="Python >=3.10">
+  <img src="https://img.shields.io/badge/python-%3E%3D3.11-blue" alt="Python >=3.11">
   <img src="https://img.shields.io/github/actions/workflow/status/polyglav/polyglav/ci.yml?branch=main" alt="CI">
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="Zero dependencies">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">

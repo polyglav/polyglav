@@ -36,7 +36,7 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
   "version": "0.3.1",
   "description": "Full-page scraping with links and structure",
   "polyglav_version": ">=0.12.0,<1.0",
-  "python": ">=3.10",
+  "python": ">=3.11",
   "entry": "plugin.py",
   "requires": ["beautifulsoup4", "lxml"],
   "provides": {"tools": ["scrape_page"], "providers": [], "commands": ["/scrape"]},
@@ -50,7 +50,7 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 | `version`        | `"0.0.0"`     | Plugin version |
 | `description`    | `""`          | Shown in `/plugins` and `polyglav plugins list` |
 | `polyglav_version` | `""`          | Semver range the plugin is compatible with (`>=0.12.0,<1.0`). Incompatible plugins are skipped at load |
-| `python`         | `""`          | Minimum/maximum Python, same range syntax (`>=3.10`) |
+| `python`         | `""`          | Minimum/maximum Python, same range syntax (`>=3.11`) |
 | `entry`          | `"plugin.py"` | Module to load, relative to the plugin directory (may point into `src/`) |
 | `requires`       | `[]`          | Third-party packages, metadata for status and `--deps` install, never imported by the core |
 | `provides`       | `{}`          | Declared tools/providers/commands for `/plugins` display |

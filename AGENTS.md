@@ -8,7 +8,7 @@ Multi-provider chat, web search, sessions, slash commands, machine access, roles
 
 ## Tech Stack
 
-- Python >=3.10, **stdlib only** (no external dependencies)
+- Python >=3.11, **stdlib only** (no external dependencies)
 - `readline` - input history + tab completion for slash commands
 - `urllib.request` - HTTP + SSE streaming
 - `urllib.error` - HTTP error handling

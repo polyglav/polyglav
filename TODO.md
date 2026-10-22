@@ -156,6 +156,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Removed Python 3.10 support
 - [x] Compacted /config and added key detail and --verbose
 - [x] Cleaned /modes and added /modes <name>
 - [x] Changed the live input prompt to a plain underline marker
