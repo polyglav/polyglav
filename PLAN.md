@@ -9,6 +9,26 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
+## Release readiness
+
+Close the v0.46.0 compatibility and input gaps before the public-facing refresh.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs | S | one supported floor |
+| Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line | S | clean colored input on long lines |
+| Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible | S | visible matrix failures |
+
+## First-run and public face
+
+Make the first minute and the public pages match the current sequential REPL.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options | M | a usable first run |
+| Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary | S | accurate first impression |
+| Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock | M | a current public face |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

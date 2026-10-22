@@ -54,6 +54,12 @@
 
 ## Open
 
+- [ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs
+- [ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line
+- [ ] Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options
+- [ ] Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary
+- [ ] Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock
+- [ ] Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `delegate` is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
