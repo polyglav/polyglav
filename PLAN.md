@@ -9,6 +9,43 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
+## Onboarding and first-run polish
+
+The first run explains the product, keeps every line aligned, and leaves a supported setup. The terminal identity limitation is documented until a process-title fix lands.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Improve onboarding output - plain welcome, aligned provider and model lists, section lead-ins, and an explained API key | S | a clear first run |
+| Document the tmux process name - note the `python` label and the manual workaround | S | a known limitation with a workaround |
+
+## Config and tool output legibility
+
+Current values and defaults are visible without editing files, and every tool result stays recallable after the inline log copy is trimmed.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Show defaults in `/config` - single-key and verbose output include the default value | S | self-explanatory configuration |
+| Always spill tool output - system temp by default, persistent `.polyglav/tmp/` when enabled, refs resolved by `/print` | M | recall without re-running tools |
+
+## Run and delegation cleanup
+
+The read-only run tree stays, while the buffer and live-focus leftovers go. Delegation becomes one verb for anonymous help and one for named agents.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Remove the run output buffer and live focus leftovers - drop `BufferUI`, `/runs log`, and the engine map, keep `/print --run` | S-M | one run history path |
+| Replace delegate and offload with a sibling delegate - read-class anonymous help, while `call` handles roles and teams | M | one delegation verb per intent |
+
+## Core cleanup and backlog sync
+
+Shared helpers replace plugin copies, dead migrations go, and the planning files match the code.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Share the tool output cap helper - one `_truncate` and `_cap` implementation for dev, exec, fs, and git | S | one cap behavior |
+| Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools` | S | less configuration surface |
+| Sync the backlog and plan - move finished tasks, remove packages, and refresh the changelog | S | accurate planning files |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

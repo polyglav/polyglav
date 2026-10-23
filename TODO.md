@@ -54,6 +54,15 @@
 
 ## Open
 
+- [ ] Improve onboarding first run - plain-color welcome, aligned lists, section lead-ins, and an explained API key
+- [ ] Show config defaults - `/config <key>` and `/config --verbose` include the default value
+- [ ] Always spill tool output - system temp by default, persistent `.polyglav/tmp/` when enabled, refs in the session log
+- [ ] Remove the run output buffer and live focus leftovers - drop `BufferUI`, `/runs log`, and the engine map, keep `/print --run`
+- [ ] Replace delegate and offload with a sibling delegate - read-class anonymous help, while `call` handles roles and teams
+- [ ] Share the tool output cap helper - one `_truncate` and `_cap` implementation for dev, exec, fs, and git
+- [ ] Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools`
+- [ ] Document the tmux process name - note the `python` label and the manual workaround
+- [ ] Sync the backlog and plan after cleanup - move finished tasks, remove packages, and refresh the changelog
 - [ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs
 - [ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line
 - [ ] Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options
