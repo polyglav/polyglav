@@ -215,10 +215,6 @@ CONFIG_DESCRIPTIONS = {
 
 CONFIG_VALUE_INLINE = 40
 
-_NEW_PROVIDER_PLUGINS = ['polyglav-core-opencode', 'polyglav-core-ollama',
-                         'polyglav-core-openai', 'polyglav-core-groq',
-                         'polyglav-core-anthropic']
-
 _OUTPUT_KEY_ALIASES = {
     'noise_tools': 'tools_output_drop',
     'session_tool_max_chars': 'tools_output_max_chars',
@@ -261,7 +257,6 @@ class Config:
             with open(self.local_path) as f:
                 self._local_raw = json.load(f)
         self.data = self._merged()
-        self._migrate_plugins()
         self._migrate_output_keys()
         self._migrate_verbosity()
 
@@ -340,23 +335,6 @@ class Config:
         for key in old:
             raw.pop(key, None)
         return True
-
-    def _migrate_plugins(self):
-        plugins = self.data.get('plugins')
-        if not isinstance(plugins, list) or not plugins:
-            return
-        missing = [n for n in DEFAULT_CONFIG['plugins']
-                   if n in _NEW_PROVIDER_PLUGINS and n not in plugins]
-        if not missing:
-            return
-        plugins = plugins + missing
-        self.data['plugins'] = plugins
-        if 'plugins' in self._global_raw:
-            self._global_raw['plugins'] = plugins
-            self._write_global({})
-        else:
-            self._local_raw['plugins'] = plugins
-            self._save_local()
 
     def reload(self):
         self.data = copy.deepcopy(DEFAULT_CONFIG)

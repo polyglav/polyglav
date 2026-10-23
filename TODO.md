@@ -27,7 +27,6 @@
 - Centralized static strings - move hardcoded prompts and static strings into one module
 - Code cleanup pass - a dedicated pass over the core for dead code, naming, and rough edges
 - Report-back connectors - job summaries delivered out-of-band (email first, idea only) when the terminal is closed
-- Remove the legacy provider-plugin backfill migration (`Config._migrate_plugins`) once a stable polyglav release has shipped with the externalized providers. Existing `plugins` lists no longer need the automatic append, and the migration code is dead weight
 - Human-in-the-loop channels - job events outbound (`proposed`, `will_run`, `failed`, `waiting_approval`) plus inbound actions (`approve`/`reject`/`run`/`disable`) over configurable connectors (webhook first, then email, then Telegram), so a job can reach an operator who is not on the box
 - Global jobs overview across agents - `polyglav jobs list --root <dir>` fleet scan, a `GET /jobs` + `POST /jobs/<name>/approve|reject|run|disable` operator API on `polyglav serve`, then a web Control UI, so one view shows which agents run next and with which task
 - Edge / offline store-and-forward buffering - offline-capable agents with local buffering for unreliable connectivity (enterprise use case)
@@ -54,7 +53,7 @@
 
 ## Open
 
-- [ ] Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools`
+- [ ] Remove the tool status duplicate - one display gate through `verbosity.tools`
 - [ ] Document the tmux process name - note the `python` label and the manual workaround
 - [ ] Sync the backlog and plan after cleanup - move finished tasks, remove packages, and refresh the changelog
 - [ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs
@@ -159,6 +158,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Removed the legacy provider-plugin backfill migration
 - [x] Changed tool output to one shared cap and truncate helper
 - [x] Replaced delegate and offload with a read-class sibling delegate
 - [x] Removed the run output buffer and live focus leftovers

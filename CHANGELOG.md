@@ -2,6 +2,7 @@
 
 ## v0.47.0
 
+- Removed the legacy provider-plugin backfill migration - plugin lists are no longer rewritten on load. Tests: `test_config.py`
 - Changed tool output - one shared cap and truncate helper replaces four plugin copies. Tests: plugin suites
 - Changed delegate to the sibling tool - `delegate` is the read-class role-less sibling, `call` handles named roles and teams, and the old team-pipeline `delegate` plus `offload` are removed. Tests: `test_delegate.py`, `test_call_target.py`, `test_run_resume.py`
 - Removed the run output buffer - sub-engines use `NullUI`, `/runs` stays a read-only tree, `/print --run` shows output, and `BufferUI`, `run_buffer_max_lines`, and the live engine map are gone. Tests: `test_runs.py`, `test_runs_command.py`, `test_subagent.py`

@@ -23,7 +23,7 @@ Shared helpers replace plugin copies, dead migrations go, and the planning files
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools` | S | less configuration surface |
+| Remove the tool status duplicate - one display gate through `verbosity.tools` | S | less configuration surface |
 | Sync the backlog and plan - move finished tasks, remove packages, and refresh the changelog | S | accurate planning files |
 
 ## Self-development team enablement
