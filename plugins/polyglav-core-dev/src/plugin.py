@@ -3,6 +3,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from polyglav.tools.output import cap_from_config as _cap
+from polyglav.tools.output import truncate as _truncate
+
 MAX_TIMEOUT = 600
 DEFAULT_TIMEOUT = 300
 
@@ -24,21 +27,6 @@ def _clamp_timeout(timeout) -> int:
         return max(1, min(int(timeout), MAX_TIMEOUT))
     except (TypeError, ValueError):
         return DEFAULT_TIMEOUT
-
-
-def _cap(config=None) -> int:
-    if config is None:
-        return 0
-    try:
-        return max(0, int(config.get('tool_max_result_chars', 0)))
-    except (TypeError, ValueError):
-        return 0
-
-
-def _truncate(text: str, max_chars: int = 0) -> str:
-    if max_chars > 0 and len(text) > max_chars:
-        return text[:max_chars].rsplit('\n', 1)[0] + '\n... (truncated)'
-    return text
 
 
 def _is_failure(result: str) -> bool:

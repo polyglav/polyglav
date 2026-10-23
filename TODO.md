@@ -54,7 +54,6 @@
 
 ## Open
 
-- [ ] Share the tool output cap helper - one `_truncate` and `_cap` implementation for dev, exec, fs, and git
 - [ ] Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools`
 - [ ] Document the tmux process name - note the `python` label and the manual workaround
 - [ ] Sync the backlog and plan after cleanup - move finished tasks, remove packages, and refresh the changelog
@@ -160,6 +159,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Changed tool output to one shared cap and truncate helper
 - [x] Replaced delegate and offload with a read-class sibling delegate
 - [x] Removed the run output buffer and live focus leftovers
 - [x] Added tool output spill by default with temp and persistent refs

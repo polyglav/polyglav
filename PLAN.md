@@ -23,7 +23,6 @@ Shared helpers replace plugin copies, dead migrations go, and the planning files
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Share the tool output cap helper - one `_truncate` and `_cap` implementation for dev, exec, fs, and git | S | one cap behavior |
 | Remove the legacy provider backfill and the tool status duplicate - one display gate through `verbosity.tools` | S | less configuration surface |
 | Sync the backlog and plan - move finished tasks, remove packages, and refresh the changelog | S | accurate planning files |
 

@@ -4,23 +4,11 @@ import os
 import re
 from pathlib import Path
 
+from polyglav.tools.output import cap_from_config as _cap
+from polyglav.tools.output import truncate as _truncate
+
 SKIP_DIRS = frozenset({'__pycache__', '.git', '.venv', '.polyglav',
                        '.opencode', 'dist', 'node_modules'})
-
-
-def _cap(config=None) -> int:
-    if config is None:
-        return 0
-    try:
-        return max(0, int(config.get('tool_max_result_chars', 0)))
-    except (TypeError, ValueError):
-        return 0
-
-
-def _truncate(text: str, max_chars: int = 0) -> str:
-    if max_chars > 0 and len(text) > max_chars:
-        return text[:max_chars].rsplit('\n', 1)[0] + '\n... (truncated)'
-    return text
 
 
 def _walk(p, entries, indent, depth_left, lines, appended, total, cap):
