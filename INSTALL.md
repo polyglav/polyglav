@@ -147,3 +147,9 @@ See [docs/deploy.md](docs/deploy.md) for the full deployment guide and the Compo
 ## Plugins
 
 External repositories register tools, providers, slash commands, services, roles, teams, skills, and eval fixtures without changing the core. Install with `/plugins install <git-url|path>` or `polyglav plugins install`. Bundled plugins cover web search, filesystem, shell, edit, git, dev wrappers, and the vendor providers. See [docs/plugins.md](docs/plugins.md).
+
+## Troubleshooting
+
+### tmux shows `python` in the window name
+
+tmux reads the foreground process name, and an installed console script still runs the Python interpreter, so the window can show `python` instead of `polyglav`. Until a process-title fix lands, rename the window with `Ctrl-b ,` or turn off automatic renaming for that window with `set-window-option automatic-rename off`.

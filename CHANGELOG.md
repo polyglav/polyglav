@@ -2,6 +2,7 @@
 
 ## v0.47.0
 
+- Removed the `tool_status_visible` duplicate - tool status follows `verbosity.tools`, and the old key migrates to that level. Tests: `test_verbosity.py`
 - Removed the legacy provider-plugin backfill migration - plugin lists are no longer rewritten on load. Tests: `test_config.py`
 - Changed tool output - one shared cap and truncate helper replaces four plugin copies. Tests: plugin suites
 - Changed delegate to the sibling tool - `delegate` is the read-class role-less sibling, `call` handles named roles and teams, and the old team-pipeline `delegate` plus `offload` are removed. Tests: `test_delegate.py`, `test_call_target.py`, `test_run_resume.py`

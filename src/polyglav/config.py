@@ -97,7 +97,6 @@ DEFAULT_CONFIG = {
         'vcs': 'ask',
         'web': 'allow',
     },
-    'tool_status_visible': True,
     'tools.allow': [],
     'tools.deny': [],
     'tools_output_drop': ['web_fetch', 'open', 'fetch_page'],
@@ -129,6 +128,7 @@ VERBOSITY_OLD_KEYS = (
     'delegate_echo', 'glyph_lines', 'glyph_params', 'show_context_size',
     'show_errors', 'show_notes', 'show_tool_output', 'show_thinking',
     'show_thought_duration', 'status_spinner', 'subrun_verbosity',
+    'tool_status_visible',
 )
 
 
@@ -195,7 +195,6 @@ CONFIG_DESCRIPTIONS = {
     'tool_calling': 'Enable OpenAI-compatible function calling',
     'tool_max_result_chars': 'Cap tool-result content returned to the model',
     'tool_permission': 'Category permission actions',
-    'tool_status_visible': 'Show dimmed tool status in the REPL',
     'tools.allow': 'Name-level allowlist',
     'tools.deny': 'Name-level deny list',
     'tools_output_drop': 'Tool results replaced by a marker in persisted sessions',
@@ -319,6 +318,9 @@ class Config:
                 raw['verbosity.tools'] = 'off'
             else:
                 raw['verbosity.tools'] = 'summary'
+        if ('verbosity.tools' not in raw and 'tool_status_visible' in raw):
+            raw['verbosity.tools'] = (
+                'summary' if raw.get('tool_status_visible') else 'off')
         if ('verbosity.subruns' not in raw
                 and any(key in raw for key in
                         ('subrun_verbosity', 'delegate_echo', 'status_spinner'))):

@@ -9,21 +9,12 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Onboarding and first-run polish
-
-The first run explains the product, keeps every line aligned, and leaves a supported setup. The terminal identity limitation is documented until a process-title fix lands.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Document the tmux process name - note the `python` label and the manual workaround | S | a known limitation with a workaround |
-
 ## Core cleanup and backlog sync
 
 Shared helpers replace plugin copies, dead migrations go, and the planning files match the code.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove the tool status duplicate - one display gate through `verbosity.tools` | S | less configuration surface |
 | Sync the backlog and plan - move finished tasks, remove packages, and refresh the changelog | S | accurate planning files |
 
 ## Self-development team enablement

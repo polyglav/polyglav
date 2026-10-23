@@ -92,7 +92,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tool_calling`              | `true`                 | Enable OpenAI-compatible function calling                              |
 | `tool_max_result_chars`     | `100000`               | Cap tool-result content returned to the model (`... (truncated)` appended). `0` = unlimited. With the default, the model sizes files via the `file_read` header and pages with `offset`/`limit` |
 | `tool_permission`           | *(see below)*          | Category permission actions                                            |
-| `tool_status_visible`       | `true`                 | Show dimmed tool status in the REPL                                    |
 | `tools.allow`               | `[]`                   | Name-level allowlist. Empty means no restriction                       |
 | `tools.deny`                | `[]`                   | Name-level deny list (takes precedence over allow)                     |
 | `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker with the ref in persisted sessions |

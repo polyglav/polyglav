@@ -1404,8 +1404,7 @@ class Engine:
             tool_start = time.monotonic()
             output = self._run_tool(name, args)
             duration = round(time.monotonic() - tool_start, 1)
-            if (self.config.get('tool_status_visible', True)
-                    and self._tool_registry.echo_for(name) and output
+            if (self._tool_registry.echo_for(name) and output
                     and not self._tool_registry.is_note_result(name, output)
                     and not output.startswith(('[cancelled]', 'Error'))):
                 if self._tool_registry.is_error_result(name, output):
@@ -1570,8 +1569,7 @@ class Engine:
                                  granted_by=grant.get('origin'))
         else:
             self._log_permission(name, action, 'granted', path)
-        if self.config.get('tool_status_visible', True):
-            self._show_tool_status(name, args)
+        self._show_tool_status(name, args)
         result = registry.execute(name, args, config=self.config, echo=echo)
         if result.startswith('Error'):
             self.ui.tool_error(result)

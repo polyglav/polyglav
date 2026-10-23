@@ -156,6 +156,13 @@ class TestVerbosityMigration(unittest.TestCase):
                     'show_errors'):
             self.assertNotIn(key, config._local_raw)
 
+    def test_tool_status_visible_maps_to_tools_level(self):
+        hidden = self._config({'tool_status_visible': False})
+        self.assertEqual(hidden.get('verbosity.tools'), 'off')
+        self.assertNotIn('tool_status_visible', hidden._local_raw)
+        shown = self._config({'tool_status_visible': True})
+        self.assertEqual(shown.get('verbosity.tools'), 'summary')
+
     def test_quiet_old_flags_map_to_off(self):
         config = self._config({
             'show_thinking': False,

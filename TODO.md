@@ -53,8 +53,6 @@
 
 ## Open
 
-- [ ] Remove the tool status duplicate - one display gate through `verbosity.tools`
-- [ ] Document the tmux process name - note the `python` label and the manual workaround
 - [ ] Sync the backlog and plan after cleanup - move finished tasks, remove packages, and refresh the changelog
 - [ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs
 - [ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line
@@ -158,6 +156,8 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Documented the tmux `python` window name and its workaround
+- [x] Removed the tool status duplicate in favor of `verbosity.tools`
 - [x] Removed the legacy provider-plugin backfill migration
 - [x] Changed tool output to one shared cap and truncate helper
 - [x] Replaced delegate and offload with a read-class sibling delegate
