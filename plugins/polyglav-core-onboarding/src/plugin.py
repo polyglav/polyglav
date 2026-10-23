@@ -3,9 +3,12 @@ import re
 import sys
 from urllib.parse import urlparse
 
-WELCOME = ("Welcome to Polyglav. Let's set up this project together.\n"
-           "I will ask about your provider, model, and how you want the "
-           "assistant to work.\nPress Enter to accept a default.")
+WELCOME = ("Welcome to Polyglav.\n"
+           "This short setup connects a model provider and sets how the assistant "
+           "works in this project.\n"
+           "It can read code, search the web, edit files, and run teams of "
+           "specialists when a task is bigger than one step.\n"
+           "Press Enter to accept any default.")
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
 PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
@@ -26,9 +29,12 @@ OPERATING = ('Delegate work bigger than one step: create the roles, teams, and '
              'or a hierarchical orchestrator that calls roles, and the per-role '
              'permissions. Keep answers short.')
 
-HINT = ('You can change provider, model, and mode later with /connect, /model, '
-        'and /modes. For temperature, max tokens, and tool permissions, use '
-        '/config --verbose.')
+HINT = ('Change these later with /connect, /model, /modes, and /config --verbose.')
+
+
+def _say(message: str = '') -> None:
+    print(message, flush=True)
+
 
 
 def compose_prompt(purpose: str, persona: str) -> str:
@@ -80,12 +86,17 @@ def _secret(secret, prompt: str, default: str = '') -> str:
     return str(answer).strip() or default
 
 
-def _info(chat, message: str) -> None:
+def _warn(chat, message: str) -> None:
     ui = getattr(chat, '_ui', None)
-    if ui is not None and hasattr(ui, 'info'):
-        ui.info(message)
+    if ui is not None and hasattr(ui, 'warning'):
+        ui.warning(message)
     else:
-        print(message)
+        print(message, flush=True)
+
+
+def _providers_path(chat) -> str:
+    path = getattr(getattr(chat, 'providers', None), 'path', None)
+    return str(path) if path else '~/.config/polyglav/providers.json'
 
 
 def _normalize_url(url: str) -> str:
@@ -118,22 +129,24 @@ def _provider_names(chat):
 
 def _pick_provider(chat, ask, names):
     current = chat.config.get('provider') or names[0]
-    print('  Providers:')
+    print()
+    _say('Choose a provider')
+    _say('This is where the model runs. A stored key is marked (key).')
     for i, name in enumerate(names, 1):
         key = ' (key)' if chat.providers.api_key_for(name) else ''
-        print(f'    {i}. {name}{key}')
+        _say(f'{i}. {name}{key}')
     choice = _ask(ask, PROMPT_PROVIDER.format(default=current), current)
     if choice.isdigit():
         index = int(choice) - 1
         if 0 <= index < len(names):
             return names[index], ''
-        _info(chat, f'Unknown provider number "{choice}"')
+        _warn(chat, f'Unknown provider number "{choice}"')
         return current, ''
     if choice in names:
         return choice, ''
     if '.' in choice or '://' in choice:
         return '', choice
-    _info(chat, f'Unknown provider "{choice}"')
+    _warn(chat, f'Unknown provider "{choice}"')
     return current, ''
 
 
@@ -158,10 +171,17 @@ def _provider_setup(chat, ask, secret):
                       if default_url else 'Base URL: ')
             base_url = _ask(ask, prompt, default_url)
         if not base_url:
-            _info(chat, 'No base URL set; provider not saved.')
+            _warn(chat, 'No base URL set; provider not saved.')
             return None
 
     stored = chat.providers.api_key_for(provider)
+    print()
+    _say(f'Enter the {provider} API key.')
+    _say(f'It is stored in {_providers_path(chat)}, never in this project.')
+    if stored:
+        _say('Leave it empty to reuse the saved key.')
+    else:
+        _say('Leave it empty to skip this provider for now.')
     prompt = (PROMPT_KEY.format(default='stored') if stored
               else PROMPT_KEY_EMPTY)
     api_key = _secret(secret, prompt, stored)
@@ -171,15 +191,15 @@ def _provider_setup(chat, ask, secret):
         ok, message, models = chat.check_connection(
             base_url=base_url, api_key=api_key, provider=provider)
         if not ok:
-            _info(chat, f'! Connection test failed: {message}')
+            _warn(chat, f'Connection test failed: {message}')
             if _ask(ask, PROMPT_SAVE_ANYWAY, 'y').lower() in ('n', 'no'):
-                _info(chat, 'Provider not saved.')
+                _warn(chat, 'Provider not saved.')
                 return None
 
     chat.providers.put(provider, base_url, api_key)
     chat.config.set('provider', provider, scope='local')
     chat.config.set('base_url', base_url, scope='local')
-    _info(chat, f'Connected to {provider} ({base_url}).')
+    _say(f'Connected to {provider} ({base_url}).')
     return provider, base_url, api_key, models
 
 
@@ -189,10 +209,12 @@ def _pick_model(chat, provider, base_url, api_key, models, ask):
         current = current.split('/', 1)[1]
     elif '/' in current:
         current = ''
+    print()
+    _say('Choose a model')
     if models:
-        print('  Models:')
+        _say(f'These are the models {provider} reports. The first 20 are listed.')
         for i, model in enumerate(models[:20], 1):
-            print(f'    {i}. {model}')
+            _say(f'{i}. {model}')
         default = current if current in models else models[0]
         prompt = PROMPT_MODEL.format(default=default)
         choice = _ask(ask, prompt, default)
@@ -200,9 +222,11 @@ def _pick_model(chat, provider, base_url, api_key, models, ask):
             index = int(choice) - 1
             if 0 <= index < min(len(models), 20):
                 return models[index]
-            _info(chat, f'Unknown model number "{choice}"')
+            _warn(chat, f'Unknown model number "{choice}"')
             return default
         return choice
+    _say('No model list was returned. Enter a model name, or leave it empty '
+         'to set one later with /model.')
     prompt = PROMPT_MODEL.format(default=current) if current else 'Model: '
     return _ask(ask, prompt, current)
 
@@ -212,7 +236,7 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
         return False
     if chat._is_unattended():
         return False
-    _info(chat, WELCOME)
+    _say(WELCOME)
 
     setup = _provider_setup(chat, ask, secret)
     provider = ''
@@ -226,15 +250,20 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
             chat.models.put(provider, model)
             chat.config.set('model', model, scope='local')
         else:
-            _info(chat, 'No model selected; set one later with /model.')
+            _say('No model selected; set one later with /model.')
 
+    print()
+    _say('Choose a mode')
+    _say('read is read-only. write allows file edits and commands.')
     current_mode = chat.config.get('mode') or 'read'
     mode = _ask(ask, PROMPT_MODE.format(default=current_mode), current_mode)
     if mode not in ('read', 'write'):
-        _info(chat, f'Unknown mode "{mode}", keeping {current_mode}.')
+        _warn(chat, f'Unknown mode "{mode}", keeping {current_mode}.')
         mode = current_mode
     chat.config.set('mode', mode, scope='local')
 
+    print()
+    _say('Describe this project and the assistant (optional).')
     purpose = _ask(ask, PROMPT_PURPOSE)
     persona = _ask(ask, PROMPT_PERSONA)
     output = _ask(ask, PROMPT_OUTPUT, 'n')
@@ -245,8 +274,9 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
                str(output).strip().lower().startswith('y'), scope='local')
     if provider:
         chat._reinit_provider()
-    _info(chat, f'Saved project setup to {config.local_path}')
-    _info(chat, HINT)
+    print()
+    _say(f'Saved project setup to {config.local_path}')
+    _say(HINT)
     return True
 
 

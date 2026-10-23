@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.47.0
+
+- Changed onboarding output - plain-color welcome and hints, aligned provider and model lists, section lead-ins, and an explained API key. Tests: `polyglav-core-onboarding`
+
 ## v0.46.0 - 2026-10-22
 
 - Fixed the Python 3.11 eager-annotation import error in the session manager. Tests: full suite on Python 3.11

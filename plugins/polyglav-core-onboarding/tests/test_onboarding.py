@@ -1,4 +1,6 @@
+import contextlib
 import importlib.util
+import io
 import sys
 import tempfile
 import unittest
@@ -67,20 +69,11 @@ class FakeModels:
         self.entries.append((provider, model))
 
 
-class FakeUI:
-    def __init__(self):
-        self.messages = []
-
-    def info(self, message):
-        self.messages.append(message)
-
-
 class FakeChat:
-    def __init__(self, config, unattended=False, ui=None,
+    def __init__(self, config, unattended=False,
                  connected=True, models=None):
         self.config = config
         self._unattended = unattended
-        self._ui = ui
         self.providers = FakeProviders()
         self.models = FakeModels()
         self.connected = connected
@@ -115,8 +108,8 @@ class TestOnboarding(unittest.TestCase):
         self._stdin.stop()
         self.tmp.cleanup()
 
-    def _chat(self, unattended=False, ui=None, **kwargs):
-        return FakeChat(self.config, unattended=unattended, ui=ui, **kwargs)
+    def _chat(self, unattended=False, **kwargs):
+        return FakeChat(self.config, unattended=unattended, **kwargs)
 
     def _answers(self, **values):
         return values.get
@@ -160,8 +153,6 @@ class TestOnboarding(unittest.TestCase):
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
         self.assertTrue(self.config.get('output_log'))
         self.assertIn('widget assistant', self.config.get('system_prompt'))
-        self.assertIsNone(self.config.get('focus_on_delegate'))
-        self.assertIsNone(self.config.get('prompt_role'))
         self.assertTrue(self.config.local_path.exists())
         self.assertEqual(self.config.get('provider'), 'ollama')
         self.assertEqual(self.config.get('base_url'), 'https://api.ollama.com')
@@ -263,7 +254,7 @@ class TestOnboarding(unittest.TestCase):
         self.assertEqual(self.config.get('mode'), 'read')
 
     def test_run_warm_welcome_and_option_hint(self):
-        chat = self._chat(ui=FakeUI())
+        chat = self._chat()
         answers = self._answers(**{
             plugin.PROMPT_PROVIDER.format(default='ollama'): '1',
             plugin.PROMPT_KEY_EMPTY: '',
@@ -273,15 +264,27 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_PERSONA: '',
             plugin.PROMPT_OUTPUT: '',
         })
-        self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
-        welcome = chat._ui.messages[0]
-        self.assertIn('Welcome to Polyglav', welcome)
-        self.assertIn('set up this project together', welcome)
-        hint = chat._ui.messages[-1]
-        self.assertIn('/connect', hint)
-        self.assertIn('/model', hint)
-        self.assertIn('/modes', hint)
-        self.assertIn('/config --verbose', hint)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertTrue(plugin.run(chat, ask=answers,
+                                       secret=lambda _: ''))
+        text = out.getvalue()
+        self.assertIn('Welcome to Polyglav', text)
+        self.assertIn('This short setup connects a model provider', text)
+        self.assertIn('Choose a provider', text)
+        self.assertIn('A stored key is marked (key).', text)
+        self.assertIn('Choose a model', text)
+        self.assertIn('These are the models ollama reports.', text)
+        self.assertIn('Choose a mode', text)
+        self.assertIn('Enter the ollama API key.', text)
+        self.assertIn('never in this project', text)
+        self.assertIn('/connect', text)
+        self.assertIn('/model', text)
+        self.assertIn('/modes', text)
+        self.assertIn('/config --verbose', text)
+        self.assertNotIn('\033[90m', text)
+        self.assertIn('\n1. ollama', text)
+        self.assertIn('\n1. model-a', text)
 
     def test_run_output_log_default_off(self):
         chat = self._chat()

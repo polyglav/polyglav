@@ -15,7 +15,6 @@ The first run explains the product, keeps every line aligned, and leaves a suppo
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Improve onboarding output - plain welcome, aligned provider and model lists, section lead-ins, and an explained API key | S | a clear first run |
 | Document the tmux process name - note the `python` label and the manual workaround | S | a known limitation with a workaround |
 
 ## Config and tool output legibility
