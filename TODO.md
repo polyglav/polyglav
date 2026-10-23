@@ -149,7 +149,6 @@
 ## Done
 - [x] Synced the backlog and plan after cleanup
 - [x] Updated README and INSTALL for sequential runs
-- [x] Documented the tmux `python` window name and its workaround
 - [x] Removed the tool status duplicate in favor of `verbosity.tools`
 - [x] Removed the legacy provider-plugin backfill migration
 - [x] Changed tool output to one shared cap and truncate helper

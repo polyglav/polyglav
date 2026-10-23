@@ -394,6 +394,21 @@ class TestSessionModel(unittest.TestCase):
         d = s.to_dict(drop_tools=['fetch_page'])
         self.assertNotIn('ref', d['turns'][0]['parts'][1]['dropped'])
 
+    def test_existing_dropped_ref_is_reused_without_spill(self):
+        s = Session('s1')
+        s.add_user('hi')
+        part = s.add_tool('fetch_page', {'url': 'x'})
+        turns.finish_tool(part, 'page body')
+        part['output'] = 'marker'
+        part['dropped'] = {'reason': 'drop', 'original_chars': 9,
+                           'ref': '.polyglav/tmp/s1/1_1.txt'}
+        calls = []
+        d = s.to_dict(drop_tools=['fetch_page'],
+                      spill=lambda name, text: calls.append(name) or 'new')
+        self.assertEqual(calls, [])
+        dropped = d['turns'][0]['parts'][1]['dropped']
+        self.assertEqual(dropped['ref'], '.polyglav/tmp/s1/1_1.txt')
+
     def test_read_does_not_switch_current(self):
         tmp = tempfile.TemporaryDirectory()
         try:

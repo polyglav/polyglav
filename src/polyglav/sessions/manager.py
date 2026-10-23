@@ -205,7 +205,8 @@ class Session:
                 p = dict(part)
                 output = p.get('output')
                 if p.get('type') == 'tool' and isinstance(output, str):
-                    ref = str(p.get('ref') or '')
+                    dropped = p.get('dropped') or {}
+                    ref = str(p.get('ref') or dropped.get('ref') or '')
                     if not ref and spill is not None:
                         try:
                             ref = spill(

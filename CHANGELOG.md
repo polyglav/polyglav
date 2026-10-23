@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.47.0
+## v0.47.0 - 2026-10-24
 
+- Fixed stored tool output refs - saving a loaded session reuses `dropped.ref` instead of calling spill again. Tests: `test_session_log.py`
 - Removed the `tool_status_visible` duplicate - tool status follows `verbosity.tools`, and the old key migrates to that level. Tests: `test_verbosity.py`
 - Removed the legacy provider-plugin backfill migration - plugin lists are no longer rewritten on load. Tests: `test_config.py`
 - Changed tool output - one shared cap and truncate helper replaces four plugin copies. Tests: plugin suites
