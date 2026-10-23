@@ -205,11 +205,26 @@ class Session:
                 p = dict(part)
                 output = p.get('output')
                 if p.get('type') == 'tool' and isinstance(output, str):
+                    ref = str(p.get('ref') or '')
+                    if not ref and spill is not None:
+                        try:
+                            ref = spill(
+                                f'{turn.get("index", 0)}_{index}.txt',
+                                output)
+                        except OSError:
+                            ref = ''
+                        if ref:
+                            p['ref'] = ref
                     reason = ''
                     if p.get('name') in drop_tools:
-                        p['output'] = (
-                            f'[{p["name"]} result excluded from log; '
-                            'see tool call above for parameters]')
+                        if ref:
+                            p['output'] = (
+                                f'[{p["name"]} result excluded from log; '
+                                f'full output: {ref}]')
+                        else:
+                            p['output'] = (
+                                f'[{p["name"]} result excluded from log; '
+                                'see tool call above for parameters]')
                         reason = 'drop'
                     elif max_chars > 0 and len(output) > max_chars:
                         p['output'] = output[:max_chars] + (
@@ -218,15 +233,8 @@ class Session:
                     if reason:
                         dropped = {'reason': reason,
                                    'original_chars': len(output)}
-                        if spill is not None:
-                            try:
-                                ref = spill(
-                                    f'{turn.get("index", 0)}_{index}.txt',
-                                    output)
-                            except OSError:
-                                ref = ''
-                            if ref:
-                                dropped['ref'] = ref
+                        if ref:
+                            dropped['ref'] = ref
                         p['dropped'] = dropped
                 parts.append(p)
             serialized['parts'] = parts
@@ -433,10 +441,13 @@ class SessionManager:
             except OSError:
                 pass
 
-    def delete(self, session_name: str) -> bool:
+    def delete(self, session_name: str,
+               extra_dirs: list[Path] | None = None) -> bool:
         path = self.sessions_dir / f'{session_name}.json'
         if path.exists():
             path.unlink()
             shutil.rmtree(self.tmp_dir / session_name, ignore_errors=True)
+            for root in extra_dirs or []:
+                shutil.rmtree(Path(root) / session_name, ignore_errors=True)
             return True
         return False

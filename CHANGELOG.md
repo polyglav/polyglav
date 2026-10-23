@@ -2,6 +2,7 @@
 
 ## v0.47.0
 
+- Added tool output spill by default - every tool result is written to the system temp directory, with `tools_output_dir` (`.polyglav/tmp/`) for persistence, a `ref` on every tool part, `/print` resolution, and pruning. Tests: `test_spill.py`, `test_session_log.py`
 - Added config defaults to single-key and verbose output. Tests: `test_commands.py`
 - Changed onboarding output - plain-color welcome and hints, aligned provider and model lists, section lead-ins, and an explained API key. Tests: `polyglav-core-onboarding`
 

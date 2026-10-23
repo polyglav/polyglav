@@ -221,15 +221,16 @@ Turns and errors are only ever appended. Compaction stores the summary in a `com
 
 ## Serialization-time transforms
 
-Two config keys reshape `tool` part output when the session is written to disk, without touching the stored parts:
+Every tool result is written to disk when the tool returns, and the `tool` part records a `ref`. By default the file lives under the system temp directory at `<tmp>/polyglav/<session>/<turn>_<part>.txt`. With `tools_output_spill` on, files live under `tools_output_dir`, which defaults to `.polyglav/tmp/`, so persistence needs no manually defined path.
 
-- **`tools_output_drop`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, see tool call above for parameters]`, keeping noisy results out of session files while `input` stays on the part.
+Two config keys reshape the inline `tool` output when the session is written to disk, without touching the stored parts:
+
+- **`tools_output_drop`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, full output: <ref>]`, keeping noisy results out of session files while `input` and the ref stay on the part.
 - **`tools_output_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
-- **`tools_output_spill`** (default `false`) - when on, the full dropped or capped output is written to `.polyglav/tmp/<session>/<turn>_<part>.txt` instead of being lost.
 
-Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "drop" | "max_chars", "original_chars": <len>}`. With `tools_output_spill` on, the marker also carries `"ref": ".polyglav/tmp/<session>/<turn>_<part>.txt"`, so the content can be read instead of re-calling the tool. The in-memory part keeps its full `output`, so the marker is written to disk only.
+Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "drop" | "max_chars", "original_chars": <len>, "ref": "<path>"}`. The `ref` stays on the part even without a transform, so `/print` reads the stored text when the inline copy was dropped or capped. The in-memory part keeps its full `output`, so the marker is written to disk only.
 
-Spilled files live under `.polyglav/tmp/<session>/`. The directory is pruned to `tools_output_tmp_max_bytes` (oldest files first) after each save, and a session's spill directory is removed when the session is deleted.
+The spill roots are pruned to `tools_output_tmp_max_bytes` (oldest files first) after each save, and a session's directories are removed when the session is deleted.
 
 ## Preparing the provider context
 

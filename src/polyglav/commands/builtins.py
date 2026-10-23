@@ -1311,7 +1311,8 @@ def register_builtins(registry):
             if not name:
                 print('Usage: /sessions delete <name>')
                 return
-            if chat.sessions.delete(name):
+            roots = chat.tool_output_roots() if hasattr(chat, 'tool_output_roots') else []
+            if chat.sessions.delete(name, extra_dirs=roots):
                 print(f'Deleted session: {name}')
             else:
                 print(f'Session not found: {name}')
@@ -1422,12 +1423,14 @@ def register_builtins(registry):
                 print(error)
                 return
         cap = chat.config.get('print_max_chars', 4000)
+        resolve = getattr(chat, 'resolve_tool_ref', None)
         if tree:
             for depth, item in chat.sessions.tree(session.session_name):
                 print(f'\n# Session: {item.session_name} '
                       f'({item.role or "root"})')
                 for turn in item.turns:
-                    print(render_turn(turn, full=full, cap=cap))
+                    print(render_turn(turn, full=full, cap=cap,
+                                      resolve=resolve))
                     print()
             return
         n, m, error = _parse_turn_ref(spec)
@@ -1443,7 +1446,7 @@ def register_builtins(registry):
         if m is not None and m > len(parts):
             print(f'Turn {n} has no part {m} (1-{len(parts)})')
             return
-        print(render_turn(turn, part=m, full=full, cap=cap))
+        print(render_turn(turn, part=m, full=full, cap=cap, resolve=resolve))
 
     @registry.register('asks', description='List parked asks and answer them', subcommands=[
         ('list', 'List parked asks (list [all|pending|answered])'),

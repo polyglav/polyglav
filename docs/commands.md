@@ -23,7 +23,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/onboard`              |                | Set up this project (provider, model, mode, purpose, assistant, output log). See [plugins.md](plugins.md) |
 | `/pause`                |                | Hold the next turn at the turn boundary; `/resume` clears it. State prints as `@ Paused #n` and `@ Resumed #n` |
 | `/plugins`              | `/plugin`      | Manage plugins: `disable`, `enable`, `install`, `list`, `uninstall`, `update` |
-| `/print`                |                | Reprint a turn (or one part) in full: `/print <n>[.<m>] [--full] [--run <target>] [--tree]`. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by `print_max_chars`, and `--full` drops the cap. `--tree` renders the root and its sub-runs. See [session.md](session.md) |
+| `/print`                |                | Reprint a turn (or one part) in full: `/print <n>[.<m>] [--full] [--run <target>] [--tree]`. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Tool output is read from its stored `ref` when the inline copy was dropped or capped. Each part is capped by `print_max_chars`, and `--full` drops the cap. `--tree` renders the root and its sub-runs. See [session.md](session.md) |
 | `/provider`              |                | Show or switch the active provider                             |
 | `/providers`             |                | List provider connections, alphabetical, with the active one marked and `(key)` when a key is stored, and `(custom)` for a provider with no built-in factory |
 | `/resume`               |                | Clear a paused run and continue at the next turn |

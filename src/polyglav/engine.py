@@ -13,6 +13,7 @@ from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
 from .ui import BufferUI, NullUI, ReplUI, glyph, glyph_map
+from . import spill as spill_store
 
 
 @dataclass
@@ -434,19 +435,37 @@ class Engine:
         probe = factory(base_url=base_url, api_key=api_key, model=model)
         return probe._fetch_models()
 
+    def tool_output_root(self) -> Path:
+        return spill_store.root_for(self.config, self.sessions.sessions_dir)
+
+    def tool_output_roots(self) -> list[Path]:
+        return spill_store.roots_for(self.config, self.sessions.sessions_dir)
+
+    def resolve_tool_ref(self, ref: str) -> str | None:
+        return spill_store.resolve(ref, self.sessions.sessions_dir)
+
+    def _store_tool_output(self, part: dict, output: str, turn_index: int,
+                           part_index: int) -> str:
+        if not isinstance(output, str) or not output:
+            return ''
+        try:
+            ref = spill_store.write(
+                self.tool_output_root(), self.current_session.session_name,
+                turn_index, part_index, output, self.sessions.sessions_dir)
+        except OSError:
+            return ''
+        part['ref'] = ref
+        return ref
+
     def session_auto_save(self):
         if not (self.current_session and self.current_session.turns):
             return
-        spill = None
-        if self.config.get('tools_output_spill'):
-            base = self.sessions.sessions_dir.parent
-            name = self.current_session.session_name
+        name = self.current_session.session_name
 
-            def spill(filename: str, text: str) -> str:
-                path = base / 'tmp' / name / filename
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text)
-                return str(path.relative_to(base.parent))
+        def spill(filename: str, text: str) -> str:
+            return spill_store.write_file(
+                self.tool_output_root(), name, filename, text,
+                self.sessions.sessions_dir)
 
         self.sessions.save(
             self.current_session,
@@ -454,9 +473,9 @@ class Engine:
             drop_tools=self.config.get('tools_output_drop', []),
             spill=spill,
         )
-        if spill is not None:
-            self.sessions.prune_tmp(
-                self.config.get('tools_output_tmp_max_bytes', 0))
+        max_bytes = self.config.get('tools_output_tmp_max_bytes', 0)
+        for root in self.tool_output_roots():
+            spill_store.prune(root, max_bytes)
 
     def load_or_create_session(self, name: str | None = None):
         if name and self.sessions.read(name) is not None:
@@ -1402,9 +1421,20 @@ class Engine:
             if (self.config.get('tool_analysis')
                     and output and not output.startswith(('[cancelled]', 'Error'))):
                 analysis = self._analyze_tool_result(name, output)
-            turns.finish_tool(part, output, is_error=output.startswith('Error'),
+            turn = self.current_session.open_turn()
+            turn_index = turn.get('index', 0) if turn else 0
+            part_index = max(0, len(turn.get('parts') or []) - 1) if turn else 0
+            ref = self._store_tool_output(part, output, turn_index, part_index)
+            stored = self._with_output_ref(output, ref)
+            turns.finish_tool(part, stored, is_error=output.startswith('Error'),
                               analysis=analysis, duration=duration)
         return executed
+
+    @staticmethod
+    def _with_output_ref(output: str, ref: str) -> str:
+        if ref and '... (truncated)' in output:
+            return f'{output}\n[full output: {ref}]'
+        return output
 
     def _analyze_tool_result(self, name: str, output: str) -> str | None:
         sys_prompt = (

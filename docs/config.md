@@ -96,10 +96,11 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tool_status_visible`       | `true`                 | Show dimmed tool status in the REPL                                    |
 | `tools.allow`               | `[]`                   | Name-level allowlist. Empty means no restriction                       |
 | `tools.deny`                | `[]`                   | Name-level deny list (takes precedence over allow)                     |
-| `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions                |
-| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps persisted tool-result content                    |
-| `tools_output_spill`        | `false`                | Write the full dropped or capped tool output to `.polyglav/tmp/<session>/<turn>_<part>.txt` and record the `ref` in the `dropped` marker, so the content is recallable without re-calling the tool |
-| `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of `.polyglav/tmp/` spilled tool output. Oldest files are removed past the cap. `0` = unlimited |
+| `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker with the ref in persisted sessions |
+| `tools_output_dir`          | `".polyglav/tmp/"`     | Persistent tool output folder used when `tools_output_spill` is on, relative to the worktree or absolute |
+| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps the inline persisted tool-result content, while the full text stays at the ref |
+| `tools_output_spill`        | `false`                | Persist every tool result under `tools_output_dir` instead of the system temp directory. Every part records a `ref` |
+| `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of the spill roots. Oldest files are removed past the cap. `0` = unlimited |
 | `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
 | `verbosity`                 | `"normal"`             | Display volume: `quiet`, `normal`, or `verbose`                         |
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |

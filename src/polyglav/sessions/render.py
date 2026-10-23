@@ -27,17 +27,17 @@ def turn_summary(turn: dict, thoughts: bool | str = False) -> str:
 
 
 def render_turn(turn: dict, part=None, full: bool = False,
-                cap: int = PRINT_CAP) -> str:
+                cap: int = PRINT_CAP, resolve=None) -> str:
     parts = turn.get('parts') or []
     if part is not None:
         index = part - 1
         if index < 0 or index >= len(parts):
             return ''
-        return '\n'.join(_part_lines(parts[index], full, cap))
+        return '\n'.join(_part_lines(parts[index], full, cap, resolve))
     lines = [_turn_header(turn), *_turn_meta(turn)]
     for p in parts:
         lines.append('')
-        lines.extend(_part_lines(p, full, cap))
+        lines.extend(_part_lines(p, full, cap, resolve))
     return '\n'.join(lines)
 
 
@@ -276,7 +276,7 @@ def _meta(value) -> str:
     return str(value)
 
 
-def _part_lines(part: dict, full: bool, cap: int) -> list[str]:
+def _part_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
     kind = part.get('type')
     if kind == 'user':
         return [f'[{prompt_origin(part).lower()}]',
@@ -289,22 +289,27 @@ def _part_lines(part: dict, full: bool, cap: int) -> list[str]:
         return ['[thinking]',
                 *_dim(_body(str(part.get('text') or ''), full, cap))]
     if kind == 'tool':
-        return _tool_lines(part, full, cap)
+        return _tool_lines(part, full, cap, resolve)
     if kind == 'command':
         return _command_lines(part, full, cap)
     return [f'[{kind}]']
 
 
-def _tool_lines(part: dict, full: bool, cap: int) -> list[str]:
+def _tool_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
     label = f'[tool: {part.get("name", "?")}]'
     if part.get('is_error'):
         label += ' (error)'
+    text = str(part.get('output') or '')
+    if resolve is not None and part.get('ref'):
+        loaded = resolve(str(part['ref']))
+        if loaded is not None:
+            text = loaded
     lines = [label]
     if part.get('input') is not None:
         lines.append('input:')
         lines.extend(_body(_arguments(part['input']), full, cap))
     lines.append('output:')
-    lines.extend(_body(str(part.get('output') or ''), full, cap))
+    lines.extend(_body(text, full, cap))
     if part.get('analysis'):
         lines.append('analysis:')
         lines.extend(_body(str(part['analysis']), full, cap))

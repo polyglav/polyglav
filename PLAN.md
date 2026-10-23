@@ -17,14 +17,6 @@ The first run explains the product, keeps every line aligned, and leaves a suppo
 |------|--------|----------|
 | Document the tmux process name - note the `python` label and the manual workaround | S | a known limitation with a workaround |
 
-## Config and tool output legibility
-
-Current values and defaults are visible without editing files, and every tool result stays recallable after the inline log copy is trimmed.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Always spill tool output - system temp by default, persistent `.polyglav/tmp/` when enabled, refs resolved by `/print` | M | recall without re-running tools |
-
 ## Run and delegation cleanup
 
 The read-only run tree stays, while the buffer and live-focus leftovers go. Delegation becomes one verb for anonymous help and one for named agents.
