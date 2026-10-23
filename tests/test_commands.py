@@ -201,15 +201,26 @@ class TestToolCommand(unittest.TestCase):
     def test_config_listing_hides_descriptions(self):
         output = self._dispatch('/config')
         self.assertNotIn('Sampling temperature', output)
+        self.assertNotIn('default:', output)
 
     def test_config_key_shows_description(self):
         output = self._dispatch('/config temperature')
         self.assertIn('temperature: 0.7', output)
         self.assertIn('Sampling temperature', output)
 
+    def test_config_key_shows_default(self):
+        self.chat.config.set('temperature', 0.3)
+        output = self._dispatch('/config temperature')
+        self.assertIn('temperature: 0.3', output)
+        self.assertIn('default: 0.7', output)
+
     def test_config_verbose_shows_descriptions(self):
         output = self._dispatch('/config --verbose')
         self.assertIn('Sampling temperature', output)
+
+    def test_config_verbose_shows_defaults(self):
+        output = self._dispatch('/config --verbose')
+        self.assertIn('default: 0.7', output)
 
     def test_config_listing_blocks_long_values(self):
         output = self._dispatch('/config')

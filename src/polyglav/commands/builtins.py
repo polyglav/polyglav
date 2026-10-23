@@ -232,6 +232,13 @@ def _parse_turn_ref(spec):
     return int(n_str), m, ''
 
 
+def _config_default(key):
+    from ..config import DEFAULT_CONFIG
+    if key not in DEFAULT_CONFIG:
+        return None
+    return str(DEFAULT_CONFIG[key])
+
+
 def _render_config_listing(chat, verbose=False):
     from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
     keys = sorted(chat.config.data)
@@ -240,14 +247,27 @@ def _render_config_listing(chat, verbose=False):
         value = str(chat.config.data[key])
         origin = chat.config.origin(key)
         desc = CONFIG_DESCRIPTIONS.get(key, '')
+        default = _config_default(key)
         if len(value) <= CONFIG_VALUE_INLINE:
-            print(f'  {key:<{key_width}}  {value}  ({origin})')
+            line = f'  {key:<{key_width}}  {value}  ({origin})'
+            if verbose and default is not None:
+                if len(default) <= CONFIG_VALUE_INLINE:
+                    line += f'  default: {default}'
+                else:
+                    print(line)
+                    print(f'    default: {default}')
+                    if desc:
+                        print(f'    {desc}')
+                    continue
+            print(line)
             if verbose and desc:
                 print(f'    {desc}')
         else:
             print(f'  {key}:')
             print(f'    value: {value}')
             print(f'    source: {origin}')
+            if verbose and default is not None:
+                print(f'    default: {default}')
             if verbose and desc:
                 print(f'    description: {desc}')
 
@@ -257,14 +277,27 @@ def _render_config_detail(chat, key):
     value = str(chat.config.get(key))
     origin = chat.config.origin(key)
     desc = CONFIG_DESCRIPTIONS.get(key, '')
+    default = _config_default(key)
     if len(value) <= CONFIG_VALUE_INLINE:
-        print(f'  {key}: {value}  ({origin})')
+        line = f'  {key}: {value}  ({origin})'
+        if default is not None:
+            if len(default) <= CONFIG_VALUE_INLINE:
+                line += f'  default: {default}'
+            else:
+                print(line)
+                print(f'    default: {default}')
+                if desc:
+                    print(f'    {desc}')
+                return
+        print(line)
         if desc:
             print(f'    {desc}')
         return
     print(f'  {key}:')
     print(f'    value: {value}')
     print(f'    source: {origin}')
+    if default is not None:
+        print(f'    default: {default}')
     if desc:
         print(f'    description: {desc}')
 

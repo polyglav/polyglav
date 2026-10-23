@@ -2,6 +2,7 @@
 
 ## v0.47.0
 
+- Added config defaults to single-key and verbose output. Tests: `test_commands.py`
 - Changed onboarding output - plain-color welcome and hints, aligned provider and model lists, section lead-ins, and an explained API key. Tests: `polyglav-core-onboarding`
 
 ## v0.46.0 - 2026-10-22

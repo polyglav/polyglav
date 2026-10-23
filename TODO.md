@@ -54,7 +54,6 @@
 
 ## Open
 
-- [ ] Show config defaults - `/config <key>` and `/config --verbose` include the default value
 - [ ] Always spill tool output - system temp by default, persistent `.polyglav/tmp/` when enabled, refs in the session log
 - [ ] Remove the run output buffer and live focus leftovers - drop `BufferUI`, `/runs log`, and the engine map, keep `/print --run`
 - [ ] Replace delegate and offload with a sibling delegate - read-class anonymous help, while `call` handles roles and teams
@@ -164,6 +163,7 @@
 - [ ] Session import from Markdown/JSON
 
 ## Done
+- [x] Added config defaults to single-key and verbose output
 - [x] Improved onboarding output with plain colors, aligned lists, and lead-ins
 - [x] Updated site and SVG for v0.46.0
 - [x] Added Python 3.14 to CI and disabled fail-fast

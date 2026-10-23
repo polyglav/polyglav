@@ -10,9 +10,9 @@ Every process merges them in memory. The merge descends into nested objects, so 
 ```bash
 # inspect in the REPL (alphabetical, key/value/source columns)
 /config
-# one key with its description
+# one key with its description and default
 /config temperature
-# every key with its description on an indented line
+# every key with its default and description on an indented line
 /config --verbose
 # a value too long for the value column prints as an indented value/source block
 # set a value (project-local, Git-like default)

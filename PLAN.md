@@ -23,7 +23,6 @@ Current values and defaults are visible without editing files, and every tool re
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Show defaults in `/config` - single-key and verbose output include the default value | S | self-explanatory configuration |
 | Always spill tool output - system temp by default, persistent `.polyglav/tmp/` when enabled, refs resolved by `/print` | M | recall without re-running tools |
 
 ## Run and delegation cleanup
