@@ -44,7 +44,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 | Key                         | Default                | Description                                                            |
 |-----------------------------|------------------------|------------------------------------------------------------------------|
-| `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `offload`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
+| `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `delegate`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
 | `ask_min_question_chars`    | `8`                    | Minimum length of a `kind='direction'` ask question when it has no `context` and no `options`. A shorter question is rejected with an error so the model asks a self-contained question. `0` disables the guard |
 | `ask_policy`                | *(see below)*          | Routing for the `ask` tool by kind (`permission`/`direction`)          |
 | `auto_continue`             | `true`                 | On truncation (`finish_reason=length`) with a partial answer, re-request with a "continue" instruction and stitch the parts into one message |
@@ -54,13 +54,14 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth, so an unattended-but-watched run still cannot freeze on a prompt. See [Unattended mode](#unattended-mode) |
 | `connect_check`             | `true`                 | Test the provider connection on config changes: `/connect` probes before saving (broken values rejected unless confirmed), `/provider` warns on a failed probe. `false` skips all probes |
+| `delegate_depth`            | `1`                    | Maximum nested `delegate` siblings. `0` = unlimited. A sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
-| `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `offload`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |
+| `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |
 | `grant_permission`          | `{}`                   | Optional narrowing of the mode-derived delegation ceiling. In `write` mode the mode itself grants write keys, in `read` mode grants are denied, and this key can only narrow the result (for example `{"bash": "ask"}`). See [Permission authority](#permission-authority) |
 | `hide_confirm_input`        | `true`                 | Hide the typed input for the REPL `[Y/n]` tool confirm prompt (the answer is not echoed). Free-text `ask` answers stay visible |
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
-| `max_team_depth`            | `2`                    | Maximum nested team runs (a `delegate` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
+| `max_team_depth`            | `2`                    | Maximum nested team runs (a `call` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
 | `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults |
 | `mcp.servers`               | `[]`                   | MCP client server definitions (see [mcp.md](mcp.md) for the schema)     |
 | `mcp_server.allow_ask`      | `true`                 | When serving MCP, run `ask`-policy tools (deferred to the client) vs refuse them |
@@ -69,7 +70,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
 | `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. `/model <ref>` persists only the ref, so a project config can be just `{"model": "provider/model"}`, while `provider`/`base_url` remain explicit overrides for `openai-compatible` and custom URL providers. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
-| `offload_depth`             | `1`                    | Maximum nested `offload` siblings. `0` = unlimited. An `offload` sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
 | `output_log_ansi`           | `false`                | Write the raw stream to the output log (ANSI colors and control characters kept) instead of plain text, for manual inspection |
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
@@ -124,7 +124,7 @@ There are two modes: `read` (default) and `write`. `read` allows only read-class
     "write": { "system_prompt": "", "color": "orange" }
   },
   "access": {
-    "read_tools": ["read", "list", "web", "catalog", "ask", "offload"]
+    "read_tools": ["read", "list", "web", "catalog", "ask", "delegate"]
   }
 }
 ```
@@ -144,14 +144,13 @@ Access is classified by permission key. Any key not in `access.read_tools` is wr
   "edit": "allow",
   "list": "allow",
   "mcp": "ask",
-  "offload": "allow",
   "read": "allow",
   "vcs": "ask",
   "web": "allow"
 }
 ```
 
-Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `call` category gates the `call` tool. On top of the category action, a call resolves its permission from the target: a role uses its own `tool_permission.call`, a team uses its stage roles' `call` actions, and a sibling is read-only. A role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `delegate` and `offload` compatibility tools keep their own categories (`delegate` for a team pipeline, `offload` for a read-class sibling) for one version. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the user, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
+Actions are `allow` (no prompt), `ask` (Y/n confirm), `deny` (tool hidden/refused). Read/write/list outside the worktree escalate to `ask` automatically. The `call` category gates the `call` tool. On top of the category action, a call resolves its permission from the target: a role uses its own `tool_permission.call` and a team uses its stage roles' `call` actions. A role not in the registry defaults to `deny` (see [roles.md](roles.md)). The `delegate` category gates the read-class sibling. The `ask` category gates the `ask` tool (default `allow`, the interaction itself, answered by the user, see [tools.md](tools.md)). The `catalog` category gates the `catalog` tool (default `allow`). It writes only to the project catalog in `.polyglav/`, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to `ask` to confirm every catalog change. The `vcs` category gates the `git_commit` tool (default `ask`): a role whose carve sets `vcs: allow` (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (`all=true`) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, `git_commit` does not push, merge, checkout, or rewrite history.
 
 ### `ask_policy`
 
@@ -178,7 +177,7 @@ Every engine has two permission axes:
 - `tool_permission` - what the engine itself may use.
 - `grant_permission` - the ceiling on what it may hand down to sub-agents.
 
-Both take permission keys, not tool categories: `bash`, `edit`, `read`, `list`, `web`, `catalog`, `ask`, `offload`, `call`, `delegate`, `mcp`, `vcs`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), rejects an unknown key with the valid list, and accepts an action of `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`).
+Both take permission keys, not tool categories: `ask`, `bash`, `call`, `catalog`, `delegate`, `edit`, `list`, `mcp`, `read`, `vcs`, `web`. A `catalog` save normalizes a category name (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), rejects an unknown key with the valid list, and accepts an action of `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`).
 
 A sub-agent's effective permissions are the parent's `tool_permission`, narrowed by the role's `tool_permission` carve and capped by the mode-derived ceiling. The mode sets that ceiling: `write` makes write keys grantable, `read` denies them, and `grant_permission` (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.
 

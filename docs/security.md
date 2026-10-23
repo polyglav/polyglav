@@ -13,13 +13,13 @@ Every tool call is gated by `ToolPolicy` (`src/polyglav/tools/policy.py`) with t
 Resolution precedence (see [tools.md](tools.md) for the full flow):
 
 1. Name-level `tools.deny` and the `tools.allow` allowlist. A `deny` here wins outright.
-2. The category action from `tool_permission` (`bash` / `delegate` / `edit` / `list` / `read` / `vcs` / `web`). A `deny` here is final and skips the resolver.
-3. A per-invocation resolver (`permission_fn`) that runs after the category action and overrides a non-`deny` one from the tool's current arguments, or returns `None` to defer to it. For example `delegate` resolves per role: a configured role uses its own `tool_permission` and a role outside the registry is denied (see [roles.md](roles.md)), and `git_commit` defers to `vcs` except for `all=true`, which asks.
+2. The category action from `tool_permission` (`bash` / `call` / `delegate` / `edit` / `list` / `read` / `vcs` / `web`). A `deny` here is final and skips the resolver.
+3. A per-invocation resolver (`permission_fn`) that runs after the category action and overrides a non-`deny` one from the tool's current arguments, or returns `None` to defer to it. For example `call` resolves per target: a configured role uses its own `tool_permission` and a role outside the registry is denied (see [roles.md](roles.md)), and `git_commit` defers to `vcs` except for `all=true`, which asks.
 4. Worktree escalation: `read` / `list` / `write` tools on paths outside the worktree escalate `allow` to `ask`.
 
 The worktree is the directory holding the local `.polyglav/`, which is the launch directory or `--path`. A `file_read` / `list_dir` / `file_write` / `glob` / `grep` on a path outside it escalates to `ask`, so an agent cannot silently reach files beyond its scope. Launching from `~` makes home the worktree, so subdirectories do not escalate. Launch inside the project or pass `--path` for project-scoped prompting.
 
-`bash` defaults to `ask`, so every `run_command` confirms unless `tool_permission.bash = "allow"` is set explicitly. `delegate` defaults to `allow`, refined per invocation by the target role's own permission (a role may set `delegate: "ask"` to confirm).
+`bash` defaults to `ask`, so every `run_command` confirms unless `tool_permission.bash = "allow"` is set explicitly. `call` defaults to `allow`, refined per invocation by the target role's own permission (a role may set `call: "ask"` to confirm). `delegate` is the read-class sibling and keeps its own `delegate` key.
 
 The `ask` tool is the explicit user-in-the-loop channel: it pauses the run and poses a question to the user at the terminal. It is the only tool that deliberately talks to a person. In headless mode there is no terminal, so `ask` returns an error result and the run continues without pausing, or parks under unattended mode. In unattended mode (`unattended: true`, `polyglav --unattended`, `/unattended`) the terminal UI is dropped at the root and never propagated to sub-agents, so no ask at any depth reads stdin: confirms auto-deny and user asks park as pending requests in `.polyglav/asks.json` (returned to the agent as `[parked] Ask #<id>`, answered later via `/asks` or the serve API). Agents that must not ask can be stripped of the tool with `tools.deny: ["ask"]`. The question and answer are persisted in the asking session's log, so what was asked and decided stays on the record.
 
@@ -65,7 +65,7 @@ Tool results and fetched content are untrusted input returned to the model. Defe
 |-------|---------|
 | Filesystem | Worktree-scoped `allow`/`ask`/`deny`, escalation outside the worktree |
 | Shell | `run_command` gated by `bash: ask` by default, headless auto-deny |
-| Delegation | Per-role per-invocation resolution (`delegate: allow` default, set `ask` per role, non-registry roles denied), sub-agents auto-deny `ask` and share only the caller's carve, own `sub_*` session logs |
+| Delegation | Per-target per-invocation resolution (`call: allow` default, set `ask` per role, non-registry roles denied), read-class `delegate` sibling, sub-agents auto-deny `ask` and share only the caller's carve, own `sub_*` session logs |
 | Network | Explicit tools (`web_search`, `web_fetch`), `web` permission |
 | Provider context | Policy-filtered tool schema, argument cleaning, bounded tool results |
 | Session data | Append-only local logs, local file ownership |

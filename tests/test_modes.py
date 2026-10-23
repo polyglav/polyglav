@@ -173,8 +173,8 @@ class TestAccessClassification(unittest.TestCase):
             self.assertIn('read', keys)
             self.assertIn('list', keys)
             self.assertIn('web', keys)
-            self.assertIn('offload', keys)
-            for key in ('edit', 'bash', 'vcs', 'mcp', 'delegate', 'team'):
+            self.assertIn('delegate', keys)
+            for key in ('edit', 'bash', 'vcs', 'mcp', 'call', 'team'):
                 self.assertTrue(is_write_key(config, key))
         finally:
             config._tmp.cleanup()

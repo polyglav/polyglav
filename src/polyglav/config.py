@@ -5,7 +5,7 @@ from pathlib import Path
 
 DEFAULT_CONFIG = {
     'access': {
-        'read_tools': ['read', 'list', 'web', 'catalog', 'ask', 'offload'],
+        'read_tools': ['read', 'list', 'web', 'catalog', 'ask', 'delegate'],
     },
     'ask_min_question_chars': 8,
     'ask_policy': {
@@ -19,6 +19,7 @@ DEFAULT_CONFIG = {
     'compact_keep': 4,
     'confirm_timeout': 0,
     'connect_check': True,
+    'delegate_depth': 1,
     'footer_tokens': ['context'],
     'glyphs': {},
     'grant_permission': {},
@@ -45,7 +46,6 @@ DEFAULT_CONFIG = {
         },
         'write': {'system_prompt': '', 'color': 'orange'},
     },
-    'offload_depth': 1,
     'output_log': False,
     'output_log_ansi': False,
     'output_log_dir': '.polyglav/output',
@@ -93,7 +93,6 @@ DEFAULT_CONFIG = {
         'edit': 'allow',
         'list': 'allow',
         'mcp': 'ask',
-        'offload': 'allow',
         'read': 'allow',
         'vcs': 'ask',
         'web': 'allow',
@@ -156,6 +155,7 @@ CONFIG_DESCRIPTIONS = {
     'compact_keep': 'Turns to keep when compacting the provider context',
     'confirm_timeout': 'Seconds a confirm or ask prompt waits before auto-denying',
     'connect_check': 'Probe the provider connection on config changes',
+    'delegate_depth': 'Maximum nested delegate siblings',
     'footer_tokens': 'Token counts the footer shows, in order',
     'glyphs': 'Glyph overrides, or "ascii" for the ASCII preset',
     'grant_permission': 'Ceiling on what a run may hand down to sub-agents',
@@ -172,7 +172,6 @@ CONFIG_DESCRIPTIONS = {
     'mode': 'Active agent mode (read or write)',
     'model': 'Model name or provider/model ref',
     'modes': 'Mode instruction blocks and prompt colors',
-    'offload_depth': 'Maximum nested offload siblings',
     'output_log': 'Write everything the REPL prints to a file',
     'output_log_ansi': 'Keep ANSI colors in the output log',
     'output_log_dir': 'Directory for the output log',

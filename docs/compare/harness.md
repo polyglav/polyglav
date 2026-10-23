@@ -21,7 +21,7 @@ Polyglav is also extensively configurable without code changes. Models, tools, p
 | OpenCode | TypeScript + Bun | Open source | File, bash, glob/grep, MCP | Child sessions | No | Terminal, desktop, IDE |
 | OpenHands | Python | MIT | Rich tool set, apply_patch | Parallel conversation trees | No | Web UI, CLI |
 | Pi | TypeScript + Bun | MIT | read, write, edit, bash | Extensions | No | Terminal |
-| Polyglav | Python (stdlib only) | MIT | Web, file, edit, git, shell, dev wrappers | Types, delegate, teams, fleet | Jobs (cron/interval/one-shot) | Terminal, CLI, HTTP API, MCP |
+| Polyglav | Python (stdlib only) | MIT | Web, file, edit, git, shell, dev wrappers | Types, call, teams, fleet | Jobs (cron/interval/one-shot) | Terminal, CLI, HTTP API, MCP |
 
 ## Profiles
 

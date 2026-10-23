@@ -265,18 +265,18 @@ git -C ~/polyglav-agents/workspace/repo worktree remove ~/polyglav-agents/worksp
 
 The fleet above isolates roles by process, worktree, and container. A lighter setup needs no Docker at all: one REPL caller agent delegates tasks to role sub-agents, and the sub-agent's final answer is handed back.
 
-A `programming` team (`planner`, `programmer`, `tester`, `code-reviewer`) carries system prompts and per-role permissions (see [roles.md](../roles.md) and [swarm.md](../swarm.md)). Delegation defaults to `allow`, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific type (for example, to keep write-heavy work gated), override only its `delegate` field in the local role catalog (`.polyglav/roles.json`):
+A `programming` team (`planner`, `programmer`, `tester`, `code-reviewer`) carries system prompts and per-role permissions (see [roles.md](../roles.md) and [swarm.md](../swarm.md)). Delegation defaults to `allow`, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific role (for example, to keep write-heavy work gated), override only its `call` field in the local role catalog (`.polyglav/roles.json`):
 
 ```json
 {
-  "programmer": { "tool_permission": { "delegate": "ask" } }
+  "programmer": { "tool_permission": { "call": "ask" } }
 }
 ```
 
 Then either `/tool` runs a sub-agent, or the lead model proposes it as any other tool:
 
 ```text
-/tool delegate {"type": "programmer", "task": "Implement the task against the plan, run the tests and report changed files."}
+/tool call {"target": "programmer", "task": "Implement the task against the plan, run the tests and report changed files."}
 ```
 
 The result is the sub-agent's final answer, printed in the REPL (`verbosity.subruns` at `summary` or `full`) and fed back to the caller model. Every call writes its own complete `sub_<ts>_<id>` session log under the lead's `.polyglav/sessions/`, linked to the caller session via `sub_sessions`/`parent_id`, so the audit trail is per sub-agent. If the sub-agent finishes without prose, the call result summarizes its activity (files written, test runs) from that log instead of reporting empty.
@@ -315,6 +315,6 @@ Everything above uses only features shipped in the current release. The followin
 
 | Planned capability | Current workaround in this guide |
 |--------------------|-----------------------------------|
-| `/agent` types command + auditor agents | `delegate` tool + bundled roles (in-process sub-agents), see the in-process section below. Auditors still need a review role |
+| `/agent` types command + auditor agents | `call` tool + bundled roles (in-process sub-agents), see the in-process section below. Auditors still need a review role |
 
 Shipped since this guide was written: a read-only `git` tool plus gated `git_commit` (status/diff/log/commit as gated tools instead of `run_command`), `code_test`/`code_lint`/`code_format` wrappers, the `run_command` command allowlist (`tool_permission.bash_allow`) replacing role-separation-plus-`tools.allow` for scoped shell, and the per-worktree instructions file (`project_instructions`, default `AGENTS.md`) auto-loaded into every agent's system prompt.

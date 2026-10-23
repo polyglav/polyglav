@@ -12,7 +12,6 @@ ACTIVITY_DEFAULTS: dict[str, tuple[str, str]] = {
     'todo': ('-', 'Todo'),
     'call': ('↳', 'Call'),
     'delegate': ('↳', 'Delegate'),
-    'offload': ('↳', 'Offload'),
 }
 
 
@@ -236,7 +235,7 @@ class ToolRegistry:
         if not explicit:
             if tool['category'] in overrides:
                 glyph = str(overrides[tool['category']])
-            elif (tool['category'] in ('call', 'delegate', 'offload')
+            elif (tool['category'] in ('call', 'delegate')
                   and 'enter' in overrides):
                 glyph = str(overrides['enter'])
         if glyph == '*' and 'default' in overrides:

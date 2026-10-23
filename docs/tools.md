@@ -11,12 +11,12 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | Tool | Plugin | Category | Permission | Purpose |
 |------|--------|----------|------------|---------|
 | `ask` | core | `ask` | `ask` | Ask the user for a decision, pausing until answered |
-| `call` | core | `call` | `call` | Call a role, a team, or a role-less sibling (`target`, `kind`) |
+| `call` | core | `call` | `call` | Call a named role or team (`target`, `kind`) |
 | `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/validate/remove, plus reload |
 | `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
 | `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
-| `delegate` | core | `delegate` | `delegate` | Compatibility shim for a named team; prefer `call target=<team> kind=team` |
+| `delegate` | core | `delegate` | `delegate` | Delegate a read-only sub-task to an anonymous sibling |
 | `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
 | `file_read` | polyglav-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
 | `file_write` | polyglav-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |
@@ -25,7 +25,6 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `glob` | polyglav-core-fs | `search` | `read` | Recursive pattern lookup |
 | `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
-| `offload` | core | `offload` | `offload` | Compatibility shim for a read-class sibling; prefer `call target=sibling` |
 | `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
@@ -66,8 +65,8 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | Key | Description |
 |-----|-------------|
 | `refine` | Auto-refine short `query` args via a lightweight model call, gated by `query_refine` |
-| `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `mcp` / `offload` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
-| `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `list` / `mcp` / `offload` / `read` / `vcs` / `web` |
+| `category` | `ask` / `call` / `catalog` / `delegate` / `exec` / `mcp` / `read` / `search` / `todo` / `write` - drives the default activity glyph and verb |
+| `permission` | The `tool_permission` key that gates the tool: `bash` / `call` / `catalog` / `delegate` / `edit` / `list` / `mcp` / `read` / `vcs` / `web` |
 | `permission_fn` | Optional `Callable[[dict], str]` resolving the action (`allow`/`ask`/`deny`) from the current arguments - refines a non-`deny` base action at call time, or returns `None` to defer to the category action (see `call`, `git_commit`) |
 | `write_actions` | Optional list of argument-level actions that count as write-class even under a read-class `permission` key (for example the `catalog` tool's `save`/`remove`/`reload`), so a read-mode permission ask is redirected to a mode switch |
 | `path_arg` | Which parameter is a filesystem path, for worktree scope checks |
@@ -176,7 +175,7 @@ See [config.md](config.md) for the `tools.allow`, `tools.deny`, and `tool_permis
 
 ## Status and activity lines
 
-Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `verbosity.tools` (`off` hides it, `summary` and `full` show it). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `?` Ask, todo `-` Todo, call `↳` Call, delegate `↳` Delegate, offload `↳` Offload, catalog `+` Catalog. Unmapped categories fall back to the `* <name> <value>` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`. MCP and Git use `*`.
+Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, `<glyph> <verb> <key_arg>` (e.g. `← Read README.md`, `→ Write test.md`, `$ Run pytest`), gated by `verbosity.tools` (`off` hides it, `summary` and `full` show it). Category defaults map to glyphs: read `←` Read, write `→` Write, search `%` Search, exec `$` Run, ask `?` Ask, todo `-` Todo, call `↳` Call, delegate `↳` Delegate, catalog `+` Catalog. Unmapped categories fall back to the `* <name> <value>` oneliner plus any `status` detail lines. Filesystem tools use the `*` glyph with distinct verbs: `* Glob`, `* List`, `* Grep`. MCP and Git use `*`.
 
 At `verbosity.tools = full`, the parameters the model passed (excluding the one already shown in the label) are appended: `← Read engine.py [offset=299, limit=85]`, `$ Run pytest [cwd=/workspace, timeout=600]`. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving. At `summary`, only the one-line summary shows.
 

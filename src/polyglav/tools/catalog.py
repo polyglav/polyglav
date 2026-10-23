@@ -19,8 +19,8 @@ _PERMISSION_ALIASES = {
     'search': 'web',
 }
 
-_PERMISSION_KEY_LIST = ('bash, edit, read, list, web, catalog, ask, '
-                        'offload, call, delegate, mcp, vcs')
+_PERMISSION_KEY_LIST = ('ask, bash, call, catalog, delegate, edit, list, '
+                        'mcp, read, vcs, web')
 
 _VALID_ACTIONS = ('allow', 'ask', 'deny')
 _ACTION_ALIASES = {'true': 'allow', 'yes': 'allow',

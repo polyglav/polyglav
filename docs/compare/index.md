@@ -16,7 +16,7 @@ Polyglav sits in the harness category, with a clear angle: a zero-dependency, st
 - **Complete harness**: loop, tools, permissions, sessions, delegation, teams, jobs, and a fleet supervisor in one package.
 - **Zero external dependencies**: the whole runtime is Python standard library, so it is small, portable, and easy to audit.
 - **One loop, three surfaces**: a REPL, a headless CLI, and an HTTP API from the same code path.
-- **Orchestration included**: types, the `delegate` and `team` tools, scheduled jobs, and a fleet supervisor, without extra infrastructure.
+- **Orchestration included**: types, the `call` and `team` tools, scheduled jobs, and a fleet supervisor, without extra infrastructure.
 - **Configuration as data**: models, providers, tools, types, teams, skills, and permissions are editable, versionable, and plugin-extensible.
 - **Local-first and provider-agnostic**: run fully local or bring any OpenAI-compatible provider, with complete session logs.
 

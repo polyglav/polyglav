@@ -91,10 +91,10 @@ A caller agent (or you) hands a task to a specialized role, or runs a named team
 
 ```
 >>> /roles list
->>> /tool delegate {"role": "researcher", "task": "Summarize docs/ and cite sources"}
-[delegate researcher] <final answer of the research sub-agent, sources cited>
->>> /tool team {"name": "writing", "task": "Draft the release notes"}
-[team writing] <final stage answer>
+>>> /tool call {"target": "researcher", "task": "Summarize docs/ and cite sources"}
+[call researcher] <final answer of the research sub-agent, sources cited>
+>>> /tool call {"target": "writing", "kind": "team", "task": "Draft the release notes"}
+[call writing] <final stage answer>
 ```
 
 See [docs/swarm.md](docs/swarm.md), [docs/teams.md](docs/teams.md), and [docs/roles.md](docs/roles.md).

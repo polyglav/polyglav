@@ -20,7 +20,6 @@ ASCII_GLYPHS = {
     'todo': '-',
     'call': '>',
     'delegate': '>',
-    'offload': '>',
     'enter': '>',
     'return': '<',
     'warning': '!',
@@ -529,7 +528,7 @@ class ReplUI:
         self._ensure_newline()
         mark = glyph(self._loop.config, 'return', '↲')
         lines = str(text or '').splitlines() or ['']
-        first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
+        first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])
         self._emit(f'{mark} {first}', DIM)
         if level == 'summary':
             if len(lines) > 1:
@@ -801,7 +800,7 @@ class HeadlessUI:
     def sub_result(self, text):
         if self.verbose:
             lines = str(text or '').splitlines() or ['']
-            first = re.sub(r'^\[(?:call|delegate|offload)[^\]]*\]\s*', '', lines[0])
+            first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])
             sys.stderr.write(f'↲ {first}\n')
             for line in lines[1:]:
                 sys.stderr.write(f'  {line}\n')

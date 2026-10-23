@@ -31,8 +31,6 @@ def _team_action(engine, team) -> str:
 def _resolve_target(engine, target: str, kind: str = 'auto') -> tuple[str | None, str]:
     text = str(target or '').strip()
     kind = str(kind or 'auto').strip().lower()
-    if kind == 'sibling' or text in ('sibling', 'offload'):
-        return 'sibling', ''
     if kind == 'team' or text.startswith('team:'):
         name = text.split(':', 1)[1].strip() if text.startswith('team:') else text
         return ('team', name) if engine.teams.find(name) is not None else (None, name)
@@ -55,8 +53,6 @@ def _target_action(engine, args: dict) -> str:
     if kind == 'team':
         team = engine.teams.find(name)
         return _team_action(engine, team) if team is not None else 'deny'
-    if kind == 'sibling':
-        return 'allow'
     return 'deny'
 
 
@@ -99,7 +95,7 @@ def _summarize_session(engine, result) -> str:
 
 
 def _format_result(engine, kind: str, name: str, res) -> str:
-    label = name or 'sibling'
+    label = name or 'target'
     if res.status == 'error':
         msgs = '; '.join(
             e.get('message', '') for e in (res.errors or [])
@@ -121,26 +117,24 @@ def register_call_tool(registry, engine) -> Callable:
     @registry.register(
         name='call',
         description=(
-            "Call a role, a team, or a role-less sibling and return its final "
-            "answer. `target` names a role or a team, or `sibling` for an "
-            "anonymous read-only helper. A role or team is write-class and its "
-            "own permissions bound it. Use `kind` to disambiguate a name that is "
-            "both a role and a team. The old `delegate` and `offload` tools remain "
-            "for one version."
+            "Call a named role or a named team and return its final answer. "
+            "`target` names a role or a team. A role or team is write-class, "
+            "and its own permissions bound it. Use `kind` to disambiguate a "
+            "name that is both a role and a team. For anonymous read-only "
+            "help use delegate."
         ),
         parameters={
             'type': 'object',
             'properties': {
                 'target': {
                     'type': 'string',
-                    'description': 'Role name, team name, or `sibling` for an '
-                                   'anonymous read-only helper.',
+                    'description': 'Role name or team name.',
                 },
                 'kind': {
                     'type': 'string',
-                    'enum': ['auto', 'role', 'team', 'sibling'],
+                    'enum': ['auto', 'role', 'team'],
                     'description': 'How to read the target. Auto prefers a role, '
-                                   'then a team, and treats `sibling` specially.',
+                                   'then a team.',
                 },
                 'task': {
                     'type': 'string',
@@ -198,8 +192,7 @@ def register_call_tool(registry, engine) -> Callable:
                 res = engine.run_team(team, task, skills=skills,
                                       resume=resume, context=context)
             else:
-                res = engine.run_subagent('', task, skills=skills,
-                                          resume=resume, context=context)
+                return f'Error: unknown call target "{target}"'
         except ValueError as e:
             return f'Error: {e}'
         result = _format_result(engine, resolved, name, res)

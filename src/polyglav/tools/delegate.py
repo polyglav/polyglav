@@ -2,142 +2,77 @@ from typing import Callable
 
 from ..config import verbosity_level
 
-_RANK = {'deny': 0, 'ask': 1, 'allow': 2}
 
-
-def _stage_action(engine, entry) -> str:
-    action = (entry.tool_permission or {}).get('delegate', 'allow')
-    return action if action in _RANK else 'allow'
-
-
-def _team_action(engine, args: dict) -> str:
-    name = (args or {}).get('name', '')
-    if name and name in list(getattr(engine, '_team_stack', []) or []):
-        return 'deny'
-    team = engine.teams.find(name)
-    if team is None or not team.stages:
-        return 'allow'
-    action = 'allow'
-    for stage in team.stages:
-        entry = engine.roles.find(stage.role)
-        if entry is None:
-            continue
-        stage_action = _stage_action(engine, entry)
-        if stage_action == 'deny':
-            return 'deny'
-        if stage_action == 'ask':
-            action = 'ask'
-    return action
-
-
-def _clamped_stages(engine, team) -> list[str]:
-    from ..roles import resolve_permissions
-    out: list[str] = []
-    for stage in team.stages:
-        entry = engine.roles.find(stage.role)
-        if entry is None:
-            continue
-        requested = entry.tool_permission or {}
-        granted = resolve_permissions(
-            engine._self_permissions(), engine._grant(), requested)
-        for key, value in requested.items():
-            if isinstance(value, str) and value in _RANK and granted.get(key) != value:
-                out.append(stage.role)
-                break
-    return out
-
-
-def _format_result(team_name: str, res) -> str:
+def _format_result(res) -> str:
     if res.status == 'error':
         msgs = '; '.join(e.get('message', '') for e in (res.errors or [])
                          if isinstance(e, dict) and e.get('message'))
-        return (f'Error: team "{team_name}" failed: '
-                f'{msgs or f"status {res.status}"}')
+        return f'Error: delegate failed: {msgs or "unknown error"}'
     content = (res.content or '').strip()
     if content:
-        return f'[delegate {team_name}] {content}'
-    return (f'[delegate {team_name}] (no final text; '
-            f'{len(res.stages)} stage(s) ran)')
+        return f'[delegate] {content}'
+    return '[delegate] (no content)'
 
 
 def register_delegate_tool(registry, engine) -> Callable:
     @registry.register(
         name='delegate',
         description=(
-            "Run a named team - an ordered chain of role stages - on a task and "
-            "return the final stage's answer. A team is write-class, so it is only "
-            "available in write mode. Use it to orchestrate a pipeline (research > "
-            "write > reference > edit, or plan > implement > test > review) in one "
-            "call instead of calling each role yourself."
+            "Delegate a self-contained sub-task to an anonymous, role-less "
+            "sibling agent and get its result back, to keep this run's context "
+            "clean. The sibling inherits this run's mode and permission cap and "
+            "cannot exceed the caller. Use it for reading, searching, or "
+            "summarizing a self-contained piece of work. For a named specialist "
+            "or a team use call."
         ),
         parameters={
             'type': 'object',
             'properties': {
-                'name': {
-                    'type': 'string',
-                    'description': 'Name of the team to run',
-                },
                 'task': {
                     'type': 'string',
-                    'description': 'Task for the team to complete',
+                    'description': 'A self-contained task for the sibling to '
+                                   'complete on its own.',
                 },
                 'skills': {
                     'type': 'array',
                     'items': {'type': 'string'},
-                    'description': 'Skill names to add to every stage for this '
-                                   'run, layered over each stage type\'s own '
-                                   'skills. Use it to extend the whole team '
-                                   'with task, technology, stack, or framework '
-                                   'instructions.',
+                    'description': 'Skill names to layer over the sibling for '
+                                   'this run.',
                 },
                 'resume': {
                     'type': 'string',
-                    'description': 'Resume an existing run or session for the '
-                                   'first stage so it keeps its prior context: '
-                                   'a run id (#3), a session id (#ab12cd), a '
-                                   'session name, or session:<name>. Omit to '
-                                   'start every stage fresh.',
+                    'description': 'Resume an existing run or session so the '
+                                   'sibling keeps its prior context: a run id '
+                                   '(#3), a session id (#ab12cd), a session '
+                                   'name, or session:<name>.',
                 },
                 'context': {
                     'type': 'string',
                     'enum': ['continue', 'compact', 'new'],
                     'description': 'How to treat a resumed context when resume '
                                    'is set: continue (append, default), compact '
-                                   '(summarize first), or new (ignore resume and '
-                                   'start fresh).',
+                                   '(summarize first), or new (start fresh).',
                 },
             },
-            'required': ['name', 'task'],
+            'required': ['task'],
         },
         category='delegate',
         permission='delegate',
-        key_arg='name',
-        short='Run a named team pipeline',
+        key_arg='task',
+        short='Delegate a read-only sub-task to a sibling',
         glyph='↳',
         verb='Delegate',
         loop=True,
-        permission_fn=lambda args: _team_action(engine, args),
     )
-    def delegate(name: str, task: str, skills: list | None = None,
-                 resume: str = '', context: str = 'continue',
+    def delegate(task: str, skills: list | None = None, resume: str = '',
+                 context: str = 'continue',
                  _config=None, _echo: bool = True) -> str:
-        team_obj = engine.teams.find(name)
-        if team_obj is None:
-            return f'Error: unknown team "{name}"'
-        if not team_obj.stages:
-            return f'Error: team "{name}" has no stages'
-        res = engine.run_team(team_obj, task, skills=skills,
-                              resume=resume, context=context)
-        result = _format_result(name, res)
-        clamped = _clamped_stages(engine, team_obj)
-        if clamped:
-            result += (f' (reduced permissions for: '
-                       f'{", ".join(sorted(set(clamped)))})')
-            if result.startswith('Error'):
-                result += ('. A stage requested permissions above the caller '
-                           'ceiling; raise tool_permission/grant_permission or '
-                           'run the team under a role whose grant_permission '
-                           'widens it')
+        try:
+            res = engine.run_subagent('', task, skills=skills, resume=resume,
+                                      context=context)
+        except ValueError as e:
+            return f'Error: {e}'
+        result = _format_result(res)
         if (_echo and _config is not None
                 and verbosity_level(_config, 'subruns') != 'off'
                 and not result.startswith('Error')):

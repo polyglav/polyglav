@@ -41,7 +41,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: `/connect`, `/provider`, `/providers`, and `/models list` complete provider names, and `/model` completes a provider then its known models (from `models.json` and a cached live probe).
 
-Delegation is a normal tool: the caller agent proposes it, or you run it directly, and `/tool call {"role": "researcher", "task": "..."}` routes through the same tool policy. A configured role is called without prompting (`call` defaults to `allow`. Set a role's `call` to `ask` to confirm), and a role outside the registry is denied. A named team runs with `/tool delegate {"name": "...", "task": "..."}`. See [roles.md](roles.md) and [swarm.md](swarm.md).
+Delegation is a normal tool: the caller agent proposes it, or you run it directly, and `/tool call {"target": "researcher", "task": "..."}` routes through the same tool policy. A configured role is called without prompting (`call` defaults to `allow`. Set a role's `call` to `ask` to confirm), and a role outside the registry is denied. A named team runs with `/tool call {"target": "...", "kind": "team", "task": "..."}`. Anonymous read-only help runs with `/tool delegate {"task": "..."}`. See [roles.md](roles.md) and [swarm.md](swarm.md).
 
 ## CLI
 

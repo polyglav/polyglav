@@ -677,10 +677,10 @@ class Engine:
         if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         if not role_name:
-            limit = int(self.config.get('offload_depth', 1) or 0)
-            if limit and getattr(self, '_offload_depth', 0) >= limit:
+            limit = int(self.config.get('delegate_depth', 1) or 0)
+            if limit and getattr(self, '_delegate_depth', 0) >= limit:
                 raise ValueError(
-                    'offload depth limit reached - ask the user before '
+                    'delegate depth limit reached - ask the user before '
                     'spawning another sibling')
         if agent_role is not None and agent_role.model:
             ref = self.unfold_ref(agent_role.model)
@@ -700,7 +700,7 @@ class Engine:
         sub = self._new_sub_engine(
             role_name, mode=mode, skills=skills, task=task,
             session_name=session_name, run=run, link_parent=run is None)
-        sub._offload_depth = getattr(self, '_offload_depth', 0) + 1
+        sub._delegate_depth = getattr(self, '_delegate_depth', 0) + 1
         if run is not None:
             self.runs.reactivate(run.id)
         if ctx == 'compact':
@@ -900,7 +900,7 @@ class Engine:
         self._team_depth = depth + 1
         subrun_level = verbosity_level(self.config, 'subruns')
         if subrun_level != 'off':
-            self.ui.info(f'{glyph(self.config, "enter", "↳")} Delegate {team.name}')
+            self.ui.info(f'{glyph(self.config, "enter", "↳")} Team {team.name}')
         try:
             result = self._run_team_stages(
                 team, task, skills=skills, resume=resume, context=context)
@@ -1486,7 +1486,6 @@ class Engine:
         from .tools.policy import ToolPolicy
         from .tools.call import register_call_tool
         from .tools.delegate import register_delegate_tool
-        from .tools.offload import register_offload_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
         from .modes import merge_policy, read_keys
@@ -1494,7 +1493,6 @@ class Engine:
         self._tool_registry = ToolRegistry()
         register_call_tool(self._tool_registry, self)
         register_delegate_tool(self._tool_registry, self)
-        register_offload_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
         plugin_manager = getattr(self, '_plugin_manager', None)

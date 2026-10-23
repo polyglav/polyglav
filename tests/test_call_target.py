@@ -34,15 +34,15 @@ class TestCallTarget(unittest.TestCase):
             'target': 'doc', 'kind': 'team', 'task': 'x'})
         self.assertIn('[call doc] team done', out)
 
-    def test_call_sibling_target(self):
-        self.chat.provider.chat.side_effect = [self._result('sibling done')]
-        out = self.chat._run_tool('call', {'target': 'sibling', 'task': 'x'})
-        self.assertIn('[call sibling] sibling done', out)
-
     def test_call_old_role_param(self):
         self.chat.provider.chat.side_effect = [self._result('role done')]
         out = self.chat._run_tool('call', {'role': 'writer', 'task': 'x'})
         self.assertIn('[call writer] role done', out)
+
+    def test_call_schema_excludes_sibling(self):
+        entry = self.chat._tool_registry.info('call')
+        kinds = entry['parameters']['properties']['kind']['enum']
+        self.assertNotIn('sibling', kinds)
 
     def test_call_unknown_target(self):
         out = self.chat._run_tool('call', {'target': 'ghost', 'task': 'x'})

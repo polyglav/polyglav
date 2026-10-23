@@ -11,9 +11,9 @@ PROMPT_COLORS = {
 
 DEFAULT_PROMPT_COLOR = 'orange'
 
-DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'offload']
+DEFAULT_READ_KEYS = ['read', 'list', 'web', 'catalog', 'ask', 'delegate']
 
-DEFAULT_WRITE_KEYS = ['bash', 'call', 'delegate', 'edit', 'mcp', 'vcs']
+DEFAULT_WRITE_KEYS = ['bash', 'call', 'edit', 'mcp', 'vcs']
 
 
 def read_keys(config: Config) -> set:

@@ -135,7 +135,7 @@ class TestRunResume(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs.get('resume'), '#3')
         self.assertEqual(run.call_args.kwargs.get('context'), 'compact')
 
-    def test_team_tool_forwards_resume(self):
+    def test_call_team_target_forwards_resume(self):
         self.chat.teams.put(Team(name='writing',
                                  stages=[TeamStage(role='writer')]))
         with patch.object(self.chat, 'run_team',
@@ -144,8 +144,8 @@ class TestRunResume(unittest.TestCase):
             with patch('sys.stdout', new=io.StringIO()):
                 self.chat._init_tooling()
                 self.chat._tool_registry.execute(
-                    'delegate', {'name': 'writing', 'task': 't',
-                                 'resume': '#4', 'context': 'new'})
+                    'call', {'target': 'writing', 'kind': 'team', 'task': 't',
+                             'resume': '#4', 'context': 'new'})
         self.assertEqual(run.call_args.kwargs.get('resume'), '#4')
         self.assertEqual(run.call_args.kwargs.get('context'), 'new')
 

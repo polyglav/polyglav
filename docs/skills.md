@@ -38,14 +38,14 @@ def register_skills(registry):
 
 `Role.skills` are a role's standing skills, the experience a role always carries. A caller may extend a role for one run with additional skills, so the same reusable agent gains task, technology, stack, or framework instructions without defining a new role:
 
-- `delegate(role, task, skills=[...])` appends the named skills after the role's standing skills.
+- `call(target, task, skills=[...])` appends the named skills after the role's standing skills.
 - A team stage may set `skills`, and `team(name, task, skills=[...])` adds task-wide skills to every stage.
 
 Resolution order is standing skills first, then invocation skills (task-wide before stage-specific), deduplicated by name. Unknown names are skipped silently. Layering skills never changes a role's tool carve.
 
 ## Injection
 
-When a role with `skills` runs as a sub-agent (`delegate`), each registered skill's content is appended to the role's system prompt:
+When a role with `skills` runs as a sub-agent (`call`), each registered skill's content is appended to the role's system prompt:
 
 ```
 <role system prompt>

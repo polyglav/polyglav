@@ -17,14 +17,6 @@ The first run explains the product, keeps every line aligned, and leaves a suppo
 |------|--------|----------|
 | Document the tmux process name - note the `python` label and the manual workaround | S | a known limitation with a workaround |
 
-## Run and delegation cleanup
-
-The read-only run tree stays, while the buffer and live-focus leftovers go. Delegation becomes one verb for anonymous help and one for named agents.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Replace delegate and offload with a sibling delegate - read-class anonymous help, while `call` handles roles and teams | M | one delegation verb per intent |
-
 ## Core cleanup and backlog sync
 
 Shared helpers replace plugin copies, dead migrations go, and the planning files match the code.

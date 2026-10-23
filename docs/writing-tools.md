@@ -7,7 +7,7 @@ Tools are how a Polyglav agent acts. The model plans, the `ToolRegistry` dispatc
 More tools does not mean a better agent. Every tool definition loads into the model's context on every turn, and overlapping tools mislead selection. Build a few thoughtful tools for high-impact workflows, and scale up only when a real gap shows up.
 
 - Prefer search and point tools over dump-everything tools. An agent wastes limited context reading irrelevant results. `grep` returns only matching `file:line: text` lines. `glob` locates a path before it is read. `file_read` reports `N lines, M chars` in its header so the agent can probe size with `limit=0` before committing.
-- Consolidate operations that are usually chained. `file_write` folds create, overwrite, and append into one call behind a `mode` enum. `delegate` runs a whole task under a role as a single call. A consolidated tool offloads multi-step reasoning from the model's context into the tool.
+- Consolidate operations that are usually chained. `file_write` folds create, overwrite, and append into one call behind a `mode` enum. `call` runs a whole task under a role as a single call. A consolidated tool offloads multi-step reasoning from the model's context into the tool.
 - Do not wrap a function or API endpoint just because you can. A tool needs a clear agent affordance: the model must decide from its description alone when to call it and what to do with the result.
 - Avoid near-duplicate tools. Two page-fetching tools (`open` and `fetch_page`) confused agents until merged into one `web_fetch` taking `url` or a search-result `id`. If two tools overlap, merge or delete.
 
@@ -54,7 +54,7 @@ Registration metadata drives more than the schema. It shapes confirmation, displ
 | Metadata | What it does for the agent |
 |----------|----------------------------|
 | `refine` | Rewrites a short `query` via a lightweight model call before `web_search` runs, so vague queries still work |
-| `permission` / `permission_fn` | Gates the call with `allow` (no prompt), `ask` (Y/n confirm), or `deny`. `permission_fn` resolves per invocation from the arguments, overriding a non-`deny` category action or returning `None` to defer to it (see `delegate`, `git_commit`) |
+| `permission` / `permission_fn` | Gates the call with `allow` (no prompt), `ask` (Y/n confirm), or `deny`. `permission_fn` resolves per invocation from the arguments, overriding a non-`deny` category action or returning `None` to defer to it (see `call`, `git_commit`) |
 | `path_arg` | Marks the filesystem path parameter so worktree escalation applies |
 | `key_arg` | The argument shown in confirm prompts and activity lines, so the user sees what will happen |
 | `aliases` / `param_aliases` | Absorb model-dialect tool and argument names at call time without advertising them |

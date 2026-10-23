@@ -15,7 +15,7 @@ class TestComposerType(unittest.TestCase):
             system_prompt='You are the composer. Design teams.',
             tags=['management'],
             tool_permission={'bash': 'deny', 'catalog': 'allow',
-                             'edit': 'deny', 'delegate': 'deny',
+                             'edit': 'deny', 'call': 'deny',
                              'list': 'allow', 'read': 'allow',
                              'web': 'allow'},
             ask_policy={'permission': 'auto', 'direction': 'user'}))
@@ -30,7 +30,7 @@ class TestComposerType(unittest.TestCase):
         self.assertEqual(composer.tool_permission['catalog'], 'allow')
         self.assertEqual(composer.tool_permission['edit'], 'deny')
         self.assertEqual(composer.tool_permission['bash'], 'deny')
-        self.assertEqual(composer.tool_permission['delegate'], 'deny')
+        self.assertEqual(composer.tool_permission['call'], 'deny')
         self.assertEqual(composer.tags, ['management'])
 
     def test_delegated_composer_can_manage_catalog(self):
@@ -44,8 +44,8 @@ class TestComposerType(unittest.TestCase):
     def test_composer_cannot_run_teams(self):
         sub = self.chat._new_sub_engine('composer')
         sub._init_tooling()
-        self.assertFalse(sub._tool_policy.allowed('delegate', 'delegate'))
-        self.assertTrue(sub._tool_policy.allowed('call', 'call'))
+        self.assertFalse(sub._tool_policy.allowed('call', 'call'))
+        self.assertTrue(sub._tool_policy.allowed('delegate', 'delegate'))
 
     def test_composer_saves_team_through_catalog(self):
         tool_call = [{

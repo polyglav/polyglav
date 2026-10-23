@@ -25,7 +25,7 @@ Providers (`src/polyglav/providers/`) are OpenAI-compatible `/v1/chat/completion
  model, provider, session, status}
 ```
 
-`status` is `ok`, `error`, `empty`, `truncated`, or `cancelled`. Any front-end addresses sessions via `Engine.load_or_create_session(name)`. `Engine.chat_tool(name, args)` runs a `loop`-registered tool (e.g. `delegate`) as a persisted agent-loop turn: the tool call and result land in the session, then the model streams its final answer.
+`status` is `ok`, `error`, `empty`, `truncated`, or `cancelled`. Any front-end addresses sessions via `Engine.load_or_create_session(name)`. `Engine.chat_tool(name, args)` runs a `loop`-registered tool (e.g. `call`) as a persisted agent-loop turn: the tool call and result land in the session, then the model streams its final answer.
 
 ## Runs
 
@@ -99,7 +99,7 @@ src/polyglav/
 ├── sessions/            # session CRUD + markdown render
 ├── skills.py            # SkillRegistry (per-role instructions)
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
-├── tools/               # tool registry, tool policy, delegate, ask
+├── tools/               # tool registry, tool policy, call, delegate, ask
 ├── roles.py             # RoleRegistry (roles, plugin/global/local)
 ├── ui.py                # UISink - ReplUI / HeadlessUI / NullUI
 └── utils/               # urllib-based SSE streaming
