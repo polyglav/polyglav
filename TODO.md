@@ -53,13 +53,6 @@
 
 ## Open
 
-- [ ] Sync the backlog and plan after cleanup - move finished tasks, remove packages, and refresh the changelog
-- [ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs
-- [ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored `>` or `/` line
-- [ ] Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options
-- [ ] Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary
-- [ ] Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock
-- [ ] Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible
 - [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `call` runs a team as the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
@@ -72,10 +65,8 @@
 - [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so roles do not re-read the same files
 - [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
 - [ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change
-- [ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown
 - [ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay
 - [ ] Docs writer commits each added task - the docs writer commits the tasks right after the operator's prompt and then works through the single points one at a time
-- [x] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden
 - [ ] Batched structured asks - `ask` handles one question at a time, so several decisions cannot be asked in one call
 - [ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work
 - [ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context
@@ -153,9 +144,11 @@
   - [ ] Onboarding wizard (`polyglav wizard`) for data-source / MES interface setup
   - [ ] RBAC - role-based access control for enterprise deployments
   - [ ] Queue-based scaling - many sensor and chat feeds without blocking the loop
-- [ ] Session import from Markdown/JSON
+- [ ] Session import from Markdown
 
 ## Done
+- [x] Synced the backlog and plan after cleanup
+- [x] Updated README and INSTALL for sequential runs
 - [x] Documented the tmux `python` window name and its workaround
 - [x] Removed the tool status duplicate in favor of `verbosity.tools`
 - [x] Removed the legacy provider-plugin backfill migration
@@ -266,7 +259,7 @@
 - [x] Sub-agents inherit the caller mode, a stage cannot escalate it
 - [x] Mode-gated catalog writes and MCP tools - read mode cannot mutate the catalog or reach MCP
 - [x] Session-scoped mode switch - `/mode` per session, `/config mode` persists
-- [x] Fail-closed access classification - `access.read_tools` by permission key, mode cap applied last
+- [x] Fail-closed access classification - permission-key read tools and a mode cap applied last
 - [x] Read/write modes replace plan/build, read default, unknown falls back to read with a warning
 - [x] Renamed sub-engine `_lead` reference to `_caller`
 - [x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash
@@ -291,8 +284,8 @@
 - [x] Renamed types to roles - Role/RoleRegistry, /roles + /role, --role, register_roles, roles.json
 - [x] Sub-run stage lines - completed delegate/team stages stay visible with duration and tokens
 - [x] Sub-run verbosity - `subrun_verbosity` quiet/summary/full, summary forwards writes and edits
-- [x] Reliable multi-line input - explicit close rule (delimiter at line start or blank line), backslash continuation
-- [x] `ask` never confirm-gated - a question is not blocked by the prompt it needs, and free-text asks stay visible
+- [x] Reliable multi-line input - explicit close rule and backslash continuation
+- [x] `ask` never confirm-gated - a question is not blocked by its own prompt
 - [x] Committer permission - a vcs category gates git_commit, so an allowed role commits unattended
 - [x] Scoped `code_test` - a target runs that target, empty runs are reported, timeout 300s
 - [x] Config merge fix - nested config objects merge per key across default, global, and local
@@ -318,7 +311,7 @@
 - [x] `focus_on_delegate` config - off/ask/on to focus the delegated role after the run
 - [x] `handoff` tool - pause or finish a run and hand control to a parent/sibling/child/role/#id
 - [x] `/focus` command - show the run tree/log, attach by id/role/session, navigate runs
-- [x] Focus manager and role engines - REPL focus stack, stable `agent_<role>` sessions, `prompt_role`
+- [x] Focus manager and role engines - REPL focus stack and `prompt_role`
 - [x] Run registry and call tree - in-process runs with parent/children and a flat call log
 - [x] Session role metadata - the owning role is stamped as `role` on every session at creation
 - [x] Assistant root role - REPL binds assistant/assistant_type, delegation-first prompt
@@ -334,12 +327,12 @@
 - [x] Unattended mode - no stdin at any depth, confirms auto-deny, `confirm_timeout`
 - [x] `team` tool - model-invokable team pipeline, per-stage permission + ceiling/depth guards
 - [x] Delegation permission ceiling + `ask` permission grants - `grant_permission`, `ask_policy`
-- [x] CLI realigned to internal commands - replio models/config/plugins mirror /models, /config, /plugins
+- [x] CLI realigned to internal commands - models/config/plugins mirror the slash commands
 - [x] Plural registry commands - /roles, /teams, /skills (was /type, /team, /skill)
 - [x] `/session` split - active session vs `/sessions` catalog (mirrors /model vs /models)
 - [x] Model commands - /model show/switch, /models configured, /models list [provider] live
 - [x] Loop tools - `/tool delegate` runs a persisted loop turn, sub-agent ask reaches the operator
-- [x] Externalize bundled providers - vendor providers to bundled plugins, base + host hints stay core
+- [x] Externalize bundled providers - vendor providers to plugins, base and host hints stay core
 - [x] `ask` tool - core: human or lead mid-run questions, sub-agent routing
 - [x] Connect any OpenAI-compatible endpoint by URL - named custom provider entries
 - [x] /connect provider rework - name/URL connect, preset defaults, re-enter key

@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Core cleanup and backlog sync
-
-Shared helpers replace plugin copies, dead migrations go, and the planning files match the code.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Sync the backlog and plan - move finished tasks, remove packages, and refresh the changelog | S | accurate planning files |
-
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
@@ -220,7 +212,7 @@ Session artifacts become portable and navigable.
 | Task | Effort | Provides |
 |------|--------|----------|
 | Conversation sharing links - web-shareable sessions (builds on Markdown export) | M | shareable sessions |
-| Session import from Markdown/JSON | M | round-trip session exchange |
+| Session import from Markdown | M | round-trip session exchange |
 | Bookmarks (`/bookmark`) | S | session pinning |
 | Command palette / fuzzy history - CTRL-P style history search | M | fast history search |
 
