@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -20,35 +19,13 @@ class Run:
     children: list[int] = field(default_factory=list)
     started_at: str = field(default_factory=_now)
     ended_at: str = ''
-    buffer: list[str] = field(default_factory=list)
     session_id: str = ''
-    max_buffer_lines: int = 0
-    buffer_lock: threading.Lock = field(
-        default_factory=threading.Lock, repr=False, compare=False)
-
-    def append_buffer(self, line: str) -> None:
-        with self.buffer_lock:
-            if line == '' and not self.buffer:
-                return
-            self.buffer.append(line)
-            cap = self.max_buffer_lines
-            if cap and len(self.buffer) > cap:
-                del self.buffer[:len(self.buffer) - cap]
-
-    def buffer_text(self) -> str:
-        with self.buffer_lock:
-            return '\n'.join(self.buffer)
-
-    def clear_buffer(self) -> None:
-        with self.buffer_lock:
-            self.buffer.clear()
 
 
 class RunRegistry:
     def __init__(self):
         self._runs: dict[int, Run] = {}
         self._order: list[int] = []
-        self._engines: dict[int, object] = {}
         self._next_id = 1
 
     def start(self, role: str, session: str, parent: int | None = None,
@@ -91,15 +68,6 @@ class RunRegistry:
         run.status = 'running'
         run.ended_at = ''
         return run
-
-    def set_engine(self, run_id: int, engine) -> None:
-        self._engines[run_id] = engine
-
-    def engine_for(self, run_id: int):
-        return self._engines.get(run_id)
-
-    def engines(self) -> list:
-        return [self._engines[i] for i in self._order if i in self._engines]
 
     def runs(self) -> list[Run]:
         return [self._runs[i] for i in self._order]

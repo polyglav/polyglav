@@ -29,7 +29,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/resume`               |                | Clear a paused run and continue at the next turn |
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
-| `/runs`                 |                | Show the run tree read-only: run id, role, status, session, and session id. `log [n]` prints the current run's buffered output (last `n` lines, or all), and `log #<id>` reads another run. See [session.md](session.md) |
+| `/runs`                 |                | Show the run tree read-only: run id, role, status, session, and session id. Use `/print --run <target>` for a run's output. See [session.md](session.md) |
 | `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. Saved-session catalog operations live under `/sessions` |
 | `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |

@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import BufferUI, NullUI, ReplUI, glyph, glyph_map
+from .ui import NullUI, ReplUI, glyph, glyph_map
 from . import spill as spill_store
 
 
@@ -620,9 +620,6 @@ class Engine:
         sub = Engine(sub_config, ui=ui,
                      plugin_manager=self._plugin_manager, provider=provider,
                      runs=self.runs, parent_run=self.current_run.id, run=run)
-        if ui is None:
-            max_lines = int(self.config.get('run_buffer_max_lines', 0) or 0)
-            sub._ui = BufferUI(sub.current_run, max_lines=max_lines)
         sub.role = role_name
         sub.current_run.role = role_name
         sub.current_run.task = task
@@ -642,7 +639,6 @@ class Engine:
         sub.current_session.mode = sub_config.get('mode') or ''
         if link_parent:
             sub.current_session.parent_id = self.current_session.session_name
-        self.runs.set_engine(sub.current_run.id, sub)
         return sub
 
     def resolve_target(self, target: str) -> tuple[Run | None, str]:

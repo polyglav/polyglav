@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from polyglav.roles import Role
-from polyglav.ui import BufferUI
+from polyglav.ui import NullUI
 
 from tests.helpers import make_chat
 
@@ -182,10 +182,9 @@ class TestSubAgentEngine(unittest.TestCase):
         system = next(m for m in messages if m.get('role') == 'system')
         self.assertIn('Extra skill body.', system['content'])
 
-    def test_subagent_uses_buffer_ui(self):
+    def test_subagent_uses_null_ui(self):
         sub = self.chat._new_sub_engine('writer')
-        self.assertIsInstance(sub.ui, BufferUI)
-        self.assertIs(sub.ui.run, sub.current_run)
+        self.assertIsInstance(sub.ui, NullUI)
 
     def test_model_override_applies(self):
         self.chat.roles.put(

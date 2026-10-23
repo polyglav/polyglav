@@ -252,16 +252,6 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertEqual(self.chat._run_stats(TurnResult(duration=1.0)),
                          '1.0s')
 
-    def test_subrun_verbosity_uses_buffer(self):
-        from polyglav.roles import Role
-        from polyglav.ui import BufferUI
-        self.chat.roles.put(
-            Role(name='writer', system_prompt='w'), scope='local')
-        for level in ('full', 'summary', 'off'):
-            self.chat.config.set('verbosity.subruns', level)
-            self.assertIsInstance(self.chat._new_sub_engine('writer')._ui,
-                                  BufferUI)
-
     def test_thinking_end_streamed_prints_thought_duration(self):
         self.chat.config.set('verbosity.thinking', 'full')
         out = io.StringIO()

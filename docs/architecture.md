@@ -29,11 +29,11 @@ Providers (`src/polyglav/providers/`) are OpenAI-compatible `/v1/chat/completion
 
 ## Runs
 
-Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/polyglav/runs.py`) shared across the delegation tree. A run records a numeric `id`, the agent `role`, the `session`, the `session_id` (a durable six-character handle, empty for explicit names), the `parent` run id and its ordered `children`, a `status` (`running`, `done`, or `error`), the `task` brief, and timestamps. Delegated and team-stage engines register as children of the caller (`_new_sub_engine` passes the registry and parent id) and are finished when their `chat` returns. `RunRegistry.runs()` is the flat creation-order call log, and `children(id)` walks the tree. Every run also carries a plain-text `buffer` (capped by `run_buffer_max_lines`, default 2000, `0` = unlimited): a sub-engine's UI is a `BufferUI`, so its streamed output, tool lines, and footer land in the run instead of the terminal. `/runs` shows the tree read-only, and `/runs log [n]` prints a run's buffer.
+Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/polyglav/runs.py`) shared across the delegation tree. A run records a numeric `id`, the agent `role`, the `session`, the `session_id` (a durable six-character handle, empty for explicit names), the `parent` run id and its ordered `children`, a `status` (`running`, `done`, or `error`), the `task` brief, and timestamps. Delegated and team-stage engines register as children of the caller (`_new_sub_engine` passes the registry and parent id) and are finished when their `chat` returns. `RunRegistry.runs()` is the flat creation-order call log, and `children(id)` walks the tree. A sub-engine runs with `NullUI`, so its output goes to its own session instead of the terminal. `/runs` shows the tree read-only, and `/print --run` prints a run's stored output.
 
 ## Focus
 
-`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack, handoff, or `SubRunUI` forwarding. `/runs` prints the run tree read-only, `/runs log [n]` reads a run's buffer, and `/pause`/`/resume` hold the next turn at the turn boundary. The `prompt_role` and `focus_on_delegate` config keys are gone; the live prompt is a plain `_ `, and the submitted line reprints as a mode-colored `>` or a magenta `/`.
+`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack, handoff, or `SubRunUI` forwarding. `/runs` prints the run tree read-only, `/print --run` reads a run's output, and `/pause`/`/resume` hold the next turn at the turn boundary. The `prompt_role` and `focus_on_delegate` config keys are gone; the live prompt is a plain `_ `, and the submitted line reprints as a mode-colored `>` or a magenta `/`.
 
 ## Memory
 
@@ -51,8 +51,7 @@ The loop renders through a `UISink`, an interface of methods the loop calls as e
 |------|---------|
 | `ReplUI` | Terminal REPL: ANSI streaming with a color language (orange actions/asks, red errors, blue thinking headers, dim reasoning and output), optional markdown, `[Y/n]` confirm prompts, footer stats |
 | `HeadlessUI` | `run` / `serve`: stderr diagnostics, auto-approve/deny confirm policy, never blocks on stdin |
-| `BufferUI` | Writes plain-text event lines into a run's buffer, for per-run logs read back with `/runs log`. No terminal, `confirm` denies and `ask` returns `None` |
-| `NullUI` | Silent, for tests |
+| `NullUI` | Silent, for tests and sub-engines, whose output goes to their own session |
 
 `ReplUI`'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in `src/polyglav/ui.py`, gated by the `markdown_streaming` config.
 
@@ -102,7 +101,7 @@ src/polyglav/
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
 ├── tools/               # tool registry, tool policy, delegate, ask
 ├── roles.py             # RoleRegistry (roles, plugin/global/local)
-├── ui.py                # UISink - ReplUI / HeadlessUI / BufferUI / NullUI
+├── ui.py                # UISink - ReplUI / HeadlessUI / NullUI
 └── utils/               # urllib-based SSE streaming
 ```
 

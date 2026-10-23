@@ -23,7 +23,6 @@ The read-only run tree stays, while the buffer and live-focus leftovers go. Dele
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove the run output buffer and live focus leftovers - drop `BufferUI`, `/runs log`, and the engine map, keep `/print --run` | S-M | one run history path |
 | Replace delegate and offload with a sibling delegate - read-class anonymous help, while `call` handles roles and teams | M | one delegation verb per intent |
 
 ## Core cleanup and backlog sync

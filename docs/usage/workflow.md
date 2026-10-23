@@ -26,7 +26,7 @@ The lead team leads and the support team serves. Each stage is a role with its o
 
 Agents continue one another as the work moves through phases. The assistant does not have the permissions to build a team itself, so it calls the composer. The composer builds the team, starts it, and finishes. A planning agent picks up, creates the task list, and calls a developer. The developer works, and when it reports a task done, the planner can call it again with another one, because the developer still has its session and remembers what it just did.
 
-The user can watch this flow, stay out of it, or inspect it with `/runs`, which shows the run tree read-only and prints a run buffer. `/pause` holds the next turn and `/resume` clears it; control never jumps into a live run and the target's session is never disturbed.
+The user can watch this flow, stay out of it, or inspect it with `/runs`, which shows the run tree read-only, then print a run's output with `/print --run`. `/pause` holds the next turn and `/resume` clears it; control never jumps into a live run and the target's session is never disturbed.
 
 ### Scheduled maintainer
 

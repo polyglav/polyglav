@@ -189,12 +189,6 @@ class TestHistoryCommand(unittest.TestCase):
         out = self._dispatch('/history --run nope')
         self.assertIn('Target not found: nope', out)
 
-    def test_no_focus_manager_session_target(self):
-        self._saved('other', user='other prompt')
-        self.chat._focus = None
-        out = self._dispatch('/history --run other')
-        self.assertIn('other prompt', out)
-
     def test_unknown_positional(self):
         out = self._dispatch('/history foo')
         self.assertIn('Unknown argument: foo', out)

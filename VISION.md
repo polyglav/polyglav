@@ -53,7 +53,7 @@ The end-to-end shape of a bigger task:
 2. **Compose** - for work beyond one task, the assistant engages the `composer` role, which designs a team: the specialists, the skills each needs, the stage order, and an optional review loop. The team is saved to the catalog, so it can be reused and extended.
 3. **Run** - the assistant starts the team. Stages run in order, each with its own role, skills, and permission carve, and each writing its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.
 4. **Continue** - as phases change, the next call continues from the previous result. The assistant calls the composer, then a planning agent, then a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.
-5. **Watch or stay out** - the user can follow progress with `/runs`, read a run buffer, or let it run silently. A status line shows what the active agent is doing.
+5. **Watch or stay out** - the user can follow progress with `/runs`, read a run's saved output with `/print --run`, or let it run silently. A status line shows what the active agent is doing.
 6. **Remember** - after the run, the team and its members update bounded memory. The next run continues from the change, not from a replayed transcript.
 7. **Report** - finished and failed runs surface a summary, and recurring work reports out of band.
 

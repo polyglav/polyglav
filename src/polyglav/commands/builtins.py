@@ -87,8 +87,7 @@ def _live_session_for_run(chat, run_id):
     current = getattr(chat, 'current_run', None)
     if current is not None and current.id == run_id:
         return chat.current_session
-    engine = chat.runs.engine_for(run_id)
-    return engine.current_session if engine is not None else None
+    return None
 
 
 def _target_session(chat, target):
@@ -114,9 +113,6 @@ def _target_session(chat, target):
     for run in chat.runs.runs():
         if run.role != target and run.session != target:
             continue
-        engine = chat.runs.engine_for(run.id)
-        if engine is not None:
-            return engine.current_session, ''
         session = chat.sessions.read(run.session)
         return (session, '') if session is not None else _target_error(target)
     session = chat.sessions.read(target)
@@ -1236,38 +1232,8 @@ def register_builtins(registry):
         else:
             _render_commands(registry, ['session'])
 
-    @registry.register('runs', description='Show the run tree without switching runs', subcommands=[
-        ('log [n]', "Print a run's buffered output"),
-    ])
+    @registry.register('runs', description='Show the run tree without switching runs')
     def runs_cmd(arg=''):
-        parts = arg.strip().split()
-        if parts and parts[0] == 'log':
-            current = getattr(chat.active(), 'current_run', None) \
-                if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
-            token = parts[1] if len(parts) > 1 else ''
-            tail = 0
-            if token.startswith('#'):
-                run_id = int(token[1:]) if token[1:].isdigit() else -1
-            elif token.isdigit() and chat.runs.get(int(token)) is not None:
-                run_id = int(token)
-            else:
-                run_id = current.id if current is not None else 0
-                tail = int(token) if token.isdigit() else 0
-            run = chat.runs.get(run_id)
-            if run is None:
-                print(f'{RED}✗ Unknown run #{run_id}{RESET}')
-                return
-            lines = run.buffer_text().splitlines()
-            if tail and len(lines) > tail:
-                lines = lines[-tail:]
-            if not lines:
-                print(f'{DIM}@ Run #{run.id} has no buffered output{RESET}')
-                return
-            print(f'{DIM}@ Run #{run.id} {run.role or "root"} '
-                  f'[{run.status}] ({run.session}){RESET}')
-            for line in lines:
-                print(line)
-            return
         current = getattr(chat.active(), 'current_run', None) \
             if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
         current_id = current.id if current is not None else -1
