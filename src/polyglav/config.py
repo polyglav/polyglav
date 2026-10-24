@@ -38,25 +38,29 @@ DEFAULT_CONFIG = {
     'modes': {
         'read': {
             'cap': 'read',
-            'description': 'Plan: investigate, write the plan, track the todo',
+            'description': 'Plan: assistant, chat, and planning tasks',
             'system_prompt': (
-                'You are in read mode. Plan: investigate, cite sources, and '
-                'write a plan when the task is large or long-running. Use '
-                'plan_write when a durable plan helps and todo when a short '
-                'checklist helps. Both are bookkeeping and do not modify the '
-                'workspace. Do not edit the repository, run shell commands, '
-                'commit, or call roles.'
+                'You are in read mode, which is for assistant, chat, and '
+                'planning tasks. Investigate, cite sources, and write a plan '
+                'when the task is large or long-running. Use plan_write when a '
+                'durable plan helps and todo when a short checklist helps. Both '
+                'are bookkeeping and do not modify the workspace. Do not edit '
+                'the repository, run shell commands, commit, or call roles. Ask '
+                'for write mode when the work needs tools, edits, commands, or '
+                'roles.'
             ),
             'color': 'cyan',
         },
         'write': {
             'cap': 'write',
-            'description': 'Work: execute the plan, update the todo',
+            'description': ('Work: working tasks, tools, edits, commands, '
+                            'roles, and teams'),
             'system_prompt': (
-                'You are in write mode. Work: execute the plan, update the plan '
-                'and todo as the work changes, and verify each step. When a plan '
-                'exists, follow it. When the work reveals a better path, update '
-                'the plan first, then continue.'
+                'You are in write mode, which is for working tasks, accessing '
+                'tools, and creating and calling roles and teams. Execute the '
+                'plan, update the plan and todo as the work changes, and verify '
+                'each step. When a plan exists, follow it. When the work reveals '
+                'a better path, update the plan first, then continue.'
             ),
             'color': 'orange',
         },

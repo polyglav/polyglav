@@ -898,17 +898,21 @@ class TestModeCommand(unittest.TestCase):
 
     def test_modes_shows_instruction(self):
         output = self._dispatch('/modes read')
-        self.assertIn('  You are in read mode. Plan:', output)
+        self.assertIn('  You are in read mode, which is for assistant, chat, '
+                      'and planning tasks.', output)
         self.assertNotIn('<-- current', output)
 
     def test_modes_verbose_shows_description(self):
         output = self._dispatch('/modes --verbose read')
         self.assertIn('  Plan:', output)
-        self.assertIn('  You are in read mode. Plan:', output)
+        self.assertIn('  You are in read mode, which is for assistant, chat, '
+                      'and planning tasks.', output)
 
     def test_modes_write_instruction(self):
         output = self._dispatch('/modes write')
-        self.assertIn('  You are in write mode. Work:', output)
+        self.assertIn('  You are in write mode, which is for working tasks, '
+                      'accessing tools, and creating and calling roles and '
+                      'teams.', output)
 
     def test_modes_unknown(self):
         output = self._dispatch('/modes nosuch')
