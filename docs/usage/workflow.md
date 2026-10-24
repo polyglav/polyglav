@@ -16,7 +16,7 @@ A larger task moves through the same steps every time:
 
 ## Plan and todo bookkeeping
 
-Read mode plans and write mode works. For a task that will outlast a single context, the agent can write an internal plan under `.polyglav/plans/` and a todo under `.polyglav/todos/`. The plan holds the user's or caller's instructions, findings, decisions, steps, role and team split, verification, and next. The todo holds the current work. Both are optional, both survive compaction, and both are injected at every turn and passed to sub-runs and team briefs. `/plan` and `/todo` show the current run, and `/plans` and `/todos` list every stored one.
+Read mode plans and write mode works. For a task that will outlast a single context, the agent can write an internal plan under `.polyglav/plans/` and a todo under `.polyglav/todos/`. The plan holds the user's or caller's instructions, findings, decisions, steps, role and team split, verification, and next. The todo holds the current work. Both are optional and both survive compaction. The plan is injected at every turn and passed to sub-runs and team briefs, and the todo is injected as a compact current-work block. `/plan` and `/todo` show the current run, and `/plans` and `/todos` list every stored one.
 
 ## Patterns
 

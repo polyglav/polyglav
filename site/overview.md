@@ -33,7 +33,7 @@ Read the full vision, decisions, and context economics in [Vision](vision.md).
 - **Sequential by design** - one context runs at a time. Sub-agents and stages finish in order, and `/runs` is a read-only history tree
 - **Local-first** - config and session logs live on your disk. Bring your own provider key, or run fully local
 - **Agentic REPL** - a plain `_` input prompt, a mode-colored `>` or magenta `/` submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion
-- **Long-run memory** - read mode writes a durable internal plan and todo under `.polyglav/`, injected every turn and passed to sub-runs, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches
+- **Long-run memory** - read mode writes a durable internal plan and todo under `.polyglav/`, injected every turn, with the plan passed to sub-runs, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches
 - **Permissions** - every tool is gated by `allow` / `ask` / `deny`, with path-scoped confirmation outside your worktree and an audit trail in session logs
 - **Sessions** - complete append-only turn and part logs, `/history` and `/print`, `/compact`, and Markdown export
 - **Roles, skills, and teams** - reusable agents with per-invocation skills, and named pipelines with shared memory and a review loop

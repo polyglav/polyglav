@@ -20,7 +20,7 @@ The submitted-line color signals the posture: cyan for `read`, orange for `write
 - Both are optional and model-initiated. The engine never creates a plan or a todo. A short task needs neither.
 - The plan is the long-run memory: the user's or caller's instructions and constraints, findings, decisions, steps, role and team split, verification, open questions, and next.
 - The todo is the current work state: a short list of tasks and statuses.
-- The plan is injected as a bounded system block every turn. The todo is injected as a compact current-work block. Both survive compaction and are passed to sub-runs and team briefs.
+- The plan is injected as a bounded system block every turn, survives compaction, and is passed to sub-runs and team briefs. The todo is injected as a compact current-work block and survives compaction in its own session.
 - `/plan` shows the current plan, `/plan use <path>` attaches one, `/plan off` detaches it, `/plans` lists every stored plan, and `/plans <id>` shows one.
 - `/todo` shows the current todo, `/todo add <title>` and `/todo done <id>` edit it, `/todos` lists every stored todo, and `/todos <id>` shows one.
 - Creating or updating either prints a system note. The tool call and result stay in the session log.
