@@ -1495,6 +1495,7 @@ class Engine:
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
         from .tools.plan import register_plan_tool
+        from .tools.todo import register_todo_tool
         from .modes import merge_policy, mode_cap, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry()
@@ -1503,6 +1504,7 @@ class Engine:
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
         register_plan_tool(self._tool_registry, self)
+        register_todo_tool(self._tool_registry, self)
         plugin_manager = getattr(self, '_plugin_manager', None)
         if plugin_manager is not None:
             plugin_manager.register_tools(self._tool_registry)
@@ -1647,9 +1649,13 @@ class Engine:
         if instruction:
             out.append({'role': 'system', 'content': instruction})
         from .tools.plan import plan_context
+        from .tools.todo import todo_context
         plan = plan_context(self.config, self.current_session)
         if plan:
             out.append({'role': 'system', 'content': plan})
+        todo = todo_context(self.config, self.current_session)
+        if todo:
+            out.append({'role': 'system', 'content': todo})
         for turn in self.current_session.turns:
             if boundary and turn.get('index', 0) < boundary:
                 continue

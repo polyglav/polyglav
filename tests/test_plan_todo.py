@@ -121,6 +121,79 @@ class TestPlanBookkeeping(unittest.TestCase):
         self.assertIn('plan_write', names)
 
 
+class TestTodoBookkeeping(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+        self.chat._init_tooling()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def _todo(self, action, **kwargs):
+        return self.chat._tool_registry.execute(
+            'todo', {'action': action, **kwargs})
+
+    def _state(self):
+        path = Path(self.chat.config.local_path.parent.parent,
+                    '.polyglav', 'todos',
+                    f'{self.chat.current_session.session_name}.json')
+        self.assertTrue(path.exists())
+        import json
+        return json.loads(path.read_text())
+
+    def test_todo_add_creates_state(self):
+        result = self._todo('add', title='Add the cache')
+        self.assertIn('Todo updated:', result)
+        self.assertIn('Add the cache', result)
+        state = self._state()
+        self.assertEqual(len(state['items']), 1)
+        self.assertEqual(state['items'][0]['status'], 'pending')
+
+    def test_todo_status_transitions(self):
+        self._todo('add', title='Add the cache')
+        self._todo('start', id=1)
+        self.assertEqual(self._state()['items'][0]['status'], 'doing')
+        self._todo('done', id=1)
+        self.assertEqual(self._state()['items'][0]['status'], 'done')
+        self._todo('block', id=1, note='waiting')
+        item = self._state()['items'][0]
+        self.assertEqual(item['status'], 'blocked')
+        self.assertEqual(item['note'], 'waiting')
+
+    def test_todo_remove(self):
+        self._todo('add', title='Add the cache')
+        self._todo('remove', id=1)
+        self.assertEqual(self._state()['items'], [])
+
+    def test_todo_list_and_show(self):
+        self._todo('add', title='Add the cache')
+        result = self._todo('list')
+        self.assertIn('Add the cache', result)
+        self.assertFalse(
+            self.chat._tool_registry.is_note_result('todo', result))
+        shown = self._todo('show', id=1)
+        self.assertIn('Add the cache', shown)
+
+    def test_todo_context_injected(self):
+        self._todo('add', title='Add the cache')
+        messages = self.chat._provider_messages()
+        block = '\n'.join(m['content'] for m in messages
+                          if m.get('role') == 'system')
+        self.assertIn('Current work', block)
+        self.assertIn('Add the cache', block)
+
+    def test_todo_visible_in_read(self):
+        names = {tool['function']['name']
+                 for tool in self.chat._tool_schema()}
+        self.assertIn('todo', names)
+
+    def test_todo_note_on_update(self):
+        result = self._todo('add', title='Add the cache')
+        self.assertTrue(
+            self.chat._tool_registry.is_note_result('todo', result))
+
+
 class TestPlanCommands(unittest.TestCase):
 
     def setUp(self):
