@@ -1375,8 +1375,8 @@
 <td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), submitted-line color</td>
 </tr>
 <tr>
-<td><code>test_offload.py</code></td>
-<td><code>offload</code> tool: read-class registration, role-less sibling run + <code>sub_*</code> session, <code>offload_depth</code> guard</td>
+<td><code>test_delegate.py</code></td>
+<td><code>delegate</code> tool: read-class registration, role-less sibling run + <code>sub_*</code> session, <code>delegate_depth</code> guard, and <code>call</code> rejecting a sibling target</td>
 </tr>
 <tr>
 <td><code>test_ollama_provider.py</code></td>
@@ -1420,19 +1420,15 @@
 </tr>
 <tr>
 <td><code>test_call_target.py</code></td>
-<td>Unified <code>call</code> target: role, team, sibling, old <code>role</code> param, unknown target denial, schema <code>target</code>/<code>kind</code>, and <code>call</code> permission resolution per target</td>
+<td>Unified <code>call</code> target: role, team, old <code>role</code> param, unknown target denial, schema <code>target</code>/<code>kind</code> without <code>sibling</code>, and <code>call</code> permission resolution per target</td>
 </tr>
 <tr>
 <td><code>test_composite_sessions.py</code></td>
 <td>Composite sessions: <code>SessionManager.tree</code>, <code>/sessions list</code> roots only, <code>/history --tree</code>, <code>/print --tree</code>, and <code>--tree</code> JSON export</td>
 </tr>
 <tr>
-<td><code>test_run_buffer.py</code></td>
-<td>Per-run output buffers: <code>Run.append_buffer</code>/<code>buffer_text</code>/<code>clear_buffer</code> (leading blank skip, cap trims oldest), <code>BufferUI</code> plain-text line formatting (tokens split on newlines, partial flush on footer/info, tool/activity/error/result lines, <code>max_lines</code> sets the run cap), confirm denies and ask returns <code>None</code>, <code>/runs log [n]</code> prints the current run's buffer (tail limit, empty)</td>
-</tr>
-<tr>
 <td><code>test_run_resume.py</code></td>
-<td>Run resume and context control: fresh <code>sub_</code> sessions by default, <code>resume</code> by run id / session name / session id reuses the session and reactivates the run, unknown target raises, <code>context='new'</code> ignores resume, <code>context='compact'</code> summarizes first, team <code>resume</code> seeds the first stage, <code>delegate</code>/<code>team</code> tools forward <code>resume</code>/<code>context</code>, team field round-trip without <code>warm_sessions</code>/<code>session_key</code></td>
+<td>Run resume and context control: fresh <code>sub_</code> sessions by default, <code>resume</code> by run id / session name / session id reuses the session and reactivates the run, unknown target raises, <code>context='new'</code> ignores resume, <code>context='compact'</code> summarizes first, team <code>resume</code> seeds the first stage, <code>call</code>/team tools forward <code>resume</code>/<code>context</code>, team field round-trip without <code>warm_sessions</code>/<code>session_key</code></td>
 </tr>
 <tr>
 <td><code>test_runs.py</code></td>
@@ -1440,7 +1436,7 @@
 </tr>
 <tr>
 <td><code>test_runs_command.py</code></td>
-<td><code>/runs</code>: read-only tree, <code>log [n]</code> tail, unknown run with <code>#id</code></td>
+<td><code>/runs</code>: read-only tree and no run-switch output</td>
 </tr>
 <tr>
 <td><code>test_server.py</code></td>
@@ -1475,8 +1471,12 @@
 <td><code>SkillRegistry</code>: local/global dir scans, plugin/global/local merge and precedence, origins, put/remove round-trip, reload (disk re-read + plugin-manager re-apply), <code>skills_section</code>, <code>/skills</code> command (list/show/new override/remove, plugin remove rejected)</td>
 </tr>
 <tr>
+<td><code>test_spill.py</code></td>
+<td>Tool output spill: system temp default, worktree-relative persistent refs, custom <code>tools_output_dir</code>, prune by age/size, engine ref on every tool part, auto-save dropped marker, <code>/print</code> ref rendering, and session delete removing both spill roots</td>
+</tr>
+<tr>
 <td><code>test_subagent.py</code></td>
-<td>In-process sub-engine: provider/plugin/worktree inheritance, caller-mode inheritance, role prompt/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>BufferUI</code>, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
+<td>In-process sub-engine: provider/plugin/worktree inheritance, caller-mode inheritance, role prompt/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>NullUI</code>, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
 </tr>
 <tr>
 <td><code>test_team_run.py</code></td>
@@ -1485,10 +1485,6 @@
 <tr>
 <td><code>test_team_loop.py</code></td>
 <td>Team review loop: <code>_review_passed</code> (<code>VERDICT:</code> prefix and a full <code>VERDICT: PASS</code> marker, case-insensitive, custom marker), <code>_team_loop_plan</code> (name/index resolution, invalid <code>from</code>/<code>until</code>), pass on first iteration, changes-then-pass iteration with the prior review in the producer brief, a full verdict marker stopping on the first pass, cap reached without pass, pre/post-loop stages run once, stage error stops the loop, <code>loop</code> round-trip</td>
-</tr>
-<tr>
-<td><code>test_delegate_tool.py</code></td>
-<td><code>delegate</code> tool: schema/registration (<code>category delegate</code>, <code>loop</code>), pipeline run + final result + sub-sessions, unknown team / no stages / unknown stage role errors, resolver allow/deny/ask per stage role, clamped-stage note, <code>run_team</code> cycle + depth guards, <code>_team_depth</code>/<code>_team_stack</code> propagation, full agent-loop team call</td>
 </tr>
 <tr>
 <td><code>test_teams.py</code></td>

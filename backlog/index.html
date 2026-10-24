@@ -1253,7 +1253,6 @@
 <li>Centralized static strings - move hardcoded prompts and static strings into one module</li>
 <li>Code cleanup pass - a dedicated pass over the core for dead code, naming, and rough edges</li>
 <li>Report-back connectors - job summaries delivered out-of-band (email first, idea only) when the terminal is closed</li>
-<li>Remove the legacy provider-plugin backfill migration (<code>Config._migrate_plugins</code>) once a stable polyglav release has shipped with the externalized providers. Existing <code>plugins</code> lists no longer need the automatic append, and the migration code is dead weight</li>
 <li>Human-in-the-loop channels - job events outbound (<code>proposed</code>, <code>will_run</code>, <code>failed</code>, <code>waiting_approval</code>) plus inbound actions (<code>approve</code>/<code>reject</code>/<code>run</code>/<code>disable</code>) over configurable connectors (webhook first, then email, then Telegram), so a job can reach an operator who is not on the box</li>
 <li>Global jobs overview across agents - <code>polyglav jobs list --root &lt;dir&gt;</code> fleet scan, a <code>GET /jobs</code> + <code>POST /jobs/&lt;name&gt;/approve|reject|run|disable</code> operator API on <code>polyglav serve</code>, then a web Control UI, so one view shows which agents run next and with which task</li>
 <li>Edge / offline store-and-forward buffering - offline-capable agents with local buffering for unreliable connectivity (enterprise use case)</li>
@@ -1280,13 +1279,7 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
-<li>[ ] Remove Python 3.10 support - set the floor to 3.11 in the package, CI, bundled plugin manifests, README, INSTALL, and docs</li>
-<li>[ ] Fix wrapped input reprint - clear every row of a long submitted line before printing the colored <code>&gt;</code> or <code>/</code> line</li>
-<li>[ ] Add provider, model, and mode to onboarding - a warm guided first-run setup with a hint to the remaining major options</li>
-<li>[ ] Update README and INSTALL for sequential runs - remove handoff and jump-into-run language, and document the new input and stage vocabulary</li>
-<li>[ ] Update site and SVG for v0.46.0 - refresh the generated site source, publish the SVG, and replace the old terminal mock</li>
-<li>[ ] Add Python 3.14 to CI and disable fail-fast - run 3.11 through 3.14 and keep every matrix result visible</li>
-<li>[ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today <code>delegate</code> is the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option</li>
+<li>[ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today <code>call</code> runs a team as the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option</li>
 <li>[ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md</li>
 <li>[ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of <code>{action, resource, effect}</code> rules. <code>action</code> is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), <code>resource</code> is a path, command prefix, URL, query, skill id, or role id, <code>effect</code> is allow/ask/deny, resources accept <code>*</code>/<code>?</code> wildcards, and the last matching rule wins so a broad rule precedes its exceptions. <code>ToolPolicy</code> evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt</li>
 <li>[ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a <code>default_agent</code> config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called</li>
@@ -1298,10 +1291,8 @@
 <li>[ ] Shared codebase research across roles - a role consults a shared research note (or memory) so roles do not re-read the same files</li>
 <li>[ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate</li>
 <li>[ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change</li>
-<li>[ ] Thinking visibility - with show_thinking false only the + Thought N.Ns line prints, so the reasoning is invisible while its duration is shown</li>
 <li>[ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay</li>
 <li>[ ] Docs writer commits each added task - the docs writer commits the tasks right after the operator's prompt and then works through the single points one at a time</li>
-<li>[x] hide_confirm_input default true - the typed input is hidden on the tool confirm unless overridden</li>
 <li>[ ] Batched structured asks - <code>ask</code> handles one question at a time, so several decisions cannot be asked in one call</li>
 <li>[ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work</li>
 <li>[ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context</li>
@@ -1365,8 +1356,8 @@
 <li>[ ] <code>docs_search</code> - local grep + DuckDuckGo for documentation lookups</li>
 <li>[ ] Workspace sessions - tools write into a scoped <code>--workspace</code> dir, optional <code>--git</code> sync</li>
 <li>[ ] Sandboxed exec - namespace/container isolation for <code>run_command</code> (documented, planned for a later version)</li>
-<li>[ ] <code>/agent</code> types - interactive type selection/run UX (type registry, sub-engine, and <code>delegate</code> landed. The <code>/agent</code> command itself remains)</li>
-<li>[ ] PM/dev/tester team orchestration as a user-facing pattern (the roles + <code>delegate</code> primitives landed, and it needs the jobs/team-config layer to be a pattern)</li>
+<li>[ ] <code>/agent</code> types - interactive type selection/run UX (type registry, sub-engine, and <code>call</code> landed. The <code>/agent</code> command itself remains)</li>
+<li>[ ] PM/dev/tester team orchestration as a user-facing pattern (the roles + <code>call</code> primitives landed, and it needs the jobs/team-config layer to be a pattern)</li>
 <li>[ ] Headless web API plugin-first - stdlib <code>http.server</code> fallback, richer framework (FastAPI) via the dependency plugin</li>
 <li>[ ] Enterprise plugins (stdlib-first, third-party deps optional):</li>
 <li>[ ] Data ingestion - <code>read_stream</code> / <code>write_stream</code> (MQTT, OPC-UA, Modbus)</li>
@@ -1379,10 +1370,20 @@
 <li>[ ] Onboarding wizard (<code>polyglav wizard</code>) for data-source / MES interface setup</li>
 <li>[ ] RBAC - role-based access control for enterprise deployments</li>
 <li>[ ] Queue-based scaling - many sensor and chat feeds without blocking the loop</li>
-<li>[ ] Session import from Markdown/JSON</li>
+<li>[ ] Session import from Markdown</li>
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Synced the backlog and plan after cleanup</li>
+<li>[x] Updated README and INSTALL for sequential runs</li>
+<li>[x] Removed the tool status duplicate in favor of <code>verbosity.tools</code></li>
+<li>[x] Removed the legacy provider-plugin backfill migration</li>
+<li>[x] Changed tool output to one shared cap and truncate helper</li>
+<li>[x] Replaced delegate and offload with a read-class sibling delegate</li>
+<li>[x] Removed the run output buffer and live focus leftovers</li>
+<li>[x] Added tool output spill by default with temp and persistent refs</li>
+<li>[x] Added config defaults to single-key and verbose output</li>
+<li>[x] Improved onboarding output with plain colors, aligned lists, and lead-ins</li>
 <li>[x] Updated site and SVG for v0.46.0</li>
 <li>[x] Added Python 3.14 to CI and disabled fail-fast</li>
 <li>[x] Added provider and model to onboarding</li>
@@ -1484,7 +1485,7 @@
 <li>[x] Sub-agents inherit the caller mode, a stage cannot escalate it</li>
 <li>[x] Mode-gated catalog writes and MCP tools - read mode cannot mutate the catalog or reach MCP</li>
 <li>[x] Session-scoped mode switch - <code>/mode</code> per session, <code>/config mode</code> persists</li>
-<li>[x] Fail-closed access classification - <code>access.read_tools</code> by permission key, mode cap applied last</li>
+<li>[x] Fail-closed access classification - permission-key read tools and a mode cap applied last</li>
 <li>[x] Read/write modes replace plan/build, read default, unknown falls back to read with a warning</li>
 <li>[x] Renamed sub-engine <code>_lead</code> reference to <code>_caller</code></li>
 <li>[x] Leader supervises only - bundled leader denies edit, keeps grant edit/bash</li>
@@ -1512,8 +1513,8 @@
 </li>
 <li>[x] Sub-run stage lines - completed delegate/team stages stay visible with duration and tokens</li>
 <li>[x] Sub-run verbosity - <code>subrun_verbosity</code> quiet/summary/full, summary forwards writes and edits</li>
-<li>[x] Reliable multi-line input - explicit close rule (delimiter at line start or blank line), backslash continuation</li>
-<li>[x] <code>ask</code> never confirm-gated - a question is not blocked by the prompt it needs, and free-text asks stay visible</li>
+<li>[x] Reliable multi-line input - explicit close rule and backslash continuation</li>
+<li>[x] <code>ask</code> never confirm-gated - a question is not blocked by its own prompt</li>
 <li>[x] Committer permission - a vcs category gates git_commit, so an allowed role commits unattended</li>
 <li>[x] Scoped <code>code_test</code> - a target runs that target, empty runs are reported, timeout 300s</li>
 <li>[x] Config merge fix - nested config objects merge per key across default, global, and local</li>
@@ -1539,7 +1540,7 @@
 <li>[x] <code>focus_on_delegate</code> config - off/ask/on to focus the delegated role after the run</li>
 <li>[x] <code>handoff</code> tool - pause or finish a run and hand control to a parent/sibling/child/role/#id</li>
 <li>[x] <code>/focus</code> command - show the run tree/log, attach by id/role/session, navigate runs</li>
-<li>[x] Focus manager and role engines - REPL focus stack, stable <code>agent_&lt;role&gt;</code> sessions, <code>prompt_role</code></li>
+<li>[x] Focus manager and role engines - REPL focus stack and <code>prompt_role</code></li>
 <li>[x] Run registry and call tree - in-process runs with parent/children and a flat call log</li>
 <li>[x] Session role metadata - the owning role is stamped as <code>role</code> on every session at creation</li>
 <li>[x] Assistant root role - REPL binds assistant/assistant_type, delegation-first prompt</li>
@@ -1555,12 +1556,12 @@
 <li>[x] Unattended mode - no stdin at any depth, confirms auto-deny, <code>confirm_timeout</code></li>
 <li>[x] <code>team</code> tool - model-invokable team pipeline, per-stage permission + ceiling/depth guards</li>
 <li>[x] Delegation permission ceiling + <code>ask</code> permission grants - <code>grant_permission</code>, <code>ask_policy</code></li>
-<li>[x] CLI realigned to internal commands - replio models/config/plugins mirror /models, /config, /plugins</li>
+<li>[x] CLI realigned to internal commands - models/config/plugins mirror the slash commands</li>
 <li>[x] Plural registry commands - /roles, /teams, /skills (was /type, /team, /skill)</li>
 <li>[x] <code>/session</code> split - active session vs <code>/sessions</code> catalog (mirrors /model vs /models)</li>
 <li>[x] Model commands - /model show/switch, /models configured, /models list [provider] live</li>
 <li>[x] Loop tools - <code>/tool delegate</code> runs a persisted loop turn, sub-agent ask reaches the operator</li>
-<li>[x] Externalize bundled providers - vendor providers to bundled plugins, base + host hints stay core</li>
+<li>[x] Externalize bundled providers - vendor providers to plugins, base and host hints stay core</li>
 <li>[x] <code>ask</code> tool - core: human or lead mid-run questions, sub-agent routing</li>
 <li>[x] Connect any OpenAI-compatible endpoint by URL - named custom provider entries</li>
 <li>[x] /connect provider rework - name/URL connect, preset defaults, re-enter key</li>

@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0470-2026-10-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.47.0 - 2026-10-24
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0460-2026-10-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1670,6 +1681,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0470-2026-10-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.47.0 - 2026-10-24
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0460-2026-10-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2193,6 +2215,18 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0470-2026-10-24">v0.47.0 - 2026-10-24<a class="headerlink" href="#v0470-2026-10-24" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed stored tool output refs - saving a loaded session reuses <code>dropped.ref</code> instead of calling spill again. Tests: <code>test_session_log.py</code></li>
+<li>Removed the <code>tool_status_visible</code> duplicate - tool status follows <code>verbosity.tools</code>, and the old key migrates to that level. Tests: <code>test_verbosity.py</code></li>
+<li>Removed the legacy provider-plugin backfill migration - plugin lists are no longer rewritten on load. Tests: <code>test_config.py</code></li>
+<li>Changed tool output - one shared cap and truncate helper replaces four plugin copies. Tests: plugin suites</li>
+<li>Changed delegate to the sibling tool - <code>delegate</code> is the read-class role-less sibling, <code>call</code> handles named roles and teams, and the old team-pipeline <code>delegate</code> plus <code>offload</code> are removed. Tests: <code>test_delegate.py</code>, <code>test_call_target.py</code>, <code>test_run_resume.py</code></li>
+<li>Removed the run output buffer - sub-engines use <code>NullUI</code>, <code>/runs</code> stays a read-only tree, <code>/print --run</code> shows output, and <code>BufferUI</code>, <code>run_buffer_max_lines</code>, and the live engine map are gone. Tests: <code>test_runs.py</code>, <code>test_runs_command.py</code>, <code>test_subagent.py</code></li>
+<li>Added tool output spill by default - every tool result is written to the system temp directory, with <code>tools_output_dir</code> (<code>.polyglav/tmp/</code>) for persistence, a <code>ref</code> on every tool part, <code>/print</code> resolution, and pruning. Tests: <code>test_spill.py</code>, <code>test_session_log.py</code></li>
+<li>Added config defaults to single-key and verbose output. Tests: <code>test_commands.py</code></li>
+<li>Changed onboarding output - plain-color welcome and hints, aligned provider and model lists, section lead-ins, and an explained API key. Tests: <code>polyglav-core-onboarding</code></li>
+</ul>
 <h2 id="v0460-2026-10-22">v0.46.0 - 2026-10-22<a class="headerlink" href="#v0460-2026-10-22" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed the Python 3.11 eager-annotation import error in the session manager. Tests: full suite on Python 3.11</li>

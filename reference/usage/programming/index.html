@@ -1776,13 +1776,13 @@ git<span class="w"> </span>-C<span class="w"> </span>~/polyglav-agents/workspace
 </code></pre></div>
 <h2 id="alternative-in-process-delegation-no-containers">Alternative: in-process delegation (no containers)<a class="headerlink" href="#alternative-in-process-delegation-no-containers" title="Permanent link">&para;</a></h2>
 <p>The fleet above isolates roles by process, worktree, and container. A lighter setup needs no Docker at all: one REPL caller agent delegates tasks to role sub-agents, and the sub-agent's final answer is handed back.</p>
-<p>A <code>programming</code> team (<code>planner</code>, <code>programmer</code>, <code>tester</code>, <code>code-reviewer</code>) carries system prompts and per-role permissions (see <a href="../../roles/">roles.md</a> and <a href="../../swarm/">swarm.md</a>). Delegation defaults to <code>allow</code>, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific type (for example, to keep write-heavy work gated), override only its <code>delegate</code> field in the local role catalog (<code>.polyglav/roles.json</code>):</p>
+<p>A <code>programming</code> team (<code>planner</code>, <code>programmer</code>, <code>tester</code>, <code>code-reviewer</code>) carries system prompts and per-role permissions (see <a href="../../roles/">roles.md</a> and <a href="../../swarm/">swarm.md</a>). Delegation defaults to <code>allow</code>, so the lead can delegate to any configured role without a prompt. To require a confirmation for a specific role (for example, to keep write-heavy work gated), override only its <code>call</code> field in the local role catalog (<code>.polyglav/roles.json</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">"programmer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">"programmer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Then either <code>/tool</code> runs a sub-agent, or the lead model proposes it as any other tool:</p>
-<div class="highlight"><pre><span></span><code>/tool delegate {"type": "programmer", "task": "Implement the task against the plan, run the tests and report changed files."}
+<div class="highlight"><pre><span></span><code>/tool call {"target": "programmer", "task": "Implement the task against the plan, run the tests and report changed files."}
 </code></pre></div>
 <p>The result is the sub-agent's final answer, printed in the REPL (<code>verbosity.subruns</code> at <code>summary</code> or <code>full</code>) and fed back to the caller model. Every call writes its own complete <code>sub_&lt;ts&gt;_&lt;id&gt;</code> session log under the lead's <code>.polyglav/sessions/</code>, linked to the caller session via <code>sub_sessions</code>/<code>parent_id</code>, so the audit trail is per sub-agent. If the sub-agent finishes without prose, the call result summarizes its activity (files written, test runs) from that log instead of reporting empty.</p>
 <p>The trust trade-off is the deciding factor between the two paths:</p>
@@ -1822,7 +1822,7 @@ git<span class="w"> </span>-C<span class="w"> </span>~/polyglav-agents/workspace
 <tbody>
 <tr>
 <td><code>/agent</code> types command + auditor agents</td>
-<td><code>delegate</code> tool + bundled roles (in-process sub-agents), see the in-process section below. Auditors still need a review role</td>
+<td><code>call</code> tool + bundled roles (in-process sub-agents), see the in-process section below. Auditors still need a review role</td>
 </tr>
 </tbody>
 </table>

@@ -1321,12 +1321,12 @@ the source URL, and a one-line reliability assessment.
 <h2 id="standing-and-per-invocation-skills">Standing and per-invocation skills<a class="headerlink" href="#standing-and-per-invocation-skills" title="Permanent link">&para;</a></h2>
 <p><code>Role.skills</code> are a role's standing skills, the experience a role always carries. A caller may extend a role for one run with additional skills, so the same reusable agent gains task, technology, stack, or framework instructions without defining a new role:</p>
 <ul>
-<li><code>delegate(role, task, skills=[...])</code> appends the named skills after the role's standing skills.</li>
+<li><code>call(target, task, skills=[...])</code> appends the named skills after the role's standing skills.</li>
 <li>A team stage may set <code>skills</code>, and <code>team(name, task, skills=[...])</code> adds task-wide skills to every stage.</li>
 </ul>
 <p>Resolution order is standing skills first, then invocation skills (task-wide before stage-specific), deduplicated by name. Unknown names are skipped silently. Layering skills never changes a role's tool carve.</p>
 <h2 id="injection">Injection<a class="headerlink" href="#injection" title="Permanent link">&para;</a></h2>
-<p>When a role with <code>skills</code> runs as a sub-agent (<code>delegate</code>), each registered skill's content is appended to the role's system prompt:</p>
+<p>When a role with <code>skills</code> runs as a sub-agent (<code>call</code>), each registered skill's content is appended to the role's system prompt:</p>
 <div class="highlight"><pre><span></span><code>&lt;role system prompt&gt;
 
 ## Skills

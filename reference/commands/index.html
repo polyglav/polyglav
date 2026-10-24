@@ -1505,7 +1505,7 @@
 <tr>
 <td><code>/config</code></td>
 <td></td>
-<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
+<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, default, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every default and description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
 </tr>
 <tr>
 <td><code>/connect</code></td>
@@ -1580,7 +1580,7 @@
 <tr>
 <td><code>/print</code></td>
 <td></td>
-<td>Reprint a turn (or one part) in full: <code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;] [--tree]</code>. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Each part is capped by <code>print_max_chars</code>, and <code>--full</code> drops the cap. <code>--tree</code> renders the root and its sub-runs. See <a href="../session/">session.md</a></td>
+<td>Reprint a turn (or one part) in full: <code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;] [--tree]</code>. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Tool output is read from its stored <code>ref</code> when the inline copy was dropped or capped. Each part is capped by <code>print_max_chars</code>, and <code>--full</code> drops the cap. <code>--tree</code> renders the root and its sub-runs. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/provider</code></td>
@@ -1610,7 +1610,7 @@
 <tr>
 <td><code>/runs</code></td>
 <td></td>
-<td>Show the run tree read-only: run id, role, status, session, and session id. <code>log [n]</code> prints the current run's buffered output (last <code>n</code> lines, or all), and <code>log #&lt;id&gt;</code> reads another run. See <a href="../session/">session.md</a></td>
+<td>Show the run tree read-only: run id, role, status, session, and session id. Use <code>/print --run &lt;target&gt;</code> for a run's output. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/session</code></td>
@@ -1655,7 +1655,7 @@
 </tbody>
 </table>
 <p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a provider then its known models (from <code>models.json</code> and a cached live probe).</p>
-<p>Delegation is a normal tool: the caller agent proposes it, or you run it directly, and <code>/tool call {"role": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool delegate {"name": "...", "task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
+<p>Delegation is a normal tool: the caller agent proposes it, or you run it directly, and <code>/tool call {"target": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool call {"target": "...", "kind": "team", "task": "..."}</code>. Anonymous read-only help runs with <code>/tool delegate {"task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
 </code></pre></div>

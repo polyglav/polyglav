@@ -1435,9 +1435,9 @@
 <p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns)</span>
 /config
-<span class="c1"># one key with its description</span>
+<span class="c1"># one key with its description and default</span>
 /config<span class="w"> </span>temperature
-<span class="c1"># every key with its description on an indented line</span>
+<span class="c1"># every key with its default and description on an indented line</span>
 /config<span class="w"> </span>--verbose
 <span class="c1"># a value too long for the value column prints as an indented value/source block</span>
 <span class="c1"># set a value (project-local, Git-like default)</span>
@@ -1473,7 +1473,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>access</code></td>
 <td><code>{"read_tools": [...]}</code></td>
-<td>Read-class permission keys (<code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>offload</code>). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See <a href="../modes/">modes.md</a></td>
+<td>Read-class permission keys (<code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>delegate</code>). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>ask_min_question_chars</code></td>
@@ -1521,6 +1521,11 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Test the provider connection on config changes: <code>/connect</code> probes before saving (broken values rejected unless confirmed), <code>/provider</code> warns on a failed probe. <code>false</code> skips all probes</td>
 </tr>
 <tr>
+<td><code>delegate_depth</code></td>
+<td><code>1</code></td>
+<td>Maximum nested <code>delegate</code> siblings. <code>0</code> = unlimited. A sibling cannot spawn another until the user raises this. See <a href="../modes/">modes.md</a></td>
+</tr>
+<tr>
 <td><code>footer_tokens</code></td>
 <td><code>["context"]</code></td>
 <td>Token counts the footer shows, in order, joined by <code>/</code>. <code>context</code> = <code>&lt;n&gt; tokens</code> (context/input size, chars/4 fallback), <code>in</code>/<code>out</code>/<code>thinking</code> = <code>&lt;n&gt;t</code> from provider usage (unavailable counts skipped). Empty list hides the section</td>
@@ -1528,7 +1533,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>glyphs</code></td>
 <td><code>{}</code></td>
-<td>Glyph overrides by meaning (<code>read</code>, <code>write</code>, <code>search</code>, <code>exec</code>, <code>ask</code>, <code>todo</code>, <code>call</code>, <code>delegate</code>, <code>offload</code>, <code>enter</code>, <code>return</code>, <code>warning</code>, <code>question</code>, <code>default</code>, <code>spinner</code>), or <code>"ascii"</code> for the ASCII preset. No runtime detection</td>
+<td>Glyph overrides by meaning (<code>read</code>, <code>write</code>, <code>search</code>, <code>exec</code>, <code>ask</code>, <code>todo</code>, <code>call</code>, <code>delegate</code>, <code>enter</code>, <code>return</code>, <code>warning</code>, <code>question</code>, <code>default</code>, <code>spinner</code>), or <code>"ascii"</code> for the ASCII preset. No runtime detection</td>
 </tr>
 <tr>
 <td><code>grant_permission</code></td>
@@ -1553,7 +1558,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>max_team_depth</code></td>
 <td><code>2</code></td>
-<td>Maximum nested team runs (a <code>delegate</code> stage that itself runs a team). <code>0</code> = unlimited. Cycles are refused regardless. See <a href="../teams/#the-team-tool">teams.md</a></td>
+<td>Maximum nested team runs (a <code>call</code> stage that itself runs a team). <code>0</code> = unlimited. Cycles are refused regardless. See <a href="../teams/#the-team-tool">teams.md</a></td>
 </tr>
 <tr>
 <td><code>max_tokens</code></td>
@@ -1594,11 +1599,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>model</code></td>
 <td><code>"llama3.2"</code></td>
 <td>Model name. A <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) unfolds to that provider and model. <code>/model &lt;ref&gt;</code> persists only the ref, so a project config can be just <code>{"model": "provider/model"}</code>, while <code>provider</code>/<code>base_url</code> remain explicit overrides for <code>openai-compatible</code> and custom URL providers. An unfolded model must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
-</tr>
-<tr>
-<td><code>offload_depth</code></td>
-<td><code>1</code></td>
-<td>Maximum nested <code>offload</code> siblings. <code>0</code> = unlimited. An <code>offload</code> sibling cannot spawn another until the user raises this. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
 <td><code>output_log</code></td>
@@ -1661,11 +1661,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>URL the bundled <code>polyglav-core-webhook</code> report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See <a href="../jobs/#report-back">jobs.md</a></td>
 </tr>
 <tr>
-<td><code>run_buffer_max_lines</code></td>
-<td><code>2000</code></td>
-<td>Cap lines kept in a run's per-run output buffer (<code>BufferUI</code>). Oldest lines are trimmed past the cap. <code>0</code> = unlimited. Read back with <code>/runs log</code></td>
-</tr>
-<tr>
 <td><code>search_results</code></td>
 <td><code>5</code></td>
 <td>Number of search results to fetch</td>
@@ -1716,11 +1711,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Category permission actions</td>
 </tr>
 <tr>
-<td><code>tool_status_visible</code></td>
-<td><code>true</code></td>
-<td>Show dimmed tool status in the REPL</td>
-</tr>
-<tr>
 <td><code>tools.allow</code></td>
 <td><code>[]</code></td>
 <td>Name-level allowlist. Empty means no restriction</td>
@@ -1733,22 +1723,27 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>tools_output_drop</code></td>
 <td><code>["web_fetch", "open", "fetch_page"]</code></td>
-<td>Tool results replaced by a marker in persisted sessions</td>
+<td>Tool results replaced by a marker with the ref in persisted sessions</td>
+</tr>
+<tr>
+<td><code>tools_output_dir</code></td>
+<td><code>".polyglav/tmp/"</code></td>
+<td>Persistent tool output folder used when <code>tools_output_spill</code> is on, relative to the worktree or absolute</td>
 </tr>
 <tr>
 <td><code>tools_output_max_chars</code></td>
 <td><code>0</code></td>
-<td><code>0</code> = unlimited. Caps persisted tool-result content</td>
+<td><code>0</code> = unlimited. Caps the inline persisted tool-result content, while the full text stays at the ref</td>
 </tr>
 <tr>
 <td><code>tools_output_spill</code></td>
 <td><code>false</code></td>
-<td>Write the full dropped or capped tool output to <code>.polyglav/tmp/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt</code> and record the <code>ref</code> in the <code>dropped</code> marker, so the content is recallable without re-calling the tool</td>
+<td>Persist every tool result under <code>tools_output_dir</code> instead of the system temp directory. Every part records a <code>ref</code></td>
 </tr>
 <tr>
 <td><code>tools_output_tmp_max_bytes</code></td>
 <td><code>50000000</code></td>
-<td>Cap on the total size of <code>.polyglav/tmp/</code> spilled tool output. Oldest files are removed past the cap. <code>0</code> = unlimited</td>
+<td>Cap on the total size of the spill roots. Oldest files are removed past the cap. <code>0</code> = unlimited</td>
 </tr>
 <tr>
 <td><code>unattended</code></td>
@@ -1804,7 +1799,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">    </span><span class="nt">"write"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orange"</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nt">"access"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"offload"</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"read_tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"list"</span><span class="p">,</span><span class="w"> </span><span class="s2">"web"</span><span class="p">,</span><span class="w"> </span><span class="s2">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span><span class="w"> </span><span class="s2">"delegate"</span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1820,13 +1815,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"mcp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"offload"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"read"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"vcs"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target: a role uses its own <code>tool_permission.call</code>, a team uses its stage roles' <code>call</code> actions, and a sibling is read-only. A role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> and <code>offload</code> compatibility tools keep their own categories (<code>delegate</code> for a team pipeline, <code>offload</code> for a read-class sibling) for one version. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
+<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target: a role uses its own <code>tool_permission.call</code> and a team uses its stage roles' <code>call</code> actions. A role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> category gates the read-class sibling. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
 <h3 id="ask_policy"><code>ask_policy</code><a class="headerlink" href="#ask_policy" title="Permanent link">&para;</a></h3>
 <p>Routes the <code>ask</code> tool by kind:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1847,7 +1841,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>tool_permission</code> - what the engine itself may use.</li>
 <li><code>grant_permission</code> - the ceiling on what it may hand down to sub-agents.</li>
 </ul>
-<p>Both take permission keys, not tool categories: <code>bash</code>, <code>edit</code>, <code>read</code>, <code>list</code>, <code>web</code>, <code>catalog</code>, <code>ask</code>, <code>offload</code>, <code>call</code>, <code>delegate</code>, <code>mcp</code>, <code>vcs</code>. A <code>catalog</code> save normalizes a category name (<code>write</code> -&gt; <code>edit</code>, <code>exec</code>/<code>shell</code>/<code>cmd</code> -&gt; <code>bash</code>, <code>search</code> -&gt; <code>web</code>), rejects an unknown key with the valid list, and accepts an action of <code>allow</code>/<code>ask</code>/<code>deny</code> (<code>true</code>/<code>false</code> are accepted as <code>allow</code>/<code>deny</code>).</p>
+<p>Both take permission keys, not tool categories: <code>ask</code>, <code>bash</code>, <code>call</code>, <code>catalog</code>, <code>delegate</code>, <code>edit</code>, <code>list</code>, <code>mcp</code>, <code>read</code>, <code>vcs</code>, <code>web</code>. A <code>catalog</code> save normalizes a category name (<code>write</code> -&gt; <code>edit</code>, <code>exec</code>/<code>shell</code>/<code>cmd</code> -&gt; <code>bash</code>, <code>search</code> -&gt; <code>web</code>), rejects an unknown key with the valid list, and accepts an action of <code>allow</code>/<code>ask</code>/<code>deny</code> (<code>true</code>/<code>false</code> are accepted as <code>allow</code>/<code>deny</code>).</p>
 <p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the mode-derived ceiling. The mode sets that ceiling: <code>write</code> makes write keys grantable, <code>read</code> denies them, and <code>grant_permission</code> (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.</p>
 <p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them, as long as the session is in <code>write</code> mode.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The user may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>

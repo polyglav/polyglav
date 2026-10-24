@@ -1384,7 +1384,7 @@
 <p>More tools does not mean a better agent. Every tool definition loads into the model's context on every turn, and overlapping tools mislead selection. Build a few thoughtful tools for high-impact workflows, and scale up only when a real gap shows up.</p>
 <ul>
 <li>Prefer search and point tools over dump-everything tools. An agent wastes limited context reading irrelevant results. <code>grep</code> returns only matching <code>file:line: text</code> lines. <code>glob</code> locates a path before it is read. <code>file_read</code> reports <code>N lines, M chars</code> in its header so the agent can probe size with <code>limit=0</code> before committing.</li>
-<li>Consolidate operations that are usually chained. <code>file_write</code> folds create, overwrite, and append into one call behind a <code>mode</code> enum. <code>delegate</code> runs a whole task under a role as a single call. A consolidated tool offloads multi-step reasoning from the model's context into the tool.</li>
+<li>Consolidate operations that are usually chained. <code>file_write</code> folds create, overwrite, and append into one call behind a <code>mode</code> enum. <code>call</code> runs a whole task under a role as a single call. A consolidated tool offloads multi-step reasoning from the model's context into the tool.</li>
 <li>Do not wrap a function or API endpoint just because you can. A tool needs a clear agent affordance: the model must decide from its description alone when to call it and what to do with the result.</li>
 <li>Avoid near-duplicate tools. Two page-fetching tools (<code>open</code> and <code>fetch_page</code>) confused agents until merged into one <code>web_fetch</code> taking <code>url</code> or a search-result <code>id</code>. If two tools overlap, merge or delete.</li>
 </ul>
@@ -1436,7 +1436,7 @@
 </tr>
 <tr>
 <td><code>permission</code> / <code>permission_fn</code></td>
-<td>Gates the call with <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), or <code>deny</code>. <code>permission_fn</code> resolves per invocation from the arguments, overriding a non-<code>deny</code> category action or returning <code>None</code> to defer to it (see <code>delegate</code>, <code>git_commit</code>)</td>
+<td>Gates the call with <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), or <code>deny</code>. <code>permission_fn</code> resolves per invocation from the arguments, overriding a non-<code>deny</code> category action or returning <code>None</code> to defer to it (see <code>call</code>, <code>git_commit</code>)</td>
 </tr>
 <tr>
 <td><code>path_arg</code></td>
