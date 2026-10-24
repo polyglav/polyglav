@@ -630,7 +630,7 @@ class TestEngineModes(unittest.TestCase):
         msgs = self.engine.provider.chat.call_args.args[0]
         self.assertEqual(msgs[0]['role'], 'system')
         self.assertIn('read mode', msgs[0]['content'])
-        self.assertIn('read-only', msgs[0]['content'])
+        self.assertIn('Plan:', msgs[0]['content'])
 
     def test_project_instructions_injected_as_system_message(self):
         worktree = self.engine.config.local_path.parent.parent

@@ -637,6 +637,7 @@ class Engine:
             sub.load_or_create_session(_sub_session_name(
                 self.current_session.session_name, self.sessions.sessions_dir))
         sub.current_session.mode = sub_config.get('mode') or ''
+        sub.current_session.plan = getattr(self.current_session, 'plan', '')
         if link_parent:
             sub.current_session.parent_id = self.current_session.session_name
         return sub
@@ -824,6 +825,9 @@ class Engine:
         parts = [f'Team: {team.name}'
                  + (f' ({team.description})' if team.description else ''),
                  f'Original task:\n{task}']
+        plan = getattr(self.current_session, 'plan', '')
+        if plan:
+            parts.append(f'Active plan: {plan}')
         for j, res in enumerate(results[:index], 1):
             content = (res.content or '').strip()
             if not content:
@@ -939,6 +943,9 @@ class Engine:
         parts = [f'Team: {team.name}'
                  + (f' ({team.description})' if team.description else ''),
                  f'Original task:\n{task}']
+        plan = getattr(self.current_session, 'plan', '')
+        if plan:
+            parts.append(f'Active plan: {plan}')
         if iteration > 1:
             parts.append(f'Review loop iteration {iteration}.')
         if review:
@@ -1487,6 +1494,7 @@ class Engine:
         from .tools.delegate import register_delegate_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
+        from .tools.plan import register_plan_tool
         from .modes import merge_policy, mode_cap, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry()
@@ -1494,6 +1502,7 @@ class Engine:
         register_delegate_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
+        register_plan_tool(self._tool_registry, self)
         plugin_manager = getattr(self, '_plugin_manager', None)
         if plugin_manager is not None:
             plugin_manager.register_tools(self._tool_registry)
@@ -1637,6 +1646,10 @@ class Engine:
         instruction = system_instruction(self.config, self._mode())
         if instruction:
             out.append({'role': 'system', 'content': instruction})
+        from .tools.plan import plan_context
+        plan = plan_context(self.config, self.current_session)
+        if plan:
+            out.append({'role': 'system', 'content': plan})
         for turn in self.current_session.turns:
             if boundary and turn.get('index', 0) < boundary:
                 continue

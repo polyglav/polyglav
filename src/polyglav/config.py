@@ -64,6 +64,9 @@ DEFAULT_CONFIG = {
     'output_log': False,
     'output_log_ansi': False,
     'output_log_dir': '.polyglav/output',
+    'plan': {
+        'dir': '.polyglav/plans',
+    },
     'plugins': [
         'polyglav-core-anthropic',
         'polyglav-core-dev',
