@@ -244,7 +244,7 @@ The provider payload is prepared from the turns by `turns.provider_messages()` (
 - `thinking` is attached to the assistant message it preceded.
 - `user` and `system` parts pass through in order.
 
-When a session has `plan` set, a bounded plan block is injected as a system message after the mode instruction. It holds the path, the next mode and role, the status, and the plan body (capped at 8000 chars). The block is read from the file at request time and is not part of the summarized turns, so compaction never removes it. The path is included in the Markdown header and the JSON `info` document.
+When a session has `plan` set, a bounded plan block is injected as a system message after the mode instruction. It holds the path, the next mode and role, the status, and the plan body (capped at 8000 chars). A todo block, when present, follows it as a compact current-work block. Both are read from their files at request time and are not part of the summarized turns, so compaction never removes them. The plan path is included in the Markdown header and the JSON `info` document, and the todo state is stored in `.polyglav/todos/<session>.json`.
 
 For compaction, tool results fold back into the summarized context as `[tool result] <output>` user messages so the summary can carry forward what the tools found.
 

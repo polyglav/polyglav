@@ -6,21 +6,24 @@ An agent has one posture at a time: `read` or `write`. `read` is the default and
 
 - `read` (plan) allows read-class tools plus the bookkeeping tools `plan_write` and `todo`. It denies workspace writes, edits, shell commands, commits, MCP tools, and `call`.
 - `write` (work) leaves write-class tools to `tool_permission`, so each write key is still bounded by its own `allow`/`ask`/`deny` action.
-- `/modes --verbose` prints each mode's description. The defaults are `Plan: investigate, write the plan, track the todo` and `Work: execute the plan, update the todo`.
+- `/modes --verbose` prints each mode's description. The defaults are `Plan: assistant, chat, and planning tasks` and `Work: working tasks, tools, edits, commands, roles, and teams`.
 - Any value other than `read` or `write` resolves to `read` and prints a warning.
 
 The submitted-line color signals the posture: cyan for `read`, orange for `write`. The live prompt is a plain `_ `, and the line reprints in that color after Enter. The banner shows the current mode, for example `@ Read mode`.
 
-## Plan bookkeeping
+## Plan and todo bookkeeping
 
-`plan_write` uses the `read` permission key. It writes only `.polyglav/plans/`, never the workspace, so read can carry it without weakening the read cap.
+`plan_write` and `todo` use the `read` permission key. They write only `.polyglav/plans/` and `.polyglav/todos/`, never the workspace, so read can carry them without weakening the read cap.
 
 - Plan: `.polyglav/plans/plan_<ts>_<session_id>.md`, path configurable with `plan.dir`.
-- The plan is optional and model-initiated. The engine never creates one. A short task does not need one.
+- Todo: `.polyglav/todos/<session>.json`.
+- Both are optional and model-initiated. The engine never creates a plan or a todo. A short task needs neither.
 - The plan is the long-run memory: the user's or caller's instructions and constraints, findings, decisions, steps, role and team split, verification, open questions, and next.
-- The plan is injected as a bounded system block every turn. It survives compaction and is passed to sub-runs and team briefs.
+- The todo is the current work state: a short list of tasks and statuses.
+- The plan is injected as a bounded system block every turn. The todo is injected as a compact current-work block. Both survive compaction and are passed to sub-runs and team briefs.
 - `/plan` shows the current plan, `/plan use <path>` attaches one, `/plan off` detaches it, `/plans` lists every stored plan, and `/plans <id>` shows one.
-- Creating or updating a plan prints a system note. The tool call and result stay in the session log.
+- `/todo` shows the current todo, `/todo add <title>` and `/todo done <id>` edit it, `/todos` lists every stored todo, and `/todos <id>` shows one.
+- Creating or updating either prints a system note. The tool call and result stay in the session log.
 
 ## Access classification
 
@@ -64,10 +67,10 @@ A leader can set `grant_permission` to hand down a category it denies itself, so
 ## Consequences
 
 - Read mode cannot run tests or lint (`run_command` and `code_test` are `bash`), commit (`vcs`), or use MCP until the user switches to `write`.
-- Read mode can still write the plan, because `plan_write` writes only `.polyglav/plans/`.
+- Read mode can still write the plan and the todo, because those tools write only `.polyglav/plans/` and `.polyglav/todos/`.
 - Existing configs and scripts that relied on the old `build` default now run read-only until they set `mode: "write"`.
 - A new plugin write key stays denied in read mode until it is added to `access.read_tools`.
 
 ## Lineage
 
-Read mode descends from OpenCode's planning posture. Polyglav shipped `plan`/`build` modes, replaced them with `read`/`write`, and now names planning in read and working in write. The durable plan is the long-run memory that the earlier posture did not have.
+Read mode descends from OpenCode's planning posture. Polyglav shipped `plan`/`build` modes, replaced them with `read`/`write`, and now names planning in read and working in write. The durable plan and todo are the long-run memory that the earlier posture did not have.

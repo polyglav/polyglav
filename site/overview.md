@@ -20,10 +20,10 @@ Read the full vision, decisions, and context economics in [Vision](vision.md).
 
 ## Current state
 
-- **Core** - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read (plan) and write (work) modes with a durable internal plan, complete append-only session logs, plugins, `polyglav run` + `polyglav serve`
+- **Core** - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read (plan) and write (work) modes with a durable internal plan and todo, complete append-only session logs, plugins, `polyglav run` + `polyglav serve`
 - **Orchestration** - roles, skills, named teams, the `call` tool for a role, a team, or a role-less sibling, the review loop, jobs (cron, interval, one-shot, retries, approvals, run memory, supervisor recipe), fleet (supervisor with ports, health, restart), MCP client and server
 - **Sessions** - turn and part logs, `/history` and `/print`, `/runs` tree and buffers, stable per-session ids, `/compact`, Markdown export
-- **Latest** - v0.48.0: plan bookkeeping in read mode with a durable plan under `.polyglav/plans/`, `/plan` and `/plans`, bounded plan injection across turns and sub-runs, and plan and work mode descriptions with `/modes --verbose`. See [Changelog](changelog.md)
+- **Latest** - v0.48.0: plan and todo bookkeeping in read mode with a durable plan under `.polyglav/plans/`, a current-work todo under `.polyglav/todos/`, `/plan`, `/plans`, `/todo`, and `/todos`, bounded injection across turns and sub-runs, and plan and work mode descriptions with `/modes --verbose`. See [Changelog](changelog.md)
 - **Tooling** - bundled plugins for web search, filesystem, shell, edit, git, dev wrappers (test, lint, format), and MCP, all with path-scoped policies. `polyglav eval` runs fixtures through the headless loop and reports tool-use metrics
 
 ## Features
@@ -33,7 +33,7 @@ Read the full vision, decisions, and context economics in [Vision](vision.md).
 - **Sequential by design** - one context runs at a time. Sub-agents and stages finish in order, and `/runs` is a read-only history tree
 - **Local-first** - config and session logs live on your disk. Bring your own provider key, or run fully local
 - **Agentic REPL** - a plain `_` input prompt, a mode-colored `>` or magenta `/` submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion
-- **Long-run plan** - read mode writes a durable internal plan under `.polyglav/plans/`, injected every turn and passed to sub-runs, so a long task keeps its instructions, decisions, and role split across compaction and role switches
+- **Long-run memory** - read mode writes a durable internal plan and todo under `.polyglav/`, injected every turn and passed to sub-runs, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches
 - **Permissions** - every tool is gated by `allow` / `ask` / `deny`, with path-scoped confirmation outside your worktree and an audit trail in session logs
 - **Sessions** - complete append-only turn and part logs, `/history` and `/print`, `/compact`, and Markdown export
 - **Roles, skills, and teams** - reusable agents with per-invocation skills, and named pipelines with shared memory and a review loop

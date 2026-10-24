@@ -119,14 +119,14 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
   "modes": {
     "read": {
       "cap": "read",
-      "description": "Plan: investigate, write the plan, track the todo",
-      "system_prompt": "You are in read mode. Plan: ...",
+      "description": "Plan: assistant, chat, and planning tasks",
+      "system_prompt": "You are in read mode, which is for assistant, chat, and planning tasks...",
       "color": "cyan"
     },
     "write": {
       "cap": "write",
-      "description": "Work: execute the plan, update the todo",
-      "system_prompt": "You are in write mode. Work: ...",
+      "description": "Work: working tasks, tools, edits, commands, roles, and teams",
+      "system_prompt": "You are in write mode, which is for working tasks, accessing tools, and creating and calling roles and teams...",
       "color": "orange"
     }
   },
@@ -149,7 +149,7 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
 }
 ```
 
-`plan.dir` is the plan file directory, relative to the worktree or absolute. The default is local and ignored by the `.polyglav/*` rule. Set it to a committed path, for example `docs/plans`, to keep plans in the repository. `plan_write` uses the `read` permission key, so it is available in both modes and needs no new permission. See [modes.md](modes.md).
+`plan.dir` is the plan file directory, relative to the worktree or absolute. The default is local and ignored by the `.polyglav/*` rule. Set it to a committed path, for example `docs/plans`, to keep plans in the repository. The todo state directory is fixed at `.polyglav/todos/`. `plan_write` and `todo` use the `read` permission key, so they are available in both modes and need no new permission. See [modes.md](modes.md).
 
 ### `tool_permission`
 

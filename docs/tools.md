@@ -27,6 +27,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
 | `plan_write` | core | `read` | `read` | Write or revise the internal plan under `plan.dir`, and attach it to the session |
 | `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.bash_allow` |
+| `todo` | core | `todo` | `read` | Track the current work in `.polyglav/todos/<session>.json` (`add`, `start`, `done`, `block`, `remove`, `list`, `show`) |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
@@ -45,9 +46,11 @@ The `ask` tool (core, like `call`) pauses the run and routes a decision or permi
 
 The ask is not additionally gated: `tool_permission.ask` defaults to `allow`, since the question and answer are the point. Users can block it with `tools.deny: ["ask"]`. The question (tool arguments) and answer (tool result) persist in the asking session's log, and the call is recorded in the session `permissions` audit array like any tool call. A permission grant adds `scope` and `granted_by` fields to that audit entry.
 
-## Plan bookkeeping
+## Plan and todo bookkeeping
 
 `plan_write` is the optional internal plan for a long run. It uses the `read` permission key and writes only `.polyglav/plans/`, never the workspace. It validates the required sections (Goal, Instructions and constraints, Findings, Decisions, Steps, Role and team split, Verification, Open questions, Next), derives `plan_<ts>_<session_id>.md` under `plan.dir`, and attaches the path to the session. A later call appends a `## Revision <n>` block unless `replace=true`. The file is injected as a bounded system block every turn, so it survives compaction and reaches sub-runs and team briefs. `/plan`, `/plan use`, `/plan off`, `/plans`, and `/plans <id>` inspect and attach it. The tool prints a system note when it saves or updates the plan.
+
+`todo` is the optional current-work list. It uses the `read` permission key and writes only `.polyglav/todos/<session>.json`. Actions are `add`, `start`, `done`, `block`, `remove`, `list`, and `show`. The list is injected as a compact current-work block, and the tool calls are in the session log. `/todo`, `/todo add`, `/todo done`, `/todos`, and `/todos <id>` inspect and edit it. The tool prints a system note when it updates the list.
 
 ## The tool loop
 

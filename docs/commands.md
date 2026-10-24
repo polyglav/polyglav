@@ -37,6 +37,8 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
 | `/thinking`             | `/reasoning`   | Show or set thinking detail: `off`, `summary`, or `full` (`/thinking on` = `full`, `off` = `off`). Prints `@ Thinking: <level>` |
+| `/todo`                 |                | Show or edit the current run's internal todo: `add <title>`, `start <id>`, `done <id>`, `block <id> [note]`, `remove <id>`, `list`. See [modes.md](modes.md) |
+| `/todos`                |                | List every stored todo, marking the current one. `/todos <id>` prints one by session id or name. See [modes.md](modes.md) |
 | `/tool`                 |                | Run a tool directly (`/tool <name> {"key": "value"}`)          |
 | `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, user asks park or return without pausing. See [config.md](config.md#unattended-mode) |
 | `/version`              | `/v`           | Show the Polyglav version                                       |

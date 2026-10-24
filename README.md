@@ -29,7 +29,7 @@ Polyglav is an AI agent that lives in your terminal. You describe an outcome onc
 ## What you can do with it
 
 - **Ship a change end to end** - ask for a feature and let a planner, a programmer, and a reviewer work through it in order.
-- **Plan a long run** - read mode can write a durable internal plan under `.polyglav/plans/`, so a long task keeps its instructions, decisions, and role split across compaction and role switches.
+- **Plan a long run** - read mode can write a durable internal plan and todo under `.polyglav/`, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches.
 - **Keep a project tidy** - schedule a job that refreshes docs, updates a changelog, or summarizes logs on a cron.
 - **Research and write** - point it at a folder of notes or papers and ask for a summary with sources.
 - **Run many agents** - give each folder its own agent and watch them all from one place.

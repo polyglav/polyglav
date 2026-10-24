@@ -99,7 +99,7 @@ src/polyglav/
 ├── sessions/            # session CRUD + markdown render
 ├── skills.py            # SkillRegistry (per-role instructions)
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
-├── tools/               # tool registry, tool policy, call, delegate, ask, plan
+├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
 ├── roles.py             # RoleRegistry (roles, plugin/global/local)
 ├── ui.py                # UISink - ReplUI / HeadlessUI / NullUI
 └── utils/               # urllib-based SSE streaming
