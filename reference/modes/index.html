@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -771,6 +771,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plan-and-todo-bookkeeping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan and todo bookkeeping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#access-classification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -819,6 +830,17 @@
     <span class="md-ellipsis">
       
         Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lineage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lineage
       
     </span>
   </a>
@@ -1243,6 +1265,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plan-and-todo-bookkeeping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan and todo bookkeeping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#access-classification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1297,6 +1330,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#lineage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lineage
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1315,14 +1359,28 @@
 
 
 <h1 id="modes-and-access">Modes and access<a class="headerlink" href="#modes-and-access" title="Permanent link">&para;</a></h1>
-<p>An agent has one posture at a time: <code>read</code> or <code>write</code>. <code>read</code> is the default. The mode decides which tools the model can call, so a plain chat is read-only until the user switches to <code>write</code>.</p>
+<p>An agent has one posture at a time: <code>read</code> or <code>write</code>. <code>read</code> is the default and is described as <strong>plan</strong>. <code>write</code> is described as <strong>work</strong>. The mode decides which tools the model can call, so a plain chat is read-only until the user switches to <code>write</code>.</p>
 <h2 id="read-and-write">Read and write<a class="headerlink" href="#read-and-write" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>read</code> allows read-class tools only. Writes, edits, shell commands, commits, MCP tools, and delegation are denied.</li>
-<li><code>write</code> leaves write-class tools to <code>tool_permission</code>, so each write key is still bounded by its own <code>allow</code>/<code>ask</code>/<code>deny</code> action.</li>
+<li><code>read</code> (plan) allows read-class tools plus the bookkeeping tools <code>plan_write</code> and <code>todo</code>. It denies workspace writes, edits, shell commands, commits, MCP tools, and <code>call</code>.</li>
+<li><code>write</code> (work) leaves write-class tools to <code>tool_permission</code>, so each write key is still bounded by its own <code>allow</code>/<code>ask</code>/<code>deny</code> action.</li>
+<li><code>/modes --verbose</code> prints each mode's description. The defaults are <code>Assistance, chat, and planning tasks</code> and <code>Working tasks, tools, edits, commands, roles, and teams</code>.</li>
 <li>Any value other than <code>read</code> or <code>write</code> resolves to <code>read</code> and prints a warning.</li>
 </ul>
 <p>The submitted-line color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The live prompt is a plain <code>_</code>, and the line reprints in that color after Enter. The banner shows the current mode, for example <code>@ Read mode</code>.</p>
+<h2 id="plan-and-todo-bookkeeping">Plan and todo bookkeeping<a class="headerlink" href="#plan-and-todo-bookkeeping" title="Permanent link">&para;</a></h2>
+<p><code>plan_write</code> and <code>todo</code> use the <code>read</code> permission key. They write only <code>.polyglav/plans/</code> and <code>.polyglav/todos/</code>, never the workspace, so read can carry them without weakening the read cap.</p>
+<ul>
+<li>Plan: <code>.polyglav/plans/plan_&lt;ts&gt;_&lt;session_id&gt;.md</code>, path configurable with <code>plan.dir</code>.</li>
+<li>Todo: <code>.polyglav/todos/&lt;session&gt;.json</code>.</li>
+<li>Both are optional and model-initiated. The engine never creates a plan or a todo. A short task needs neither.</li>
+<li>The plan is the long-run memory: the user's or caller's instructions and constraints, findings, decisions, steps, role and team split, verification, open questions, and next.</li>
+<li>The todo is the current work state: a short list of tasks and statuses.</li>
+<li>The plan is injected as a bounded system block every turn, survives compaction, and is passed to sub-runs and team briefs. The todo is injected as a compact current-work block and survives compaction in its own session.</li>
+<li><code>/plan</code> shows the current plan, <code>/plan use &lt;path&gt;</code> attaches one, <code>/plan off</code> detaches it, <code>/plans</code> lists every stored plan, and <code>/plans &lt;id&gt;</code> shows one.</li>
+<li><code>/todo</code> shows the current todo, <code>/todo add &lt;title&gt;</code> and <code>/todo done &lt;id&gt;</code> edit it, <code>/todos</code> lists every stored todo, and <code>/todos &lt;id&gt;</code> shows one.</li>
+<li>Creating or updating either prints a system note. The tool call and result stay in the session log.</li>
+</ul>
 <h2 id="access-classification">Access classification<a class="headerlink" href="#access-classification" title="Permanent link">&para;</a></h2>
 <p>Tools are classed by permission key, not by tool name. Config <code>access.read_tools</code> lists the read-class keys:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1339,21 +1397,25 @@
 <h2 id="switching">Switching<a class="headerlink" href="#switching" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>/mode</code> shows the current mode.</li>
-<li><code>/modes</code> lists the available names, marking the current one. <code>/modes &lt;name&gt;</code> prints that mode's instruction.</li>
+<li><code>/modes</code> lists the available names, marking the current one. <code>/modes --verbose</code> adds each mode's description, and <code>/modes &lt;name&gt;</code> prints a mode's instruction.</li>
 <li><code>/mode &lt;name&gt;</code> switches the mode for the current session. It does not write the config.</li>
 <li><code>/config mode &lt;value&gt;</code> persists the mode to the local config.</li>
 <li><code>--mode &lt;name&gt;</code> sets the mode for <code>polyglav run</code> and <code>polyglav serve</code>.</li>
 <li><code>polyglav jobs add</code> records an explicit mode in the job definition.</li>
 </ul>
-<p>The active mode is stored on the session and recorded on every turn, so a loaded session keeps its mode and the session log shows which posture produced each turn.</p>
+<p>The active mode is stored on the session and recorded on every turn, so a loaded session keeps its mode and the session log shows which posture produced each turn. The only permission widening is <code>read</code> to <code>write</code>, and the model asks for it through the <code>ask</code> tool.</p>
 <h2 id="roles">Roles<a class="headerlink" href="#roles" title="Permanent link">&para;</a></h2>
 <p>A role carve only needs to declare write keys, because read keys are allowed by default. Use the permission key (<code>bash</code>, <code>edit</code>, <code>read</code>, <code>vcs</code>), not the tool name. A role can narrow a read key, but it can never widen past the mode cap.</p>
+<p>A leader can set <code>grant_permission</code> to hand down a category it denies itself, so one supervisor can authorize an implementer without using the tool itself. The mode sets the outer ceiling: write keys are grantable in <code>write</code>, and denied in <code>read</code>.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Read mode cannot run tests or lint (<code>run_command</code> and <code>code_test</code> are <code>bash</code>), commit (<code>vcs</code>), or use MCP until the user switches to <code>write</code>.</li>
+<li>Read mode can still write the plan and the todo, because those tools write only <code>.polyglav/plans/</code> and <code>.polyglav/todos/</code>.</li>
 <li>Existing configs and scripts that relied on the old <code>build</code> default now run read-only until they set <code>mode: "write"</code>.</li>
 <li>A new plugin write key stays denied in read mode until it is added to <code>access.read_tools</code>.</li>
 </ul>
+<h2 id="lineage">Lineage<a class="headerlink" href="#lineage" title="Permanent link">&para;</a></h2>
+<p>Read mode descends from OpenCode's planning posture. Polyglav shipped <code>plan</code>/<code>build</code> modes, replaced them with <code>read</code>/<code>write</code>, and now names planning in read and working in write. The durable plan and todo are the long-run memory that the earlier posture did not have.</p>
 
 
 
@@ -1409,10 +1471,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

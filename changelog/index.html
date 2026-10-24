@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -402,6 +402,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0480-2026-10-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.48.0 - 2026-10-24
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0470-2026-10-24" class="md-nav__link">
@@ -1681,6 +1692,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0480-2026-10-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.48.0 - 2026-10-24
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0470-2026-10-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2215,6 +2237,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0480-2026-10-24">v0.48.0 - 2026-10-24<a class="headerlink" href="#v0480-2026-10-24" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed todo lookup by session id - <code>/todos &lt;id&gt;</code> matches the trailing session id. Tests: <code>test_plan_todo.py</code></li>
+<li>Changed mode descriptions - read is for assistant, chat, and planning tasks, and write is for working tasks, tools, edits, commands, roles, and teams. Tests: <code>test_commands.py</code>, <code>test_engine.py</code></li>
+<li>Added todo commands - <code>/todo</code> shows and edits the current todo, <code>/todos</code> lists every stored todo, <code>/todos &lt;id&gt;</code> shows one, and the <code>todo</code> tool prints a system note. Tests: <code>test_plan_todo.py</code></li>
+<li>Added todo bookkeeping - the <code>todo</code> tool tracks the current work in <code>.polyglav/todos/&lt;session&gt;.json</code>, injects a compact current-work block, and keeps its calls in the session log. Tests: <code>test_plan_todo.py</code></li>
+<li>Added plan commands - <code>/plan</code> shows, attaches, and detaches the internal plan, <code>/plans</code> lists every stored plan, <code>/plans &lt;id&gt;</code> shows one, and <code>plan_write</code> prints a system note. Tests: <code>test_plan_todo.py</code></li>
+<li>Added plan bookkeeping - <code>plan_write</code> stores <code>plan_&lt;ts&gt;_&lt;session_id&gt;.md</code> under <code>plan.dir</code>, attaches it to the session, injects it bounded, and passes it to sub-runs and team briefs. Tests: <code>test_plan_todo.py</code></li>
+<li>Added plan and work mode descriptions - <code>read</code> describes planning and <code>write</code> describes working, <code>/modes --verbose</code> prints each description, and a mode <code>cap</code> replaces the literal <code>read</code> check. Tests: <code>test_modes.py</code>, <code>test_tool_policy.py</code>, <code>test_commands.py</code></li>
+</ul>
 <h2 id="v0470-2026-10-24">v0.47.0 - 2026-10-24<a class="headerlink" href="#v0470-2026-10-24" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed stored tool output refs - saving a loaded session reuses <code>dropped.ref</code> instead of calling spill again. Tests: <code>test_session_log.py</code></li>
@@ -2850,10 +2882,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

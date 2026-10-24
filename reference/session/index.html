@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1595,6 +1595,7 @@
 <span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:00:00+00:00"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"plan"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">  </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
@@ -1629,6 +1630,11 @@
 <td><code>mode</code></td>
 <td>string</td>
 <td>Session posture (<code>read</code> or <code>write</code>), empty means follow the config <code>mode</code>. Set by <code>/mode</code></td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>string</td>
+<td>Attached plan path, empty when no plan is attached. Set by <code>plan_write</code> or <code>/plan use</code></td>
 </tr>
 <tr>
 <td><code>parent_id</code></td>
@@ -1870,6 +1876,7 @@
 <li><code>thinking</code> is attached to the assistant message it preceded.</li>
 <li><code>user</code> and <code>system</code> parts pass through in order.</li>
 </ul>
+<p>When a session has <code>plan</code> set, a bounded plan block is injected as a system message after the mode instruction. It holds the path, the next mode and role, the status, and the plan body (capped at 8000 chars). A todo block, when present, follows it as a compact current-work block. Both are read from their files at request time and are not part of the summarized turns, so compaction never removes them. The plan path is included in the Markdown header and the JSON <code>info</code> document, and the todo state is stored in <code>.polyglav/todos/&lt;session&gt;.json</code>.</p>
 <p>For compaction, tool results fold back into the summarized context as <code>[tool result] &lt;output&gt;</code> user messages so the summary can carry forward what the tools found.</p>
 <h2 id="compaction">Compaction<a class="headerlink" href="#compaction" title="Permanent link">&para;</a></h2>
 <p><code>/compact</code> summarizes the earlier conversation and trims the provider context, controlled by <code>compact_keep</code> (default 4 = turns kept at the tail). The summary is stored in the <code>summary</code> of a <code>command</code> part with a <code>compact_from</code> turn index, so the full history stays in the log while only the summary plus the kept turns are sent to the model going forward.</p>
@@ -1929,10 +1936,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

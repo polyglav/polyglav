@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -29,10 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1335,7 +1335,7 @@
 <h1 id="polyglav">Polyglav<a class="headerlink" href="#polyglav" title="Permanent link">&para;</a></h1>
 <p><strong>One agent, many heads</strong></p>
 <p><img alt="Polyglav terminal session" src="polyglav.svg" /></p>
-<p>Current version: <strong>v0.46.0</strong> (Python &gt;= 3.11, MIT, zero external dependencies)</p>
+<p>Current version: <strong>v0.48.0</strong> (Python &gt;= 3.11, MIT, zero external dependencies)</p>
 <p>An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers roles, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.</p>
 <h2 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h2>
 <p><strong>One runtime, many agents</strong></p>
@@ -1344,10 +1344,10 @@
 <p>Read the full vision, decisions, and context economics in <a href="vision/">Vision</a>.</p>
 <h2 id="current-state">Current state<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Core</strong> - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read and write modes, complete append-only session logs, plugins, <code>polyglav run</code> + <code>polyglav serve</code></li>
+<li><strong>Core</strong> - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read (plan) and write (work) modes with a durable internal plan and todo, complete append-only session logs, plugins, <code>polyglav run</code> + <code>polyglav serve</code></li>
 <li><strong>Orchestration</strong> - roles, skills, named teams, the <code>call</code> tool for a role, a team, or a role-less sibling, the review loop, jobs (cron, interval, one-shot, retries, approvals, run memory, supervisor recipe), fleet (supervisor with ports, health, restart), MCP client and server</li>
 <li><strong>Sessions</strong> - turn and part logs, <code>/history</code> and <code>/print</code>, <code>/runs</code> tree and buffers, stable per-session ids, <code>/compact</code>, Markdown export</li>
-<li><strong>Latest</strong> - v0.46.0: the sequential-only run model, the new REPL vocabulary with a plain <code>_</code> input prompt and colored submitted line, verbosity levels, <code>/modes</code>, compact <code>/config</code> with key detail and <code>--verbose</code>, provider and model onboarding, and a Python 3.11 floor with CI through 3.14. See <a href="changelog/">Changelog</a></li>
+<li><strong>Latest</strong> - v0.48.0: plan and todo bookkeeping in read mode with a durable plan under <code>.polyglav/plans/</code>, a current-work todo under <code>.polyglav/todos/</code>, <code>/plan</code>, <code>/plans</code>, <code>/todo</code>, and <code>/todos</code>, bounded injection across turns and sub-runs, and plan and work mode descriptions with <code>/modes --verbose</code>. See <a href="changelog/">Changelog</a></li>
 <li><strong>Tooling</strong> - bundled plugins for web search, filesystem, shell, edit, git, dev wrappers (test, lint, format), and MCP, all with path-scoped policies. <code>polyglav eval</code> runs fixtures through the headless loop and reports tool-use metrics</li>
 </ul>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
@@ -1357,6 +1357,7 @@
 <li><strong>Sequential by design</strong> - one context runs at a time. Sub-agents and stages finish in order, and <code>/runs</code> is a read-only history tree</li>
 <li><strong>Local-first</strong> - config and session logs live on your disk. Bring your own provider key, or run fully local</li>
 <li><strong>Agentic REPL</strong> - a plain <code>_</code> input prompt, a mode-colored <code>&gt;</code> or magenta <code>/</code> submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion</li>
+<li><strong>Long-run memory</strong> - read mode writes a durable internal plan and todo under <code>.polyglav/</code>, injected every turn, with the plan passed to sub-runs, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches</li>
 <li><strong>Permissions</strong> - every tool is gated by <code>allow</code> / <code>ask</code> / <code>deny</code>, with path-scoped confirmation outside your worktree and an audit trail in session logs</li>
 <li><strong>Sessions</strong> - complete append-only turn and part logs, <code>/history</code> and <code>/print</code>, <code>/compact</code>, and Markdown export</li>
 <li><strong>Roles, skills, and teams</strong> - reusable agents with per-invocation skills, and named pipelines with shared memory and a review loop</li>
@@ -1429,10 +1430,10 @@ polyglav
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

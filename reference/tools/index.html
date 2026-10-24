@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1034,6 +1034,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plan-and-todo-bookkeeping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan and todo bookkeeping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-tool-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1315,6 +1326,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plan-and-todo-bookkeeping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan and todo bookkeeping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-tool-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1558,11 +1580,25 @@
 <td>List a directory (<code>depth</code> for trees, alias <code>ls</code>)</td>
 </tr>
 <tr>
+<td><code>plan_write</code></td>
+<td>core</td>
+<td><code>read</code></td>
+<td><code>read</code></td>
+<td>Write or revise the internal plan under <code>plan.dir</code>, and attach it to the session</td>
+</tr>
+<tr>
 <td><code>run_command</code></td>
 <td>polyglav-core-exec</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run a shell command with timeout (aliases <code>bash</code>, <code>exec</code>). Restricted by <code>tool_permission.bash_allow</code></td>
+</tr>
+<tr>
+<td><code>todo</code></td>
+<td>core</td>
+<td><code>todo</code></td>
+<td><code>read</code></td>
+<td>Track the current work in <code>.polyglav/todos/&lt;session&gt;.json</code> (<code>add</code>, <code>start</code>, <code>done</code>, <code>block</code>, <code>remove</code>, <code>list</code>, <code>show</code>)</td>
 </tr>
 <tr>
 <td><code>web_fetch</code></td>
@@ -1592,6 +1628,9 @@
 <li>When no one can answer (headless <code>run</code>/<code>serve</code>/jobs with no terminal), <code>ask</code> returns an <code>Error: ask has no one to answer ...</code> result and the run continues autonomously, or parks under unattended mode. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see <a href="../jobs/">jobs.md</a>).</li>
 </ul>
 <p>The ask is not additionally gated: <code>tool_permission.ask</code> defaults to <code>allow</code>, since the question and answer are the point. Users can block it with <code>tools.deny: ["ask"]</code>. The question (tool arguments) and answer (tool result) persist in the asking session's log, and the call is recorded in the session <code>permissions</code> audit array like any tool call. A permission grant adds <code>scope</code> and <code>granted_by</code> fields to that audit entry.</p>
+<h2 id="plan-and-todo-bookkeeping">Plan and todo bookkeeping<a class="headerlink" href="#plan-and-todo-bookkeeping" title="Permanent link">&para;</a></h2>
+<p><code>plan_write</code> is the optional internal plan for a long run. It uses the <code>read</code> permission key and writes only <code>.polyglav/plans/</code>, never the workspace. It validates the required sections (Goal, Instructions and constraints, Findings, Decisions, Steps, Role and team split, Verification, Open questions, Next), derives <code>plan_&lt;ts&gt;_&lt;session_id&gt;.md</code> under <code>plan.dir</code>, and attaches the path to the session. A later call appends a <code>## Revision &lt;n&gt;</code> block unless <code>replace=true</code>. The file is injected as a bounded system block every turn, so it survives compaction and reaches sub-runs and team briefs. <code>/plan</code>, <code>/plan use</code>, <code>/plan off</code>, <code>/plans</code>, and <code>/plans &lt;id&gt;</code> inspect and attach it. The tool prints a system note when it saves or updates the plan.</p>
+<p><code>todo</code> is the optional current-work list. It uses the <code>read</code> permission key and writes only <code>.polyglav/todos/&lt;session&gt;.json</code>. Actions are <code>add</code>, <code>start</code>, <code>done</code>, <code>block</code>, <code>remove</code>, <code>list</code>, and <code>show</code>. The list is injected as a compact current-work block, and the tool calls are in the session log. <code>/todo</code>, <code>/todo add</code>, <code>/todo done</code>, <code>/todos</code>, and <code>/todos &lt;id&gt;</code> inspect and edit it. The tool prints a system note when it updates the list.</p>
 <h2 id="the-tool-loop">The tool loop<a class="headerlink" href="#the-tool-loop" title="Permanent link">&para;</a></h2>
 <ol>
 <li>The provider's <code>chat()</code> stream yields a <code>tool_calls</code> event with the requested function calls.</li>
@@ -1887,10 +1926,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
