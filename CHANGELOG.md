@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.48.0
+
+- Added plan and work mode descriptions - `read` describes planning and `write` describes working, `/modes --verbose` prints each description, and a mode `cap` replaces the literal `read` check. Tests: `test_modes.py`, `test_tool_policy.py`, `test_commands.py`
+
 ## v0.47.0 - 2026-10-24
 
 - Fixed stored tool output refs - saving a loaded session reuses `dropped.ref` instead of calling spill again. Tests: `test_session_log.py`

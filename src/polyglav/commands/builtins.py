@@ -734,6 +734,13 @@ def register_builtins(registry):
     def modes_cmd(arg=''):
         from ..modes import mode_list, resolve_mode
         arg = arg.strip()
+        verbose = False
+        if arg in ('--verbose', '-v'):
+            verbose = True
+            arg = ''
+        elif arg.startswith(('--verbose ', '-v ')):
+            verbose = True
+            arg = arg.split(' ', 1)[1].strip()
         specs = {m.name: m for m in mode_list(chat.config)}
         if arg:
             spec = specs.get(arg)
@@ -741,6 +748,8 @@ def register_builtins(registry):
                 valid = ', '.join(sorted(specs))
                 print(f'{RED}✗ Unknown mode "{arg}" - valid modes: {valid}{RESET}')
                 return
+            if verbose and spec.description:
+                print(f'  {spec.description}')
             if spec.instruction:
                 for line in spec.instruction.splitlines():
                     print(f'  {line}')
@@ -751,6 +760,8 @@ def register_builtins(registry):
         current, _ = resolve_mode(chat.config, session_mode)
         for mode in sorted(specs.values(), key=lambda m: m.name):
             label = '  ' + mode.name
+            if verbose and mode.description:
+                label += f'  {mode.description}'
             if mode.name == current.name:
                 label += '  <-- current'
             print(label)

@@ -37,14 +37,29 @@ DEFAULT_CONFIG = {
     'model': 'llama3.2',
     'modes': {
         'read': {
+            'cap': 'read',
+            'description': 'Plan: investigate, write the plan, track the todo',
             'system_prompt': (
-                'You are in read mode (read-only). Investigate, cite sources, and '
-                'propose a plan; do not modify files or run commands. Write and '
-                'exec tools are disabled.'
+                'You are in read mode. Plan: investigate, cite sources, and '
+                'write a plan when the task is large or long-running. Use '
+                'plan_write when a durable plan helps and todo when a short '
+                'checklist helps. Both are bookkeeping and do not modify the '
+                'workspace. Do not edit the repository, run shell commands, '
+                'commit, or call roles.'
             ),
             'color': 'cyan',
         },
-        'write': {'system_prompt': '', 'color': 'orange'},
+        'write': {
+            'cap': 'write',
+            'description': 'Work: execute the plan, update the todo',
+            'system_prompt': (
+                'You are in write mode. Work: execute the plan, update the plan '
+                'and todo as the work changes, and verify each step. When a plan '
+                'exists, follow it. When the work reveals a better path, update '
+                'the plan first, then continue.'
+            ),
+            'color': 'orange',
+        },
     },
     'output_log': False,
     'output_log_ansi': False,

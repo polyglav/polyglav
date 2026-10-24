@@ -62,6 +62,21 @@ class TestToolPolicy(unittest.TestCase):
         p = self.policy(permissions={}, mode='read', read_keys={'read'})
         self.assertEqual(p.action('plugin_tool', 'plugin_key'), 'deny')
 
+    def test_read_cap_allows_listed_key(self):
+        p = self.policy(permissions={'read': 'allow'}, cap='read',
+                        read_keys={'read'})
+        self.assertEqual(p.action('file_read', 'read'), 'allow')
+
+    def test_read_cap_denies_unlisted_key(self):
+        p = self.policy(permissions={'edit': 'allow'}, cap='read',
+                        read_keys={'read'})
+        self.assertEqual(p.action('file_write', 'edit'), 'deny')
+
+    def test_cap_overrides_mode_name(self):
+        p = self.policy(permissions={'edit': 'allow'}, mode='write',
+                        cap='read', read_keys={'read'})
+        self.assertEqual(p.action('file_write', 'edit'), 'deny')
+
     def test_read_mode_deny_beats_grant(self):
         p = self.policy(permissions={'edit': 'allow'}, mode='read',
                         read_keys={'read'})

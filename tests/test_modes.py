@@ -5,9 +5,9 @@ from pathlib import Path
 
 from polyglav.config import Config
 from polyglav.modes import (PROMPT_COLORS, instructions_file_section,
-                          is_write_key, merge_policy, mode_color, mode_list,
-                          read_keys, resolve_mode, system_instruction,
-                          unknown_mode)
+                          is_write_key, merge_policy, mode_cap, mode_color,
+                          mode_list, read_keys, resolve_mode,
+                          system_instruction, unknown_mode)
 
 
 def make_config(data: dict | None = None) -> Config:
@@ -115,6 +115,43 @@ class TestModes(unittest.TestCase):
         try:
             specs = mode_list(config)
             self.assertEqual([s.name for s in specs], ['read', 'write'])
+        finally:
+            config._tmp.cleanup()
+
+    def test_mode_cap_defaults(self):
+        config = make_config()
+        try:
+            self.assertEqual(mode_cap(config, 'read'), 'read')
+            self.assertEqual(mode_cap(config, 'write'), 'write')
+        finally:
+            config._tmp.cleanup()
+
+    def test_mode_cap_override(self):
+        config = make_config({'modes': {
+            'read': {'cap': 'write'},
+            'write': {'cap': 'read'},
+        }})
+        try:
+            permissions, _, _ = merge_policy(config, 'read')
+            self.assertEqual(permissions.get('edit'), 'allow')
+            permissions, _, _ = merge_policy(config, 'write')
+            self.assertEqual(permissions.get('edit'), 'deny')
+        finally:
+            config._tmp.cleanup()
+
+    def test_mode_descriptions(self):
+        config = make_config()
+        try:
+            specs = {s.name: s for s in mode_list(config)}
+            self.assertIn('Plan:', specs['read'].description)
+            self.assertIn('Work:', specs['write'].description)
+        finally:
+            config._tmp.cleanup()
+
+    def test_custom_mode_defaults_to_write_cap(self):
+        config = make_config({'modes': {'custom': {}}})
+        try:
+            self.assertEqual(mode_cap(config, 'custom'), 'write')
         finally:
             config._tmp.cleanup()
 

@@ -29,6 +29,10 @@ def mode_name(config: Config, mode: str | None = None) -> str:
     return resolve_mode(config, mode)[0].name
 
 
+def mode_cap(config: Config, mode: str | None = None) -> str:
+    return resolve_mode(config, mode)[0].cap
+
+
 class ModeSpec(NamedTuple):
     name: str
     instruction: str
@@ -36,6 +40,8 @@ class ModeSpec(NamedTuple):
     deny: list
     allow: list
     color: str = ''
+    cap: str = ''
+    description: str = ''
 
 
 def _normalize_spec(name: str, spec: dict) -> ModeSpec:
@@ -45,7 +51,12 @@ def _normalize_spec(name: str, spec: dict) -> ModeSpec:
     allow = [str(n) for n in (spec.get('tools.allow') or [])]
     instruction = str(spec.get('system_prompt') or '')
     color = str(spec.get('color') or '')
-    return ModeSpec(name, instruction, permissions, deny, allow, color)
+    cap = str(spec.get('cap') or '').strip().lower()
+    if cap not in ('read', 'write'):
+        cap = 'read' if name == 'read' else 'write'
+    description = str(spec.get('description') or '')
+    return ModeSpec(name, instruction, permissions, deny, allow, color, cap,
+                    description)
 
 
 def mode_color(spec: ModeSpec) -> str:
@@ -84,7 +95,7 @@ def merge_policy(config: Config, mode: str | None = None) -> tuple[dict, list, l
     permissions.update(spec.permissions)
     deny = [str(n) for n in (config.get('tools.deny') or [])] + spec.deny
     allow = spec.allow if spec.allow else [str(n) for n in (config.get('tools.allow') or [])]
-    if spec.name == 'read':
+    if spec.cap == 'read':
         for key in list(permissions):
             if is_write_key(config, key):
                 permissions[key] = 'deny'

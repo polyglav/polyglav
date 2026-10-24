@@ -1487,7 +1487,7 @@ class Engine:
         from .tools.delegate import register_delegate_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
-        from .modes import merge_policy, read_keys
+        from .modes import merge_policy, mode_cap, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry()
         register_call_tool(self._tool_registry, self)
@@ -1514,6 +1514,7 @@ class Engine:
             resolvers=resolvers,
             mode=mode,
             read_keys=read_keys(self.config),
+            cap=mode_cap(self.config, mode),
         )
         return self._tool_schema()
 

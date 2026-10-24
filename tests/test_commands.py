@@ -885,18 +885,30 @@ class TestModeCommand(unittest.TestCase):
     def test_modes_lists_available(self):
         output = self._dispatch('/modes')
         self.assertNotIn('@ Modes', output)
-        self.assertIn('  read  <-- current', output)
+        self.assertIn('  read', output)
+        self.assertIn('<-- current', output)
         self.assertIn('  write', output)
         self.assertNotIn('\033[90m', output)
 
+    def test_modes_verbose_lists_descriptions(self):
+        output = self._dispatch('/modes --verbose')
+        self.assertIn('Plan:', output)
+        self.assertIn('Work:', output)
+        self.assertIn('<-- current', output)
+
     def test_modes_shows_instruction(self):
         output = self._dispatch('/modes read')
-        self.assertIn('  You are in read mode (read-only).', output)
+        self.assertIn('  You are in read mode. Plan:', output)
         self.assertNotIn('<-- current', output)
 
-    def test_modes_empty_instruction(self):
+    def test_modes_verbose_shows_description(self):
+        output = self._dispatch('/modes --verbose read')
+        self.assertIn('  Plan:', output)
+        self.assertIn('  You are in read mode. Plan:', output)
+
+    def test_modes_write_instruction(self):
         output = self._dispatch('/modes write')
-        self.assertIn('  (no instruction)', output)
+        self.assertIn('  You are in write mode. Work:', output)
 
     def test_modes_unknown(self):
         output = self._dispatch('/modes nosuch')
