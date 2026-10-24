@@ -766,6 +766,69 @@ def register_builtins(registry):
                 label += '  <-- current'
             print(label)
 
+    @registry.register('plan', description='Show, attach, or detach the internal plan for this session',
+                       subcommands=[
+                           ('use', 'Attach a plan file to this session'),
+                           ('off', 'Detach the plan from this session'),
+                       ])
+    def plan_cmd(arg=''):
+        from ..tools.plan import display_path, plan_path, resolve_plan
+        arg = arg.strip()
+        session = chat.current_session
+        if arg in ('off', 'detach'):
+            session.plan = ''
+            chat.session_auto_save()
+            print(f'{DIM}@ Plan detached{RESET}')
+            return
+        if arg.startswith('use '):
+            target = arg[4:].strip()
+            path = resolve_plan(chat.config, target)
+            if path is None:
+                print(f'{RED}✗ Plan not found: {target}{RESET}')
+                return
+            session.plan = display_path(chat.config, path)
+            chat.session_auto_save()
+            print(f'{DIM}@ Plan attached: {session.plan}{RESET}')
+            return
+        if arg:
+            print(f'{DIM}Usage: /plan [use <path>|off]{RESET}')
+            return
+        path = plan_path(chat.config, session, create=False)
+        if path is None:
+            print(f'{DIM}No plan for this session{RESET}')
+            return
+        try:
+            text = path.read_text(encoding='utf-8', errors='replace')
+        except OSError:
+            print(f'{RED}✗ Plan not readable: {display_path(chat.config, path)}{RESET}')
+            return
+        print(f'{DIM}@ {display_path(chat.config, path)}{RESET}')
+        print(text.rstrip())
+
+    @registry.register('plans', description='List stored plans, or show one')
+    def plans_cmd(arg=''):
+        from ..tools.plan import display_path, list_plans, resolve_plan
+        arg = arg.strip()
+        if arg:
+            path = resolve_plan(chat.config, arg)
+            if path is None:
+                print(f'{RED}✗ Plan not found: {arg}{RESET}')
+                return
+            print(f'{DIM}@ {display_path(chat.config, path)}{RESET}')
+            print(path.read_text(encoding='utf-8', errors='replace').rstrip())
+            return
+        paths = list_plans(chat.config)
+        if not paths:
+            print(f'{DIM}No stored plans{RESET}')
+            return
+        current = str(chat.current_session.plan or '')
+        current_stem = Path(current).stem
+        for path in paths:
+            label = f'  {path.stem}'
+            if current_stem and path.stem == current_stem:
+                label += '  <-- attached'
+            print(label)
+
     @registry.register('models', description='List configured models, or probe a provider\'s available models', subcommands=[
         ('list', 'Probe a provider\'s advertised models (list [provider], default current)'),
         ('remove', 'Remove a model from the registry (remove <provider>/<model>)'),

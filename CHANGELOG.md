@@ -2,6 +2,7 @@
 
 ## v0.48.0
 
+- Added plan commands - `/plan` shows, attaches, and detaches the internal plan, `/plans` lists every stored plan, `/plans <id>` shows one, and `plan_write` prints a system note. Tests: `test_plan_todo.py`
 - Added plan bookkeeping - `plan_write` stores `plan_<ts>_<session_id>.md` under `plan.dir`, attaches it to the session, injects it bounded, and passes it to sub-runs and team briefs. Tests: `test_plan_todo.py`
 - Added plan and work mode descriptions - `read` describes planning and `write` describes working, `/modes --verbose` prints each description, and a mode `cap` replaces the literal `read` check. Tests: `test_modes.py`, `test_tool_policy.py`, `test_commands.py`
 

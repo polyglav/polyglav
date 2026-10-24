@@ -102,6 +102,29 @@ def parse_plan(text: str) -> tuple[dict, str]:
     return meta, text[match.end():]
 
 
+def list_plans(config) -> list[Path]:
+    return sorted(plans_dir(config).glob('plan_*.md'))
+
+
+def resolve_plan(config, ident: str) -> Path | None:
+    text = str(ident or '').strip()
+    if not text:
+        return None
+    path = Path(text).expanduser()
+    if not path.is_absolute():
+        path = config.local_path.parent.parent / path
+    if path.is_file():
+        return path.resolve()
+    for candidate in list_plans(config):
+        if candidate.stem == text or candidate.stem.endswith(f'_{text}'):
+            return candidate
+    return None
+
+
+def display_path(config, path: Path) -> str:
+    return _rel(config, path)
+
+
 def plan_context(config, session, max_chars: int = MAX_PLAN_CHARS) -> str:
     path = plan_path(config, session, create=False)
     if path is None:

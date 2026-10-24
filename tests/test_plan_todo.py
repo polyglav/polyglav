@@ -1,5 +1,7 @@
+import io
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tests.helpers import make_chat
 
@@ -117,6 +119,66 @@ class TestPlanBookkeeping(unittest.TestCase):
         names = {tool['function']['name']
                  for tool in self.chat._tool_schema()}
         self.assertIn('plan_write', names)
+
+
+class TestPlanCommands(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+        self.chat._init_tooling()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def _dispatch(self, line):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat.registry.dispatch(line)
+        return out.getvalue()
+
+    def _write(self):
+        return self.chat._tool_registry.execute(
+            'plan_write', {'content': PLAN, 'next_role': 'programmer'})
+
+    def test_plan_without_a_plan(self):
+        self.assertIn('No plan for this session', self._dispatch('/plan'))
+
+    def test_plan_shows_current(self):
+        self._write()
+        output = self._dispatch('/plan')
+        self.assertIn('plan_', output)
+        self.assertIn('## Goal', output)
+
+    def test_plans_lists_and_shows(self):
+        self._write()
+        output = self._dispatch('/plans')
+        self.assertIn('plan_', output)
+        self.assertIn('<-- attached', output)
+        stem = Path(self.chat.current_session.plan).stem
+        output = self._dispatch(f'/plans {stem}')
+        self.assertIn('## Goal', output)
+
+    def test_plan_off_detaches(self):
+        self._write()
+        self.assertIn('Plan detached', self._dispatch('/plan off'))
+        self.assertEqual(self.chat.current_session.plan, '')
+
+    def test_plan_use_attaches(self):
+        plans = Path(self.chat.config.local_path.parent.parent,
+                     '.polyglav', 'plans')
+        plans.mkdir(parents=True, exist_ok=True)
+        path = plans / 'plan_custom.md'
+        path.write_text('## Goal\nCustom.\n')
+        output = self._dispatch('/plan use .polyglav/plans/plan_custom.md')
+        self.assertIn('Plan attached', output)
+        self.assertTrue(self.chat.current_session.plan.endswith(
+            'plan_custom.md'))
+
+    def test_plans_empty(self):
+        self.assertIn('No stored plans', self._dispatch('/plans'))
+
+    def test_plan_unknown(self):
+        self.assertIn('Plan not found', self._dispatch('/plans nope'))
 
 
 if __name__ == '__main__':
