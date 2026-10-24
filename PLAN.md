@@ -35,27 +35,6 @@ A delegated role remembers the user's instructions across runs, long role instru
 
 The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.
 
-## Plan bookkeeping
-
-A long run keeps its instructions, decisions, and current work across compaction, role switches, and sessions. Read mode plans and bookkeeps, write mode works. The plan carries the design and the constraints, and the todo carries the current state. Both are internal bookkeeping and both are optional.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Mode descriptions - read describes planning ("plan") and write describes working ("work"), with `plan_write` and `todo` as read bookkeeping; `/modes --verbose` prints the descriptions | S | visible plan and work posture |
-| Plan bookkeeping - `plan_write`, `plan_<ts>_<session_id>.md` under `plan.dir`, session attachment, bounded injection, sub-run propagation | M | a durable plan across a long run |
-| Plan commands - `/plan`, `/plans`, `/plans <id>`, `/plan use` and `/plan off`, system note | S | inspect and attach plans |
-| Plan docs - `docs/modes.md` description plus config, tools, session, commands, and architecture | S | documented plan bookkeeping |
-
-## Todo bookkeeping
-
-The todo half of the same continuity layer. It is independent of the plan tool and lands as its own commits. It depends on the mode description row above, not on the plan tool.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Todo bookkeeping - `todo` tool, `.polyglav/todos/<session>.json`, compact current-work injection, calls in the session log | M | current work across a long run |
-| Todo commands - `/todo`, `/todos`, `/todos <id>`, `/todo add` and `/todo done`, system note | S | inspect and edit the todo |
-| Todo docs - `docs/modes.md` plus tools, session, and commands | S | documented todo bookkeeping |
-
 ## Role boundaries, skills, and project knowledge
 
 A role's file and folder access is a config rule, not a prompt, and a skill is tool or framework centered while the project description lives in `AGENTS.md`.

@@ -53,13 +53,6 @@
 
 ## Open
 
-- [ ] Mode descriptions - read mode describes planning ("plan") and write mode describes working ("work"), with `plan_write` and `todo` as read bookkeeping, and `/modes --verbose` prints the descriptions
-- [ ] Plan bookkeeping - `plan_write` stores `plan_<ts>_<session_id>.md` under `plan.dir` (default `.polyglav/plans`), attaches it to the session, injects it bounded every turn, and passes it to sub-runs and team briefs
-- [ ] Plan commands - `/plan` shows the current run's plan, `/plans` lists every stored plan, `/plans <id>` shows one, `/plan use` and `/plan off` attach or detach, and a system note reports save and update
-- [ ] Plan docs - describe plan bookkeeping in `docs/modes.md` and update `docs/config.md`, `docs/tools.md`, `docs/session.md`, `docs/commands.md`, and `docs/architecture.md`
-- [ ] Todo bookkeeping - the `todo` tool (add, start, done, block, list, show) updates `.polyglav/todos/<session>.json`, injects a compact current-work block, and keeps its calls in the session log
-- [ ] Todo commands - `/todo` shows the current run's todo, `/todos` lists every stored todo, `/todos <id>` shows one, `/todo add` and `/todo done` edit it, and a system note reports updates
-- [ ] Todo docs - describe the todo state file, current-work block, and commands in `docs/modes.md`, `docs/tools.md`, `docs/session.md`, and `docs/commands.md`
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
 - [ ] `apple-fm` chat provider - `BaseProvider` subclass named `apple-fm` with model `on-device` and base URL `local://apple-fm`, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring `tools` and `reasoning`, mapping `temperature` and `max_tokens` to `GenerationOptions`, and answering `_fetch_models`, `list_models`, and `check_connection` from `is_available()`
@@ -159,6 +152,16 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Fixed todo lookup by session id
+- [x] Fixed plan and todo docs
+- [x] Changed mode descriptions
+- [x] Added todo bookkeeping docs
+- [x] Added todo commands
+- [x] Added todo bookkeeping
+- [x] Added plan bookkeeping docs
+- [x] Added plan commands
+- [x] Added plan bookkeeping
+- [x] Added plan and todo mode descriptions
 - [x] Synced the backlog and plan after cleanup
 - [x] Updated README and INSTALL for sequential runs
 - [x] Removed the tool status duplicate in favor of `verbosity.tools`
