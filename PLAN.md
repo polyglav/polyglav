@@ -161,6 +161,18 @@ Capabilities install as discoverable, isolated packages.
 | Web scraper + PDF-to-text plugins | S-M | non-text content types |
 | Agent folder watcher - process new files on arrival | S-M | arrival-driven work |
 
+## Apple Foundation Models on-device integration
+
+Apple's on-device model is reachable from Python through the `apple-fm-sdk` alpha. It has no HTTP endpoint, a 4096-token context, cumulative streaming snapshots, and no tool calls on the streaming path, so it cannot reuse the OpenAI-compatible provider base. One bundled plugin integrates it in two stages: an `on_device` tool for an immediate, low-risk SDK check, then an `apple-fm` chat provider.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| `on_device` tool - bundled `polyglav-core-apple-fm` plugin exposing an `on_device` tool for summarize, classify, and extract prompts, with lazy SDK import, availability reasons, and input and output caps | S-M | first on-device call and a private local helper |
+| `apple-fm` chat provider - `BaseProvider` subclass with snapshot-to-delta streaming, provider-side context trimming, no tool calling, and `_fetch_models` and `check_connection` overrides | M | offline, private chat provider |
+| Apple FM docs and tests - `docs/providers.md` row and section, `docs/plugins.md` bundled list, `docs/testing.md` row, default `plugins` entry, mocked SDK tests | S | documented and tested integration |
+
+The provider uses a fresh `LanguageModelSession` per turn, since Polyglav's provider context is authoritative and a persisted SDK transcript would duplicate history against the 4096-token window. Tool calling stays out of the first provider cut, and the relay that would add it lives in `TODO.md` only.
+
 ## Developer workflow
 
 Repo-aware coding assistance: version control, lint/format/test wrappers, scoped shell policy, per-worktree context.
