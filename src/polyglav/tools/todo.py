@@ -91,6 +91,10 @@ def todo_context(config, session, max_chars: int = MAX_TODO_CHARS) -> str:
     return text
 
 
+def render_todo(config, path: Path, label: str = 'Todo') -> str:
+    return _render(_load(path), path, config, label=label)
+
+
 def list_todos(config) -> list[Path]:
     return sorted(todos_dir(config).glob('*.json'))
 

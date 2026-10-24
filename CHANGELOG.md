@@ -2,6 +2,7 @@
 
 ## v0.48.0
 
+- Added todo commands - `/todo` shows and edits the current todo, `/todos` lists every stored todo, `/todos <id>` shows one, and the `todo` tool prints a system note. Tests: `test_plan_todo.py`
 - Added todo bookkeeping - the `todo` tool tracks the current work in `.polyglav/todos/<session>.json`, injects a compact current-work block, and keeps its calls in the session log. Tests: `test_plan_todo.py`
 - Added plan commands - `/plan` shows, attaches, and detaches the internal plan, `/plans` lists every stored plan, `/plans <id>` shows one, and `plan_write` prints a system note. Tests: `test_plan_todo.py`
 - Added plan bookkeeping - `plan_write` stores `plan_<ts>_<session_id>.md` under `plan.dir`, attaches it to the session, injects it bounded, and passes it to sub-runs and team briefs. Tests: `test_plan_todo.py`

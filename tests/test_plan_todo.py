@@ -194,6 +194,56 @@ class TestTodoBookkeeping(unittest.TestCase):
             self.chat._tool_registry.is_note_result('todo', result))
 
 
+class TestTodoCommands(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+        self.chat._init_tooling()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def _dispatch(self, line):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat.registry.dispatch(line)
+        return out.getvalue()
+
+    def test_todo_without_a_todo(self):
+        self.assertIn('No todo for this session', self._dispatch('/todo'))
+
+    def test_todo_add_and_done(self):
+        output = self._dispatch('/todo add Add the cache')
+        self.assertIn('Add the cache', output)
+        self.assertIn('Todo updated:', output)
+        self._dispatch('/todo done 1')
+        output = self._dispatch('/todo')
+        self.assertIn('[done] 1. Add the cache', output)
+
+    def test_todo_block_with_note(self):
+        self._dispatch('/todo add Add the cache')
+        self._dispatch('/todo block 1 waiting on review')
+        output = self._dispatch('/todo')
+        self.assertIn('[blocked] 1. Add the cache', output)
+
+    def test_todos_lists_and_shows(self):
+        self._dispatch('/todo add Add the cache')
+        output = self._dispatch('/todos')
+        self.assertIn(self.chat.current_session.session_name, output)
+        self.assertIn('<-- current', output)
+        output = self._dispatch(
+            f'/todos {self.chat.current_session.session_name}')
+        self.assertIn('Add the cache', output)
+
+    def test_todo_remove(self):
+        self._dispatch('/todo add Add the cache')
+        output = self._dispatch('/todo remove 1')
+        self.assertIn('Todo updated: 0 open, 0 done', output)
+
+    def test_todos_empty(self):
+        self.assertIn('No stored todos', self._dispatch('/todos'))
+
+
 class TestPlanCommands(unittest.TestCase):
 
     def setUp(self):
