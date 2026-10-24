@@ -6,7 +6,7 @@ An agent has one posture at a time: `read` or `write`. `read` is the default and
 
 - `read` (plan) allows read-class tools plus the bookkeeping tools `plan_write` and `todo`. It denies workspace writes, edits, shell commands, commits, MCP tools, and `call`.
 - `write` (work) leaves write-class tools to `tool_permission`, so each write key is still bounded by its own `allow`/`ask`/`deny` action.
-- `/modes --verbose` prints each mode's description. The defaults are `Plan: assistant, chat, and planning tasks` and `Work: working tasks, tools, edits, commands, roles, and teams`.
+- `/modes --verbose` prints each mode's description. The defaults are `Assistance, chat, and planning tasks` and `Working tasks, tools, edits, commands, roles, and teams`.
 - Any value other than `read` or `write` resolves to `read` and prints a warning.
 
 The submitted-line color signals the posture: cyan for `read`, orange for `write`. The live prompt is a plain `_ `, and the line reprints in that color after Enter. The banner shows the current mode, for example `@ Read mode`.

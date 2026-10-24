@@ -119,13 +119,13 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
   "modes": {
     "read": {
       "cap": "read",
-      "description": "Plan: assistant, chat, and planning tasks",
+      "description": "Assistance, chat, and planning tasks",
       "system_prompt": "You are in read mode, which is for assistant, chat, and planning tasks...",
       "color": "cyan"
     },
     "write": {
       "cap": "write",
-      "description": "Work: working tasks, tools, edits, commands, roles, and teams",
+      "description": "Working tasks, tools, edits, commands, roles, and teams",
       "system_prompt": "You are in write mode, which is for working tasks, accessing tools, and creating and calling roles and teams...",
       "color": "orange"
     }

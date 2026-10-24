@@ -892,8 +892,9 @@ class TestModeCommand(unittest.TestCase):
 
     def test_modes_verbose_lists_descriptions(self):
         output = self._dispatch('/modes --verbose')
-        self.assertIn('Plan:', output)
-        self.assertIn('Work:', output)
+        self.assertIn('Assistance, chat, and planning tasks', output)
+        self.assertIn('Working tasks, tools, edits, commands, roles, and teams',
+                      output)
         self.assertIn('<-- current', output)
 
     def test_modes_shows_instruction(self):
@@ -904,7 +905,7 @@ class TestModeCommand(unittest.TestCase):
 
     def test_modes_verbose_shows_description(self):
         output = self._dispatch('/modes --verbose read')
-        self.assertIn('  Plan:', output)
+        self.assertIn('  Assistance, chat, and planning tasks', output)
         self.assertIn('  You are in read mode, which is for assistant, chat, '
                       'and planning tasks.', output)
 

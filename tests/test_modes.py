@@ -143,8 +143,10 @@ class TestModes(unittest.TestCase):
         config = make_config()
         try:
             specs = {s.name: s for s in mode_list(config)}
-            self.assertIn('Plan:', specs['read'].description)
-            self.assertIn('Work:', specs['write'].description)
+            self.assertIn('Assistance, chat, and planning tasks',
+                          specs['read'].description)
+            self.assertIn('Working tasks, tools, edits, commands, roles, and teams',
+                          specs['write'].description)
         finally:
             config._tmp.cleanup()
 

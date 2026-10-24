@@ -38,7 +38,7 @@ DEFAULT_CONFIG = {
     'modes': {
         'read': {
             'cap': 'read',
-            'description': 'Plan: assistant, chat, and planning tasks',
+            'description': 'Assistance, chat, and planning tasks',
             'system_prompt': (
                 'You are in read mode, which is for assistant, chat, and '
                 'planning tasks. Investigate, cite sources, and write a plan '
@@ -53,7 +53,7 @@ DEFAULT_CONFIG = {
         },
         'write': {
             'cap': 'write',
-            'description': ('Work: working tasks, tools, edits, commands, '
+            'description': ('Working tasks, tools, edits, commands, '
                             'roles, and teams'),
             'system_prompt': (
                 'You are in write mode, which is for working tasks, accessing '

@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.48.0
+## v0.48.0 - 2026-10-24
 
 - Fixed todo lookup by session id - `/todos <id>` matches the trailing session id. Tests: `test_plan_todo.py`
 - Changed mode descriptions - read is for assistant, chat, and planning tasks, and write is for working tasks, tools, edits, commands, roles, and teams. Tests: `test_commands.py`, `test_engine.py`
