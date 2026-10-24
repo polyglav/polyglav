@@ -78,6 +78,7 @@ The headless CLI `polyglav export <name> [--out <file>] [--json] [--tree]` reuse
   "created_at": "2026-08-17T12:00:00+00:00",
   "errors": [],
   "mode": "",
+  "plan": "",
   "parent_id": "",
   "permissions": [],
   "role": "",
@@ -95,6 +96,7 @@ The headless CLI `polyglav export <name> [--out <file>] [--json] [--tree]` reuse
 | `created_at` | string | ISO 8601 UTC timestamp of creation |
 | `errors` | array | Turn-level errors (provider, network, agent loop) |
 | `mode` | string | Session posture (`read` or `write`), empty means follow the config `mode`. Set by `/mode` |
+| `plan` | string | Attached plan path, empty when no plan is attached. Set by `plan_write` or `/plan use` |
 | `parent_id` | string | Name of the session this one was spawned from (sub-agent sessions set it, empty otherwise) |
 | `permissions` | array | Audit log of tool permission decisions (see below) |
 | `role` | string | Role that owns the session, stamped at creation (empty for a plain root or a headless run with no `--role`) |
@@ -241,6 +243,8 @@ The provider payload is prepared from the turns by `turns.provider_messages()` (
 - Within a turn, assistant text and the consecutive `tool` parts that follow become one assistant message with `tool_calls` (reusing each part's stored `call_id`, or a synthesized id for older logs), followed by the `tool` result messages, so a co-located tool round rebuilds to the OpenAI-compatible shape.
 - `thinking` is attached to the assistant message it preceded.
 - `user` and `system` parts pass through in order.
+
+When a session has `plan` set, a bounded plan block is injected as a system message after the mode instruction. It holds the path, the next mode and role, the status, and the plan body (capped at 8000 chars). The block is read from the file at request time and is not part of the summarized turns, so compaction never removes it. The path is included in the Markdown header and the JSON `info` document.
 
 For compaction, tool results fold back into the summarized context as `[tool result] <output>` user messages so the summary can carry forward what the tools found.
 

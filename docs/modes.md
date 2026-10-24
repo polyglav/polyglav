@@ -1,14 +1,26 @@
 # Modes and access
 
-An agent has one posture at a time: `read` or `write`. `read` is the default. The mode decides which tools the model can call, so a plain chat is read-only until the user switches to `write`.
+An agent has one posture at a time: `read` or `write`. `read` is the default and is described as **plan**. `write` is described as **work**. The mode decides which tools the model can call, so a plain chat is read-only until the user switches to `write`.
 
 ## Read and write
 
-- `read` allows read-class tools only. Writes, edits, shell commands, commits, MCP tools, and delegation are denied.
-- `write` leaves write-class tools to `tool_permission`, so each write key is still bounded by its own `allow`/`ask`/`deny` action.
+- `read` (plan) allows read-class tools plus the bookkeeping tools `plan_write` and `todo`. It denies workspace writes, edits, shell commands, commits, MCP tools, and `call`.
+- `write` (work) leaves write-class tools to `tool_permission`, so each write key is still bounded by its own `allow`/`ask`/`deny` action.
+- `/modes --verbose` prints each mode's description. The defaults are `Plan: investigate, write the plan, track the todo` and `Work: execute the plan, update the todo`.
 - Any value other than `read` or `write` resolves to `read` and prints a warning.
 
 The submitted-line color signals the posture: cyan for `read`, orange for `write`. The live prompt is a plain `_ `, and the line reprints in that color after Enter. The banner shows the current mode, for example `@ Read mode`.
+
+## Plan bookkeeping
+
+`plan_write` uses the `read` permission key. It writes only `.polyglav/plans/`, never the workspace, so read can carry it without weakening the read cap.
+
+- Plan: `.polyglav/plans/plan_<ts>_<session_id>.md`, path configurable with `plan.dir`.
+- The plan is optional and model-initiated. The engine never creates one. A short task does not need one.
+- The plan is the long-run memory: the user's or caller's instructions and constraints, findings, decisions, steps, role and team split, verification, open questions, and next.
+- The plan is injected as a bounded system block every turn. It survives compaction and is passed to sub-runs and team briefs.
+- `/plan` shows the current plan, `/plan use <path>` attaches one, `/plan off` detaches it, `/plans` lists every stored plan, and `/plans <id>` shows one.
+- Creating or updating a plan prints a system note. The tool call and result stay in the session log.
 
 ## Access classification
 
@@ -35,20 +47,27 @@ A request in `read` mode for a write key, or for a read-class category with decl
 ## Switching
 
 - `/mode` shows the current mode.
-- `/modes` lists the available names, marking the current one. `/modes <name>` prints that mode's instruction.
+- `/modes` lists the available names, marking the current one. `/modes --verbose` adds each mode's description, and `/modes <name>` prints a mode's instruction.
 - `/mode <name>` switches the mode for the current session. It does not write the config.
 - `/config mode <value>` persists the mode to the local config.
 - `--mode <name>` sets the mode for `polyglav run` and `polyglav serve`.
 - `polyglav jobs add` records an explicit mode in the job definition.
 
-The active mode is stored on the session and recorded on every turn, so a loaded session keeps its mode and the session log shows which posture produced each turn.
+The active mode is stored on the session and recorded on every turn, so a loaded session keeps its mode and the session log shows which posture produced each turn. The only permission widening is `read` to `write`, and the model asks for it through the `ask` tool.
 
 ## Roles
 
 A role carve only needs to declare write keys, because read keys are allowed by default. Use the permission key (`bash`, `edit`, `read`, `vcs`), not the tool name. A role can narrow a read key, but it can never widen past the mode cap.
 
+A leader can set `grant_permission` to hand down a category it denies itself, so one supervisor can authorize an implementer without using the tool itself. The mode sets the outer ceiling: write keys are grantable in `write`, and denied in `read`.
+
 ## Consequences
 
 - Read mode cannot run tests or lint (`run_command` and `code_test` are `bash`), commit (`vcs`), or use MCP until the user switches to `write`.
+- Read mode can still write the plan, because `plan_write` writes only `.polyglav/plans/`.
 - Existing configs and scripts that relied on the old `build` default now run read-only until they set `mode: "write"`.
 - A new plugin write key stays denied in read mode until it is added to `access.read_tools`.
+
+## Lineage
+
+Read mode descends from OpenCode's planning posture. Polyglav shipped `plan`/`build` modes, replaced them with `read`/`write`, and now names planning in read and working in write. The durable plan is the long-run memory that the earlier posture did not have.

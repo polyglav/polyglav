@@ -14,6 +14,10 @@ A larger task moves through the same steps every time:
 6. **Remember** - after the run, the team and its members refresh their memory, so the next run continues from the change instead of replaying a whole transcript.
 7. **Report** - a summary surfaces when the run finishes or fails, and recurring work reports out of band.
 
+## Plan bookkeeping
+
+Read mode plans and write mode works. For a task that will outlast a single context, the agent can write an internal plan under `.polyglav/plans/`. The plan holds the user's or caller's instructions, findings, decisions, steps, role and team split, verification, and next. It is optional, it survives compaction, and it is passed to sub-runs and team briefs. `/plan` shows the current run and `/plans` lists every stored plan.
+
 ## Patterns
 
 ### Team of teams

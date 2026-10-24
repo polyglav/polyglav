@@ -68,11 +68,12 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |
 | `memory_max_chars`          | `2000`                 | Cap characters of a memory summary injected into a prompt or brief (`... (truncated)` appended). `0` = unlimited |
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
-| `mode`                      | `"read"`               | Active agent mode: `read` (default, read-only) or `write`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
+| `mode`                      | `"read"`               | Active agent mode: `read` (default, plan) or `write` (work). `read` adds the bookkeeping tools `plan_write` and `todo`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
 | `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. `/model <ref>` persists only the ref, so a project config can be just `{"model": "provider/model"}`, while `provider`/`base_url` remain explicit overrides for `openai-compatible` and custom URL providers. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
 | `output_log_ansi`           | `false`                | Write the raw stream to the output log (ANSI colors and control characters kept) instead of plain text, for manual inspection |
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
+| `plan`                      | `{"dir": ".polyglav/plans"}` | Plan file directory, relative to the worktree or absolute. Plans are local by default and ignored by the `.polyglav/*` rule. See [modes.md](modes.md) |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
@@ -110,25 +111,45 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 
 ### `modes`
 
-There are two modes: `read` (default) and `write`. `read` allows only read-class permission keys and denies every write-class key, while `write` leaves write keys to `tool_permission`. A mode may override its instruction block and submitted-line color:
+There are two modes: `read` (default, described as **plan**) and `write` (described as **work**). `read` allows read-class permission keys plus the bookkeeping tools `plan_write` and `todo`, and denies every workspace write key. `write` leaves write keys to `tool_permission`. A mode may set a `cap`, a description, an instruction block, and a submitted-line color:
 
 ```json
 {
   "mode": "read",
   "modes": {
     "read": {
-      "system_prompt": "You are in read mode (read-only)...",
+      "cap": "read",
+      "description": "Plan: investigate, write the plan, track the todo",
+      "system_prompt": "You are in read mode. Plan: ...",
       "color": "cyan"
     },
-    "write": { "system_prompt": "", "color": "orange" }
+    "write": {
+      "cap": "write",
+      "description": "Work: execute the plan, update the todo",
+      "system_prompt": "You are in write mode. Work: ...",
+      "color": "orange"
+    }
   },
+  "plan": { "dir": ".polyglav/plans" },
   "access": {
     "read_tools": ["read", "list", "web", "catalog", "ask", "delegate"]
   }
 }
 ```
 
-Access is classified by permission key. Any key not in `access.read_tools` is write-class, and an unknown key (a new plugin permission) defaults write, so read mode is fail-closed. The read cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The mode instruction and `system_prompt` are injected as a system message, and the active mode is recorded on each turn. Switch the current session with `/mode <name>` and persist with `/config mode <value>`. An unknown `mode` falls back to `read` with a warning. Full detail in [modes.md](modes.md).
+`cap` is `read` or `write` and defaults from the mode name, so a custom mode named `read` is read-capped and any other name is write-capped. `description` is optional and shown by `/modes --verbose`. Access is classified by permission key. Any key not in `access.read_tools` is write-class, and an unknown key (a new plugin permission) defaults write, so read mode is fail-closed. The read cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The mode instruction and `system_prompt` are injected as a system message, and the active mode is recorded on each turn. Switch the current session with `/mode <name>` and persist with `/config mode <value>`. An unknown `mode` falls back to `read` with a warning. Full detail in [modes.md](modes.md).
+
+### `plan`
+
+```json
+{
+  "plan": {
+    "dir": ".polyglav/plans"
+  }
+}
+```
+
+`plan.dir` is the plan file directory, relative to the worktree or absolute. The default is local and ignored by the `.polyglav/*` rule. Set it to a committed path, for example `docs/plans`, to keep plans in the repository. `plan_write` uses the `read` permission key, so it is available in both modes and needs no new permission. See [modes.md](modes.md).
 
 ### `tool_permission`
 

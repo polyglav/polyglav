@@ -4,7 +4,7 @@
 
 ![Polyglav terminal session](polyglav.svg)
 
-Current version: **v0.46.0** (Python >= 3.11, MIT, zero external dependencies)
+Current version: **v0.48.0** (Python >= 3.11, MIT, zero external dependencies)
 
 An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers roles, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.
 
@@ -20,10 +20,10 @@ Read the full vision, decisions, and context economics in [Vision](vision.md).
 
 ## Current state
 
-- **Core** - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read and write modes, complete append-only session logs, plugins, `polyglav run` + `polyglav serve`
+- **Core** - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read (plan) and write (work) modes with a durable internal plan, complete append-only session logs, plugins, `polyglav run` + `polyglav serve`
 - **Orchestration** - roles, skills, named teams, the `call` tool for a role, a team, or a role-less sibling, the review loop, jobs (cron, interval, one-shot, retries, approvals, run memory, supervisor recipe), fleet (supervisor with ports, health, restart), MCP client and server
 - **Sessions** - turn and part logs, `/history` and `/print`, `/runs` tree and buffers, stable per-session ids, `/compact`, Markdown export
-- **Latest** - v0.46.0: the sequential-only run model, the new REPL vocabulary with a plain `_` input prompt and colored submitted line, verbosity levels, `/modes`, compact `/config` with key detail and `--verbose`, provider and model onboarding, and a Python 3.11 floor with CI through 3.14. See [Changelog](changelog.md)
+- **Latest** - v0.48.0: plan bookkeeping in read mode with a durable plan under `.polyglav/plans/`, `/plan` and `/plans`, bounded plan injection across turns and sub-runs, and plan and work mode descriptions with `/modes --verbose`. See [Changelog](changelog.md)
 - **Tooling** - bundled plugins for web search, filesystem, shell, edit, git, dev wrappers (test, lint, format), and MCP, all with path-scoped policies. `polyglav eval` runs fixtures through the headless loop and reports tool-use metrics
 
 ## Features
@@ -33,6 +33,7 @@ Read the full vision, decisions, and context economics in [Vision](vision.md).
 - **Sequential by design** - one context runs at a time. Sub-agents and stages finish in order, and `/runs` is a read-only history tree
 - **Local-first** - config and session logs live on your disk. Bring your own provider key, or run fully local
 - **Agentic REPL** - a plain `_` input prompt, a mode-colored `>` or magenta `/` submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion
+- **Long-run plan** - read mode writes a durable internal plan under `.polyglav/plans/`, injected every turn and passed to sub-runs, so a long task keeps its instructions, decisions, and role split across compaction and role switches
 - **Permissions** - every tool is gated by `allow` / `ask` / `deny`, with path-scoped confirmation outside your worktree and an audit trail in session logs
 - **Sessions** - complete append-only turn and part logs, `/history` and `/print`, `/compact`, and Markdown export
 - **Roles, skills, and teams** - reusable agents with per-invocation skills, and named pipelines with shared memory and a review loop

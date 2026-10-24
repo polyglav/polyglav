@@ -87,7 +87,7 @@ src/polyglav/
 ├── fleet.py             # FleetController - supervised serve agents
 ├── jobs.py              # Job/JobRun model + registry
 ├── main.py              # CLI arg parsing + bootstrap (REPL, run, serve, ...)
-├── modes.py             # named modes (plan/build/custom) merged into tool policy
+├── modes.py             # read/write caps and descriptions merged into tool policy
 ├── models.py            # global approved-model registry (models.json)
 ├── plugins/             # plugin manager
 ├── providers/
@@ -99,7 +99,7 @@ src/polyglav/
 ├── sessions/            # session CRUD + markdown render
 ├── skills.py            # SkillRegistry (per-role instructions)
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
-├── tools/               # tool registry, tool policy, call, delegate, ask
+├── tools/               # tool registry, tool policy, call, delegate, ask, plan
 ├── roles.py             # RoleRegistry (roles, plugin/global/local)
 ├── ui.py                # UISink - ReplUI / HeadlessUI / NullUI
 └── utils/               # urllib-based SSE streaming
