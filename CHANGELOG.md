@@ -2,6 +2,7 @@
 
 ## v0.48.0
 
+- Fixed todo lookup by session id - `/todos <id>` matches the trailing session id. Tests: `test_plan_todo.py`
 - Changed mode descriptions - read is for assistant, chat, and planning tasks, and write is for working tasks, tools, edits, commands, roles, and teams. Tests: `test_commands.py`, `test_engine.py`
 - Added todo commands - `/todo` shows and edits the current todo, `/todos` lists every stored todo, `/todos <id>` shows one, and the `todo` tool prints a system note. Tests: `test_plan_todo.py`
 - Added todo bookkeeping - the `todo` tool tracks the current work in `.polyglav/todos/<session>.json`, injects a compact current-work block, and keeps its calls in the session log. Tests: `test_plan_todo.py`

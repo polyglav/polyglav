@@ -235,6 +235,12 @@ class TestTodoCommands(unittest.TestCase):
             f'/todos {self.chat.current_session.session_name}')
         self.assertIn('Add the cache', output)
 
+    def test_todos_by_session_id(self):
+        self._dispatch('/todo add Add the cache')
+        session_id = self.chat.current_session.session_id
+        output = self._dispatch(f'/todos {session_id}')
+        self.assertIn('Add the cache', output)
+
     def test_todo_remove(self):
         self._dispatch('/todo add Add the cache')
         output = self._dispatch('/todo remove 1')

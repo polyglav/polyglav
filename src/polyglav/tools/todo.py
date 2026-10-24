@@ -109,7 +109,7 @@ def resolve_todo(config, ident: str) -> Path | None:
     if path.is_file():
         return path.resolve()
     for candidate in list_todos(config):
-        if candidate.stem == text:
+        if candidate.stem == text or candidate.stem.endswith(f'_{text}'):
             return candidate
     return None
 
