@@ -493,6 +493,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#apple-foundation-models-on-device-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apple Foundation Models on-device integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#developer-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1538,6 +1549,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#apple-foundation-models-on-device-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apple Foundation Models on-device integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#developer-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2137,6 +2159,35 @@
 </tr>
 </tbody>
 </table>
+<h2 id="apple-foundation-models-on-device-integration">Apple Foundation Models on-device integration<a class="headerlink" href="#apple-foundation-models-on-device-integration" title="Permanent link">&para;</a></h2>
+<p>Apple's on-device model is reachable from Python through the <code>apple-fm-sdk</code> alpha. It has no HTTP endpoint, a 4096-token context, cumulative streaming snapshots, and no tool calls on the streaming path, so it cannot reuse the OpenAI-compatible provider base. One bundled plugin integrates it in two stages: an <code>on_device</code> tool for an immediate, low-risk SDK check, then an <code>apple-fm</code> chat provider.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on_device</code> tool - bundled <code>polyglav-core-apple-fm</code> plugin exposing an <code>on_device</code> tool for summarize, classify, and extract prompts, with lazy SDK import, availability reasons, and input and output caps</td>
+<td>S-M</td>
+<td>first on-device call and a private local helper</td>
+</tr>
+<tr>
+<td><code>apple-fm</code> chat provider - <code>BaseProvider</code> subclass with snapshot-to-delta streaming, provider-side context trimming, no tool calling, and <code>_fetch_models</code> and <code>check_connection</code> overrides</td>
+<td>M</td>
+<td>offline, private chat provider</td>
+</tr>
+<tr>
+<td>Apple FM docs and tests - <code>docs/providers.md</code> row and section, <code>docs/plugins.md</code> bundled list, <code>docs/testing.md</code> row, default <code>plugins</code> entry, mocked SDK tests</td>
+<td>S</td>
+<td>documented and tested integration</td>
+</tr>
+</tbody>
+</table>
+<p>The provider uses a fresh <code>LanguageModelSession</code> per turn, since Polyglav's provider context is authoritative and a persisted SDK transcript would duplicate history against the 4096-token window. Tool calling stays out of the first provider cut, and the relay that would add it lives in <code>TODO.md</code> only.</p>
 <h2 id="developer-workflow">Developer workflow<a class="headerlink" href="#developer-workflow" title="Permanent link">&para;</a></h2>
 <p>Repo-aware coding assistance: version control, lint/format/test wrappers, scoped shell policy, per-worktree context.</p>
 <table>
