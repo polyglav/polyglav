@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from polyglav.chat import _open_delim, _strip_framing
+from polyglav.ui import CYAN, MAGENTA, ORANGE
 from tests.helpers import make_chat
 
 
@@ -131,7 +132,7 @@ class TestReplInput(unittest.TestCase):
 
     def test_chat_input_reprinted_in_mode_color(self):
         output = self._run(['hello', EOFError])
-        self.assertIn('\001\033[96m\002> hello\001\033[0m\002', output)
+        self.assertIn(f'\001{CYAN}\002> hello\001\033[0m\002', output)
 
     def test_live_prompt_uses_mode_color(self):
         prompt = self.chat._prompt()
@@ -146,12 +147,12 @@ class TestReplInput(unittest.TestCase):
 
     def test_command_input_reprinted_in_magenta(self):
         output = self._run(['/sessions list', EOFError])
-        self.assertIn('\001\033[95m\002/ sessions list\001\033[0m\002', output)
+        self.assertIn(f'\001{MAGENTA}\002/ sessions list\001\033[0m\002', output)
 
     def test_write_input_reprinted_in_orange(self):
         self.chat.config.set('mode', 'write')
         output = self._run(['hello', EOFError])
-        self.assertIn('\001\033[38;5;208m\002> hello\001\033[0m\002', output)
+        self.assertIn(f'\001{ORANGE}\002> hello\001\033[0m\002', output)
 
 
 class TestOutputLog(unittest.TestCase):
@@ -214,14 +215,14 @@ class TestOutputLog(unittest.TestCase):
         worktree = self._run({'output_log': True, 'output_log_ansi': True},
                              lines=('hello', EOFError))
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
-        self.assertIn('\001\033[96m\002> hello\001\033[0m\002',
+        self.assertIn(f'\001{CYAN}\002> hello\001\033[0m\002',
                       log.read_text())
 
     def test_output_log_reprints_colored_command_input(self):
         worktree = self._run({'output_log': True, 'output_log_ansi': True},
                              lines=('/sessions list', EOFError))
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
-        self.assertIn('\001\033[95m\002/ sessions list\001\033[0m\002',
+        self.assertIn(f'\001{MAGENTA}\002/ sessions list\001\033[0m\002',
                       log.read_text())
 
     def test_banner_precedes_startup_hooks(self):
