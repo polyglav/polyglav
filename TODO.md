@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Output log per session - create and rotate the output log for every session, including after onboarding and `/session` switches
 - [ ] Verbosity scopes - one thinking key and one output key with off/assistant/agent/all, plus status, tool, and footer levels
 - [ ] Honest token usage - accumulate usage across tool rounds, store it on runs, and show per-role and tree totals in status, `/runs`, and `/history`
 - [ ] Live status counters - elapsed time and approximate tokens on sub-run and tool lines
@@ -160,6 +159,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Fixed the output log per session
 - [x] Added a callable role field
 - [x] Added team types
 - [x] Fixed todo lookup by session id

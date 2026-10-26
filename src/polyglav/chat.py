@@ -5,7 +5,7 @@ import shutil
 import unicodedata
 from pathlib import Path
 
-from .config import Config
+from .config import Config, config_bool
 from .engine import Engine
 from .ui import DIM, MAGENTA, RESET, ReplUI
 from .modes import mode_color, resolve_mode, unknown_mode
@@ -90,6 +90,9 @@ class ChatLoop(Engine):
         ui = ReplUI(self)
         super().__init__(config, ui=ui)
         self._model_cache: dict[str, list[str]] = {}
+        self._output_log = None
+        self._output_log_session = ''
+        self._output_log_base = None
         self._load_history(config)
         self._setup_readline()
 
@@ -328,7 +331,7 @@ class ChatLoop(Engine):
         return CONT_PROMPT
 
     def _open_output_log(self):
-        if not self.config.get('output_log', False):
+        if not config_bool(self.config.get('output_log', False)):
             return None
         from .ui import TeeStream
         worktree = self.config.local_path.parent.parent
@@ -342,22 +345,43 @@ class ChatLoop(Engine):
             path = base / f'{name}.txt'
             stream = TeeStream(
                 sys.stdout, path,
-                ansi=bool(self.config.get('output_log_ansi', False)))
+                ansi=config_bool(self.config.get('output_log_ansi', False)))
             stream.write(f'# Polyglav output log - {path.name}\n')
             return stream
         except OSError:
             return None
 
-    def run(self):
+    def _close_output_log(self):
+        tee = getattr(self, '_output_log', None)
+        self._output_log = None
+        self._output_log_session = ''
+        if tee is None:
+            return
+        sys.stdout = tee._stream
+        tee.close()
+
+    def _sync_output_log(self):
+        name = self.current_session.session_name if self.current_session else ''
+        if not config_bool(self.config.get('output_log', False)):
+            self._close_output_log()
+            return
+        if (getattr(self, '_output_log', None) is not None
+                and name == getattr(self, '_output_log_session', '')):
+            return
+        self._close_output_log()
         tee = self._open_output_log()
-        if tee is not None:
-            sys.stdout = tee
+        if tee is None:
+            return
+        self._output_log = tee
+        self._output_log_session = name
+        sys.stdout = tee
+
+    def run(self):
+        self._sync_output_log()
         try:
             self._run_repl()
         finally:
-            if tee is not None:
-                sys.stdout = tee._stream
-                tee.close()
+            self._close_output_log()
 
     def _run_repl(self):
         if self.config.get('clear_screen', True):
@@ -383,6 +407,7 @@ class ChatLoop(Engine):
         print(f'{DIM}@ {mode_str} mode ({provider_str}/{model_str}){RESET}')
 
         self._run_startup()
+        self._sync_output_log()
 
         while True:
             line = self._read_line()
@@ -400,6 +425,7 @@ class ChatLoop(Engine):
                     engine.current_session.add_command(line)
                     engine.registry.dispatch(line)
                     engine.session_auto_save()
+                    self._sync_output_log()
                 elif getattr(engine, '_paused', False):
                     label = engine.role or 'root'
                     print(f'{DIM}@ Paused #{engine.current_run.id} {label}{RESET}')

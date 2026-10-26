@@ -181,6 +181,29 @@ class TestOutputLog(unittest.TestCase):
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
         self.assertIn('\x1b', log.read_text())
 
+    def test_output_log_rotates_on_session_switch(self):
+        worktree = self._run({'output_log': True},
+                             lines=('/session new', 'hello', EOFError))
+        logs = list((worktree / '.polyglav' / 'output').glob('*.txt'))
+        self.assertEqual(len(logs), 2)
+        for log in logs:
+            self.assertIn('# Polyglav output log', log.read_text())
+
+    def test_output_log_starts_after_enable(self):
+        self.chat = make_chat({})
+        self.chat.chat = MagicMock()
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._sync_output_log()
+            self.assertIsNone(self.chat._output_log)
+            self.chat.config.set('output_log', True)
+            self.chat._sync_output_log()
+            self.assertIsNotNone(self.chat._output_log)
+            self.chat._close_output_log()
+        worktree = self.chat.config.local_path.parent.parent
+        logs = list((worktree / '.polyglav' / 'output').glob('*.txt'))
+        self.assertEqual(len(logs), 1)
+
     def test_output_log_reprints_colored_chat_input(self):
         worktree = self._run({'output_log': True, 'output_log_ansi': True},
                              lines=('hello', EOFError))

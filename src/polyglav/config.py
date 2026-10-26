@@ -165,6 +165,21 @@ def verbosity_level(config, scope: str) -> str:
     preset = str(config.get('verbosity', 'normal') or 'normal').strip().lower()
     return VERBOSITY_PRESETS.get(preset, VERBOSITY_PRESETS['normal'])[name]
 
+def config_bool(value, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, (int, float)):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in ('1', 'true', 'yes', 'on', 'y'):
+        return True
+    if text in ('0', 'false', 'no', 'off', 'n', ''):
+        return False
+    return default
+
+
 CONFIG_DESCRIPTIONS = {
     'access': 'Read-class permission keys; any key not listed is write-class',
     'api_key': 'Legacy, ignored (API keys live in providers.json)',
