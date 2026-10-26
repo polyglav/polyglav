@@ -728,16 +728,14 @@ class ReplUI:
             prefix = f'[{origin}] '
         options = list(options or [])
         mark = glyph(self._loop.config, 'question', '?')
-        self._emit(f'{mark} {prefix}{question}', CYAN)
+        question_color = ORANGE if colors_enabled() else ''
+        self._emit(f'{mark} {prefix}{question}', question_color)
         if context:
             for line in str(context).splitlines():
-                self._emit(f'  {line}', DIM)
+                self._emit(f'  {line}')
         for i, opt in enumerate(options, 1):
             self._emit(f'  {i}) {opt}')
-        from .modes import mode_color, resolve_mode
-        spec, _ = resolve_mode(self._loop.config, self._loop._mode())
-        color = mode_color(spec)
-        prompt = f'\001{color}\002>\001{RESET}\002 '
+        prompt = '> '
         try:
             answer = _timed_input(prompt, timeout)
         except EOFError:

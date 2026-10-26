@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from polyglav.chat import _display_width
 from polyglav.ui import (
-    CYAN, DIM, ITALIC_GRAY, MAGENTA, RED, YELLOW,
+    CYAN, DIM, ITALIC_GRAY, MAGENTA, ORANGE, RED, YELLOW,
 )
 
 from tests.helpers import make_chat
@@ -106,12 +106,12 @@ class TestReplOutput(unittest.TestCase):
             value = self._capture(
                 lambda: self.ui.ask('Which?', options=['a', 'b']))
         self.assertIn('? Which?', value)
-        self.assertIn(CYAN, value)
+        self.assertIn(ORANGE, value)
         self.assertIn('  1) a', value)
         self.assertIn('  2) b', value)
         prompt = inp.call_args[0][0]
-        self.assertIn(CYAN, prompt)
-        self.assertIn('>', prompt)
+        self.assertEqual(prompt, '> ')
+        self.assertNotIn('\033[', prompt)
 
     def test_ask_context_is_indented_per_line(self):
         with patch('polyglav.ui.input', return_value='1'):
@@ -120,6 +120,14 @@ class TestReplOutput(unittest.TestCase):
                                     options=['a']))
         self.assertIn('  line one', value)
         self.assertIn('  line two', value)
+        self.assertNotIn(DIM, value)
+
+    def test_ask_question_honors_no_color(self):
+        with patch.dict('os.environ', {'NO_COLOR': '1'}):
+            with patch('polyglav.ui.input', return_value='1'):
+                value = self._capture(
+                    lambda: self.ui.ask('Which?', options=['a']))
+        self.assertNotIn(ORANGE, value)
 
     def test_warning_and_error(self):
         def run():

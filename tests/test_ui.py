@@ -663,17 +663,16 @@ class TestLinePrompts(unittest.TestCase):
                 lambda: self.ui.ask('which?', options=['a', 'b']))
         self.assertIn('  1) a', value)
 
-    def test_ask_answer_prompt_uses_mode_color(self):
+    def test_ask_answer_prompt_is_plain(self):
         with patch('polyglav.ui.input', return_value='1') as inp:
             self.ui.ask('which?', options=['a', 'b'])
         prompt = inp.call_args[0][0]
-        self.assertIn('\033[96m', prompt)
-        self.assertIn('>', prompt)
+        self.assertEqual(prompt, '> ')
+        self.assertNotIn('\033[', prompt)
         self.chat.config.set('mode', 'write')
         with patch('polyglav.ui.input', return_value='1') as inp:
             self.ui.ask('which?', options=['a', 'b'])
-        prompt = inp.call_args[0][0]
-        self.assertIn('\033[38;5;208m', prompt)
+        self.assertEqual(inp.call_args[0][0], '> ')
 
     def test_ask_origin_prefix_present(self):
         with patch('polyglav.ui.input', return_value='1'):
@@ -697,12 +696,12 @@ class TestLinePrompts(unittest.TestCase):
                 lambda: self.ui.ask(question, context='CTX', options=['a', 'b']))
         self.assertLess(value.index('CTX'), value.index('1) a'))
 
-    def test_ask_question_not_status_colored(self):
+    def test_ask_question_uses_orange(self):
         with patch('polyglav.ui.input', return_value='1'):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
         first = value.splitlines()[0]
-        self.assertNotIn('\033[38;5;208m', first)
+        self.assertIn(ORANGE, first)
 
     def test_ask_uses_visible_input_even_when_confirm_hidden(self):
         self.chat.config.set('hide_confirm_input', True)

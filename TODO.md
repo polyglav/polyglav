@@ -151,6 +151,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed ask styling
 - [x] Updated team and verbosity docs
 - [x] Changed onboarding visibility
 - [x] Fixed prompt colour fallback
