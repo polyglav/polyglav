@@ -165,6 +165,20 @@ class TestThinkingSpinner(unittest.TestCase):
         value = metrics.label('Call writer')
         self.assertRegex(value, r'Call writer \d+\.\ds \(~1,234 tokens\)')
 
+    def test_tool_call_progress_updates_spinner(self):
+        self.chat._ui.tool_call_progress('plan_write', 1234)
+        self.assertIsNotNone(self.chat._ui._spinner_thread)
+        self.assertEqual(self.chat._ui._spinner_label,
+                         'plan_write 1,234 chars')
+        self.chat._ui._stop_spinner()
+
+    def test_word_buffer_flushes_long_token(self):
+        self.chat.config.set('word_streaming', True)
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.token('x' * 200)
+        self.assertEqual(out.getvalue(), 'x' * 200)
+
     def test_tool_full_shows_round_tokens(self):
         self.chat._init_tooling()
         self.chat.config.set('verbosity.tools', 'full')

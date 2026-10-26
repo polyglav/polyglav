@@ -66,7 +66,6 @@ A session leaves a durable record, and status lines stay legible when a tool arg
 |------|--------|----------|
 | Batched structured asks - several decisions in one structured ask | S | fewer round trips |
 | Tester loop scope - the tester runs only the related tests during the loop and the whole suite once | S | a fast related check, then a full run |
-| Streamed tool call progress - argument progress for long tool calls | S | no silent `plan_write` |
 | Onboarding visibility - reasoning, sub-run output, tool detail, and live status | S | a useful first setup |
 | Ask prompt legibility - remove the duplicate line, truncate at word boundaries, and use a distinct question style | S | readable questions |
 | Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI | S | consistent colour |

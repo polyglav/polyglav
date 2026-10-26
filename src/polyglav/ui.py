@@ -361,8 +361,10 @@ class ReplUI:
         for i, ch in enumerate(self._word_buffer):
             if ch.isspace():
                 last = i
-        if last == -1:
+        if last == -1 and len(self._word_buffer) < 120:
             return
+        if last == -1:
+            last = len(self._word_buffer) - 1
         self._render(self._word_buffer[:last + 1])
         self._word_buffer = self._word_buffer[last + 1:]
 
@@ -512,7 +514,15 @@ class ReplUI:
         text = f'{mark} [{code}] {msg}' if code else f'{mark} {msg}'
         self._emit(text, RED)
 
+    def tool_call_progress(self, name, chars):
+        if verbosity_level(self._loop.config, 'tools') == 'off':
+            return
+        self.flush()
+        label = f'{name} {chars:,} chars'
+        self._start_spinner(label)
+
     def tool_status(self, name, value, body):
+        self._stop_spinner()
         level = verbosity_level(self._loop.config, 'tools')
         if level == 'off':
             return
@@ -527,6 +537,7 @@ class ReplUI:
             self._tool_output_hint()
 
     def activity(self, glyph, verb, label, body):
+        self._stop_spinner()
         level = verbosity_level(self._loop.config, 'tools')
         if level == 'off':
             return
@@ -835,6 +846,10 @@ class SubRunUI:
             text = f'{mark} [{code}] {msg}' if code else f'{mark} {msg}'
             self._line(text, RED)
 
+    def tool_call_progress(self, name, chars):
+        if self._enabled():
+            self.parent.tool_call_progress(name, chars)
+
     def tool_status(self, name, value, body):
         if not self._enabled():
             return
@@ -924,6 +939,9 @@ class NullUI:
         pass
 
     def error(self, code, msg):
+        pass
+
+    def tool_call_progress(self, name, chars):
         pass
 
     def tool_status(self, name, value, body):
@@ -1034,6 +1052,9 @@ class HeadlessUI:
     def error(self, code, msg):
         label = f'[Error {code}]' if code else '[Error]'
         sys.stderr.write(f'{label} {msg}\n')
+
+    def tool_call_progress(self, name, chars):
+        pass
 
     def tool_status(self, name, value, body):
         if self.verbose:

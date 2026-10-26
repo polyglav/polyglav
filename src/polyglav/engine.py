@@ -1386,6 +1386,10 @@ class Engine:
                                             s_thinking += token
                                             feed_thinking(token)
                                             token = ''
+                            elif t == 'tool_call_delta':
+                                self.ui.tool_call_progress(
+                                    event.get('name', 'tool'),
+                                    int(event.get('chars') or 0))
                             elif t == 'tool_calls':
                                 tool_calls_detected = True
                                 merge_usage(event.get('usage'))

@@ -168,7 +168,6 @@ class OpenAICompatibleProvider(BaseProvider):
             reasoning = (delta.get('reasoning_content') or '') or (delta.get('reasoning') or '')
             if reasoning:
                 yield {'type': 'thinking', 'content': reasoning}
-                continue
             for tc in delta.get('tool_calls') or []:
                 idx = tc.get('index', 0)
                 entry = tool_calls_acc.setdefault(idx, {
@@ -182,6 +181,10 @@ class OpenAICompatibleProvider(BaseProvider):
                     entry['function']['name'] = fn['name']
                 if fn.get('arguments'):
                     entry['function']['arguments'] += fn['arguments']
+                    if entry['function']['name']:
+                        yield {'type': 'tool_call_delta',
+                               'name': entry['function']['name'],
+                               'chars': len(entry['function']['arguments'])}
             content = delta.get('content') or ''
             if content:
                 yield {'type': 'token', 'content': content}
