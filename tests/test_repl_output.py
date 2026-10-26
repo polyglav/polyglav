@@ -66,7 +66,7 @@ class TestReplOutput(unittest.TestCase):
         self.assertEqual(_display_width('e\u0301'), 1)
 
     def test_thinking_and_footer(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
 
         def run():
             self.ui.thinking_begin()
@@ -96,8 +96,9 @@ class TestReplOutput(unittest.TestCase):
         value = self._capture(run)
         self.assertIn('↳ Call writer (1/2)', value)
         self.assertIn('✓ Worked: writer 0.9s (120 tokens)', value)
+        self.chat.config.set('verbosity.output', 'all')
         value = self._capture(
-            lambda: self.ui.sub_result('[call writer] Draft done.'))
+            lambda: self.ui.sub_result('[call writer] Draft done.', role='writer'))
         self.assertIn('↲ Draft done.', value)
 
     def test_ask_block(self):

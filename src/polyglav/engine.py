@@ -712,19 +712,15 @@ class Engine:
             sub.compact_session()
         label = getattr(self, '_stage_label', '') or (role_name or 'sibling')
         name = getattr(self, '_stage_name', '') or (role_name or 'sibling')
-        subrun_level = verbosity_level(self.config, 'subruns')
-        if subrun_level != 'off':
-            self.ui.status_begin(f'Call {label}', name=name)
+        self.ui.status_begin(f'Call {label}', name=name)
         try:
             result = sub.chat(task, origin=self.role or 'root')
         except Exception:
-            if subrun_level != 'off':
-                self.ui.status_end(ok=False)
+            self.ui.status_end(ok=False)
             self.runs.finish(sub.current_run.id, 'error')
             raise
         ok = result.status in ('ok', 'truncated')
-        if subrun_level != 'off':
-            self.ui.status_end(self._run_stats(result), ok=ok)
+        self.ui.status_end(self._run_stats(result), ok=ok)
         status = 'done' if result.status in ('ok', 'truncated') else 'error'
         self.runs.finish(sub.current_run.id, status)
         if result.session and result.session not in self.current_session.sub_sessions:
@@ -734,6 +730,8 @@ class Engine:
         return result
 
     def _run_stats(self, result: TurnResult) -> str:
+        if verbosity_level(self.config, 'status') != 'on':
+            return ''
         try:
             duration = float(getattr(result, 'duration', 0.0) or 0.0)
         except (TypeError, ValueError):
@@ -749,6 +747,8 @@ class Engine:
         return ' '.join(parts)
 
     def _team_stats(self, result) -> str:
+        if verbosity_level(self.config, 'status') != 'on':
+            return ''
         duration = 0.0
         total = 0
         for stage in (getattr(result, 'stages', None) or []):
@@ -906,15 +906,12 @@ class Engine:
                          f'Team nesting limit reached ({max_depth}): {team.name}'}])
         self._team_stack = stack + [team.name]
         self._team_depth = depth + 1
-        subrun_level = verbosity_level(self.config, 'subruns')
-        if subrun_level != 'off':
-            self.ui.info(f'{glyph(self.config, "enter", "↳")} Team {team.name}')
+        self.ui.info(f'{glyph(self.config, "enter", "↳")} Team {team.name}')
         try:
             result = self._run_team_stages(
                 team, task, skills=skills, resume=resume, context=context)
-            if subrun_level != 'off':
-                ok = result.status in ('ok', 'truncated')
-                self.ui.worked(team.name, self._team_stats(result), ok=ok)
+            ok = result.status in ('ok', 'truncated')
+            self.ui.worked(team.name, self._team_stats(result), ok=ok)
             return result
         finally:
             self._team_stack = stack

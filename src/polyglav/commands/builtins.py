@@ -4,7 +4,8 @@ import json
 from pathlib import Path
 
 from .. import get_version
-from ..config import verbosity_level
+from ..config import (VERBOSITY_PRESETS, VERBOSITY_SCOPES, VERBOSITY_VALUES,
+                       verbosity_level)
 from ..sessions.render import (
     render_session, render_session_tree, render_turn, session_to_json,
     session_tree_to_json, turn_summary,
@@ -242,6 +243,12 @@ def _config_default(key):
     return str(DEFAULT_CONFIG[key])
 
 
+def _config_options(key):
+    from ..config import CONFIG_CHOICES
+    options = CONFIG_CHOICES.get(key)
+    return ' | '.join(options) if options else ''
+
+
 def _render_config_listing(chat, verbose=False):
     from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
     keys = sorted(chat.config.data)
@@ -265,6 +272,10 @@ def _render_config_listing(chat, verbose=False):
             print(line)
             if verbose and desc:
                 print(f'    {desc}')
+            if verbose:
+                options = _config_options(key)
+                if options:
+                    print(f'    options: {options}')
         else:
             print(f'  {key}:')
             print(f'    value: {value}')
@@ -273,6 +284,10 @@ def _render_config_listing(chat, verbose=False):
                 print(f'    default: {default}')
             if verbose and desc:
                 print(f'    description: {desc}')
+            if verbose:
+                options = _config_options(key)
+                if options:
+                    print(f'    options: {options}')
 
 
 def _render_config_detail(chat, key):
@@ -295,6 +310,9 @@ def _render_config_detail(chat, key):
         print(line)
         if desc:
             print(f'    {desc}')
+        options = _config_options(key)
+        if options:
+            print(f'    options: {options}')
         return
     print(f'  {key}:')
     print(f'    value: {value}')
@@ -303,6 +321,9 @@ def _render_config_detail(chat, key):
         print(f'    default: {default}')
     if desc:
         print(f'    description: {desc}')
+    options = _config_options(key)
+    if options:
+        print(f'    options: {options}')
 
 
 def _remove_model(chat, ref):
@@ -660,21 +681,73 @@ def register_builtins(registry):
             providers.update(pm.provider_classes())
         _render_provider_status(chat, providers)
 
+    @registry.register('verbosity', aliases=['verbose'],
+                       description='Show or set display scopes')
+    def verbosity_cmd(arg=''):
+        parts = arg.strip().split()
+        if not parts:
+            print(f'{DIM}@ Verbosity: {chat.config.get("verbosity")}{RESET}')
+            for scope in VERBOSITY_SCOPES:
+                value = verbosity_level(chat.config, scope)
+                options = '|'.join(VERBOSITY_VALUES[scope])
+                print(f'  {scope:<10} {value:<10} {DIM}{options}{RESET}')
+            return
+        if parts[0] in ('preset', 'profile'):
+            name = parts[1].lower() if len(parts) > 1 else ''
+            if name not in VERBOSITY_PRESETS:
+                print('Usage: /verbosity preset quiet|normal|verbose')
+                return
+            chat.config.set('verbosity', name)
+            print(f'{DIM}@ Verbosity: {name}{RESET}')
+            return
+        if parts[0] == 'reset':
+            if len(parts) == 1:
+                for scope in VERBOSITY_SCOPES:
+                    chat.config.unset(f'verbosity.{scope}')
+                chat.config.unset('verbosity')
+                print(f'{DIM}@ Verbosity: reset{RESET}')
+                return
+            scope = parts[1].lower()
+            if scope not in VERBOSITY_SCOPES:
+                print('Usage: /verbosity reset [thinking|output|status|tools|footer]')
+                return
+            chat.config.unset(f'verbosity.{scope}')
+            print(f'{DIM}@ Verbosity {scope}: {verbosity_level(chat.config, scope)}{RESET}')
+            return
+        scope = parts[0].lower()
+        if scope not in VERBOSITY_SCOPES:
+            print('Usage: /verbosity [thinking|output|status|tools|footer] [value]')
+            return
+        value = parts[1].lower() if len(parts) > 1 else ''
+        if not value:
+            current = verbosity_level(chat.config, scope)
+            options = ' | '.join(VERBOSITY_VALUES[scope])
+            print(f'{DIM}@ Verbosity {scope}: {current}{RESET}')
+            print(f'  options: {options}')
+            return
+        if value not in VERBOSITY_VALUES[scope]:
+            options = ' | '.join(VERBOSITY_VALUES[scope])
+            print(f'Usage: /verbosity {scope} [{options}]')
+            return
+        chat.config.set(f'verbosity.{scope}', value)
+        print(f'{DIM}@ Verbosity {scope}: {value}{RESET}')
+
     @registry.register('thinking', aliases=['reasoning'],
-                       description='Show or set thinking detail (off, summary, full)')
+                       description='Show or set reasoning scope (off, assistant, agent, all)')
     def thinking_cmd(arg=''):
         arg = arg.strip().lower()
         current = verbosity_level(chat.config, 'thinking')
         if arg in ('on', '1', 'true', 'yes', 'show'):
-            new = 'full'
+            new = 'all'
         elif arg in ('off', '0', 'false', 'no', 'hide'):
             new = 'off'
-        elif arg in ('summary', 'sum'):
-            new = 'summary'
+        elif arg in ('assistant', 'agent', 'all'):
+            new = arg
         elif arg in ('', '?', 'status'):
             new = None
         else:
-            print(f'Usage: /thinking [off|summary|full]  (current: {current})')
+            print('Usage: /thinking [off|assistant|agent|all]'
+                  f'  (current: {current})')
             return
         if new is None:
             print(f'{DIM}@ Thinking: {current}{RESET}')

@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Verbosity scopes - one thinking key and one output key with off/assistant/agent/all, plus status, tool, and footer levels
 - [ ] Honest token usage - accumulate usage across tool rounds, store it on runs, and show per-role and tree totals in status, `/runs`, and `/history`
 - [ ] Live status counters - elapsed time and approximate tokens on sub-run and tool lines
 - [ ] Streamed tool call progress - show argument progress for long calls and fix the reasoning delta drop
@@ -159,6 +158,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed verbosity to scoped thinking and output
 - [x] Fixed the output log per session
 - [x] Added a callable role field
 - [x] Added team types

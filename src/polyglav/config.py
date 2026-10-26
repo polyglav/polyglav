@@ -129,22 +129,30 @@ DEFAULT_CONFIG = {
     'unattended': False,
     'verbosity': 'normal',
     'verbosity.footer': 'inherit',
-    'verbosity.subruns': 'inherit',
+    'verbosity.output': 'inherit',
+    'verbosity.status': 'inherit',
     'verbosity.thinking': 'inherit',
     'verbosity.tools': 'inherit',
     'web_search': False,
     'word_streaming': True,
 }
 
-VERBOSITY_SCOPES = ('thinking', 'tools', 'subruns', 'footer')
-VERBOSITY_LEVELS = ('off', 'summary', 'full')
+VERBOSITY_SCOPES = ('thinking', 'output', 'status', 'tools', 'footer')
+VERBOSITY_VALUES = {
+    'thinking': ('off', 'assistant', 'agent', 'all'),
+    'output': ('off', 'assistant', 'agent', 'all'),
+    'status': ('off', 'on'),
+    'tools': ('off', 'summary', 'full'),
+    'footer': ('off', 'summary', 'full'),
+}
+VERBOSITY_LEVELS = ('off', 'assistant', 'agent', 'all', 'summary', 'full', 'on')
 VERBOSITY_PRESETS = {
-    'quiet': {'thinking': 'off', 'tools': 'off',
-              'subruns': 'summary', 'footer': 'summary'},
-    'normal': {'thinking': 'summary', 'tools': 'summary',
-               'subruns': 'summary', 'footer': 'summary'},
-    'verbose': {'thinking': 'full', 'tools': 'full',
-                'subruns': 'full', 'footer': 'full'},
+    'quiet': {'thinking': 'off', 'output': 'off', 'status': 'off',
+              'tools': 'off', 'footer': 'summary'},
+    'normal': {'thinking': 'off', 'output': 'agent', 'status': 'on',
+               'tools': 'summary', 'footer': 'summary'},
+    'verbose': {'thinking': 'all', 'output': 'all', 'status': 'on',
+                'tools': 'full', 'footer': 'full'},
 }
 VERBOSITY_OLD_KEYS = (
     'delegate_echo', 'glyph_lines', 'glyph_params', 'show_context_size',
@@ -156,12 +164,19 @@ VERBOSITY_OLD_KEYS = (
 
 def verbosity_level(config, scope: str) -> str:
     name = str(scope or '').strip().lower()
-    if config is None or name not in VERBOSITY_SCOPES:
+    if name not in VERBOSITY_SCOPES:
         return 'summary'
+    values = VERBOSITY_VALUES.get(name, ())
+    if config is None:
+        return values[0] if values else 'summary'
     value = str(config.get(f'verbosity.{name}', 'inherit') or 'inherit')
     value = value.strip().lower()
-    if value in VERBOSITY_LEVELS:
+    if value in values:
         return value
+    if name == 'thinking' and value in ('summary', 'full'):
+        return 'off' if value == 'summary' else 'all'
+    if name == 'output' and value in ('summary', 'full'):
+        return 'assistant' if value == 'summary' else 'all'
     preset = str(config.get('verbosity', 'normal') or 'normal').strip().lower()
     return VERBOSITY_PRESETS.get(preset, VERBOSITY_PRESETS['normal'])[name]
 
@@ -242,14 +257,26 @@ CONFIG_DESCRIPTIONS = {
     'unattended': 'No stdin at any depth; confirms auto-deny, user asks park',
     'verbosity': 'Display volume: quiet, normal, or verbose',
     'verbosity.footer': 'Footer detail: off, summary, full, or inherit',
-    'verbosity.subruns': 'Sub-run detail: off, summary, full, or inherit',
-    'verbosity.thinking': 'Thinking detail: off, summary, full, or inherit',
+    'verbosity.output': 'Sub-run output scope: off, assistant, agent, all, or inherit',
+    'verbosity.status': 'Live status time and approximate tokens: off, on, or inherit',
+    'verbosity.thinking': 'Reasoning scope: off, assistant, agent, all, or inherit',
     'verbosity.tools': 'Tool detail: off, summary, full, or inherit',
     'web_search': 'Search the web before answering',
     'word_streaming': 'Buffer output to word boundaries',
 }
 
 CONFIG_VALUE_INLINE = 40
+
+CONFIG_CHOICES = {
+    'verbosity': ('quiet', 'normal', 'verbose'),
+    'verbosity.thinking': ('off', 'assistant', 'agent', 'all', 'inherit'),
+    'verbosity.output': ('off', 'assistant', 'agent', 'all', 'inherit'),
+    'verbosity.status': ('off', 'on', 'inherit'),
+    'verbosity.tools': ('off', 'summary', 'full', 'inherit'),
+    'verbosity.footer': ('off', 'summary', 'full', 'inherit'),
+    'word_streaming': ('true', 'false'),
+}
+
 
 _OUTPUT_KEY_ALIASES = {
     'noise_tools': 'tools_output_drop',
@@ -333,18 +360,24 @@ class Config:
 
     @staticmethod
     def _migrate_verbosity_raw(raw: dict) -> bool:
+        before = dict(raw)
         old = [key for key in VERBOSITY_OLD_KEYS if key in raw]
-        if not old:
-            return False
+        changed = bool(old)
+        if 'verbosity.thinking' in raw:
+            value = str(raw.get('verbosity.thinking') or '').lower()
+            if value == 'summary':
+                raw['verbosity.thinking'] = 'off'
+                changed = True
+            elif value == 'full':
+                raw['verbosity.thinking'] = 'all'
+                changed = True
         if ('verbosity.thinking' not in raw
                 and any(key in raw for key in
                         ('show_thinking', 'show_thought_duration'))):
             if raw.get('show_thinking') is True:
-                raw['verbosity.thinking'] = 'full'
-            elif raw.get('show_thought_duration') is False:
-                raw['verbosity.thinking'] = 'off'
+                raw['verbosity.thinking'] = 'all'
             else:
-                raw['verbosity.thinking'] = 'summary'
+                raw['verbosity.thinking'] = 'off'
         if ('verbosity.tools' not in raw
                 and any(key in raw for key in
                         ('show_tool_output', 'show_notes',
@@ -358,22 +391,29 @@ class Config:
         if ('verbosity.tools' not in raw and 'tool_status_visible' in raw):
             raw['verbosity.tools'] = (
                 'summary' if raw.get('tool_status_visible') else 'off')
-        if ('verbosity.subruns' not in raw
+        if ('verbosity.output' not in raw
                 and any(key in raw for key in
                         ('subrun_verbosity', 'delegate_echo', 'status_spinner'))):
             if str(raw.get('subrun_verbosity', '')).lower() == 'full':
-                raw['verbosity.subruns'] = 'full'
+                raw['verbosity.output'] = 'all'
             elif (raw.get('delegate_echo') is False
                   or raw.get('status_spinner') is False):
-                raw['verbosity.subruns'] = 'off'
+                raw['verbosity.output'] = 'off'
             else:
-                raw['verbosity.subruns'] = 'summary'
+                raw['verbosity.output'] = 'assistant'
+        if 'verbosity.output' not in raw and 'verbosity.subruns' in raw:
+            value = str(raw.pop('verbosity.subruns') or '').lower()
+            raw['verbosity.output'] = {
+                'off': 'off', 'summary': 'assistant', 'full': 'all',
+            }.get(value, 'agent')
+        elif 'verbosity.subruns' in raw:
+            raw.pop('verbosity.subruns', None)
         if 'verbosity.footer' not in raw and 'show_context_size' in raw:
             raw['verbosity.footer'] = (
                 'full' if raw.get('show_context_size') is not False else 'summary')
         for key in old:
             raw.pop(key, None)
-        return True
+        return changed or raw != before
 
     def reload(self):
         self.data = copy.deepcopy(DEFAULT_CONFIG)

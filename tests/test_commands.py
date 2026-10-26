@@ -837,7 +837,7 @@ class TestThinkingCommand(unittest.TestCase):
 
     def test_thinking_reports_current_state(self):
         output = self._dispatch('/thinking')
-        self.assertIn('@ Thinking: summary', output)
+        self.assertIn('@ Thinking: off', output)
 
     def test_thinking_off(self):
         output = self._dispatch('/thinking off')
@@ -846,20 +846,47 @@ class TestThinkingCommand(unittest.TestCase):
 
     def test_thinking_on(self):
         output = self._dispatch('/thinking on')
-        self.assertIn('@ Thinking: full', output)
-        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
+        self.assertIn('@ Thinking: all', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'all')
 
     def test_thinking_status_no_change(self):
         self._dispatch('/thinking on')
         output = self._dispatch('/thinking status')
-        self.assertIn('@ Thinking: full', output)
-        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
+        self.assertIn('@ Thinking: all', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'all')
 
     def test_thinking_invalid_arg(self):
         self._dispatch('/thinking on')
         output = self._dispatch('/thinking bogus')
         self.assertIn('Usage: /thinking', output)
-        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'full')
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'all')
+
+
+    def test_verbosity_table(self):
+        output = self._dispatch('/verbosity')
+        self.assertIn('thinking', output)
+        self.assertIn('output', output)
+        self.assertIn('agent', output)
+        self.assertIn('off|assistant|agent|all', output)
+
+    def test_verbosity_sets_scope(self):
+        output = self._dispatch('/verbosity thinking assistant')
+        self.assertIn('@ Verbosity thinking: assistant', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'assistant')
+        output = self._dispatch('/verbosity output all')
+        self.assertIn('@ Verbosity output: all', output)
+        self.assertEqual(self.chat.config.get('verbosity.output'), 'all')
+
+    def test_verbosity_invalid_value(self):
+        output = self._dispatch('/verbosity thinking sometimes')
+        self.assertIn('Usage: /verbosity thinking', output)
+
+    def test_verbosity_preset(self):
+        output = self._dispatch('/verbosity preset verbose')
+        self.assertIn('@ Verbosity: verbose', output)
+        from polyglav.config import verbosity_level
+        self.assertEqual(verbosity_level(self.chat.config, 'thinking'), 'all')
+        self.assertEqual(verbosity_level(self.chat.config, 'output'), 'all')
 
 
 class TestModeCommand(unittest.TestCase):

@@ -1,6 +1,5 @@
 from typing import Callable
 
-from ..config import verbosity_level
 
 _WRITE_PREFIXES = ('Created ', 'Overwritten ', 'Appended ')
 _RANK = {'deny': 0, 'ask': 1, 'allow': 2}
@@ -115,6 +114,17 @@ def _summarize_session(engine, result) -> str:
     return summary
 
 
+def _team_result_role(engine, name: str) -> str:
+    team = engine.teams.find(name)
+    if team is None:
+        return ''
+    if getattr(team, 'type', 'sequential') == 'hierarchical':
+        return team.manager
+    if team.stages:
+        return team.stages[-1].role
+    return ''
+
+
 def _format_result(engine, kind: str, name: str, res) -> str:
     label = name or 'target'
     if res.status == 'error':
@@ -222,9 +232,9 @@ def register_call_tool(registry, engine) -> Callable:
         except ValueError as e:
             return f'Error: {e}'
         result = _format_result(engine, resolved, name, res)
-        if (_echo and _config is not None
-                and verbosity_level(_config, 'subruns') != 'off'
-                and not result.startswith('Error')):
-            engine.ui.sub_result(result)
+        if _echo and not result.startswith('Error'):
+            role = name if resolved == 'role' else _team_result_role(engine, name)
+            if engine.ui.output_visible(role):
+                engine.ui.sub_result(result, role=role)
         return result
     return call

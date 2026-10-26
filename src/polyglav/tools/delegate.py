@@ -1,6 +1,5 @@
 from typing import Callable
 
-from ..config import verbosity_level
 
 
 def _format_result(res) -> str:
@@ -73,9 +72,8 @@ def register_delegate_tool(registry, engine) -> Callable:
         except ValueError as e:
             return f'Error: {e}'
         result = _format_result(res)
-        if (_echo and _config is not None
-                and verbosity_level(_config, 'subruns') != 'off'
-                and not result.startswith('Error')):
-            engine.ui.sub_result(result)
+        if _echo and not result.startswith('Error'):
+            if engine.ui.output_visible(''):
+                engine.ui.sub_result(result, role='')
         return result
     return delegate

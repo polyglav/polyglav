@@ -337,10 +337,35 @@ class ReplUI:
             self._render(self._word_buffer)
             self._word_buffer = ''
 
+    def _thinking_visible(self) -> bool:
+        scope = verbosity_level(self._loop.config, 'thinking')
+        if scope == 'off':
+            return False
+        if scope == 'all':
+            return True
+        role = str(getattr(self._loop, 'role', '') or '')
+        sub_run = bool(getattr(self._loop, '_sub_run', False))
+        if scope == 'assistant':
+            return not sub_run and not role
+        if scope == 'agent':
+            return not sub_run or bool(role)
+        return False
+
+    def output_visible(self, role: str = '') -> bool:
+        scope = verbosity_level(self._loop.config, 'output')
+        if scope == 'all':
+            return True
+        if scope == 'agent':
+            return bool(role)
+        return False
+
+    def _output_visible(self, role: str = '') -> bool:
+        return self.output_visible(role)
+
     def thinking_begin(self):
         self.flush()
         self._ensure_newline()
-        if verbosity_level(self._loop.config, 'thinking') == 'off':
+        if not self._thinking_visible():
             return
         self._thinking_streamed = False
         self._start_spinner('Thinking')
@@ -348,8 +373,6 @@ class ReplUI:
     def status_begin(self, label: str, name: str = ''):
         self.flush()
         self._ensure_newline()
-        if verbosity_level(self._loop.config, 'subruns') == 'off':
-            return
         text = str(label or 'Working').rstrip('.').strip()
         self._status_name = (name or text).rstrip('.').strip()
         mark = glyph(self._loop.config, 'enter', '↳')
@@ -357,8 +380,6 @@ class ReplUI:
         self._start_spinner(text)
 
     def status_end(self, note: str = '', ok: bool = True):
-        if verbosity_level(self._loop.config, 'subruns') == 'off':
-            return
         self._stop_spinner()
         self.worked(self._status_name, note, ok=ok)
 
@@ -425,7 +446,7 @@ class ReplUI:
 
     def thinking(self, text):
         self.flush()
-        if verbosity_level(self._loop.config, 'thinking') != 'full':
+        if not self._thinking_visible():
             return
         if not self._thinking_streamed:
             self._stop_spinner()
@@ -437,7 +458,7 @@ class ReplUI:
         self.flush()
         self._stop_spinner()
         self._ensure_newline()
-        if verbosity_level(self._loop.config, 'thinking') != 'off':
+        if self._thinking_visible():
             mark = glyph(self._loop.config, 'done', '✓')
             self._emit(f'{mark} Thought {duration:.1f}s', DIM)
         self.content_newline = True
@@ -520,9 +541,8 @@ class ReplUI:
         for line in output.splitlines():
             self._emit(line, DIM)
 
-    def sub_result(self, text):
-        level = verbosity_level(self._loop.config, 'subruns')
-        if level == 'off':
+    def sub_result(self, text, role: str = ''):
+        if not self._output_visible(role):
             return
         self.flush()
         self._ensure_newline()
@@ -530,10 +550,6 @@ class ReplUI:
         lines = str(text or '').splitlines() or ['']
         first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])
         self._emit(f'{mark} {first}', DIM)
-        if level == 'summary':
-            if len(lines) > 1:
-                self._emit('  ...', DIM)
-            return
         for line in lines[1:]:
             self._emit(f'  {line}', DIM)
 
@@ -697,7 +713,10 @@ class NullUI:
     def worked(self, name, note='', ok=True):
         pass
 
-    def sub_result(self, text):
+    def output_visible(self, role=''):
+        return False
+
+    def sub_result(self, text, role=''):
         pass
 
     def warning(self, msg):
@@ -752,14 +771,14 @@ class HeadlessUI:
         self.stream = stream
         if thinking_level is None:
             if show_thinking is True:
-                thinking_level = 'full'
+                thinking_level = 'all'
             elif show_thought_duration is False:
                 thinking_level = 'off'
             else:
-                thinking_level = 'summary'
+                thinking_level = 'assistant'
         self.thinking_level = thinking_level
         self.footer_level = footer_level or 'summary'
-        self.show_thinking = thinking_level == 'full'
+        self.show_thinking = thinking_level != 'off'
         self.show_thought_duration = thinking_level != 'off'
         self.footer_tokens = footer_tokens or ['context']
 
@@ -769,7 +788,7 @@ class HeadlessUI:
             sys.stdout.flush()
 
     def thinking(self, text):
-        if self.verbose and self.stream and self.thinking_level == 'full':
+        if self.verbose and self.stream and self.thinking_level != 'off':
             sys.stderr.write(text)
             sys.stderr.flush()
 
@@ -797,7 +816,10 @@ class HeadlessUI:
                 body += f' {note}'
             sys.stderr.write(body + '\n')
 
-    def sub_result(self, text):
+    def output_visible(self, role=''):
+        return bool(self.verbose)
+
+    def sub_result(self, text, role=''):
         if self.verbose:
             lines = str(text or '').splitlines() or ['']
             first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])

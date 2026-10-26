@@ -66,7 +66,6 @@ A session leaves a durable record, and status lines stay legible when a tool arg
 |------|--------|----------|
 | Batched structured asks - several decisions in one structured ask | S | fewer round trips |
 | Tester loop scope - the tester runs only the related tests during the loop and the whole suite once | S | a fast related check, then a full run |
-| Verbosity scopes - thinking and output off/assistant/agent/all, plus status, tools, and footer levels | M | one predictable display model |
 | Live status counters - elapsed time and approximate tokens on sub-run lines | S | visible long runs |
 | Streamed tool call progress - argument progress for long tool calls | S | no silent `plan_write` |
 | Honest token usage - per-run and tree totals in status, `/runs`, and `/history` | M | real cost |

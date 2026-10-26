@@ -81,7 +81,7 @@ class TestDelegateTool(unittest.TestCase):
 
     def test_echo_off_hides_result(self):
         self._allow_delegate()
-        self.chat.config.apply('verbosity.subruns', 'off')
+        self.chat.config.apply('verbosity.output', 'off')
         self.chat._ui.sub_result = MagicMock()
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
@@ -111,7 +111,7 @@ class TestDelegateTool(unittest.TestCase):
     def test_type_ask_requires_confirm(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='W',
-                      tool_permission={'call': 'ask'}), scope='local')
+                      callable='ask'), scope='local')
         self.chat._ui.confirm = MagicMock(return_value=False)
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],
@@ -128,7 +128,7 @@ class TestDelegateTool(unittest.TestCase):
     def test_confirm_granted_runs(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='W',
-                      tool_permission={'call': 'ask'}), scope='local')
+                      callable='ask'), scope='local')
         self.chat._ui.confirm = MagicMock(return_value=True)
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': self._delegate_call()}],

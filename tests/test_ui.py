@@ -111,19 +111,19 @@ class TestThinkingSpinner(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def test_spinner_starts_when_thinking_hidden(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
         self.chat._ui.thinking_begin()
         self.assertIsNotNone(self.chat._ui._spinner_thread)
         self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
     def test_spinner_starts_when_thinking_visible(self):
-        self.chat.config.set('verbosity.thinking', 'full')
+        self.chat.config.set('verbosity.thinking', 'all')
         self.chat._ui.thinking_begin()
         self.assertIsNotNone(self.chat._ui._spinner_thread)
         self.assertTrue(self.chat._ui._spinner_thread.is_alive())
 
     def test_thinking_end_stops_spinner_and_prints_thought(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
         self.chat._ui.thinking_begin()
         thread = self.chat._ui._spinner_thread
         out = io.StringIO()
@@ -136,7 +136,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('✓ Thought 2.5s', value)
 
     def test_thinking_end_without_spinner_is_clean(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(1.0)
@@ -158,10 +158,11 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('↳ Delegating to writer', out.getvalue())
         self.assertIn('\r\033[K', out.getvalue())
 
-    def test_subruns_off_hides_status(self):
-        self.chat.config.set('verbosity.subruns', 'off')
+    def test_status_line_ignores_output_scope(self):
+        self.chat.config.set('verbosity.output', 'off')
         self.chat._ui.status_begin('Delegating...')
-        self.assertIsNone(self.chat._ui._spinner_thread)
+        self.assertIsNotNone(self.chat._ui._spinner_thread)
+        self.chat._ui._stop_spinner()
 
     def test_null_ui_status_is_noop(self):
         from polyglav.ui import NullUI
@@ -253,7 +254,7 @@ class TestThinkingSpinner(unittest.TestCase):
                          '1.0s')
 
     def test_thinking_end_streamed_prints_thought_duration(self):
-        self.chat.config.set('verbosity.thinking', 'full')
+        self.chat.config.set('verbosity.thinking', 'all')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(2.5)
@@ -744,24 +745,24 @@ class TestReplColors(unittest.TestCase):
         self.assertIn(RED, value)
 
     def test_thinking_begin_is_quiet(self):
-        self.chat.config.set('verbosity.thinking', 'full')
+        self.chat.config.set('verbosity.thinking', 'all')
         value = self._capture(lambda: self.ui.thinking_begin())
         self.assertNotIn('- Thinking', value)
         self.ui._stop_spinner()
 
     def test_reasoning_body_dim(self):
-        self.chat.config.set('verbosity.thinking', 'full')
+        self.chat.config.set('verbosity.thinking', 'all')
         value = self._capture(lambda: self.ui.thinking('reason'))
         self.assertIn(DIM, value)
 
     def test_thought_summary_dim(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
         self.assertIn('✓ Thought 2.5s', value)
 
     def test_hidden_thought_dim(self):
-        self.chat.config.set('verbosity.thinking', 'summary')
+        self.chat.config.set('verbosity.thinking', 'assistant')
         value = self._capture(lambda: self.ui.thinking_end(2.5))
         self.assertIn(DIM, value)
         self.assertIn('✓ Thought 2.5s', value)

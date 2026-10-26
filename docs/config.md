@@ -101,13 +101,23 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tools_output_spill`        | `false`                | Persist every tool result under `tools_output_dir` instead of the system temp directory. Every part records a `ref` |
 | `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of the spill roots. Oldest files are removed past the cap. `0` = unlimited |
 | `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
-| `verbosity`                 | `"normal"`             | Display volume: `quiet`, `normal`, or `verbose`                         |
+| `verbosity`                 | `"normal"`             | Display preset: `quiet`, `normal`, or `verbose`                         |
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
-| `verbosity.subruns`         | `"inherit"`            | Sub-run detail: `off`, `summary`, `full`, or `inherit`                  |
-| `verbosity.thinking`        | `"inherit"`            | Thinking detail: `off`, `summary`, `full`, or `inherit`                 |
+| `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
+| `verbosity.status`          | `"inherit"`            | Live status time and approximate tokens: `off`, `on`, or `inherit`      |
+| `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit`       |
 | `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
 | `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
+
+The reasoning and output scopes are cumulative:
+
+- `off` - no reasoning or sub-run output. The run's final status line and footer still print.
+- `assistant` - the top-level assistant only.
+- `agent` - the assistant plus every role-bearing sub-run at any depth. Role-less `delegate` siblings are excluded.
+- `all` - the assistant plus every sub-run, including role-less siblings.
+
+`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool lines, and `full` adds execution time and round tokens. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options.
 
 ### `modes`
 
