@@ -1,7 +1,10 @@
 {
   "dev": {
     "description": "Polyglav self-development pipeline: investigate, implement, test, review, commit",
-    "tags": ["programming", "polyglav"],
+    "tags": [
+      "programming",
+      "polyglav"
+    ],
     "loop": {
       "from": "programmer",
       "until": "code-reviewer",
@@ -34,11 +37,15 @@
         "task_hint": "Land the accepted change as one commit. Inspect the tree with git (status, diff), stage only the task's files, and commit with a single-line repo-style message. Never push or amend. Report the commit hash, the message, and the files committed.",
         "handoff_note": "Return the commit hash and message as the final answer."
       }
-    ]
+    ],
+    "type": "sequential"
   },
   "docs": {
     "description": "Polyglav documentation pipeline: scope, write, commit",
-    "tags": ["documentation", "polyglav"],
+    "tags": [
+      "documentation",
+      "polyglav"
+    ],
     "stages": [
       {
         "role": "assistant",
@@ -55,6 +62,7 @@
         "task_hint": "Land the documentation change as one commit. Inspect the tree with git (status, diff), stage only the docs changed, and commit with a single-line repo-style message. Never push or amend. Report the commit hash, the message, and the files committed.",
         "handoff_note": "Return the commit hash and message as the final answer."
       }
-    ]
+    ],
+    "type": "sequential"
   }
 }

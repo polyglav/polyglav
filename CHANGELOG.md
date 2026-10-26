@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Changed the project catalog - the assistant and manager roles keep `call: allow`, every worker role sets `call: deny` and remains `callable: allow`, and the dev and docs teams declare `type: sequential`
 - Changed verbosity to scoped thinking and output - `verbosity.thinking` and `verbosity.output` take `off`, `assistant`, `agent`, or `all`, `verbosity.status` toggles live counters, and `/verbosity` shows each scope with its default and options. Old `verbosity.subruns` and `summary`/`full` thinking values migrate. Docs (`config.md`, `commands.md`). Tests: `test_verbosity.py`, `test_ui.py`, `test_commands.py`
 - Fixed the output log per session - the tee opens after startup hooks so onboarding applies to the current session, and it rotates on every `/session new` and `/session load`. String booleans are coerced for `output_log` and `output_log_ansi`. Tests: `test_repl_input.py`
 - Added a callable role field - `callable` (`allow`, `ask`, `deny`, default `allow`) controls whether another run may call a role, while `tool_permission.call` controls whether the role may call others. Sequential and hierarchical team targets resolve from callability, and the catalog validates the field. Docs (`roles.md`, `teams.md`, `tools.md`). Tests: `test_call_target.py`, `test_catalog.py`
