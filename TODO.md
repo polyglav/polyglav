@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Honest token usage - accumulate usage across tool rounds, store it on runs, and show per-role and tree totals in status, `/runs`, and `/history`
 - [ ] Streamed tool call progress - show argument progress for long calls and fix the reasoning delta drop
 - [ ] Ask prompt legibility - drop the duplicate ask status line, truncate at word boundaries, and give the question a distinct style
 - [ ] Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI
@@ -157,6 +156,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added per-run token usage
 - [x] Added live status counters
 - [x] Added sub-run output rendering
 - [x] Changed verbosity to scoped thinking and output

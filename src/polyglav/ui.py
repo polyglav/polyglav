@@ -629,9 +629,16 @@ class ReplUI:
             body = f'{mark} Done {duration:.1f}s ({seg})' if seg else f'{mark} Done {duration:.1f}s'
         else:
             body = f'{mark} Done {duration:.1f}s'
+            own = counts.get('total')
+            tree = counts.get('tree')
             parts = self._loop.config.get('footer_tokens', ['context'])
-            if 'context' in parts and counts.get('context') is not None:
-                body += f' ({counts["context"]:,} tokens)'
+            if parts:
+                if own and tree and tree != own:
+                    body += f' ({own:,}/{tree:,} tokens)'
+                elif own:
+                    body += f' ({own:,} tokens)'
+                elif counts.get('context') is not None:
+                    body += f' ({counts["context"]:,} tokens)'
         if note:
             body += f'  {note}'
         self._emit(body, DIM)

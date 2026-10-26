@@ -20,6 +20,8 @@ class Run:
     started_at: str = field(default_factory=_now)
     ended_at: str = ''
     session_id: str = ''
+    usage: dict = field(default_factory=dict)
+    duration: float = 0.0
 
 
 class RunRegistry:
@@ -53,12 +55,18 @@ class RunRegistry:
                 return run
         return None
 
-    def finish(self, run_id: int, status: str = 'done') -> Run | None:
+    def finish(self, run_id: int, status: str = 'done',
+               usage: dict | None = None,
+               duration: float | None = None) -> Run | None:
         run = self._runs.get(run_id)
         if run is None or run.status != 'running':
             return run
         run.status = status
         run.ended_at = _now()
+        if usage is not None:
+            run.usage = dict(usage)
+        if duration is not None:
+            run.duration = float(duration)
         return run
 
     def reactivate(self, run_id: int) -> Run | None:
@@ -77,6 +85,30 @@ class RunRegistry:
         if run is None:
             return []
         return [self._runs[i] for i in run.children if i in self._runs]
+
+    def rollup(self, run_id: int) -> dict:
+        run = self._runs.get(run_id)
+        if run is None:
+            return {}
+        total = {'prompt_tokens': 0, 'completion_tokens': 0,
+                 'reasoning_tokens': 0, 'total_tokens': 0, 'requests': 0,
+                 'duration': 0.0, 'runs': 0}
+        self._add_rollup(run, total)
+        return total
+
+    def _add_rollup(self, run: Run, total: dict) -> None:
+        usage = run.usage or {}
+        for key in ('prompt_tokens', 'completion_tokens', 'total_tokens',
+                    'reasoning_tokens', 'requests'):
+            value = usage.get(key)
+            if isinstance(value, (int, float)):
+                total[key] = total.get(key, 0) + value
+        total['duration'] += float(run.duration or 0.0)
+        total['runs'] += 1
+        for child_id in run.children:
+            child = self._runs.get(child_id)
+            if child is not None:
+                self._add_rollup(child, total)
 
     def __len__(self) -> int:
         return len(self._runs)

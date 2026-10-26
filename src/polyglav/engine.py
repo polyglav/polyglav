@@ -734,7 +734,8 @@ class Engine:
         result.streamed = bool(getattr(sub.ui, 'streamed', False))
         self.ui.status_end(self._run_stats(result), ok=ok)
         status = 'done' if result.status in ('ok', 'truncated') else 'error'
-        self.runs.finish(sub.current_run.id, status)
+        self.runs.finish(sub.current_run.id, status, usage=result.usage,
+                         duration=result.duration)
         if result.session and result.session not in self.current_session.sub_sessions:
             self.current_session.sub_sessions.append(result.session)
             self.session_auto_save()
@@ -773,11 +774,15 @@ class Engine:
                 duration += float(getattr(stage, 'duration', 0.0) or 0.0)
             except (TypeError, ValueError):
                 pass
-            usage = getattr(stage, 'usage', None) or {}
-            count = usage.get('total_tokens')
-            if count is None:
-                count = ((usage.get('prompt_tokens') or 0)
-                         + (usage.get('completion_tokens') or 0))
+            run_id = getattr(stage, 'run_id', None)
+            if run_id is not None:
+                count = self.runs.rollup(run_id).get('total_tokens') or 0
+            else:
+                usage = getattr(stage, 'usage', None) or {}
+                count = usage.get('total_tokens')
+                if count is None:
+                    count = ((usage.get('prompt_tokens') or 0)
+                             + (usage.get('completion_tokens') or 0))
             total += int(count or 0)
         parts = [f'{duration:.1f}s']
         if total:
@@ -1246,7 +1251,38 @@ class Engine:
             self.current_session.start_turn(**self._turn_meta())
         tools_schema = self._init_tooling()
         turn_start = datetime.now(timezone.utc)
-        usage = None
+        usage_total = None
+        requests = 0
+
+        def merge_usage(value):
+            nonlocal usage_total, requests
+            if not isinstance(value, dict):
+                return
+            requests += 1
+            if usage_total is None:
+                usage_total = {'prompt_tokens': 0, 'completion_tokens': 0,
+                               'reasoning_tokens': 0, 'total_tokens': 0,
+                               'requests': 0}
+            prompt = value.get('prompt_tokens')
+            if isinstance(prompt, int) and prompt > 0:
+                usage_total['prompt_tokens'] += prompt
+                usage_total['context_tokens'] = prompt
+            completion = value.get('completion_tokens')
+            if isinstance(completion, int) and completion > 0:
+                usage_total['completion_tokens'] += completion
+            details = value.get('completion_tokens_details') or {}
+            thinking = details.get('reasoning_tokens')
+            if not isinstance(thinking, int):
+                thinking = value.get('reasoning_tokens')
+            if isinstance(thinking, int) and thinking > 0:
+                usage_total['reasoning_tokens'] += thinking
+            total = value.get('total_tokens')
+            if not isinstance(total, int):
+                total = ((prompt or 0) + (completion or 0))
+            if total:
+                usage_total['total_tokens'] += total
+            usage_total['requests'] = requests
+
         reason = ''
         status = 'ok'
         content = ''
@@ -1352,6 +1388,7 @@ class Engine:
                                             token = ''
                             elif t == 'tool_calls':
                                 tool_calls_detected = True
+                                merge_usage(event.get('usage'))
                                 end_thinking()
                                 executed_tool_calls += self._execute_tool_calls(
                                     event['tool_calls'], s_thinking or None)
@@ -1377,7 +1414,7 @@ class Engine:
                                 break
                             elif t == 'done':
                                 got_done = True
-                                usage = event.get('usage') or usage
+                                merge_usage(event.get('usage'))
                                 reason = event.get('reason', '')
                                 end_thinking()
                                 break
@@ -1464,14 +1501,17 @@ class Engine:
                 self.current_session.add_thinking(thinking, stamp)
                 if content:
                     self.current_session.add_text(content, stamp)
-                self.ui.footer(duration, self._usage_counts(usage))
+                counts = self._usage_counts(usage_total)
+                counts['tree'] = self._tree_tokens(usage_total)
+                self.ui.footer(duration, counts)
             self.current_session.end_turn(
-                status, usage=usage,
-                context_tokens=self._context_tokens(usage),
+                status, usage=usage_total,
+                context_tokens=self._context_tokens(usage_total),
                 finish_reason=reason)
             self._record_model_outcome(status)
             self.session_auto_save()
 
+        usage = usage_total
         duration = round((datetime.now(timezone.utc) - turn_start).total_seconds(), 1)
         return TurnResult(
             content=content or None,
@@ -1856,6 +1896,9 @@ class Engine:
 
     def _context_tokens(self, usage: dict | None = None) -> int:
         if isinstance(usage, dict):
+            context = usage.get('context_tokens')
+            if isinstance(context, int) and context > 0:
+                return context
             prompt = usage.get('prompt_tokens')
             if isinstance(prompt, int) and prompt > 0:
                 return prompt
@@ -1878,8 +1921,25 @@ class Engine:
                 thinking = usage.get('reasoning_tokens')
             if isinstance(thinking, int) and thinking > 0:
                 counts['thinking'] = thinking
+        if isinstance(usage, dict):
+            total = usage.get('total_tokens')
+            if not isinstance(total, int) or total <= 0:
+                total = ((usage.get('prompt_tokens') or 0)
+                         + (usage.get('completion_tokens') or 0))
+            if total:
+                counts['total'] = total
         counts['context'] = self._context_tokens(usage)
         return counts
+
+    def _tree_tokens(self, usage: dict | None = None) -> int:
+        total = 0
+        if isinstance(usage, dict):
+            total += int(usage.get('total_tokens') or 0)
+        run = getattr(self, 'current_run', None)
+        if run is not None:
+            for child in self.runs.children(run.id):
+                total += int(self.runs.rollup(child.id).get('total_tokens') or 0)
+        return total
 
     def _human_chars(self, n: int) -> str:
         if n >= 1_000_000:

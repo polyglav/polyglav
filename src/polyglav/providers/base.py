@@ -189,7 +189,11 @@ class OpenAICompatibleProvider(BaseProvider):
             if finish:
                 finished_reason = finish
         if tool_calls_acc:
-            yield {'type': 'tool_calls', 'tool_calls': list(tool_calls_acc.values())}
+            event = {'type': 'tool_calls',
+                     'tool_calls': list(tool_calls_acc.values())}
+            if usage:
+                event['usage'] = usage
+            yield event
         elif finished_reason:
             done = {'type': 'done', 'reason': finished_reason}
             if usage:

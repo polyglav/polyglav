@@ -25,6 +25,16 @@ class TestRunsCommand(unittest.TestCase):
         self.assertIn('#1 root', out)
         self.assertNotIn('↔ Switch', out)
 
+    def test_runs_show_duration_and_usage(self):
+        run = self.chat.runs.start(role='writer', session='sub_test',
+                                   parent=self.chat.current_run.id)
+        self.chat.runs.finish(run.id, usage={'total_tokens': 45},
+                              duration=1.2)
+        out = self._dispatch('/runs')
+        self.assertIn('writer', out)
+        self.assertIn('1.2s', out)
+        self.assertIn('45 tokens', out)
+
 
 if __name__ == '__main__':
     unittest.main()

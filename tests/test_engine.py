@@ -115,6 +115,42 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(result.tool_calls, [])
         self.assertEqual(result.errors, [])
 
+    def test_usage_accumulates_across_tool_rounds(self):
+        self.engine.provider.chat.side_effect = [
+            [{'type': 'tool_calls',
+              'tool_calls': [{'id': 'c1', 'type': 'function',
+                              'function': {'name': 'todo',
+                                           'arguments': '{"action": "list"}'}}],
+              'usage': {'prompt_tokens': 100, 'completion_tokens': 10,
+                        'total_tokens': 110}}],
+            [{'type': 'done', 'reason': 'stop',
+              'usage': {'prompt_tokens': 200, 'completion_tokens': 20,
+                        'total_tokens': 220}}],
+        ]
+        result = self.engine.chat('list the todo')
+        self.assertEqual(result.usage['prompt_tokens'], 300)
+        self.assertEqual(result.usage['completion_tokens'], 30)
+        self.assertEqual(result.usage['total_tokens'], 330)
+        self.assertEqual(result.usage['context_tokens'], 200)
+        self.assertEqual(result.usage['requests'], 2)
+
+    def test_run_usage_is_stored_on_the_run(self):
+        from polyglav.roles import Role
+        self.engine.roles.put(Role(name='writer', system_prompt='w'),
+                              scope='local')
+        self.engine.provider.chat.side_effect = [[
+            {'type': 'done', 'reason': 'stop',
+             'usage': {'prompt_tokens': 40, 'completion_tokens': 5,
+                       'total_tokens': 45}},
+        ]]
+        result = self.engine.run_subagent('writer', 'write')
+        run = self.engine.runs.get(result.run_id)
+        self.assertEqual(run.usage['total_tokens'], 45)
+        self.assertGreaterEqual(run.duration, 0)
+        rollup = self.engine.runs.rollup(result.run_id)
+        self.assertEqual(rollup['total_tokens'], 45)
+        self.assertEqual(rollup['runs'], 1)
+
     def test_thinking_separated_from_content(self):
         self.engine.provider.chat.return_value = [
             {'type': 'token', 'content': '<thinking>hmm</thinking>Answer'},
@@ -386,7 +422,9 @@ class TestEngine(unittest.TestCase):
         result = self.engine.chat('q')
         d = result.to_dict()
         self.assertEqual(d['content'], 'Hello')
-        self.assertEqual(d['usage'], {'prompt_tokens': 10})
+        self.assertEqual(d['usage']['prompt_tokens'], 10)
+        self.assertEqual(d['usage']['total_tokens'], 10)
+        self.assertEqual(d['usage']['requests'], 1)
         self.assertIn('session', d)
         self.assertIn('status', d)
         json.dumps(d)

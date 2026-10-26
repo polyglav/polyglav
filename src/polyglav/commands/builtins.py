@@ -72,7 +72,7 @@ def _active_model(chat, entry):
             and entry.model == chat.config.get('model'))
 
 
-def _run_line(run, current_id, indent=0, switch=False):
+def _run_line(runs, run, current_id, indent=0, switch=False):
     mark = '*' if run.id == current_id else ' '
     role = run.role or 'root'
     task = (run.task or '').strip().splitlines()
@@ -80,13 +80,21 @@ def _run_line(run, current_id, indent=0, switch=False):
     line = f'{"  " * indent}{mark} #{run.id} {role} [{run.status}] {run.session}'
     if run.session_id:
         line += f' {run.session_id}'
+    if run.duration:
+        line += f' {run.duration:.1f}s'
+    total = runs.rollup(run.id)
+    own = int((run.usage or {}).get('total_tokens') or 0)
+    tree = int(total.get('total_tokens') or 0)
+    if tree:
+        line += (f' ({own:,}/{tree:,} tokens)' if own
+                 else f' ({tree:,} tokens)')
     if head:
         line += f'  {head}'
     return line
 
 
 def _run_tree(runs, run, current_id, indent=0):
-    print(_run_line(run, current_id, indent))
+    print(_run_line(runs, run, current_id, indent))
     for child in runs.children(run.id):
         _run_tree(runs, child, current_id, indent + 1)
 
