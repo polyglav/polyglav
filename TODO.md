@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Onboarding visibility - ask about reasoning, sub-run output, tool detail, and live status
 - [ ] Team and verbosity docs - document shapes, callability, scopes, and token reporting
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
@@ -153,6 +152,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed onboarding visibility
 - [x] Fixed prompt colour fallback
 - [x] Fixed ask prompt legibility
 - [x] Added streamed tool call progress

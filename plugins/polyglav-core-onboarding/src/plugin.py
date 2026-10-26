@@ -12,6 +12,10 @@ WELCOME = ("Welcome to Polyglav.\n"
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
 PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
+PROMPT_REASONING = 'Reasoning (off/assistant/agent/all) [off]: '
+PROMPT_OUTPUT_SCOPE = 'Sub-run output (off/assistant/agent/all) [agent]: '
+PROMPT_TOOL_STATS = 'Show tool time and tokens? [y/N] '
+PROMPT_STATUS = 'Show live time and approximate tokens? [Y/n] '
 PROMPT_PROVIDER = 'Provider [{default}]: '
 PROMPT_BASE_URL = 'Base URL [{default}]: '
 PROMPT_KEY = 'API key [{default}]: '
@@ -266,12 +270,28 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
     _say('Describe this project and the assistant (optional).')
     purpose = _ask(ask, PROMPT_PURPOSE)
     persona = _ask(ask, PROMPT_PERSONA)
+    reasoning = _ask(ask, PROMPT_REASONING, 'off').lower()
+    if reasoning not in ('off', 'assistant', 'agent', 'all'):
+        _warn(chat, f'Unknown reasoning scope "{reasoning}", keeping off.')
+        reasoning = 'off'
+    output_scope = _ask(ask, PROMPT_OUTPUT_SCOPE, 'agent').lower()
+    if output_scope not in ('off', 'assistant', 'agent', 'all'):
+        _warn(chat, f'Unknown output scope "{output_scope}", keeping agent.')
+        output_scope = 'agent'
+    tool_stats = _ask(ask, PROMPT_TOOL_STATS, 'n').lower().startswith('y')
+    live_status = _ask(ask, PROMPT_STATUS, 'y').lower().startswith('y')
     output = _ask(ask, PROMPT_OUTPUT, 'n')
 
     config = chat.config
     config.set('system_prompt', compose_prompt(purpose, persona), scope='local')
     config.set('output_log',
                str(output).strip().lower().startswith('y'), scope='local')
+    config.set('verbosity.thinking', reasoning, scope='local')
+    config.set('verbosity.output', output_scope, scope='local')
+    config.set('verbosity.tools', 'full' if tool_stats else 'summary',
+               scope='local')
+    config.set('verbosity.status', 'on' if live_status else 'off',
+               scope='local')
     if provider:
         chat._reinit_provider()
     print()

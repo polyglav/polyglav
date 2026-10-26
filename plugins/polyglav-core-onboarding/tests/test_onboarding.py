@@ -152,6 +152,10 @@ class TestOnboarding(unittest.TestCase):
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
         self.assertTrue(self.config.get('output_log'))
+        self.assertEqual(self.config.get('verbosity.thinking'), 'off')
+        self.assertEqual(self.config.get('verbosity.output'), 'agent')
+        self.assertEqual(self.config.get('verbosity.tools'), 'summary')
+        self.assertEqual(self.config.get('verbosity.status'), 'on')
         self.assertIn('widget assistant', self.config.get('system_prompt'))
         self.assertTrue(self.config.local_path.exists())
         self.assertEqual(self.config.get('provider'), 'ollama')
@@ -160,6 +164,27 @@ class TestOnboarding(unittest.TestCase):
         self.assertEqual(self.config.get('mode'), 'write')
         self.assertIn(('ollama', 'model-a'), chat.models.entries)
         self.assertTrue(chat.reinitialized)
+
+    def test_run_sets_visibility_scopes(self):
+        chat = self._chat()
+        answers = self._answers(**{
+            plugin.PROMPT_PROVIDER.format(default='ollama'): '1',
+            plugin.PROMPT_KEY_EMPTY: '',
+            plugin.PROMPT_MODEL.format(default='model-a'): '1',
+            plugin.PROMPT_MODE.format(default='read'): '',
+            plugin.PROMPT_PURPOSE: '',
+            plugin.PROMPT_PERSONA: '',
+            plugin.PROMPT_REASONING: 'agent',
+            plugin.PROMPT_OUTPUT_SCOPE: 'all',
+            plugin.PROMPT_TOOL_STATS: 'y',
+            plugin.PROMPT_STATUS: 'n',
+            plugin.PROMPT_OUTPUT: 'n',
+        })
+        self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
+        self.assertEqual(self.config.get('verbosity.thinking'), 'agent')
+        self.assertEqual(self.config.get('verbosity.output'), 'all')
+        self.assertEqual(self.config.get('verbosity.tools'), 'full')
+        self.assertEqual(self.config.get('verbosity.status'), 'off')
 
     def test_run_keeps_stored_key(self):
         chat = self._chat()
