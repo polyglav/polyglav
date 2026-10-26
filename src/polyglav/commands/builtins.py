@@ -1052,12 +1052,18 @@ def register_builtins(registry):
             label = f' tagged "{tag}"' if tag else ''
             print(f'{len(teams)} teams{label}:')
             for t in teams:
-                stages = ' > '.join(s.role for s in t.stages)
+                if getattr(t, 'type', 'sequential') == 'hierarchical':
+                    chain = f'{t.manager or "(no manager)"} > ' + ' > '.join(
+                        m.role for m in t.members)
+                    kind = ' [hierarchical]'
+                else:
+                    chain = ' > '.join(s.role for s in t.stages)
+                    kind = ''
                 tags = f' tags={",".join(t.tags)}' if t.tags else ''
                 origin = f' ({tr.origin(t.name)})'
-                print(f'  - {t.name}{tags}{origin}')
-                if stages:
-                    print(f'      {stages}')
+                print(f'  - {t.name}{kind}{tags}{origin}')
+                if chain:
+                    print(f'      {chain}')
             return
         if action == 'show':
             name = parts[1].strip() if len(parts) > 1 else ''
@@ -1069,10 +1075,23 @@ def register_builtins(registry):
                 print(f'Team not found: {name}')
                 return
             print(f'{t.name} ({tr.origin(t.name)})')
+            print(f'  type: {getattr(t, "type", "sequential")}')
             if t.description:
                 print(f'  description: {t.description}')
             if t.tags:
                 print(f'  tags: {", ".join(t.tags)}')
+            if getattr(t, 'type', 'sequential') == 'hierarchical':
+                print(f'  manager: {t.manager or "(none)"}')
+                if not t.members:
+                    print('  members: (none)')
+                    return
+                print('  members:')
+                for i, m in enumerate(t.members, 1):
+                    print(f'    {i}. {m.role}'
+                          + (f' [mode={m.mode}]' if m.mode else ''))
+                    if m.task_hint:
+                        print(f'       task_hint: {m.task_hint}')
+                return
             if not t.stages:
                 print('  stages: (none)')
                 return

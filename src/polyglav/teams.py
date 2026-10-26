@@ -40,25 +40,39 @@ class Team:
     description: str = ''
     tags: list = field(default_factory=list)
     loop: dict = field(default_factory=dict)
+    type: str = 'sequential'
+    manager: str = ''
+    members: list = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, d: dict) -> 'Team':
         stages = d.get('stages') or []
         if isinstance(stages, dict):
             stages = list(stages.keys())
+        members = d.get('members') or []
+        if isinstance(members, dict):
+            members = list(members.keys())
+        team_type = str(d.get('type') or 'sequential').strip().lower()
+        if team_type not in ('sequential', 'hierarchical'):
+            team_type = 'sequential'
         return cls(
             name=d.get('name', ''),
             stages=[TeamStage.from_dict(s) for s in stages],
             description=str(d.get('description') or ''),
             tags=list(d.get('tags') or []),
             loop=dict(d.get('loop') or {}),
+            type=team_type,
+            manager=str(d.get('manager') or ''),
+            members=[TeamStage.from_dict(m) for m in members],
         )
 
     def to_body(self) -> dict:
         body = asdict(self)
         body.pop('name', None)
         body['stages'] = [s.to_body() for s in self.stages]
+        body['members'] = [m.to_body() for m in self.members]
         return {k: v for k, v in body.items() if v not in ('', [], {}, False)}
+
 
 
 class TeamRegistry:

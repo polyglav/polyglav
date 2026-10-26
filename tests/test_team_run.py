@@ -68,6 +68,29 @@ class TestTeamRun(unittest.TestCase):
         self.assertIn('... (truncated)', brief)
         self.assertLessEqual(len(brief), 1500)
 
+    def test_hierarchical_runs_manager_only(self):
+        from polyglav.roles import Role
+        for name in ('site-manager', 'researcher', 'writer'):
+            self.chat.roles.put(
+                Role(name=name, system_prompt=f'You are {name}.'), scope='local')
+        self.chat.provider.chat.side_effect = [self._result('manager done')]
+        team = Team(name='site', type='hierarchical', manager='site-manager',
+                    members=[TeamStage(role='researcher'),
+                             TeamStage(role='writer')])
+        result = self.chat.run_team(team, 'build it')
+        self.assertEqual(result.status, 'ok')
+        self.assertEqual(len(result.stages), 1)
+        self.assertEqual(result.content, 'manager done')
+        messages = self.chat.provider.chat.call_args[0][0]
+        system = next(m for m in messages if m.get('role') == 'system')
+        self.assertIn('site-manager', system['content'])
+        user = next(m for m in messages if m.get('role') == 'user')
+        self.assertIn('Members', user['content'])
+        self.assertIn('researcher', user['content'])
+        self.assertIn('writer', user['content'])
+        self.assertIn('Do not call the team tool', user['content'])
+        self.assertEqual(len(self.chat.current_session.sub_sessions), 1)
+
     def test_run_team_sequential_stages(self):
         self.chat.provider.chat.side_effect = [
             self._result('Research done.'), self._result('Draft done.'),

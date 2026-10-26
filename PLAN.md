@@ -82,7 +82,6 @@ The assistant is the operator's entry point. A composer turns a task into a team
 | Task | Effort | Provides |
 |------|--------|----------|
 | Manager role - runs one or many teams and reports, sequential first | M | one window over several teams |
-| Team type and manager - sequential stages with the caller as manager, and a hierarchical manager with members | M | correct team shapes |
 | Callable role permission - split may call from may be called, default callable allow | S-M | callable workers |
 | Team docs and catalog guidance - when to use sequential versus hierarchical, with examples | S | correct model choices |
 | Composer plugin (nice-to-have) - a bundled role that designs a team from an under-specified request by asking clarifying questions and saving it | M | guided team design |

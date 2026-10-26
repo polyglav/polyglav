@@ -29,7 +29,8 @@ class TestCatalogTool(unittest.TestCase):
         self.assertEqual(entry['category'], 'catalog')
         self.assertEqual(entry['permission'], 'catalog')
         params = entry['parameters']['properties']
-        for key in ('action', 'kind', 'name', 'content', 'stages'):
+        for key in ('action', 'kind', 'name', 'content', 'stages',
+                    'team_type', 'manager', 'members'):
             self.assertIn(key, params)
 
     def test_default_permission_is_allow(self):
@@ -173,9 +174,39 @@ class TestCatalogTool(unittest.TestCase):
                     {'role': 'writer', 'handoff_note': 'draft'}])
         self.assertIn('Saved team: thesis', out)
         team = self.chat.teams.find('thesis')
+        self.assertEqual(team.type, 'sequential')
         self.assertEqual([s.role for s in team.stages], ['researcher', 'writer'])
         self.assertEqual(team.stages[0].skills, ['sourcing'])
         self.assertEqual(team.stages[1].handoff_note, 'draft')
+
+    def test_save_hierarchical_team(self):
+        self.chat.roles.put(Role(name='manager', system_prompt='m'))
+        self.chat.roles.put(Role(name='worker', system_prompt='w'))
+        out = self._catalog(
+            action='save', kind='team', name='site', type='hierarchical',
+            manager='manager', members=[{'role': 'worker', 'skills': ['s']}])
+        self.assertIn('Saved team: site', out)
+        team = self.chat.teams.find('site')
+        self.assertEqual(team.type, 'hierarchical')
+        self.assertEqual(team.manager, 'manager')
+        self.assertEqual([m.role for m in team.members], ['worker'])
+        self.assertEqual(team.members[0].skills, ['s'])
+        shown = self._catalog(action='show', kind='team', name='site')
+        self.assertIn('type: hierarchical', shown)
+        self.assertIn('manager: manager', shown)
+        self.assertIn('1. worker', shown)
+
+    def test_validate_hierarchical_team(self):
+        self.chat.roles.put(Role(name='manager', system_prompt='m'))
+        self.chat.roles.put(Role(name='worker', system_prompt='w'))
+        out = self._catalog(action='validate', kind='team', name='site',
+                            type='hierarchical', manager='manager',
+                            members=[{'role': 'worker'}])
+        self.assertIn('is valid', out)
+        out = self._catalog(action='validate', kind='team', name='site',
+                            type='hierarchical', manager='manager',
+                            stages=[{'role': 'worker'}])
+        self.assertIn('uses members, not stages', out)
 
     def test_save_skill_writes_file(self):
         out = self._catalog(action='save', kind='skill', name='composing',

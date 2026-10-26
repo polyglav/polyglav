@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.49.0
+
+- Added team types - a team declares `type` as sequential or hierarchical, a hierarchical team names a `manager` and `members`, and a sequential team keeps ordered `stages` with the caller as manager. The catalog validates the fields, `/teams` shows the type, and `run_team` runs only the manager for a hierarchical team. Docs (`teams.md`). Tests: `test_teams.py`, `test_team_run.py`, `test_catalog.py`
+
 ## v0.48.0 - 2026-10-24
 
 - Fixed todo lookup by session id - `/todos <id>` matches the trailing session id. Tests: `test_plan_todo.py`

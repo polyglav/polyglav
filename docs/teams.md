@@ -4,12 +4,12 @@ A team is a named, ordered chain of delegated stages, where each runs under a ro
 
 ## Team shapes
 
-A team has two shapes:
+A team has two types:
 
-- **Sequential** (the default) - the stages run in order, and each stage's result is handed to the next. This is what `call` and `Engine.run_team` execute.
-- **Hierarchical** - a manager allocates tasks to roles, validates the outcomes, and re-assigns until the work is done. There is no built-in manager yet. Two patterns approximate it today: make the manager stage 1 and let it call the worker roles with the `call` tool, or call the manager role directly and let it call the roles. The stage pipeline stays the sequential fallback.
+- **Sequential** (the default) - the stages run in order, and each stage's result is handed to the next. The caller is the manager: it receives the final stage's answer, decides whether it is correct, and calls the team again when it needs another pass. This is what `call` and `Engine.run_team` execute for a sequential team, and it is the right shape for a small fixed pipeline such as developer then tester.
+- **Hierarchical** - a manager role receives the task, allocates work to the member roles with the `call` tool, validates the outcomes, re-assigns work when needed, and returns the final answer. The manager is the only run that stays open for the whole team. Use it when the work needs dynamic allocation or internal validation.
 
-A composing agent can check a definition before saving it with `catalog action=validate`, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog. The assistant confirms the design with the user (the deliverable, the manager pattern, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.
+A composing agent can check a definition before saving it with `catalog action=validate`, which reports an unknown permission key, a missing stage role, a missing manager or member, a stage role that is not in the catalog, and a team that mixes the fields of the two types. The assistant confirms the design with the user (the deliverable, the type, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.
 
 ## Storage
 
@@ -28,6 +28,7 @@ Merging is field-by-field for the same `name`: an entry overrides only the field
 ```json
 {
   "writing": {
+    "type": "sequential",
     "description": "Document pipeline: research, write, reference, edit",
     "tags": ["research", "writing"],
     "stages": [
@@ -43,6 +44,17 @@ Merging is field-by-field for the same `name`: an entry overrides only the field
         "handoff_note": "Hand the document path to the referencer."
       }
     ]
+  },
+  "site": {
+    "type": "hierarchical",
+    "description": "Manager-led landing page",
+    "manager": "site-manager",
+    "members": [
+      {"role": "researcher", "task_hint": "Gather cited facts."},
+      {"role": "designer", "skills": ["landing-page"]},
+      {"role": "developer"},
+      {"role": "tester"}
+    ]
   }
 }
 ```
@@ -50,18 +62,21 @@ Merging is field-by-field for the same `name`: an entry overrides only the field
 Team fields:
 
 - `name` - unique key (the file/registry key).
-- `stages` - ordered list of stage objects. A stage may also be a plain string (`"researcher"`), shorthand for a stage with only a role.
+- `type` - `sequential` (default) or `hierarchical`.
+- `stages` - sequential only. Ordered list of stage objects. A stage may also be a plain string (`"researcher"`), shorthand for a stage with only a role.
+- `manager` - hierarchical only. The role that receives the task, calls members, validates results, and returns the final answer.
+- `members` - hierarchical only. Ordered list of roles the manager may call, each with optional `skills` and `task_hint`.
 - `description` - optional, shown in `/teams show`.
 - `tags` - optional list for grouping and filtering (`/teams list <tag>`), same vocabulary as roles.
-- `loop` - optional review loop over a producer/reviewer stage block (see [Review loop](#review-loop)). Properties: `from`, `until`, `max_iterations`, `verdict`.
+- `loop` - optional sequential review loop over a producer/reviewer stage block (see [Review loop](#review-loop)). Properties: `from`, `until`, `max_iterations`, `verdict`. A caller can also accept the result and call the team again instead of using a loop.
 
-Stage fields:
+Stage and member fields:
 
 - `role` - required, the role name (must exist in the [roles registry](roles.md) at run time, resolved against the same three-layer merge).
-- `mode` - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.
-- `task_hint` - optional guidance folded into the delegated brief for this stage.
-- `handoff_note` - optional note passed with the previous stage's result into the next stage's brief.
-- `skills` - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see [skills.md](skills.md)). The `call` tool adds task-wide skills to every stage through its own `skills` argument.
+- `mode` - optional agent mode override for a sequential stage. Empty inherits the caller. Member modes are inherited from the manager.
+- `task_hint` - optional guidance folded into the delegated brief for a stage, or shown to the manager as guidance for a member.
+- `handoff_note` - optional note passed with the previous stage's result into the next sequential stage's brief.
+- `skills` - optional list of skill names added for the stage or member run, layered over the role's standing skills (see [skills.md](skills.md)). The `call` tool adds task-wide skills to every stage through its own `skills` argument.
 
 ## Managing teams
 
@@ -87,13 +102,15 @@ The brief handed to each member is built per run from:
 
 After the run, the whole team run is summarized (seeded with the previous team memory) and written to **`.polyglav/memory/teams/<name>.md`** (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.
 
-`/teams run <name> <task>` executes a team from the REPL and prints one line per stage (`<n>. <role> <status> <duration>s`), the final member's result, and the memory file path.
+A hierarchical team runs its manager once through the same `run_subagent` path, with a brief that lists the original task, the member roster, each member's `task_hint` and `skills`, the shared team memory, and the instruction to allocate, validate, and return the final answer. The manager calls members with `call`; the members are ordinary role runs with their own permission carves. The team result is the manager's final answer.
+
+`/teams run <name> <task>` executes a team from the REPL and prints one line per stage (`<n>. <role> <status> <duration>s`), the final member's result, and the memory file path. A hierarchical team prints its manager line and result.
 
 ## Resuming a member run
 
 Every stage starts a fresh run with its own session by default. To continue a previous thread, pass `resume` to the `call` tool:
 
-- `team(name, task, resume=...)` resumes that run or session for the **first stage**, which then keeps its prior context. Later stages start fresh, seeded by the brief.
+- `team(name, task, resume=...)` resumes that run or session for the **first stage** of a sequential team or the **manager** of a hierarchical team, which then keeps its prior context. Later stages start fresh, seeded by the brief.
 - `resume` accepts a run id (`#3`), a session id (`#ab12cd`), a session name, or `session:<name>`.
 - `context` controls how the resumed context is treated: `continue` (append, default), `compact` (summarize the prior turns first), or `new` (ignore `resume` and start fresh).
 
@@ -101,7 +118,7 @@ The same applies to a single delegated agent: `call(target=<role>, task=..., res
 
 ## Review loop
 
-A team can iterate a producer/reviewer block until the review passes or a cap is reached, the generate > check > correct pattern. The team's `loop` names the block by stage role (or zero-based index):
+A sequential team can iterate a producer/reviewer block until the review passes or a cap is reached, the generate > check > correct pattern. The team's `loop` names the block by stage role (or zero-based index):
 
 ```json
 {

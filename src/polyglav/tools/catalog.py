@@ -86,9 +86,19 @@ def _role_line(engine, agent_role) -> str:
 
 
 def _team_line(engine, team) -> str:
-    chain = ' > '.join(stage.role for stage in team.stages) or '(no stages)'
+    if getattr(team, 'type', 'sequential') == 'hierarchical':
+        kind = 'hierarchical'
+        if team.members:
+            chain = f'{team.manager or "(no manager)"} > ' + ' > '.join(
+                member.role for member in team.members)
+        else:
+            chain = f'{team.manager or "(no manager)"} (no members)'
+    else:
+        kind = 'sequential'
+        chain = ' > '.join(stage.role for stage in team.stages) or '(no stages)'
     tags = f' tags={",".join(team.tags)}' if team.tags else ''
-    return (f'- {team.name}{tags} ({engine.teams.origin(team.name)}): {chain}')
+    return (f'- {team.name} [{kind}]{tags} ({engine.teams.origin(team.name)}): '
+            f'{chain}')
 
 
 def _skill_line(engine, skill) -> str:
@@ -135,11 +145,26 @@ def _show_team(engine, name: str) -> str:
     team = engine.teams.find(name)
     if team is None:
         return f'Error: unknown team "{name}"'
-    lines = [f'{team.name} ({engine.teams.origin(name)})']
+    lines = [f'{team.name} ({engine.teams.origin(name)})',
+             f'type: {getattr(team, "type", "sequential")}']
     if team.description:
         lines.append(f'description: {team.description}')
     if team.tags:
         lines.append(f'tags: {", ".join(team.tags)}')
+    if getattr(team, 'type', 'sequential') == 'hierarchical':
+        lines.append(f'manager: {team.manager or "(none)"}')
+        if not team.members:
+            lines.append('members: (none)')
+        for i, member in enumerate(team.members, 1):
+            parts = [f'{i}. {member.role}']
+            if member.mode:
+                parts.append(f'mode={member.mode}')
+            lines.append(' '.join(parts))
+            if member.skills:
+                lines.append(f'   skills: {", ".join(member.skills)}')
+            if member.task_hint:
+                lines.append(f'   task_hint: {member.task_hint}')
+        return '\n'.join(lines)
     if not team.stages:
         lines.append('stages: (none)')
     for i, stage in enumerate(team.stages, 1):
@@ -179,8 +204,9 @@ def _save_role(engine, name: str, values: dict) -> str:
 
 
 def _save_team(engine, name: str, values: dict) -> str:
-    data = {'name': name}
-    for field in ('description', 'tags', 'stages', 'loop'):
+    data = {'name': name, 'type': values.get('type') or 'sequential'}
+    for field in ('description', 'tags', 'stages', 'loop', 'manager',
+                  'members'):
         if values.get(field) is not None:
             data[field] = values[field]
     engine.teams.put(Team.from_dict(data), scope='local')
@@ -197,7 +223,8 @@ def _save_skill(engine, name: str, values: dict) -> str:
 
 
 def _validate(engine, kind: str, name: str, tool_permission,
-              grant_permission, content, stages) -> str:
+              grant_permission, content, stages, team_type: str = '',
+              manager: str = '', members: list | None = None) -> str:
     errors: list[str] = []
     if not name:
         errors.append('name is required')
@@ -211,15 +238,37 @@ def _validate(engine, kind: str, name: str, tool_permission,
             if error:
                 errors.append(error)
     elif kind == 'team':
-        stage_list = stages or []
-        if not stage_list:
-            errors.append('at least one stage is required')
-        for i, stage in enumerate(stage_list, 1):
-            role = str((stage or {}).get('role') or '')
-            if not role:
-                errors.append(f'stage {i} is missing a role')
-            elif engine.roles.find(role) is None:
-                errors.append(f'stage {i} role "{role}" is not in the catalog')
+        shape = str(team_type or 'sequential').strip().lower()
+        if shape not in ('sequential', 'hierarchical'):
+            errors.append('type must be sequential or hierarchical')
+        if shape == 'hierarchical':
+            if not manager:
+                errors.append('a hierarchical team needs a manager')
+            elif engine.roles.find(manager) is None:
+                errors.append(f'manager role "{manager}" is not in the catalog')
+            member_list = members or []
+            if not member_list:
+                errors.append('a hierarchical team needs at least one member')
+            for i, member in enumerate(member_list, 1):
+                role = str((member or {}).get('role') or '')
+                if not role:
+                    errors.append(f'member {i} is missing a role')
+                elif engine.roles.find(role) is None:
+                    errors.append(f'member {i} role "{role}" is not in the catalog')
+            if stages:
+                errors.append('a hierarchical team uses members, not stages')
+        else:
+            stage_list = stages or []
+            if not stage_list:
+                errors.append('at least one stage is required')
+            for i, stage in enumerate(stage_list, 1):
+                role = str((stage or {}).get('role') or '')
+                if not role:
+                    errors.append(f'stage {i} is missing a role')
+                elif engine.roles.find(role) is None:
+                    errors.append(f'stage {i} role "{role}" is not in the catalog')
+            if manager or members:
+                errors.append('a sequential team uses stages, not manager or members')
     elif kind == 'skill':
         if not content:
             errors.append('content is required')
@@ -240,14 +289,13 @@ def register_catalog_tool(registry, engine) -> Callable:
             "in the same run. `tool_permission`/`grant_permission` take permission "
             f"keys ({_PERMISSION_KEY_LIST}), not tool categories; the category "
             "names write, exec, and search are accepted aliases for edit, bash, "
-            "and web, and any other unknown key is rejected. A team is either a "
-            "sequential pipeline whose stages run in order, or a hierarchical "
-            "team whose manager allocates tasks to roles and validates outcomes. "
-            "For a hierarchical team, make the manager stage 1 and let it call "
-            "the worker roles, or call the manager role directly and let it call "
-            "them. A stage's `role` names the role to run and its `skills` extend "
-            "it for the stage. `loop` is a generate, check, correct loop with "
-            "from, until, max_iterations, and verdict."
+            "and web, and any other unknown key is rejected. A team declares "
+            "its type. A sequential team runs its stages in order and the caller "
+            "is the manager. A hierarchical team names a manager and members, and "
+            "the manager allocates tasks, validates outcomes, and returns the "
+            "final answer. A stage's `role` names the role to run and its "
+            "`skills` extend it for the stage. `loop` is a sequential generate, "
+            "check, correct loop with from, until, max_iterations, and verdict."
         ),
         parameters={
             'type': 'object',
@@ -309,11 +357,39 @@ def register_catalog_tool(registry, engine) -> Callable:
                     'type': 'string',
                     'description': 'Team or skill: a short description.',
                 },
+                'team_type': {
+                    'type': 'string',
+                    'enum': ['sequential', 'hierarchical'],
+                    'description': 'Team: sequential stages with the caller as '
+                                   'manager, or a hierarchical manager with '
+                                   'members. Default sequential.',
+                },
+                'manager': {
+                    'type': 'string',
+                    'description': 'Team: the manager role for a hierarchical '
+                                   'team.',
+                },
+                'members': {
+                    'type': 'array',
+                    'description': 'Team: roles the hierarchical manager may '
+                                   'call. Not used by a sequential team.',
+                    'items': {
+                        'type': 'object',
+                        'properties': {
+                            'role': {'type': 'string'},
+                            'mode': {'type': 'string'},
+                            'task_hint': {'type': 'string'},
+                            'skills': {'type': 'array',
+                                       'items': {'type': 'string'}},
+                        },
+                        'required': ['role'],
+                    },
+                },
                 'stages': {
                     'type': 'array',
-                    'description': 'Team: ordered stages. A sequential team runs '
-                                   'them in order. For a hierarchical team make '
-                                   'stage 1 the manager and let it call the rest.',
+                    'description': 'Team: ordered stages for a sequential team. '
+                                   'The caller is the manager. Not used by a '
+                                   'hierarchical team.',
                     'items': {
                         'type': 'object',
                         'properties': {
@@ -329,9 +405,9 @@ def register_catalog_tool(registry, engine) -> Callable:
                 },
                 'loop': {
                     'type': 'object',
-                    'description': 'Team: generate > check > correct loop. '
-                                   'Properties: from (stage type), until '
-                                   '(stage type), max_iterations, verdict '
+                    'description': 'Team: sequential generate > check > correct '
+                                   'loop. Properties: from (stage role), until '
+                                   '(stage role), max_iterations, verdict '
                                    '(marker, default "VERDICT:").',
                     'properties': {
                         'from': {'type': 'string'},
@@ -351,6 +427,7 @@ def register_catalog_tool(registry, engine) -> Callable:
         verb='Catalog',
         permission_fn=lambda args: _catalog_action(engine, args),
         write_actions=list(_CATALOG_WRITE_ACTIONS),
+        param_aliases={'type': 'team_type', 'shape': 'team_type'},
     )
     def catalog(action: str, kind: str = '', name: str = '',
                 system_prompt: str | None = None, model: str | None = None,
@@ -360,7 +437,9 @@ def register_catalog_tool(registry, engine) -> Callable:
                 ask_policy: dict | None = None, content: str | None = None,
                 description: str | None = None,
                 stages: list | None = None,
-                loop: dict | None = None) -> str:
+                loop: dict | None = None,
+                team_type: str = '', manager: str = '',
+                members: list | None = None) -> str:
         if action == 'reload':
             reloaded = engine.touch_catalogs()
             return f'Reloaded catalogs: {", ".join(reloaded) or "(none loaded)"}'
@@ -372,7 +451,9 @@ def register_catalog_tool(registry, engine) -> Callable:
             return 'Error: kind must be role, team, or skill'
         if action == 'validate':
             return _validate(engine, kind, name, tool_permission,
-                             grant_permission, content, stages)
+                             grant_permission, content, stages,
+                             team_type=team_type, manager=manager,
+                             members=members)
         if action == 'list':
             if kind == 'role':
                 return '\n'.join(_role_line(engine, t) for t in engine.roles.all())
@@ -407,7 +488,8 @@ def register_catalog_tool(registry, engine) -> Callable:
                   'grant_permission': grant_permission,
                   'ask_policy': ask_policy, 'content': content,
                   'description': description, 'stages': stages,
-                  'loop': loop}
+                  'loop': loop, 'type': team_type, 'manager': manager,
+                  'members': members}
         if kind == 'role':
             result = _save_role(engine, name, values)
         elif kind == 'team':

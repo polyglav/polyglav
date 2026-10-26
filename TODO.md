@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Team type and manager - teams declare sequential or hierarchical, hierarchical teams name a manager and members, and sequential teams keep ordered stages with the caller as manager
 - [ ] Callable role permission - split "may call" from "may be called", add a callable key, and resolve team targets from the manager and members
 - [ ] Output log per session - create and rotate the output log for every session, including after onboarding and `/session` switches
 - [ ] Verbosity scopes - one thinking key and one output key with off/assistant/agent/all, plus status, tool, and footer levels
@@ -162,6 +161,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added team types
 - [x] Fixed todo lookup by session id
 - [x] Fixed plan and todo docs
 - [x] Changed mode descriptions

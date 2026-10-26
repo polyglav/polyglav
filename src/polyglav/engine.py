@@ -561,6 +561,9 @@ class Engine:
         system_prompt = (agent_role.system_prompt if agent_role
                          else str(self.config.get('system_prompt') or ''))
         names = list(agent_role.skills or []) if agent_role else []
+        for name in (getattr(self, '_team_member_skills', {}) or {}).get(role_name, []):
+            if name and name not in names:
+                names.append(name)
         for name in (skills or []):
             if name and name not in names:
                 names.append(name)
@@ -624,6 +627,7 @@ class Engine:
         sub.current_run.role = role_name
         sub.current_run.task = task
         sub._sub_run = True
+        sub._team_member_skills = dict(getattr(self, '_team_member_skills', {}) or {})
         sub._ask_ui = getattr(self, '_ask_ui', None)
         role_grant = ((agent_role.grant_permission if agent_role else None)
                       or parent_grant)
@@ -1036,11 +1040,71 @@ class Engine:
                 return 'error', _stage_errors(stage.role, res)
         return 'ok', []
 
+    def _team_roles(self, team) -> list:
+        if getattr(team, 'type', 'sequential') == 'hierarchical':
+            names = [team.manager] + [m.role for m in team.members]
+            return [self.roles.find(name) for name in names if name]
+        return [self.roles.find(stage.role) for stage in team.stages]
+
+    def _build_manager_brief(self, team, task: str, memory: str,
+                             skills: list | None = None) -> str:
+        parts = [f'Team: {team.name}'
+                 + (f' ({team.description})' if team.description else ''),
+                 f'Original task:\n{task}']
+        plan = getattr(self.current_session, 'plan', '')
+        if plan:
+            parts.append(f'Active plan: {plan}')
+        roster = []
+        for member in team.members:
+            line = f'- {member.role}'
+            if member.task_hint:
+                line += f': {member.task_hint}'
+            if member.skills:
+                line += f' (skills: {", ".join(member.skills)})'
+            roster.append(line)
+        if roster:
+            parts.append('Members:\n' + '\n'.join(roster))
+        if memory:
+            parts.append(f'## Team memory\n{memory}')
+        parts.append(
+            f'You are the manager of team "{team.name}". Allocate the work to '
+            'the member roles with the call tool, validate every result '
+            'yourself, drive corrections until the work is complete, and then '
+            'return the final answer. Do not call the team tool for '
+            f'"{team.name}".')
+        if skills:
+            parts.append('Use these skills for the run: ' + ', '.join(skills))
+        return '\n\n'.join(parts)
+
+    def _run_team_manager(self, team, task: str, skills: list | None,
+                          memory: str, resume: str = '',
+                          context: str = 'continue') -> TurnResult:
+        mode = self._mode()
+        stage_skills = list(skills or [])
+        agent_role = self.roles.find(team.manager)
+        if agent_role is not None:
+            for name in (agent_role.skills or []):
+                if name and name not in stage_skills:
+                    stage_skills.append(name)
+        brief = self._build_manager_brief(team, task, memory, stage_skills)
+        self._stage_label = f'{team.manager} (manager)'
+        self._stage_name = team.manager
+        mapping = {m.role: list(m.skills) for m in team.members if m.skills}
+        previous = getattr(self, '_team_member_skills', {})
+        self._team_member_skills = mapping
+        try:
+            return self.run_subagent(team.manager, brief, mode=mode,
+                                     skills=stage_skills, resume=resume,
+                                     context=context)
+        finally:
+            self._team_member_skills = previous
+            self._stage_label = ''
+            self._stage_name = ''
+
     def _run_team_stages(self, team, task: str, skills: list | None = None,
                          resume: str = '', context: str = 'continue') -> TeamRunResult:
         from .teams import read_team_memory, write_team_memory
-        for stage in team.stages:
-            agent_role = self.roles.find(stage.role)
+        for agent_role in self._team_roles(team):
             if agent_role is None or not agent_role.model:
                 continue
             ref = self.unfold_ref(agent_role.model)
@@ -1050,7 +1114,7 @@ class Engine:
                 return TeamRunResult(
                     name=team.name, status='error',
                     errors=[{'code': '', 'message':
-                        f'Stage "{stage.role}" uses unapproved model "{model}" - '
+                        f'Stage "{agent_role.name}" uses unapproved model "{model}" - '
                         'approve it first (/model, --approve-model, or /connect)'}])
         worktree = self.config.local_path.parent.parent
         memory = read_team_memory(worktree, team.name)
@@ -1058,20 +1122,37 @@ class Engine:
         errors: list = []
         status = 'ok'
         try:
-            plan = self._team_loop_plan(team)
-            if plan is None:
-                for i, stage in enumerate(team.stages):
-                    brief = self._build_stage_brief(team, task, stages, i, memory)
-                    res = self._run_team_stage(team, stage, brief, skills,
-                                               resume, context)
+            if getattr(team, 'type', 'sequential') == 'hierarchical':
+                if not team.manager:
+                    status = 'error'
+                    errors.append({'code': '', 'message':
+                                   f'Team "{team.name}" has no manager'})
+                elif self.roles.find(team.manager) is None:
+                    status = 'error'
+                    errors.append({'code': '', 'message':
+                                   f'Manager role "{team.manager}" is not in the catalog'})
+                else:
+                    res = self._run_team_manager(team, task, skills, memory,
+                                                 resume, context)
                     stages.append(res)
                     if res.status not in ('ok', 'truncated'):
                         status = 'error'
-                        errors.extend(_stage_errors(stage.role, res))
-                        break
+                        errors.extend(_stage_errors(team.manager, res))
             else:
-                status, errors = self._run_team_loop(
-                    team, task, skills, memory, plan, stages, resume, context)
+                plan = self._team_loop_plan(team)
+                if plan is None:
+                    for i, stage in enumerate(team.stages):
+                        brief = self._build_stage_brief(team, task, stages, i, memory)
+                        res = self._run_team_stage(team, stage, brief, skills,
+                                                   resume, context)
+                        stages.append(res)
+                        if res.status not in ('ok', 'truncated'):
+                            status = 'error'
+                            errors.extend(_stage_errors(stage.role, res))
+                            break
+                else:
+                    status, errors = self._run_team_loop(
+                        team, task, skills, memory, plan, stages, resume, context)
         except ValueError as e:
             status = 'error'
             errors.append({'code': '', 'message': str(e)})

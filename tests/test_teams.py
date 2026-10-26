@@ -78,6 +78,27 @@ class TestTeamRegistry(unittest.TestCase):
         t = reg.find('x')
         self.assertEqual(t.stages[0].skills, ['latex', 'de'])
 
+    def test_type_defaults_to_sequential(self):
+        reg = self.reg()
+        reg.put(Team(name='x', stages=[TeamStage(role='p')]))
+        t = reg.find('x')
+        self.assertEqual(t.type, 'sequential')
+        self.assertEqual(t.manager, '')
+        self.assertEqual(t.members, [])
+
+    def test_hierarchical_roundtrip(self):
+        reg = self.reg()
+        reg.put(Team(name='x', type='hierarchical', manager='m',
+                     members=[TeamStage(role='a', skills=['s']),
+                              TeamStage(role='b', task_hint='hint')]))
+        t = reg.find('x')
+        self.assertEqual(t.type, 'hierarchical')
+        self.assertEqual(t.manager, 'm')
+        self.assertEqual([m.role for m in t.members], ['a', 'b'])
+        self.assertEqual(t.members[0].skills, ['s'])
+        self.assertEqual(t.members[1].task_hint, 'hint')
+        self.assertEqual(t.to_body()['type'], 'hierarchical')
+
     def test_short_string_stage(self):
         reg = self.reg()
         reg.put(Team(name='x', stages=[TeamStage(role='p')]))
