@@ -1525,7 +1525,7 @@
 <tr>
 <td><code>/history</code></td>
 <td></td>
-<td>List the active session's turns as a numbered index: <code>/history [n|all] [--thoughts [all]] [--run &lt;target&gt;] [--tree]</code>. Default last 10, <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), <code>--run</code> reads another run's session, and <code>--tree</code> lists the root and its sub-runs. See <a href="../session/">session.md</a></td>
+<td>List the active session's turns as a numbered index: <code>/history [n|all] [--thoughts [all]] [--run &lt;target&gt;] [--tree]</code>. Default last 10, <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), <code>--run</code> reads another run's session, and <code>--tree</code> lists the root and its sub-runs. Turn lines include the turn's total tokens when the provider reported usage. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/jobs</code></td>
@@ -1620,7 +1620,7 @@
 <tr>
 <td><code>/runs</code></td>
 <td></td>
-<td>Show the run tree read-only: run id, role, status, session, and session id. Use <code>/print --run &lt;target&gt;</code> for a run's output. See <a href="../session/">session.md</a></td>
+<td>Show the run tree read-only: run id, role, status, session, session id, duration, and own/tree tokens. Use <code>/print --run &lt;target&gt;</code> for a run's output. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/session</code></td>
@@ -1645,7 +1645,12 @@
 <tr>
 <td><code>/thinking</code></td>
 <td><code>/reasoning</code></td>
-<td>Show or set thinking detail: <code>off</code>, <code>summary</code>, or <code>full</code> (<code>/thinking on</code> = <code>full</code>, <code>off</code> = <code>off</code>). Prints <code>@ Thinking: &lt;level&gt;</code></td>
+<td>Show or set the reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, or <code>all</code> (<code>/thinking on</code> = <code>all</code>, <code>off</code> = <code>off</code>). Prints <code>@ Thinking: &lt;scope&gt;</code></td>
+</tr>
+<tr>
+<td><code>/verbosity</code></td>
+<td><code>/verbose</code></td>
+<td>Show or set display scopes: <code>/verbosity</code>, <code>/verbosity &lt;scope&gt;</code>, <code>/verbosity &lt;scope&gt; &lt;value&gt;</code>, <code>/verbosity preset quiet\|normal\|verbose</code>, <code>/verbosity reset [scope]</code></td>
 </tr>
 <tr>
 <td><code>/todo</code></td>

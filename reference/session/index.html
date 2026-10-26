@@ -1721,7 +1721,7 @@
 </tr>
 <tr>
 <td><code>usage</code></td>
-<td>Provider usage for the turn (<code>prompt_tokens</code>, <code>completion_tokens</code>, cache details) when the provider reported it. Recorded on agent turns</td>
+<td>Provider usage summed across every request in the turn (<code>prompt_tokens</code>, <code>completion_tokens</code>, <code>reasoning_tokens</code>, <code>total_tokens</code>, <code>requests</code>) plus the last request's <code>context_tokens</code>, when the provider reported it. Recorded on agent turns</td>
 </tr>
 <tr>
 <td><code>context_tokens</code></td>
@@ -1764,8 +1764,8 @@
 </tr>
 <tr>
 <td><code>tool</code></td>
-<td><code>name</code>, <code>input</code>, <code>output</code>, <code>is_error</code>, <code>analysis</code>, <code>call_id</code>, <code>duration</code></td>
-<td>One tool call and its result, co-located. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is the optional one-line model insight (<code>tool_analysis</code> config), <code>call_id</code> is the provider's tool-call id, and <code>duration</code> is the wall-clock seconds the call took</td>
+<td><code>name</code>, <code>input</code>, <code>output</code>, <code>is_error</code>, <code>analysis</code>, <code>call_id</code>, <code>duration</code>, <code>usage</code></td>
+<td>One tool call and its result, co-located. <code>usage</code> is the assistant round that issued the call, recorded once per round. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is the optional one-line model insight (<code>tool_analysis</code> config), <code>call_id</code> is the provider's tool-call id, and <code>duration</code> is the wall-clock seconds the call took</td>
 </tr>
 <tr>
 <td><code>command</code></td>

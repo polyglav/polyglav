@@ -1361,12 +1361,12 @@
 <h1 id="teams">Teams<a class="headerlink" href="#teams" title="Permanent link">&para;</a></h1>
 <p>A team is a named, ordered chain of delegated stages, where each runs under a role and its result is handed to the next. A team turns the <code>call</code> primitive into a repeatable pipeline: "writing" = researcher &gt; writer &gt; referencer &gt; editor for documents, "programming" = planner &gt; programmer &gt; tester &gt; code-reviewer. The registry stores the definition and the sequential stage loop (<code>Engine.run_team</code>) executes it, reachable from the REPL (<code>/teams run</code>), the model (<code>call target=&lt;team&gt; kind=team</code>), and the CLI.</p>
 <h2 id="team-shapes">Team shapes<a class="headerlink" href="#team-shapes" title="Permanent link">&para;</a></h2>
-<p>A team has two shapes:</p>
+<p>A team has two types:</p>
 <ul>
-<li><strong>Sequential</strong> (the default) - the stages run in order, and each stage's result is handed to the next. This is what <code>call</code> and <code>Engine.run_team</code> execute.</li>
-<li><strong>Hierarchical</strong> - a manager allocates tasks to roles, validates the outcomes, and re-assigns until the work is done. There is no built-in manager yet. Two patterns approximate it today: make the manager stage 1 and let it call the worker roles with the <code>call</code> tool, or call the manager role directly and let it call the roles. The stage pipeline stays the sequential fallback.</li>
+<li><strong>Sequential</strong> (the default) - the stages run in order, and each stage's result is handed to the next. The caller is the manager: it receives the final stage's answer, decides whether it is correct, and calls the team again when it needs another pass. This is what <code>call</code> and <code>Engine.run_team</code> execute for a sequential team, and it is the right shape for a small fixed pipeline such as developer then tester.</li>
+<li><strong>Hierarchical</strong> - a manager role receives the task, allocates work to the member roles with the <code>call</code> tool, validates the outcomes, re-assigns work when needed, and returns the final answer. The manager is the only run that stays open for the whole team. Use it when the work needs dynamic allocation or internal validation.</li>
 </ul>
-<p>A composing agent can check a definition before saving it with <code>catalog action=validate</code>, which reports an unknown permission key, a missing stage role, or a stage role that is not in the catalog. The assistant confirms the design with the user (the deliverable, the manager pattern, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.</p>
+<p>A composing agent can check a definition before saving it with <code>catalog action=validate</code>, which reports an unknown permission key, a missing stage role, a missing manager or member, a stage role that is not in the catalog, and a team that mixes the fields of the two types. The assistant confirms the design with the user (the deliverable, the type, and the per-role permissions) before composing a team, so an incomplete request is clarified rather than guessed.</p>
 <h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
 <p>No teams ship with the package. A fresh install has an empty catalog, and the user or an agent creates teams as a project needs them (the <code>catalog</code> tool and <code>/teams new</code>). A project that keeps a tuned catalog can commit it under <code>.polyglav/</code> so it travels with the repository.</p>
 <p>Teams come from three layers, merged exactly like roles: plugin, then global, then local, local winning per field:</p>
@@ -1379,6 +1379,7 @@
 <h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"writing"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sequential"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Document pipeline: research, write, reference, edit"</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"research"</span><span class="p">,</span><span class="w"> </span><span class="s2">"writing"</span><span class="p">],</span>
 <span class="w">    </span><span class="nt">"stages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -1394,24 +1395,38 @@
 <span class="w">        </span><span class="nt">"handoff_note"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hand the document path to the referencer."</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hierarchical"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Manager-led landing page"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"manager"</span><span class="p">:</span><span class="w"> </span><span class="s2">"site-manager"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"members"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"researcher"</span><span class="p">,</span><span class="w"> </span><span class="nt">"task_hint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Gather cited facts."</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"designer"</span><span class="p">,</span><span class="w"> </span><span class="nt">"skills"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"landing-page"</span><span class="p">]},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"developer"</span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tester"</span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Team fields:</p>
 <ul>
 <li><code>name</code> - unique key (the file/registry key).</li>
-<li><code>stages</code> - ordered list of stage objects. A stage may also be a plain string (<code>"researcher"</code>), shorthand for a stage with only a role.</li>
+<li><code>type</code> - <code>sequential</code> (default) or <code>hierarchical</code>.</li>
+<li><code>stages</code> - sequential only. Ordered list of stage objects. A stage may also be a plain string (<code>"researcher"</code>), shorthand for a stage with only a role.</li>
+<li><code>manager</code> - hierarchical only. The role that receives the task, calls members, validates results, and returns the final answer.</li>
+<li><code>members</code> - hierarchical only. Ordered list of roles the manager may call, each with optional <code>skills</code> and <code>task_hint</code>.</li>
 <li><code>description</code> - optional, shown in <code>/teams show</code>.</li>
 <li><code>tags</code> - optional list for grouping and filtering (<code>/teams list &lt;tag&gt;</code>), same vocabulary as roles.</li>
-<li><code>loop</code> - optional review loop over a producer/reviewer stage block (see <a href="#review-loop">Review loop</a>). Properties: <code>from</code>, <code>until</code>, <code>max_iterations</code>, <code>verdict</code>.</li>
+<li><code>loop</code> - optional sequential review loop over a producer/reviewer stage block (see <a href="#review-loop">Review loop</a>). Properties: <code>from</code>, <code>until</code>, <code>max_iterations</code>, <code>verdict</code>. A caller can also accept the result and call the team again instead of using a loop.</li>
 </ul>
-<p>Stage fields:</p>
+<p>Stage and member fields:</p>
 <ul>
 <li><code>role</code> - required, the role name (must exist in the <a href="../roles/">roles registry</a> at run time, resolved against the same three-layer merge).</li>
-<li><code>mode</code> - optional agent mode override for the stage. Empty inherits the caller. With the sequential stage loop, an explicit mode applies to that stage's sub-engine while the rest of the team follows the caller.</li>
-<li><code>task_hint</code> - optional guidance folded into the delegated brief for this stage.</li>
-<li><code>handoff_note</code> - optional note passed with the previous stage's result into the next stage's brief.</li>
-<li><code>skills</code> - optional list of skill names added to this stage's role for the run, layered over the role's standing skills (see <a href="../skills/">skills.md</a>). The <code>call</code> tool adds task-wide skills to every stage through its own <code>skills</code> argument.</li>
+<li><code>mode</code> - optional agent mode override for a sequential stage. Empty inherits the caller. Member modes are inherited from the manager.</li>
+<li><code>task_hint</code> - optional guidance folded into the delegated brief for a stage, or shown to the manager as guidance for a member.</li>
+<li><code>handoff_note</code> - optional note passed with the previous stage's result into the next sequential stage's brief.</li>
+<li><code>skills</code> - optional list of skill names added for the stage or member run, layered over the role's standing skills (see <a href="../skills/">skills.md</a>). The <code>call</code> tool adds task-wide skills to every stage through its own <code>skills</code> argument.</li>
 </ul>
 <h2 id="managing-teams">Managing teams<a class="headerlink" href="#managing-teams" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1433,17 +1448,18 @@
 <li>the stage's <code>task_hint</code> (or a generic "Complete this stage of the task." line).</li>
 </ul>
 <p>After the run, the whole team run is summarized (seeded with the previous team memory) and written to <strong><code>.polyglav/memory/teams/&lt;name&gt;.md</code></strong> (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.</p>
-<p><code>/teams run &lt;name&gt; &lt;task&gt;</code> executes a team from the REPL and prints one line per stage (<code>&lt;n&gt;. &lt;role&gt; &lt;status&gt; &lt;duration&gt;s</code>), the final member's result, and the memory file path.</p>
+<p>A hierarchical team runs its manager once through the same <code>run_subagent</code> path, with a brief that lists the original task, the member roster, each member's <code>task_hint</code> and <code>skills</code>, the shared team memory, and the instruction to allocate, validate, and return the final answer. The manager calls members with <code>call</code>; the members are ordinary role runs with their own permission carves. The team result is the manager's final answer.</p>
+<p><code>/teams run &lt;name&gt; &lt;task&gt;</code> executes a team from the REPL and prints one line per stage (<code>&lt;n&gt;. &lt;role&gt; &lt;status&gt; &lt;duration&gt;s</code>), the final member's result, and the memory file path. A hierarchical team prints its manager line and result.</p>
 <h2 id="resuming-a-member-run">Resuming a member run<a class="headerlink" href="#resuming-a-member-run" title="Permanent link">&para;</a></h2>
 <p>Every stage starts a fresh run with its own session by default. To continue a previous thread, pass <code>resume</code> to the <code>call</code> tool:</p>
 <ul>
-<li><code>team(name, task, resume=...)</code> resumes that run or session for the <strong>first stage</strong>, which then keeps its prior context. Later stages start fresh, seeded by the brief.</li>
+<li><code>team(name, task, resume=...)</code> resumes that run or session for the <strong>first stage</strong> of a sequential team or the <strong>manager</strong> of a hierarchical team, which then keeps its prior context. Later stages start fresh, seeded by the brief.</li>
 <li><code>resume</code> accepts a run id (<code>#3</code>), a session id (<code>#ab12cd</code>), a session name, or <code>session:&lt;name&gt;</code>.</li>
 <li><code>context</code> controls how the resumed context is treated: <code>continue</code> (append, default), <code>compact</code> (summarize the prior turns first), or <code>new</code> (ignore <code>resume</code> and start fresh).</li>
 </ul>
 <p>The same applies to a single delegated agent: <code>call(target=&lt;role&gt;, task=..., resume=..., context=...)</code>. There are no standing warm-session names, since a session belongs to the run that started it and is resumed explicitly by run or session handle.</p>
 <h2 id="review-loop">Review loop<a class="headerlink" href="#review-loop" title="Permanent link">&para;</a></h2>
-<p>A team can iterate a producer/reviewer block until the review passes or a cap is reached, the generate &gt; check &gt; correct pattern. The team's <code>loop</code> names the block by stage role (or zero-based index):</p>
+<p>A sequential team can iterate a producer/reviewer block until the review passes or a cap is reached, the generate &gt; check &gt; correct pattern. The team's <code>loop</code> names the block by stage role (or zero-based index):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"loop"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"writer"</span><span class="p">,</span><span class="w"> </span><span class="nt">"until"</span><span class="p">:</span><span class="w"> </span><span class="s2">"reviewer"</span><span class="p">,</span><span class="w"> </span><span class="nt">"max_iterations"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"verdict"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VERDICT:"</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1458,7 +1474,7 @@
 <h2 id="the-call-team-target">The <code>call</code> team target<a class="headerlink" href="#the-call-team-target" title="Permanent link">&para;</a></h2>
 <p><code>call(target=&lt;team&gt;, kind=team, task=...)</code> is the model-facing entry point (core, like <code>call</code> on a role and <code>ask</code>), so a caller agent can orchestrate a whole pipeline in one call instead of calling each stage itself. It runs <code>Engine.run_team</code> and returns the final stage's answer (or <code>Error: team "&lt;name&gt;" failed: &lt;reason&gt;</code>).</p>
 <ul>
-<li><strong>Permission</strong>: the <code>call</code> category gates the tool. On top of that, a per-invocation resolver reads the stage roles: a stage role that sets <code>call: "deny"</code> disables the team, <code>"ask"</code> confirms it, otherwise it runs. Unknown teams and stages with unknown roles return a clear error.</li>
+<li><strong>Permission</strong>: the <code>call</code> category gates the tool. On top of that, a per-invocation resolver reads the target roles. A sequential team is denied when any stage sets <code>callable: "deny"</code> and asks when any stage sets <code>"ask"</code>. A hierarchical team uses the manager's <code>tool_permission.call</code> action and requires the manager and every member to be callable. <code>tool_permission.call</code> is the "may call others" permission, while <code>callable</code> is the "may be called" permission. Unknown teams and roles return a clear error.</li>
 <li><strong>Ceiling</strong>: each stage's carve is still capped by the caller's <code>grant_permission</code> (see <a href="../config/#permission-authority">config.md</a>). When a stage's requested permissions get clamped, the result carries a <code>(reduced permissions for: &lt;role&gt;)</code> note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque <code>unknown error</code>.</li>
 <li><strong>Depth and cycles</strong>: <code>run_team</code> refuses a team already on the current stack (<code>team_cycle</code>) and stops at <code>max_team_depth</code> nested team runs (default 2, <code>team_depth</code>), so a supervisor stage that itself runs teams cannot recurse forever. Both values propagate into sub-engines. A stage cannot run its own team: the per-invocation resolver returns <code>deny</code> (<code>disabled by tool policy</code>) when the requested name is already on the stack, and each stage brief instructs the stage to do its own work directly instead of calling the team tool for its own team.</li>
 </ul>

@@ -1328,11 +1328,11 @@
 </tr>
 <tr>
 <td><code>test_call.py</code></td>
-<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.subruns</code> on/off display, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
+<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.output</code> display, streamed sub-run suppression of the duplicate echo, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
 <tr>
 <td><code>test_catalog.py</code></td>
-<td><code>catalog</code> tool: registration + default allow, read/write action gating, list/show/save/remove/reload, team stages, skill file write, permission-key validation (valid keys pass, <code>write</code>/<code>exec</code>/<code>search</code> normalize to <code>edit</code>/<code>bash</code>/<code>web</code>, an unknown key is rejected with the valid list, <code>true</code>/<code>false</code> actions normalize to <code>allow</code>/<code>deny</code>, an invalid action is rejected, <code>show</code> flags unknown keys and invalid actions), <code>validate</code> action (role permission keys, team stage roles against the catalog, skill content), description lists the permission keys and team shapes</td>
+<td><code>catalog</code> tool: registration + default allow, read/write action gating, list/show/save/remove/reload, sequential and hierarchical teams, callable role validation, skill file write, permission-key validation (valid keys pass, <code>write</code>/<code>exec</code>/<code>search</code> normalize to <code>edit</code>/<code>bash</code>/<code>web</code>, an unknown key is rejected with the valid list, <code>true</code>/<code>false</code> actions normalize to <code>allow</code>/<code>deny</code>, an invalid action is rejected, <code>show</code> flags unknown keys and invalid actions), <code>validate</code> action (role permission keys, team stage roles against the catalog, skill content), description lists the permission keys and team shapes</td>
 </tr>
 <tr>
 <td><code>test_delegation_permissions.py</code></td>
@@ -1396,7 +1396,7 @@
 </tr>
 <tr>
 <td><code>test_providers.py</code></td>
-<td>Core provider substrate: <code>OpenAICompatibleProvider</code> defaults/headers/endpoints, POST-preserving redirects, <code>check_connection</code> probe (success/empty/model note/HTTP/network), <code>list_models</code> silent-on-error, base reasoning payload, host-pattern <code>detect_provider</code> (known hosts, longest-pattern precedence, empty/unknown fallback), core <code>PROVIDERS</code> registry (generic fallback only) and <code>merged_providers</code> (bundled providers included). Vendor provider defaults/endpoints/reasoning/headers live in the per-plugin suites (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>)</td>
+<td>Core provider substrate: <code>OpenAICompatibleProvider</code> defaults/headers/endpoints, POST-preserving redirects, <code>check_connection</code> probe (success/empty/model note/HTTP/network), <code>list_models</code> silent-on-error, base reasoning payload, <code>tool_call_delta</code> progress, reasoning and content in one delta, host-pattern <code>detect_provider</code> (known hosts, longest-pattern precedence, empty/unknown fallback), core <code>PROVIDERS</code> registry (generic fallback only) and <code>merged_providers</code> (bundled providers included). Vendor provider defaults/endpoints/reasoning/headers live in the per-plugin suites (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>)</td>
 </tr>
 <tr>
 <td><code>test_providers_registry.py</code></td>
@@ -1404,11 +1404,11 @@
 </tr>
 <tr>
 <td><code>test_repl_output.py</code></td>
-<td>Golden REPL vocabulary: header, plain live prompt, colored submitted-line reprint, wrapped input clearing, wide-character width, thinking, tool summary and hidden body, flat stage lines, ask block, warning and error colors</td>
+<td>Golden REPL vocabulary: header, mode-colored live prompt, colored submitted-line reprint, wrapped input clearing, wide-character width, thinking, tool summary and hidden body, flat stage lines, ask block and indented context, warning and error colors</td>
 </tr>
 <tr>
 <td><code>test_repl_input.py</code></td>
-<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, plain live prompt, submitted-line reprint in the mode and command colors</td>
+<td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled and rotated per session, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, mode-colored live prompt and <code>NO_COLOR</code> fallback, submitted-line reprint in the mode and command colors</td>
 </tr>
 <tr>
 <td><code>test_pause.py</code></td>
@@ -1420,11 +1420,11 @@
 </tr>
 <tr>
 <td><code>test_verbosity.py</code></td>
-<td>Verbosity resolution, presets, scoped overrides, invalid fallbacks, old-key migration, and rendering at <code>off</code>/<code>summary</code>/<code>full</code> for thinking, tools, subruns, and footer</td>
+<td>Verbosity resolution, presets, scoped overrides, invalid fallbacks, old-key migration, and rendering for thinking and output scopes (<code>off</code>/<code>assistant</code>/<code>agent</code>/<code>all</code>), status, tools, and footer</td>
 </tr>
 <tr>
 <td><code>test_call_target.py</code></td>
-<td>Unified <code>call</code> target: role, team, old <code>role</code> param, unknown target denial, schema <code>target</code>/<code>kind</code> without <code>sibling</code>, and <code>call</code> permission resolution per target</td>
+<td>Unified <code>call</code> target: role, sequential team, hierarchical team, old <code>role</code> param, unknown target denial, schema <code>target</code>/<code>kind</code> without <code>sibling</code>, and <code>callable</code>/<code>call</code> permission resolution per target</td>
 </tr>
 <tr>
 <td><code>test_composite_sessions.py</code></td>
@@ -1436,11 +1436,11 @@
 </tr>
 <tr>
 <td><code>test_runs.py</code></td>
-<td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, task recording, unknown-run tolerance. Engine runs: root run registration, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
+<td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, duration and usage storage, <code>rollup</code>, task recording, unknown-run tolerance. Engine runs: root run registration, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
 </tr>
 <tr>
 <td><code>test_runs_command.py</code></td>
-<td><code>/runs</code>: read-only tree and no run-switch output</td>
+<td><code>/runs</code>: read-only tree, duration, own/tree tokens, and no run-switch output</td>
 </tr>
 <tr>
 <td><code>test_server.py</code></td>
@@ -1468,7 +1468,7 @@
 </tr>
 <tr>
 <td><code>test_session_render.py</code></td>
-<td>Session Markdown export: header metadata (created, updated, id, role, mode, version, turns, outcome, empty-as-<code>-</code>), turn/part renderer (user, assistant, thinking, tool call arguments + result + analysis, command + compaction, system), error section, <code>/sessions export</code> dispatch (Markdown and <code>--json</code>, file/stdout targets). Also the terminal <code>turn_summary</code> (line fields, tool count, prompt clip, command turn, dim thinking excerpt vs full <code>all</code>) and <code>render_turn</code> (metadata block incl. empty-as-<code>-</code>, all part types, tool error + analysis, compaction, part selection, cap vs <code>--full</code>)</td>
+<td>Session Markdown export: header metadata (created, updated, id, role, mode, version, turns, outcome, empty-as-<code>-</code>), turn/part renderer (user, assistant, thinking, tool call arguments + result + analysis, command + compaction, system), error section, <code>/sessions export</code> dispatch (Markdown and <code>--json</code>, file/stdout targets). Also the terminal <code>turn_summary</code> (line fields, tool count, prompt clip, command turn, dim thinking excerpt vs full <code>all</code>) and <code>render_turn</code> (metadata block incl. empty-as-<code>-</code>, all part types, tool duration and tokens, tool error + analysis, compaction, part selection, cap vs <code>--full</code>), plus turn token totals</td>
 </tr>
 <tr>
 <td><code>test_skills.py</code></td>
@@ -1480,11 +1480,11 @@
 </tr>
 <tr>
 <td><code>test_subagent.py</code></td>
-<td>In-process sub-engine: provider/plugin/worktree inheritance, caller-mode inheritance, role prompt/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>NullUI</code>, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
+<td>In-process sub-engine: provider/plugin/worktree inheritance, caller-mode inheritance, role prompt/tool_permission application, role-skill system-prompt injection (present/missing/empty/no-skills), model override, <code>NullUI</code> when hidden and <code>SubRunUI</code> output scopes, unknown role, full <code>run_subagent</code> flow + persisted <code>sub_*</code> session with <code>parent_id</code>, ask-gated tool cancellation, parent <code>sub_sessions</code> linkage</td>
 </tr>
 <tr>
 <td><code>test_team_run.py</code></td>
-<td><code>Engine.run_team</code>: brief builder (task + prior results + handoff + memory + task hint, prior-result truncation), sequential stage execution with per-stage <code>sub_*</code> sessions + parent linkage + exact brief persistence, stage mode inheritance, stop-on-failure, unknown-stage-role stop, zero stages, rolling team-memory write (summarized + prior-seeded + fallback), <code>/teams run</code> command output (stages + final result, unknown team, usage)</td>
+<td><code>Engine.run_team</code>: brief builder (task + prior results + handoff + memory + task hint, prior-result truncation), sequential stage execution with per-stage <code>sub_*</code> sessions + parent linkage + exact brief persistence, hierarchical manager-only execution with member roster, stage mode inheritance, stop-on-failure, unknown-stage-role stop, zero stages, rolling team-memory write (summarized + prior-seeded + fallback), <code>/teams run</code> command output (stages + final result, unknown team, usage)</td>
 </tr>
 <tr>
 <td><code>test_team_loop.py</code></td>
@@ -1492,7 +1492,7 @@
 </tr>
 <tr>
 <td><code>test_teams.py</code></td>
-<td><code>TeamRegistry</code>: bundled/plugin/global/local merge and precedence, origins, stage round-trip (dict + short-string forms), put/remove, reload (disk re-read + plugin-manager re-apply), <code>/teams</code> command (list/show/new override/remove, <code>list &lt;tag&gt;</code> filter, bundled remove rejected)</td>
+<td><code>TeamRegistry</code>: bundled/plugin/global/local merge and precedence, origins, type default and hierarchical round-trip (<code>manager</code>, <code>members</code>), stage round-trip (dict + short-string forms), put/remove, reload (disk re-read + plugin-manager re-apply), <code>/teams</code> command (list/show/new override/remove, <code>list &lt;tag&gt;</code> filter, bundled remove rejected)</td>
 </tr>
 <tr>
 <td><code>test_tool_calling.py</code></td>
@@ -1524,7 +1524,7 @@
 </tr>
 <tr>
 <td><code>test_ui.py</code></td>
-<td>UI sinks: glyph activity lines, tool summary/hidden body, status oneliner fallback, headless verbose rendering, <code>✗</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner and <code>✓ Thought</code>, flat <code>↳ Call</code>/<code>✓ Worked</code> status, confirm <code>?</code> glyph at line start, confirm hidden input / re-raises KeyboardInterrupt / returns False on EOF, ask numbered block and <code>&gt;</code> prompt, number/letter/free-text selection, origin prefix, ask prompt layout (question on its own line, context before options), and verbosity levels</td>
+<td>UI sinks: glyph activity lines, tool summary/hidden body, status oneliner fallback, headless verbose rendering, <code>✗</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner and <code>✓ Thought</code>, flat <code>↳ Call</code>/<code>✓ Worked</code> status, confirm <code>?</code> glyph at line start, confirm hidden input / re-raises KeyboardInterrupt / returns False on EOF, ask numbered block and <code>&gt;</code> prompt, number/letter/free-text selection, origin prefix, ask prompt layout (question on its own line, context before options), and verbosity levels, live status metrics, tool round tokens, and scoped output</td>
 </tr>
 </tbody>
 </table>

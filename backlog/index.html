@@ -1284,7 +1284,6 @@
 <li>[ ] <code>apple-fm</code> chat provider - <code>BaseProvider</code> subclass named <code>apple-fm</code> with model <code>on-device</code> and base URL <code>local://apple-fm</code>, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring <code>tools</code> and <code>reasoning</code>, mapping <code>temperature</code> and <code>max_tokens</code> to <code>GenerationOptions</code>, and answering <code>_fetch_models</code>, <code>list_models</code>, and <code>check_connection</code> from <code>is_available()</code></li>
 <li>[ ] <code>on_device</code> tool - bundled <code>polyglav-core-apple-fm</code> plugin (lazy <code>apple-fm-sdk</code> import) with an <code>on_device</code> tool that takes <code>prompt</code>, optional <code>text</code>, and optional <code>max_tokens</code>, runs a fresh SDK session, caps the input, and returns the unavailability reason when Apple Intelligence is off or the model is not ready</li>
 <li>[ ] Apple FM docs and tests - <code>docs/providers.md</code> row and section, <code>docs/plugins.md</code> bundled list, <code>docs/testing.md</code> row, the default <code>plugins</code> entry in <code>config.py</code>, and mocked <code>apple_fm_sdk</code> tests for snapshot diffing, trimming, availability errors, and the tool result shape</li>
-<li>[ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today <code>call</code> runs a team as the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option</li>
 <li>[ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md</li>
 <li>[ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of <code>{action, resource, effect}</code> rules. <code>action</code> is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), <code>resource</code> is a path, command prefix, URL, query, skill id, or role id, <code>effect</code> is allow/ask/deny, resources accept <code>*</code>/<code>?</code> wildcards, and the last matching rule wins so a broad rule precedes its exceptions. <code>ToolPolicy</code> evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt</li>
 <li>[ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a <code>default_agent</code> config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called</li>
@@ -1379,6 +1378,20 @@
 </ul>
 <h2 id="done">Done<a class="headerlink" href="#done" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[x] Changed ask styling</li>
+<li>[x] Updated team and verbosity docs</li>
+<li>[x] Changed onboarding visibility</li>
+<li>[x] Fixed prompt colour fallback</li>
+<li>[x] Fixed ask prompt legibility</li>
+<li>[x] Added streamed tool call progress</li>
+<li>[x] Added tool status stats</li>
+<li>[x] Added per-run token usage</li>
+<li>[x] Added live status counters</li>
+<li>[x] Added sub-run output rendering</li>
+<li>[x] Changed verbosity to scoped thinking and output</li>
+<li>[x] Fixed the output log per session</li>
+<li>[x] Added a callable role field</li>
+<li>[x] Added team types</li>
 <li>[x] Fixed todo lookup by session id</li>
 <li>[x] Fixed plan and todo docs</li>
 <li>[x] Changed mode descriptions</li>

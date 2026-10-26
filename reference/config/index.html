@@ -1780,7 +1780,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>verbosity</code></td>
 <td><code>"normal"</code></td>
-<td>Display volume: <code>quiet</code>, <code>normal</code>, or <code>verbose</code></td>
+<td>Display preset: <code>quiet</code>, <code>normal</code>, or <code>verbose</code></td>
 </tr>
 <tr>
 <td><code>verbosity.footer</code></td>
@@ -1788,14 +1788,19 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Footer detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
 </tr>
 <tr>
-<td><code>verbosity.subruns</code></td>
+<td><code>verbosity.output</code></td>
 <td><code>"inherit"</code></td>
-<td>Sub-run detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+<td>Sub-run output scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code>. Default <code>agent</code></td>
+</tr>
+<tr>
+<td><code>verbosity.status</code></td>
+<td><code>"inherit"</code></td>
+<td>Live status time and approximate tokens: <code>off</code>, <code>on</code>, or <code>inherit</code></td>
 </tr>
 <tr>
 <td><code>verbosity.thinking</code></td>
 <td><code>"inherit"</code></td>
-<td>Thinking detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+<td>Reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code></td>
 </tr>
 <tr>
 <td><code>verbosity.tools</code></td>
@@ -1814,6 +1819,14 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 </tbody>
 </table>
+<p>The reasoning and output scopes are cumulative:</p>
+<ul>
+<li><code>off</code> - no reasoning or sub-run output. The run's final status line and footer still print.</li>
+<li><code>assistant</code> - the top-level assistant only.</li>
+<li><code>agent</code> - the assistant plus every role-bearing sub-run at any depth. Role-less <code>delegate</code> siblings are excluded.</li>
+<li><code>all</code> - the assistant plus every sub-run, including role-less siblings.</li>
+</ul>
+<p><code>verbosity.status</code> controls the live elapsed time and approximate token count on sub-run lines. <code>verbosity.tools</code> controls tool lines, and <code>full</code> adds execution time and round tokens. <code>verbosity.footer</code> controls the turn footer. <code>/verbosity</code> shows the effective values, defaults, and allowed options.</p>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
 <p>There are two modes: <code>read</code> (default, described as <strong>plan</strong>) and <code>write</code> (described as <strong>work</strong>). <code>read</code> allows read-class permission keys plus the bookkeeping tools <code>plan_write</code> and <code>todo</code>, and denies every workspace write key. <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may set a <code>cap</code>, a description, an instruction block, and a submitted-line color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1863,7 +1876,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target: a role uses its own <code>tool_permission.call</code> and a team uses its stage roles' <code>call</code> actions. A role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> category gates the read-class sibling. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
+<p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm), <code>deny</code> (tool hidden/refused). Read/write/list outside the worktree escalate to <code>ask</code> automatically. The <code>call</code> category gates the <code>call</code> tool. On top of the category action, a call resolves its permission from the target: a role uses its own <code>callable</code> action, a sequential team uses its stage callability, and a hierarchical team uses the manager's <code>tool_permission.call</code> action plus callable members. <code>tool_permission.call</code> gates initiating a call, while <code>callable</code> gates being called. A role not in the registry defaults to <code>deny</code> (see <a href="../roles/">roles.md</a>). The <code>delegate</code> category gates the read-class sibling. The <code>ask</code> category gates the <code>ask</code> tool (default <code>allow</code>, the interaction itself, answered by the user, see <a href="../tools/">tools.md</a>). The <code>catalog</code> category gates the <code>catalog</code> tool (default <code>allow</code>). It writes only to the project catalog in <code>.polyglav/</code>, so a team-composing agent can manage roles, teams, and skills without general file edits. Set it to <code>ask</code> to confirm every catalog change. The <code>vcs</code> category gates the <code>git_commit</code> tool (default <code>ask</code>): a role whose carve sets <code>vcs: allow</code> (an unattended committer, granted by its role) commits without a prompt, every other role confirms, and the broad staging form (<code>all=true</code>) always asks so an unattended commit never sweeps unrelated work. The never-push rule is unaffected, <code>git_commit</code> does not push, merge, checkout, or rewrite history.</p>
 <h3 id="ask_policy"><code>ask_policy</code><a class="headerlink" href="#ask_policy" title="Permanent link">&para;</a></h3>
 <p>Routes the <code>ask</code> tool by kind:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
