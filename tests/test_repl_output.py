@@ -37,11 +37,11 @@ class TestReplOutput(unittest.TestCase):
         self.assertIn('@ Read mode (ollama/test-model)', value)
         self.assertIn(DIM, value)
 
-    def test_prompt_is_plain_underline(self):
-        self.assertEqual(self.chat._prompt(), '_ ')
+    def test_prompt_uses_mode_color(self):
+        self.assertIn('> ', self.chat._prompt())
         self.assertEqual(self.chat._cont_prompt(), '... ')
         self.chat.config.set('mode', 'write')
-        self.assertEqual(self.chat._prompt(), '_ ')
+        self.assertIn('> ', self.chat._prompt())
 
     def test_command_reprint(self):
         value = self._capture(lambda: self.chat._reprint_line('/mode write'))

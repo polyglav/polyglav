@@ -13,7 +13,7 @@ from . import get_version
 
 HISTFILE = '.polyglav_history'
 
-MAIN_PROMPT = '_ '
+MAIN_PROMPT = '> '
 CONT_PROMPT = '... '
 
 
@@ -325,7 +325,11 @@ class ChatLoop(Engine):
             pass
 
     def _prompt(self) -> str:
-        return MAIN_PROMPT
+        spec, _ = resolve_mode(self.config, self.active()._mode())
+        color = mode_color(spec)
+        if not color:
+            return MAIN_PROMPT
+        return f'\001{color}\002{MAIN_PROMPT}\001{RESET}\002'
 
     def _cont_prompt(self) -> str:
         return CONT_PROMPT

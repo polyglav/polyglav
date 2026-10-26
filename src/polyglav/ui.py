@@ -31,12 +31,26 @@ ASCII_GLYPHS = {
 DIM = '\033[90m'
 RED = '\033[91m'
 CYAN = '\033[96m'
-ORANGE = '\033[38;5;208m'
 MAGENTA = '\033[95m'
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
 ITALIC_GRAY = '\033[3;90m'
 RESET = '\033[0m'
+
+
+def colors_enabled() -> bool:
+    if os.environ.get('NO_COLOR'):
+        return False
+    return str(os.environ.get('TERM', '') or '').lower() != 'dumb'
+
+
+def supports_256() -> bool:
+    term = str(os.environ.get('TERM', '') or '').lower()
+    colorterm = str(os.environ.get('COLORTERM', '') or '').lower()
+    return '256color' in term or colorterm in ('truecolor', '24bit')
+
+
+ORANGE = '\033[38;5;208m' if supports_256() else '\033[33m'
 
 
 def glyph_map(config) -> dict:

@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from .config import Config
-from .ui import CYAN, ORANGE
+from .ui import CYAN, ORANGE, colors_enabled
 
 
 PROMPT_COLORS = {
@@ -60,6 +60,8 @@ def _normalize_spec(name: str, spec: dict) -> ModeSpec:
 
 
 def mode_color(spec: ModeSpec) -> str:
+    if not colors_enabled():
+        return ''
     name = str(spec.color or '').strip().lower()
     if name in PROMPT_COLORS:
         return PROMPT_COLORS[name]

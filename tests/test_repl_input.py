@@ -133,10 +133,16 @@ class TestReplInput(unittest.TestCase):
         output = self._run(['hello', EOFError])
         self.assertIn('\001\033[96m\002> hello\001\033[0m\002', output)
 
-    def test_live_prompt_is_plain_underline(self):
+    def test_live_prompt_uses_mode_color(self):
         prompt = self.chat._prompt()
-        self.assertEqual(prompt, '_ ')
-        self.assertNotIn('\033[', prompt)
+        self.assertIn('> ', prompt)
+        self.chat.config.set('mode', 'write')
+        write_prompt = self.chat._prompt()
+        self.assertIn('> ', write_prompt)
+
+    def test_live_prompt_honors_no_color(self):
+        with patch.dict('os.environ', {'NO_COLOR': '1'}):
+            self.assertEqual(self.chat._prompt(), '> ')
 
     def test_command_input_reprinted_in_magenta(self):
         output = self._run(['/sessions list', EOFError])

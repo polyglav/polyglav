@@ -67,7 +67,6 @@ A session leaves a durable record, and status lines stay legible when a tool arg
 | Batched structured asks - several decisions in one structured ask | S | fewer round trips |
 | Tester loop scope - the tester runs only the related tests during the loop and the whole suite once | S | a fast related check, then a full run |
 | Onboarding visibility - reasoning, sub-run output, tool detail, and live status | S | a useful first setup |
-| Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI | S | consistent colour |
 
 ## Assistant roles & team orchestration
 

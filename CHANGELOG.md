@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Fixed prompt colour fallback - the live `> ` prompt uses the mode colour, `NO_COLOR` and `TERM=dumb` disable prompt colour, and orange falls back to basic ANSI when the terminal is not 256-colour. Tests: `test_repl_input.py`, `test_repl_output.py`
 - Fixed ask prompt legibility - the duplicate tool status line is suppressed, labels truncate at word boundaries with `...`, the question uses a distinct colour, context lines are indented, and a sub-run ask shows its role instead of the session name. Tests: `test_repl_output.py`, `test_ui.py`, `test_ask.py`
 - Added streamed tool call progress - the provider emits `tool_call_delta` events, the spinner shows the tool name and argument size for long calls, reasoning no longer drops content in the same delta, and the word buffer flushes after 120 characters. Tests: `test_providers.py`, `test_ui.py`
 - Added tool status stats - `verbosity.tools=full` appends the round token count to a tool line, and `/print` shows each tool's duration and tokens. Hidden by default. Tests: `test_ui.py`, `test_session_render.py`
