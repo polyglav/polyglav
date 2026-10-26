@@ -66,7 +66,14 @@ A session leaves a durable record, and status lines stay legible when a tool arg
 |------|--------|----------|
 | Batched structured asks - several decisions in one structured ask | S | fewer round trips |
 | Tester loop scope - the tester runs only the related tests during the loop and the whole suite once | S | a fast related check, then a full run |
-| Thinking visibility - show the reasoning, or drop the duration-only line | S-M | no misleading thought line |
+| Output log per session - reopen the log on onboarding and every `/session` switch | S | a log for every session |
+| Verbosity scopes - thinking and output off/assistant/agent/all, plus status, tools, and footer levels | M | one predictable display model |
+| Live status counters - elapsed time and approximate tokens on sub-run lines | S | visible long runs |
+| Streamed tool call progress - argument progress for long tool calls | S | no silent `plan_write` |
+| Honest token usage - per-run and tree totals in status, `/runs`, and `/history` | M | real cost |
+| Onboarding visibility - reasoning, sub-run output, tool detail, and live status | S | a useful first setup |
+| Ask prompt legibility - remove the duplicate line, truncate at word boundaries, and use a distinct question style | S | readable questions |
+| Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI | S | consistent colour |
 
 ## Assistant roles & team orchestration
 
@@ -75,8 +82,9 @@ The assistant is the operator's entry point. A composer turns a task into a team
 | Task | Effort | Provides |
 |------|--------|----------|
 | Manager role - runs one or many teams and reports, sequential first | M | one window over several teams |
-| Sequential and hierarchical team interaction - describe both shapes in the catalog description and docs, keeping the stage pipeline as the sequential default | S | clear team semantics |
-| Hierarchical team manager - a team names a manager that allocates tasks to roles, validates outcomes, and re-assigns, with the stage pipeline as the sequential alternative | M | manager-driven teams |
+| Team type and manager - sequential stages with the caller as manager, and a hierarchical manager with members | M | correct team shapes |
+| Callable role permission - split may call from may be called, default callable allow | S-M | callable workers |
+| Team docs and catalog guidance - when to use sequential versus hierarchical, with examples | S | correct model choices |
 | Composer plugin (nice-to-have) - a bundled role that designs a team from an under-specified request by asking clarifying questions and saving it | M | guided team design |
 | Core dev team configuration - a development team with the review loop plus the project lead/support teams and skills | S | ready-made teams and skills |
 | Role-name sync - adopt assistant, composer, manager, and specialist across types, prompts, and docs | S | one canonical vocabulary |

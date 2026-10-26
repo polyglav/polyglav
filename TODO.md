@@ -53,12 +53,22 @@
 
 ## Open
 
+- [ ] Team type and manager - teams declare sequential or hierarchical, hierarchical teams name a manager and members, and sequential teams keep ordered stages with the caller as manager
+- [ ] Callable role permission - split "may call" from "may be called", add a callable key, and resolve team targets from the manager and members
+- [ ] Output log per session - create and rotate the output log for every session, including after onboarding and `/session` switches
+- [ ] Verbosity scopes - one thinking key and one output key with off/assistant/agent/all, plus status, tool, and footer levels
+- [ ] Honest token usage - accumulate usage across tool rounds, store it on runs, and show per-role and tree totals in status, `/runs`, and `/history`
+- [ ] Live status counters - elapsed time and approximate tokens on sub-run and tool lines
+- [ ] Streamed tool call progress - show argument progress for long calls and fix the reasoning delta drop
+- [ ] Ask prompt legibility - drop the duplicate ask status line, truncate at word boundaries, and give the question a distinct style
+- [ ] Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI
+- [ ] Onboarding visibility - ask about reasoning, sub-run output, tool detail, and live status
+- [ ] Team and verbosity docs - document shapes, callability, scopes, and token reporting
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
 - [ ] `apple-fm` chat provider - `BaseProvider` subclass named `apple-fm` with model `on-device` and base URL `local://apple-fm`, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring `tools` and `reasoning`, mapping `temperature` and `max_tokens` to `GenerationOptions`, and answering `_fetch_models`, `list_models`, and `check_connection` from `is_available()`
 - [ ] `on_device` tool - bundled `polyglav-core-apple-fm` plugin (lazy `apple-fm-sdk` import) with an `on_device` tool that takes `prompt`, optional `text`, and optional `max_tokens`, runs a fresh SDK session, caps the input, and returns the unavailability reason when Apple Intelligence is off or the model is not ready
 - [ ] Apple FM docs and tests - `docs/providers.md` row and section, `docs/plugins.md` bundled list, `docs/testing.md` row, the default `plugins` entry in `config.py`, and mocked `apple_fm_sdk` tests for snapshot diffing, trimming, availability errors, and the tool result shape
-- [ ] Sequential and hierarchical team interaction - a team runs either a fixed sequential stage order or a hierarchical shape where a manager allocates tasks to roles, validates outcomes, and re-assigns. Today `call` runs a team as the sequential shape and a manager is a stage or a called role. Make the hierarchical shape first-class: name the manager at team definition time, let it allocate tasks, and keep the stage pipeline as the sequential option
 - [ ] Composer plugin (nice-to-have) - a bundled plugin role that turns an under-specified request into a team by asking clarifying questions and saving it, per VISION.md
 - [ ] Ordered resource-scoped permission rules - replace the category-only permission map with an ordered list of `{action, resource, effect}` rules. `action` is a permission category (edit, read, bash, web, call, delegate, skill, ask, mcp, vcs), `resource` is a path, command prefix, URL, query, skill id, or role id, `effect` is allow/ask/deny, resources accept `*`/`?` wildcards, and the last matching rule wins so a broad rule precedes its exceptions. `ToolPolicy` evaluates the rules per call after grants and before the mode cap, and an action that touches several files is denied if any file is denied. A role declares its own rule list, so file, folder, command, and URL access is enforced by policy rather than a prompt
 - [ ] Agent kind and default agent - a role declares whether it may run as the root or managed agent, be delegated to, or both, and a `default_agent` config names the role a fresh session starts as. The mode stays root-only, and the kind governs role selection, listing, and whether a sub-agent may be called
