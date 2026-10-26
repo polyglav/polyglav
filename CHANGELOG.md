@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Added turn usage to `/history` - each turn line includes its total tokens when the provider reported usage, and `/print` shows each tool's duration and tokens. Tests: `test_session_render.py`
 - Changed onboarding visibility - the setup asks for the reasoning scope, the sub-run output scope, tool time and tokens, and live status counters, writing the matching verbosity keys. Tests: `polyglav-core-onboarding`
 - Fixed prompt colour fallback - the live `> ` prompt uses the mode colour, `NO_COLOR` and `TERM=dumb` disable prompt colour, and orange falls back to basic ANSI when the terminal is not 256-colour. Tests: `test_repl_input.py`, `test_repl_output.py`
 - Fixed ask prompt legibility - the duplicate tool status line is suppressed, labels truncate at word boundaries with `...`, the question uses a distinct colour, context lines are indented, and a sub-run ask shows its role instead of the session name. Tests: `test_repl_output.py`, `test_ui.py`, `test_ask.py`

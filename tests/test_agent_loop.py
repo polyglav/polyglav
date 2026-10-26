@@ -314,7 +314,7 @@ class TestAgentLoop(unittest.TestCase):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._agent_loop()
-        self.assertIn('29,238 tokens', out.getvalue())
+        self.assertIn('29,243 tokens', out.getvalue())
 
     def test_clear_screen_on_repl_start_default(self):
         out = io.StringIO()

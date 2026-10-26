@@ -208,6 +208,11 @@ class TestTurnSummary(unittest.TestCase):
         out = render_turn(s.turns[-1])
         self.assertIn('duration: 1.2s (1,234 tokens)', out)
 
+    def test_turn_usage(self):
+        turn = self._turn()
+        turn['usage'] = {'total_tokens': 1234}
+        self.assertIn('1,234 tokens', turn_summary(turn))
+
     def test_prompt_first_line(self):
         turn = self._turn(user='one\ntwo')
         self.assertIn('one', turn_summary(turn))

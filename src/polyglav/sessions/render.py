@@ -201,8 +201,11 @@ def _turn_line(turn: dict) -> str:
     duration_str = f'{duration}s' if duration is not None else '-'
     count = _turn_tool_count(turn)
     tools = f'{count} tool' + ('' if count == 1 else 's')
+    usage = turn.get('usage') or {}
+    total = usage.get('total_tokens')
+    tokens = f'  {int(total):,} tokens' if total else ''
     prompt = _clip(_turn_prompt(turn), SUMMARY_PROMPT_CHARS)
-    return f'#{index}  [{status}]  {duration_str}  {tools}  {prompt}'
+    return f'#{index}  [{status}]  {duration_str}  {tools}{tokens}  {prompt}'
 
 
 def _turn_prompt(turn: dict) -> str:
