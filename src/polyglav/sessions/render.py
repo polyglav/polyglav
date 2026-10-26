@@ -307,6 +307,16 @@ def _tool_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
         if loaded is not None:
             text = loaded
     lines = [label]
+    duration = part.get('duration')
+    usage = part.get('usage') or {}
+    total = usage.get('total_tokens')
+    if duration is not None:
+        stats = f'duration: {float(duration):.1f}s'
+        if total:
+            stats += f' ({int(total):,} tokens)'
+        lines.append(stats)
+    elif total:
+        lines.append(f'tokens: {int(total):,}')
     if part.get('input') is not None:
         lines.append('input:')
         lines.extend(_body(_arguments(part['input']), full, cap))

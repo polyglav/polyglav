@@ -1391,7 +1391,8 @@ class Engine:
                                 merge_usage(event.get('usage'))
                                 end_thinking()
                                 executed_tool_calls += self._execute_tool_calls(
-                                    event['tool_calls'], s_thinking or None)
+                                    event['tool_calls'], s_thinking or None,
+                                    usage=event.get('usage'))
                                 if (getattr(self, '_sub_run', False)
                                         and self._denied_streak >= _MAX_DENIED_STREAK):
                                     msg = (f'Stopped after {self._denied_streak} '
@@ -1529,10 +1530,12 @@ class Engine:
             run_id=self.current_run.id,
         )
 
-    def _execute_tool_calls(self, tcs: list[dict], thinking: str = '') -> list[dict]:
+    def _execute_tool_calls(self, tcs: list[dict], thinking: str = '',
+                            usage: dict | None = None) -> list[dict]:
         self.current_session.add_thinking(thinking)
+        self._round_usage = usage
         executed: list[dict] = []
-        for tc in tcs:
+        for index, tc in enumerate(tcs):
             name = tc['function']['name']
             try:
                 args = json.loads(tc['function']['arguments'])
@@ -1547,6 +1550,8 @@ class Engine:
                     self.ui.tool_refine(original, args['query'])
             part = self.current_session.add_tool(name, args,
                                                  call_id=tc.get('id', ''))
+            if index == 0 and isinstance(usage, dict):
+                part['usage'] = dict(usage)
             tool_start = time.monotonic()
             output = self._run_tool(name, args)
             duration = round(time.monotonic() - tool_start, 1)
@@ -1757,8 +1762,18 @@ class Engine:
             glyph, verb, label, params = activity
             if params and level == 'full':
                 label = f'{label} [{params}]'
+            if level == 'full':
+                usage = getattr(self, '_round_usage', None) or {}
+                total = usage.get('total_tokens')
+                if total:
+                    label = f'{label} ({int(total):,} tokens)'
             self.ui.activity(glyph, verb, label, body)
         else:
+            if level == 'full':
+                usage = getattr(self, '_round_usage', None) or {}
+                total = usage.get('total_tokens')
+                if total:
+                    value = f'{value} ({int(total):,} tokens)'
             self.ui.tool_status(name, value, body)
 
     def _refine_query(self, query: str) -> str:

@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Added tool status stats - `verbosity.tools=full` appends the round token count to a tool line, and `/print` shows each tool's duration and tokens. Hidden by default. Tests: `test_ui.py`, `test_session_render.py`
 - Added per-run token usage - usage is accumulated across every request in a turn, attached to tool rounds, stored on each run, and rolled up for the run tree. The footer shows `own/tree` tokens and `/runs` shows each run's duration and totals. Tests: `test_engine.py`, `test_runs_command.py`, `test_ui.py`
 - Added live status counters - sub-run spinners show elapsed time and an approximate token count labelled `~`, and `verbosity.status=off` keeps the label without the numbers. Tests: `test_ui.py`, `test_subagent.py`
 - Added sub-run output rendering - a `SubRunUI` forwards sub-run reasoning and tool lines to the REPL under `verbosity.output` and `verbosity.thinking`, streams content for visible roles, and suppresses the duplicate final echo when content was streamed. Tests: `test_subagent.py`, `test_call.py`

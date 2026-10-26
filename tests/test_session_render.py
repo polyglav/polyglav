@@ -197,6 +197,17 @@ class TestTurnSummary(unittest.TestCase):
         turn = s.turns[-1]
         self.assertIn('/model x', turn_summary(turn))
 
+    def test_tool_stats(self):
+        s = Session('s')
+        s.add_user('hello')
+        part = s.add_tool('read', {'path': 'x'})
+        turns.finish_tool(part, 'out', duration=1.2)
+        part['usage'] = {'total_tokens': 1234}
+        s.add_text('answer')
+        s.end_turn('ok')
+        out = render_turn(s.turns[-1])
+        self.assertIn('duration: 1.2s (1,234 tokens)', out)
+
     def test_prompt_first_line(self):
         turn = self._turn(user='one\ntwo')
         self.assertIn('one', turn_summary(turn))

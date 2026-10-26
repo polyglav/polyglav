@@ -156,6 +156,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added tool status stats
 - [x] Added per-run token usage
 - [x] Added live status counters
 - [x] Added sub-run output rendering

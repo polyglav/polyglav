@@ -165,6 +165,16 @@ class TestThinkingSpinner(unittest.TestCase):
         value = metrics.label('Call writer')
         self.assertRegex(value, r'Call writer \d+\.\ds \(~1,234 tokens\)')
 
+    def test_tool_full_shows_round_tokens(self):
+        self.chat._init_tooling()
+        self.chat.config.set('verbosity.tools', 'full')
+        self.chat._round_usage = {'total_tokens': 1234}
+        from polyglav.engine import Engine
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            Engine._show_tool_status(self.chat, 'catalog', {'action': 'list'})
+        self.assertIn('1,234 tokens', out.getvalue())
+
     def test_status_off_hides_live_numbers(self):
         from polyglav.ui import StatusMetrics
         self.chat._ui._status_metrics = StatusMetrics()
