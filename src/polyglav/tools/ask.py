@@ -79,7 +79,7 @@ def _prompt_permission(engine, question: str, context: str,
         return None
     answer = ui.ask(question, context=context or '',
                     options=list(_PERMISSION_OPTIONS),
-                    origin=engine.current_session.session_name)
+                    origin=engine.role or engine.current_session.session_name)
     if not answer:
         return _NO_ANSWER
     scope = _permission_scope(answer)
@@ -104,7 +104,7 @@ def _ask_permission(engine, question: str, context: str, options: list,
         if ui is not None:
             answer = ui.ask(prompt, context=context or '',
                             options=['Approve (switch to write)', 'Deny'],
-                            origin=engine.current_session.session_name)
+                            origin=engine.role or engine.current_session.session_name)
             if answer and _permission_scope(answer) in ('once', 'always'):
                 _switch_write(engine)
                 return (f'[granted] Write mode enabled for this session - '
@@ -151,7 +151,7 @@ def _prompt_direction(engine, question: str, context: str,
     if ui is None:
         return None
     answer = ui.ask(question, context=context or '', options=options or [],
-                    origin=engine.current_session.session_name)
+                    origin=engine.role or engine.current_session.session_name)
     return answer or _NO_ANSWER
 
 
@@ -216,6 +216,7 @@ def register_ask_tool(registry, engine) -> Callable:
         key_arg='question',
         short='Ask the user for a decision',
         confirm=False,
+        silent=True,
     )
     def ask(question: str, context: str = '', options: list | None = None,
             kind: str = 'direction', permission: str = '',

@@ -714,11 +714,12 @@ class ReplUI:
             prefix = f'[{origin}] '
         options = list(options or [])
         mark = glyph(self._loop.config, 'question', '?')
-        self._emit(f'{mark} {prefix}{question}', DIM)
+        self._emit(f'{mark} {prefix}{question}', CYAN)
         if context:
-            self._emit(f'  {context}', DIM)
+            for line in str(context).splitlines():
+                self._emit(f'  {line}', DIM)
         for i, opt in enumerate(options, 1):
-            self._emit(f'  {i}) {opt}', DIM)
+            self._emit(f'  {i}) {opt}')
         from .modes import mode_color, resolve_mode
         spec, _ = resolve_mode(self._loop.config, self._loop._mode())
         color = mode_color(spec)

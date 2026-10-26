@@ -106,11 +106,20 @@ class TestReplOutput(unittest.TestCase):
             value = self._capture(
                 lambda: self.ui.ask('Which?', options=['a', 'b']))
         self.assertIn('? Which?', value)
+        self.assertIn(CYAN, value)
         self.assertIn('  1) a', value)
         self.assertIn('  2) b', value)
         prompt = inp.call_args[0][0]
         self.assertIn(CYAN, prompt)
         self.assertIn('>', prompt)
+
+    def test_ask_context_is_indented_per_line(self):
+        with patch('polyglav.ui.input', return_value='1'):
+            value = self._capture(
+                lambda: self.ui.ask('Which?', context='line one\nline two',
+                                    options=['a']))
+        self.assertIn('  line one', value)
+        self.assertIn('  line two', value)
 
     def test_warning_and_error(self):
         def run():

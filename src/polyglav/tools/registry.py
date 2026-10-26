@@ -2,6 +2,14 @@ from typing import Callable
 import inspect
 
 
+def shorten(text, limit: int = 80) -> str:
+    value = str(text or '').replace('\n', ' ').strip()
+    if len(value) <= limit:
+        return value
+    cut = value[:limit - 3].rsplit(' ', 1)[0].strip()
+    return (cut or value[:limit - 3]).rstrip() + '...'
+
+
 ACTIVITY_DEFAULTS: dict[str, tuple[str, str]] = {
     'read': ('←', 'Read'),
     'write': ('→', 'Write'),
@@ -32,6 +40,7 @@ class ToolRegistry:
                  permission_fn: Callable[[dict], str] | None = None,
                  write_actions: list | None = None,
                  loop: bool = False, confirm: bool = True,
+                 silent: bool = False,
                  error: Callable[[str], bool] | None = None):
         def wrapper(fn):
             def build_schema(tool_name: str) -> dict:
@@ -63,6 +72,7 @@ class ToolRegistry:
                 'write_actions': list(write_actions or []),
                 'loop': loop,
                 'confirm': confirm,
+                'silent': silent,
                 'error': error,
                 'schema': build_schema(name),
             }
@@ -183,6 +193,10 @@ class ToolRegistry:
         canon, tool = self._canonical(name)
         return tool['key_arg'] if tool else None
 
+    def silent_for(self, name: str) -> bool:
+        canon, tool = self._canonical(name)
+        return bool(tool.get('silent')) if tool else False
+
     def loop_for(self, name: str) -> bool:
         canon, tool = self._canonical(name)
         return bool(tool and tool.get('loop'))
@@ -246,12 +260,13 @@ class ToolRegistry:
             try:
                 first = (status_fn(args) or '').split('\n', 1)[0].strip()
                 if first:
-                    label = first[:80]
+                    label = shorten(first, 80)
             except Exception:
                 pass
         if label is None:
             key_arg = tool.get('key_arg')
-            label = str(args[key_arg])[:80] if key_arg and args.get(key_arg) else name
+            label = (shorten(args[key_arg], 80)
+                     if key_arg and args.get(key_arg) else name)
         exclude = tuple(k for k, v in args.items() if str(v)[:80] == label)
         return glyph, verb, label, self.params_str(name, arguments, exclude=exclude)
 

@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Fixed ask prompt legibility - the duplicate tool status line is suppressed, labels truncate at word boundaries with `...`, the question uses a distinct colour, context lines are indented, and a sub-run ask shows its role instead of the session name. Tests: `test_repl_output.py`, `test_ui.py`, `test_ask.py`
 - Added streamed tool call progress - the provider emits `tool_call_delta` events, the spinner shows the tool name and argument size for long calls, reasoning no longer drops content in the same delta, and the word buffer flushes after 120 characters. Tests: `test_providers.py`, `test_ui.py`
 - Added tool status stats - `verbosity.tools=full` appends the round token count to a tool line, and `/print` shows each tool's duration and tokens. Hidden by default. Tests: `test_ui.py`, `test_session_render.py`
 - Added per-run token usage - usage is accumulated across every request in a turn, attached to tool rounds, stored on each run, and rolled up for the run tree. The footer shows `own/tree` tokens and `/runs` shows each run's duration and totals. Tests: `test_engine.py`, `test_runs_command.py`, `test_ui.py`

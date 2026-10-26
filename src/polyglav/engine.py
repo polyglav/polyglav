@@ -1749,7 +1749,8 @@ class Engine:
         label = name
         if key_arg and args.get(key_arg):
             value = str(args[key_arg])
-            label = f'{name} {value[:80]}'
+            from .tools.registry import shorten
+            label = f'{name} {shorten(value, 80)}'
         params = self._tool_registry.params_str(name, args)
         if params and verbosity_level(self.config, 'tools') == 'full':
             label = f'{label} [{params}]'
@@ -1757,7 +1758,7 @@ class Engine:
 
     def _show_tool_status(self, name, arguments):
         level = verbosity_level(self.config, 'tools')
-        if level == 'off':
+        if level == 'off' or self._tool_registry.silent_for(name):
             return
         value, body = self._tool_registry.status_parts(name, arguments)
         activity = self._tool_registry.activity(

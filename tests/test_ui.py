@@ -179,6 +179,15 @@ class TestThinkingSpinner(unittest.TestCase):
             self.chat._ui.token('x' * 200)
         self.assertEqual(out.getvalue(), 'x' * 200)
 
+    def test_ask_has_no_tool_status_line(self):
+        from polyglav.engine import Engine
+        self.chat._init_tooling()
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            Engine._show_tool_status(
+                self.chat, 'ask', {'question': 'Which?', 'kind': 'direction'})
+        self.assertEqual(out.getvalue(), '')
+
     def test_tool_full_shows_round_tokens(self):
         self.chat._init_tooling()
         self.chat.config.set('verbosity.tools', 'full')

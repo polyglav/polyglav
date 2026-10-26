@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Ask prompt legibility - drop the duplicate ask status line, truncate at word boundaries, and give the question a distinct style
 - [ ] Prompt colour fallback - match the live prompt to the submitted line and fall back to basic ANSI
 - [ ] Onboarding visibility - ask about reasoning, sub-run output, tool detail, and live status
 - [ ] Team and verbosity docs - document shapes, callability, scopes, and token reporting
@@ -155,6 +154,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Fixed ask prompt legibility
 - [x] Added streamed tool call progress
 - [x] Added tool status stats
 - [x] Added per-run token usage
