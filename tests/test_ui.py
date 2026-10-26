@@ -158,6 +158,23 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('↳ Delegating to writer', out.getvalue())
         self.assertIn('\r\033[K', out.getvalue())
 
+    def test_status_metrics_label(self):
+        from polyglav.ui import StatusMetrics
+        metrics = StatusMetrics()
+        metrics.chars = 4936
+        value = metrics.label('Call writer')
+        self.assertRegex(value, r'Call writer \d+\.\ds \(~1,234 tokens\)')
+
+    def test_status_off_hides_live_numbers(self):
+        from polyglav.ui import StatusMetrics
+        self.chat._ui._status_metrics = StatusMetrics()
+        self.chat._ui._spinner_label = 'Call writer'
+        self.chat.config.set('verbosity.status', 'off')
+        self.assertEqual(self.chat._ui._spinner_text(), 'Call writer')
+        self.chat.config.set('verbosity.status', 'on')
+        self.assertIn('~0 tokens', self.chat._ui._spinner_text())
+        self.chat._ui._status_metrics = None
+
     def test_status_line_ignores_output_scope(self):
         self.chat.config.set('verbosity.output', 'off')
         self.chat._ui.status_begin('Delegating...')
@@ -179,7 +196,7 @@ class TestThinkingSpinner(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         calls = []
-        self.chat._ui.status_begin = lambda label, name='': calls.append(('begin', label))
+        self.chat._ui.status_begin = lambda label, name='', metrics=None: calls.append(('begin', label))
         self.chat._ui.status_end = lambda note='', ok=True: calls.append(('end', note))
         with patch('sys.stdout', new=io.StringIO()):
             self.chat.run_subagent('writer', 'draft it')

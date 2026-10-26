@@ -2,6 +2,7 @@
 
 ## v0.49.0
 
+- Added live status counters - sub-run spinners show elapsed time and an approximate token count labelled `~`, and `verbosity.status=off` keeps the label without the numbers. Tests: `test_ui.py`, `test_subagent.py`
 - Added sub-run output rendering - a `SubRunUI` forwards sub-run reasoning and tool lines to the REPL under `verbosity.output` and `verbosity.thinking`, streams content for visible roles, and suppresses the duplicate final echo when content was streamed. Tests: `test_subagent.py`, `test_call.py`
 - Changed the project catalog - the assistant and manager roles keep `call: allow`, every worker role sets `call: deny` and remains `callable: allow`, and the dev and docs teams declare `type: sequential`
 - Changed verbosity to scoped thinking and output - `verbosity.thinking` and `verbosity.output` take `off`, `assistant`, `agent`, or `all`, `verbosity.status` toggles live counters, and `/verbosity` shows each scope with its default and options. Old `verbosity.subruns` and `summary`/`full` thinking values migrate. Docs (`config.md`, `commands.md`). Tests: `test_verbosity.py`, `test_ui.py`, `test_commands.py`

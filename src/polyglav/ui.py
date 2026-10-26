@@ -285,6 +285,26 @@ def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
     return False
 
 
+class StatusMetrics:
+    def __init__(self):
+        self.started = time.monotonic()
+        self.chars = 0
+
+    def add(self, text) -> None:
+        if text:
+            self.chars += len(str(text))
+
+    def elapsed(self) -> float:
+        return max(0.0, time.monotonic() - self.started)
+
+    def tokens(self) -> int:
+        return int(self.chars / 4)
+
+    def label(self, base: str) -> str:
+        return (f'{base} {self.elapsed():.1f}s '
+                f'(~{self.tokens():,} tokens)')
+
+
 class ReplUI:
     def __init__(self, loop):
         self._loop = loop
@@ -299,6 +319,7 @@ class ReplUI:
         self._word_buffer = ''
         self._thinking_streamed = False
         self._status_name = ''
+        self._status_metrics = None
         self._hints_shown: set[str] = set()
 
     def _write(self, text, ansi=''):
@@ -375,18 +396,21 @@ class ReplUI:
         self._thinking_streamed = False
         self._start_spinner('Thinking')
 
-    def status_begin(self, label: str, name: str = ''):
+    def status_begin(self, label: str, name: str = '', metrics=None):
         self.flush()
         self._ensure_newline()
         text = str(label or 'Working').rstrip('.').strip()
         self._status_name = (name or text).rstrip('.').strip()
+        self._status_metrics = metrics
         mark = glyph(self._loop.config, 'enter', '↳')
         self._emit(f'{mark} {text}', DIM)
         self._start_spinner(text)
 
     def status_end(self, note: str = '', ok: bool = True):
         self._stop_spinner()
-        self.worked(self._status_name, note, ok=ok)
+        name = self._status_name
+        self._status_metrics = None
+        self.worked(name, note, ok=ok)
 
     def worked(self, name: str, note: str = '', ok: bool = True):
         self.flush()
@@ -415,9 +439,16 @@ class ReplUI:
             with self._spinner_lock:
                 if self._spinner_stop.is_set():
                     break
-                sys.stdout.write(f'\r\033[K{frame} {self._spinner_label}')
+                sys.stdout.write(f'\r\033[K{frame} {self._spinner_text()}')
                 sys.stdout.flush()
             time.sleep(SPINNER_INTERVAL)
+
+    def _spinner_text(self) -> str:
+        label = self._spinner_label
+        if (self._status_metrics is not None
+                and verbosity_level(self._loop.config, 'status') == 'on'):
+            label = self._status_metrics.label(label)
+        return label
 
     def _clear_spinner_line(self):
         if self._spinner_thread is not None and self._spinner_thread.is_alive():
@@ -764,10 +795,11 @@ class SubRunUI:
             mark = glyph(self._loop.config, 'done', '✓')
             self._line(f'{mark} Thought {duration:.1f}s', DIM)
 
-    def status_begin(self, label, name=''):
+    def status_begin(self, label, name='', metrics=None):
         if not self._enabled() or self.depth > 0:
             return
-        self.parent.status_begin(self._prefix + str(label), name=name)
+        self.parent.status_begin(self._prefix + str(label), name=name,
+                                 metrics=metrics)
 
     def status_end(self, note='', ok=True):
         if not self._enabled() or self.depth > 0:
@@ -866,7 +898,7 @@ class NullUI:
     def thinking_end(self, duration):
         pass
 
-    def status_begin(self, label, name=''):
+    def status_begin(self, label, name='', metrics=None):
         pass
 
     def status_end(self, note='', ok=True):
@@ -963,7 +995,7 @@ class HeadlessUI:
         if self.thinking_level != 'off':
             sys.stderr.write(f'✓ Thought {duration:.1f}s\n')
 
-    def status_begin(self, label, name=''):
+    def status_begin(self, label, name='', metrics=None):
         pass
 
     def status_end(self, note='', ok=True):

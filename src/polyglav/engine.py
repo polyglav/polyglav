@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import NullUI, ReplUI, SubRunUI, glyph, glyph_map
+from .ui import NullUI, ReplUI, StatusMetrics, SubRunUI, glyph, glyph_map
 from . import spill as spill_store
 
 
@@ -721,7 +721,9 @@ class Engine:
         if isinstance(parent_ui, ReplUI):
             sub._ui = SubRunUI(parent_ui, sub, role=role_name, label=name,
                                depth=depth)
-        self.ui.status_begin(f'Call {label}', name=name)
+        metrics = StatusMetrics()
+        sub._stream_metrics = metrics
+        self.ui.status_begin(f'Call {label}', name=name, metrics=metrics)
         try:
             result = sub.chat(task, origin=self.role or 'root')
         except Exception:
@@ -738,6 +740,11 @@ class Engine:
             self.session_auto_save()
         self._update_role_memory(role_name, result.session)
         return result
+
+    def _note_stream(self, text):
+        metrics = getattr(self, '_stream_metrics', None)
+        if metrics is not None:
+            metrics.add(text)
 
     def _run_stats(self, result: TurnResult) -> str:
         if verbosity_level(self.config, 'status') != 'on':
@@ -1303,6 +1310,7 @@ class Engine:
                             t = event.get('type', '')
                             if t == 'thinking':
                                 s_thinking += event['content']
+                                self._note_stream(event['content'])
                                 feed_thinking(event['content'])
                             elif t == 'token':
                                 token = event['content']
@@ -1315,6 +1323,7 @@ class Engine:
                                             if before:
                                                 end_thinking()
                                                 s_content += before
+                                                self._note_stream(before)
                                                 self.ui.token(before)
                                             s_thinking += marker
                                             feed_thinking(marker)
@@ -1323,6 +1332,7 @@ class Engine:
                                         else:
                                             end_thinking()
                                             s_content += token
+                                            self._note_stream(token)
                                             self.ui.token(token)
                                             token = ''
                                     else:
