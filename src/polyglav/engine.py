@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import NullUI, ReplUI, glyph, glyph_map
+from .ui import NullUI, ReplUI, SubRunUI, glyph, glyph_map
 from . import spill as spill_store
 
 
@@ -31,6 +31,7 @@ class TurnResult:
     session: str = ''
     status: str = 'ok'
     run_id: int | None = None
+    streamed: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -47,6 +48,7 @@ class TurnResult:
             'session': self.session,
             'status': self.status,
             'run_id': self.run_id,
+            'streamed': self.streamed,
         }
 
 
@@ -58,6 +60,7 @@ class TeamRunResult:
     memory: str = ''
     status: str = 'ok'
     errors: list = field(default_factory=list)
+    streamed: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -67,6 +70,7 @@ class TeamRunResult:
             'memory': self.memory,
             'status': self.status,
             'errors': self.errors,
+            'streamed': self.streamed,
         }
 
 
@@ -712,6 +716,11 @@ class Engine:
             sub.compact_session()
         label = getattr(self, '_stage_label', '') or (role_name or 'sibling')
         name = getattr(self, '_stage_name', '') or (role_name or 'sibling')
+        parent_ui = self.ui.parent if isinstance(self.ui, SubRunUI) else self.ui
+        depth = self.ui.depth + 1 if isinstance(self.ui, SubRunUI) else 0
+        if isinstance(parent_ui, ReplUI):
+            sub._ui = SubRunUI(parent_ui, sub, role=role_name, label=name,
+                               depth=depth)
         self.ui.status_begin(f'Call {label}', name=name)
         try:
             result = sub.chat(task, origin=self.role or 'root')
@@ -720,6 +729,7 @@ class Engine:
             self.runs.finish(sub.current_run.id, 'error')
             raise
         ok = result.status in ('ok', 'truncated')
+        result.streamed = bool(getattr(sub.ui, 'streamed', False))
         self.ui.status_end(self._run_stats(result), ok=ok)
         status = 'done' if result.status in ('ok', 'truncated') else 'error'
         self.runs.finish(sub.current_run.id, status)
@@ -1169,6 +1179,7 @@ class Engine:
             memory=memory_path,
             status=status,
             errors=errors,
+            streamed=any(getattr(s, 'streamed', False) for s in stages),
         )
 
     def _turn_meta(self) -> dict:

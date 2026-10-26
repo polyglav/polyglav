@@ -76,8 +76,10 @@ class TestDelegateTool(unittest.TestCase):
             [{'type': 'token', 'content': 'Final.'},
              {'type': 'done', 'reason': 'stop'}],
         ]
-        self._run()
-        self.chat._ui.sub_result.assert_called()
+        with patch('sys.stdout', new=io.StringIO()) as buf:
+            self.chat._agent_loop()
+        self.assertIn('Draft text.', buf.getvalue())
+        self.chat._ui.sub_result.assert_not_called()
 
     def test_echo_off_hides_result(self):
         self._allow_delegate()
@@ -170,7 +172,7 @@ class TestDelegateTool(unittest.TestCase):
         self.assertEqual(out.count('Sub result.'), 1)
         self.assertIn('↳ Call writer', out)
         self.assertIn('✓ Worked: writer', out)
-        self.assertIn('↲ Sub result.', out)
+        self.assertNotIn('↲ Sub result.', out)
         self.assertTrue(self._delegate_logs('writer'))
 
     def test_tool_command_delegate_runs_loop_turn(self):

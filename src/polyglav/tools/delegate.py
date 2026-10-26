@@ -72,7 +72,8 @@ def register_delegate_tool(registry, engine) -> Callable:
         except ValueError as e:
             return f'Error: {e}'
         result = _format_result(res)
-        if _echo and not result.startswith('Error'):
+        if (_echo and not result.startswith('Error')
+                and not getattr(res, 'streamed', False)):
             if engine.ui.output_visible(''):
                 engine.ui.sub_result(result, role='')
         return result

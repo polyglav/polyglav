@@ -272,6 +272,19 @@ def render_markdown(token: str, state: dict) -> list[tuple[str, str]]:
     return segments
 
 
+def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
+    scope = verbosity_level(config, 'thinking')
+    if scope == 'off':
+        return False
+    if scope == 'all':
+        return True
+    if scope == 'assistant':
+        return not sub_run and not role
+    if scope == 'agent':
+        return not sub_run or bool(role)
+    return False
+
+
 class ReplUI:
     def __init__(self, loop):
         self._loop = loop
@@ -338,18 +351,10 @@ class ReplUI:
             self._word_buffer = ''
 
     def _thinking_visible(self) -> bool:
-        scope = verbosity_level(self._loop.config, 'thinking')
-        if scope == 'off':
-            return False
-        if scope == 'all':
-            return True
-        role = str(getattr(self._loop, 'role', '') or '')
-        sub_run = bool(getattr(self._loop, '_sub_run', False))
-        if scope == 'assistant':
-            return not sub_run and not role
-        if scope == 'agent':
-            return not sub_run or bool(role)
-        return False
+        return reasoning_visible(
+            self._loop.config,
+            role=str(getattr(self._loop, 'role', '') or ''),
+            sub_run=bool(getattr(self._loop, '_sub_run', False)))
 
     def output_visible(self, role: str = '') -> bool:
         scope = verbosity_level(self._loop.config, 'output')
@@ -689,6 +694,163 @@ class ReplUI:
         if selected is not None:
             return selected
         return text
+
+
+class SubRunUI:
+    def __init__(self, parent, engine, role: str = '', label: str = '',
+                 depth: int = 0):
+        self.parent = parent
+        self._loop = engine
+        self.role = role
+        self.label = label
+        self.depth = depth
+        self._prefix = '  ' * (depth + 1)
+        self._at_line_start = True
+        self.streamed = False
+        self.content_newline = True
+
+    def _enabled(self) -> bool:
+        return self.parent.output_visible(self.role)
+
+    def _thinking_visible(self) -> bool:
+        return reasoning_visible(
+            self._loop.config, role=self.role, sub_run=True)
+
+    def _begin(self) -> None:
+        if self._at_line_start:
+            self.parent._stop_spinner()
+            self.parent._ensure_newline()
+
+    def _stream(self, text: str, ansi: str = '') -> None:
+        if not self._enabled() or not text:
+            return
+        self.parent.flush()
+        self._begin()
+        for chunk in text.splitlines(keepends=True):
+            if self._at_line_start:
+                self.parent._write(self._prefix, DIM)
+                self._at_line_start = False
+            self.parent._write(chunk, ansi)
+            if chunk.endswith('\n'):
+                self._at_line_start = True
+        if not text.endswith('\n'):
+            self._at_line_start = False
+        self.parent.content_newline = text.endswith('\n')
+
+    def _line(self, text: str, ansi: str = DIM) -> None:
+        if not self._enabled():
+            return
+        self.parent.flush()
+        self._begin()
+        self.parent._emit(self._prefix + text, ansi)
+        self._at_line_start = True
+
+    def token(self, text):
+        if self._enabled():
+            self.streamed = True
+            self._stream(text)
+
+    def thinking(self, text):
+        if self._thinking_visible():
+            self.parent.flush()
+            self._begin()
+            self._stream(text, DIM)
+
+    def thinking_begin(self):
+        pass
+
+    def thinking_end(self, duration):
+        if self._thinking_visible():
+            mark = glyph(self._loop.config, 'done', '✓')
+            self._line(f'{mark} Thought {duration:.1f}s', DIM)
+
+    def status_begin(self, label, name=''):
+        if not self._enabled() or self.depth > 0:
+            return
+        self.parent.status_begin(self._prefix + str(label), name=name)
+
+    def status_end(self, note='', ok=True):
+        if not self._enabled() or self.depth > 0:
+            return
+        self.parent.status_end(note, ok=ok)
+
+    def worked(self, name, note='', ok=True):
+        if self._enabled():
+            self.parent.worked(self._prefix + str(name), note, ok=ok)
+
+    def output_visible(self, role=''):
+        return self.parent.output_visible(role)
+
+    def sub_result(self, text, role=''):
+        if self.parent.output_visible(role):
+            self.parent.sub_result(text, role=role)
+
+    def warning(self, msg):
+        if self._enabled():
+            self._line(f'{glyph(self._loop.config, "warning", "!")} {msg}',
+                       YELLOW)
+
+    def error(self, code, msg):
+        if self._enabled():
+            mark = glyph(self._loop.config, 'error', '✗')
+            text = f'{mark} [{code}] {msg}' if code else f'{mark} {msg}'
+            self._line(text, RED)
+
+    def tool_status(self, name, value, body):
+        if not self._enabled():
+            return
+        self.parent.tool_status(name, self._prefix + str(value), body)
+
+    def activity(self, glyph_value, verb, label, body):
+        if not self._enabled():
+            return
+        self.parent.activity(glyph_value, verb, self._prefix + str(label), body)
+
+    def tool_error(self, msg):
+        if self._enabled():
+            self.parent.tool_error(msg)
+
+    def tool_error_result(self, output):
+        if self._enabled():
+            self.parent.tool_error_result(output)
+
+    def tool_note(self, output):
+        if self._enabled():
+            self.parent.tool_note(output)
+
+    def tool_result(self, output):
+        if not self._enabled():
+            return
+        level = verbosity_level(self._loop.config, 'tools')
+        if level == 'full':
+            for line in str(output or '').splitlines():
+                self._line(line, DIM)
+        elif level != 'off':
+            self.parent._tool_output_hint()
+
+    def tool_refine(self, old, new):
+        if self._enabled():
+            self.parent.tool_refine(old, new)
+
+    def footer(self, duration, counts, note=''):
+        pass
+
+    def info(self, msg):
+        if self._enabled():
+            self._line(str(msg), DIM)
+
+    def confirm(self, name, label):
+        return False
+
+    def ask(self, question, context='', options=None, origin=''):
+        return self.parent.ask(question, context=context, options=options,
+                               origin=origin)
+
+    def _stop_spinner(self):
+        self.parent._stop_spinner()
+
+    def _ensure_newline(self):
+        self.parent._ensure_newline()
 
 
 class NullUI:

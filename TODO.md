@@ -158,6 +158,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added sub-run output rendering
 - [x] Changed verbosity to scoped thinking and output
 - [x] Fixed the output log per session
 - [x] Added a callable role field
