@@ -74,7 +74,6 @@ The assistant is the operator's entry point. A composer turns a task into a team
 | Task | Effort | Provides |
 |------|--------|----------|
 | Manager role - runs one or many teams and reports, sequential first | M | one window over several teams |
-| Team docs and catalog guidance - when to use sequential versus hierarchical, with examples | S | correct model choices |
 | Composer plugin (nice-to-have) - a bundled role that designs a team from an under-specified request by asking clarifying questions and saving it | M | guided team design |
 | Core dev team configuration - a development team with the review loop plus the project lead/support teams and skills | S | ready-made teams and skills |
 | Role-name sync - adopt assistant, composer, manager, and specialist across types, prompts, and docs | S | one canonical vocabulary |

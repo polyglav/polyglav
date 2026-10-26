@@ -137,7 +137,7 @@ A finished or failed run is surfaced in-band and, optionally, out-of-band, so an
 
 - **`polyglav jobs status` / `/jobs status`** prints a `last run:` line per job (status, duration, reason, session) under the run counts.
 - **`polyglav jobs run` / `/jobs run`** print the run's result plus a `summary:` line from the run memory written after the run.
-- **Delegated and team runs** show their outcome in the REPL stage lines (`↳ Call`, `✓ Worked`, `↲`) when `verbosity.subruns` is `summary` or `full`.
+- **Delegated and team runs** show their outcome in the REPL stage lines (`↳ Call`, `✓ Worked`, `↲`) when `verbosity.output` includes the role.
 - **Out-of-band**: after each completed run the scheduler dispatches one `job.run.completed` event to a registered `report` service. The bundled `polyglav-core-webhook` plugin implements it: set `report.webhook` to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty `report.webhook` is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).
 
 ## Supervisor overnight run

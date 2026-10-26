@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.49.0
+## v0.49.0 - 2026-10-26
 
 - Added turn usage to `/history` - each turn line includes its total tokens when the provider reported usage, and `/print` shows each tool's duration and tokens. Tests: `test_session_render.py`
 - Changed onboarding visibility - the setup asks for the reasoning scope, the sub-run output scope, tool time and tokens, and live status counters, writing the matching verbosity keys. Tests: `polyglav-core-onboarding`

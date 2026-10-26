@@ -123,7 +123,7 @@ A turn is one user prompt (or one slash command) and the agent's response to it.
 | `model` / `provider` | Model and provider that served the turn |
 | `mode` | Agent `mode` in effect (`read` or `write`) |
 | `reasoning` | The `reasoning` config value in effect (`false`/`"off"` or an effort value) |
-| `usage` | Provider usage for the turn (`prompt_tokens`, `completion_tokens`, cache details) when the provider reported it. Recorded on agent turns |
+| `usage` | Provider usage summed across every request in the turn (`prompt_tokens`, `completion_tokens`, `reasoning_tokens`, `total_tokens`, `requests`) plus the last request's `context_tokens`, when the provider reported it. Recorded on agent turns |
 | `context_tokens` | Context/input token count the turn ran with (`prompt_tokens`, else a chars/4 fallback). Recorded on agent turns |
 | `finish_reason` | The provider's raw stop reason (`stop`, `length`, `tool_calls`, ...) when the provider reported one. Recorded on agent turns |
 | `parts` | Ordered list of parts (below) |
@@ -135,7 +135,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `user` | `text`, `origin` | A user prompt. `origin` records who sent it: absent or `user` for the person, a role name for a delegated prompt |
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
-| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration` | One tool call and its result, co-located. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is the optional one-line model insight (`tool_analysis` config), `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
+| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is the optional one-line model insight (`tool_analysis` config), `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
 | `command` | `text` | A slash command. `summary` and `compact_from` are set on a `/compact` record |
 | `system` | `text` | An injected note (e.g. the `web_search: true` auto-search context) |
 

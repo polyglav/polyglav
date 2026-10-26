@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Team and verbosity docs - document shapes, callability, scopes, and token reporting
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
 - [ ] `apple-fm` chat provider - `BaseProvider` subclass named `apple-fm` with model `on-device` and base URL `local://apple-fm`, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring `tools` and `reasoning`, mapping `temperature` and `max_tokens` to `GenerationOptions`, and answering `_fetch_models`, `list_models`, and `check_connection` from `is_available()`
@@ -152,6 +151,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Updated team and verbosity docs
 - [x] Changed onboarding visibility
 - [x] Fixed prompt colour fallback
 - [x] Fixed ask prompt legibility
