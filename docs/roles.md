@@ -38,6 +38,7 @@ Schema (per entry):
   "model": "deepseek-r1",
   "skills": [],
   "tags": ["research", "writing"],
+  "callable": "allow",
   "tool_permission": { "web": "allow", "call": "allow" },
   "grant_permission": { "web": "allow", "call": "allow" },
   "ask_policy": { "permission": "auto", "direction": "user" }
@@ -51,6 +52,7 @@ Fields:
 - `model` - optional. Overrides the caller's model when the role runs, falls back to the caller's when empty. Accepts a `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) to pin provider and model together. The model must be approved before the role runs (`call`/`/teams run` ask interactively, or pass `--approve-model` headlessly, see [Model refs and approval](providers.md#model-refs-and-approval)).
 - `skills` - optional list of standing skill names from the [skills registry](skills.md), resolved and injected into the role's sub-agent system prompt (and jobs with `--role`). A caller may layer additional skills per run through `call` or a team stage, so one reusable role carries a stable identity while each task adds its own instructions.
 - `tags` - optional list of tags for grouping and filtering (`/roles list <tag>`). A common vocabulary is `management`, `research`, `writing`, `programming`, `review`.
+- `callable` - optional, whether another run may call this role: `allow` (default), `ask`, or `deny`. This is separate from `tool_permission.call`, which controls whether this role may call others. A worker can set `call: "deny"` so it never delegates while remaining callable itself.
 - `tool_permission` - optional per-agent overrides by permission key. The keys are `ask`, `bash`, `call`, `catalog`, `delegate`, `edit`, `list`, `mcp`, `read`, `vcs`, `web` (not tool categories). A category name is normalized on save (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), an unknown key is rejected with the valid list, and the actions are `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`). The per-agent permission profile.
 - `grant_permission` - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in `write`, denied in `read`), and this only narrows it. It uses the same keys and normalization. See [Delegation and permissions](#delegation-and-permissions).
 - `ask_policy` - optional per-role override of the `ask` routing by kind (`permission`/`direction`), merged over the config `ask_policy`. Both kinds ask the user; `direction: caller` and `auto` are accepted as `user` for one version. See [config.md](config.md#ask_policy).
@@ -74,8 +76,9 @@ Writing a role through `/roles new` or the `catalog` tool stores the prompt in `
 
 `call` resolves its permission from the target rather than from a single tool-level default:
 
-- A role uses its own `tool_permission.call` (default `allow`). Set `call: "ask"` on a role to confirm each call to it. A role with `call: "deny"` is refused as a target.
-- A team uses its stage roles' `call` actions.
+- A role uses its own `callable` action (default `allow`). Set `callable: "ask"` on a role to confirm each call to it. A role with `callable: "deny"` is refused as a target.
+- A sequential team is callable when every stage is callable, and asks when any stage asks.
+- A hierarchical team is callable when its manager and every member are callable. The manager's `tool_permission.call` action gates the team, because the manager is the run that calls the members.
 - `delegate` is a read-class sibling that inherits the caller's mode and uses the `delegate` key.
 
 Sub-agent permissions are bounded by the caller: the effective carve is the caller's `tool_permission`, narrowed by the role's carve and capped by the caller's `grant_permission` ceiling (see [config.md](config.md#permission-authority)). The ceiling comes from the mode: `write` makes write keys grantable, `read` denies them, and a role or config `grant_permission` can only narrow the result. A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor that denies `edit`/`bash` for itself but allows them in its ceiling can hand them to an `implementer` while never running them. An approved `ask(kind="permission")` request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. A request naming a category (`edit`) grants the whole category, while one naming a tool (`file_write`) grants only that tool. The user may grant `always` for the rest of that sub-agent's run.

@@ -65,9 +65,13 @@ class Role:
     grant_permission: dict = field(default_factory=dict)
     ask_policy: dict = field(default_factory=dict)
     instructions: str = ''
+    callable: str = 'allow'
 
     @classmethod
     def from_dict(cls, d: dict) -> 'Role':
+        action = _coerce_action(d.get('callable', 'allow'))
+        if action not in _ACTION_RANK:
+            action = 'allow'
         return cls(
             name=d.get('name', ''),
             system_prompt=d.get('system_prompt', ''),
@@ -79,6 +83,7 @@ class Role:
             grant_permission=dict(d.get('grant_permission') or {}),
             ask_policy=dict(d.get('ask_policy') or {}),
             instructions=d.get('instructions', ''),
+            callable=action,
         )
 
     def to_body(self) -> dict:

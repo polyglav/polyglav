@@ -7,7 +7,7 @@ from ..roles import Role
 
 _ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
                 'tool_permission', 'grant_permission', 'ask_policy',
-                'instructions')
+                'instructions', 'callable')
 
 _CATALOG_WRITE_ACTIONS = ('save', 'remove', 'reload')
 
@@ -123,6 +123,8 @@ def _show_role(engine, name: str) -> str:
         lines.append(f'skills: {", ".join(agent_role.skills)}')
     if agent_role.tags:
         lines.append(f'tags: {", ".join(agent_role.tags)}')
+    if getattr(agent_role, 'callable', 'allow') != 'allow':
+        lines.append(f'callable: {agent_role.callable}')
     valid = engine.permission_keys()
     for key in ('tool_permission', 'grant_permission', 'ask_policy'):
         value = getattr(agent_role, key)
@@ -224,7 +226,8 @@ def _save_skill(engine, name: str, values: dict) -> str:
 
 def _validate(engine, kind: str, name: str, tool_permission,
               grant_permission, content, stages, team_type: str = '',
-              manager: str = '', members: list | None = None) -> str:
+              manager: str = '', members: list | None = None,
+              callable_action: str = '') -> str:
     errors: list[str] = []
     if not name:
         errors.append('name is required')
@@ -237,6 +240,10 @@ def _validate(engine, kind: str, name: str, tool_permission,
             _, error = _normalize_permission_map(engine, value, field)
             if error:
                 errors.append(error)
+        callable_value = callable_action if callable_action not in ('', None) else (
+            getattr(saved, 'callable', 'allow') if saved is not None else 'allow')
+        if _normalize_action(callable_value) is None:
+            errors.append('callable must be allow, ask, or deny')
     elif kind == 'team':
         shape = str(team_type or 'sequential').strip().lower()
         if shape not in ('sequential', 'hierarchical'):
@@ -349,6 +356,14 @@ def register_catalog_tool(registry, engine) -> Callable:
                     'type': 'object',
                     'description': 'Role: ask routing by kind.',
                 },
+                'callable': {
+                    'type': 'string',
+                    'enum': ['allow', 'ask', 'deny'],
+                    'description': 'Role: whether other roles may call it. '
+                                   'Default allow. This is separate from '
+                                   'tool_permission.call, which controls whether '
+                                   'the role may call others.',
+                },
                 'content': {
                     'type': 'string',
                     'description': 'Skill: the markdown instructions.',
@@ -435,6 +450,7 @@ def register_catalog_tool(registry, engine) -> Callable:
                 tool_permission: dict | None = None,
                 grant_permission: dict | None = None,
                 ask_policy: dict | None = None, content: str | None = None,
+                callable: str = '',
                 description: str | None = None,
                 stages: list | None = None,
                 loop: dict | None = None,
@@ -453,7 +469,7 @@ def register_catalog_tool(registry, engine) -> Callable:
             return _validate(engine, kind, name, tool_permission,
                              grant_permission, content, stages,
                              team_type=team_type, manager=manager,
-                             members=members)
+                             members=members, callable_action=callable)
         if action == 'list':
             if kind == 'role':
                 return '\n'.join(_role_line(engine, t) for t in engine.roles.all())
@@ -487,6 +503,7 @@ def register_catalog_tool(registry, engine) -> Callable:
                   'tool_permission': tool_permission,
                   'grant_permission': grant_permission,
                   'ask_policy': ask_policy, 'content': content,
+                  'callable': callable,
                   'description': description, 'stages': stages,
                   'loop': loop, 'type': team_type, 'manager': manager,
                   'members': members}

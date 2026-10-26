@@ -65,6 +65,22 @@ class TestCatalogTool(unittest.TestCase):
         out = self._catalog(action='show', kind='role', name='leader')
         self.assertIn('system_prompt:', out)
 
+    def test_save_role_callable(self):
+        out = self._catalog(action='save', kind='role', name='worker',
+                            system_prompt='w', callable='ask',
+                            tool_permission={'call': 'deny'})
+        self.assertIn('Saved role: worker', out)
+        role = self.chat.roles.find('worker')
+        self.assertEqual(role.callable, 'ask')
+        self.assertEqual(role.tool_permission.get('call'), 'deny')
+        shown = self._catalog(action='show', kind='role', name='worker')
+        self.assertIn('callable: ask', shown)
+
+    def test_validate_role_callable(self):
+        out = self._catalog(action='validate', kind='role', name='worker',
+                            callable='sometimes')
+        self.assertIn('callable must be allow, ask, or deny', out)
+
     def test_show_team(self):
         out = self._catalog(action='show', kind='team', name='writing')
         self.assertIn('1. researcher', out)

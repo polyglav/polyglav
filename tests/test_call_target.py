@@ -59,14 +59,22 @@ class TestCallTarget(unittest.TestCase):
     def test_call_role_permission_denies(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='w',
-                 tool_permission={'call': 'deny'}), scope='local')
+                 callable='deny'), scope='local')
         out = self.chat._run_tool('call', {'target': 'writer', 'task': 'x'})
         self.assertIn('disabled by tool policy', out)
 
-    def test_call_team_permission_uses_call_key(self):
+    def test_call_role_call_deny_still_callable(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='w',
                  tool_permission={'call': 'deny'}), scope='local')
+        self.chat.provider.chat.side_effect = [self._result('role done')]
+        out = self.chat._run_tool('call', {'target': 'writer', 'task': 'x'})
+        self.assertIn('[call writer] role done', out)
+
+    def test_call_team_permission_uses_callable(self):
+        self.chat.roles.put(
+            Role(name='writer', system_prompt='w',
+                 callable='deny'), scope='local')
         self.chat.teams.put(
             Team(name='doc', stages=[TeamStage(role='writer')]), scope='local')
         out = self.chat._run_tool('call', {
@@ -76,13 +84,40 @@ class TestCallTarget(unittest.TestCase):
     def test_call_team_ask_confirms(self):
         self.chat.roles.put(
             Role(name='writer', system_prompt='w',
-                 tool_permission={'call': 'ask'}), scope='local')
+                 callable='ask'), scope='local')
         self.chat.teams.put(
             Team(name='doc', stages=[TeamStage(role='writer')]), scope='local')
         self.chat._ui.confirm = lambda name, label: False
         out = self.chat._run_tool('call', {
             'target': 'doc', 'kind': 'team', 'task': 'x'})
         self.assertIn('[cancelled]', out)
+
+    def test_hierarchical_team_with_worker_call_deny(self):
+        self.chat.roles.put(
+            Role(name='manager', system_prompt='m',
+                 tool_permission={'call': 'allow'}), scope='local')
+        self.chat.roles.put(
+            Role(name='worker', system_prompt='w',
+                 tool_permission={'call': 'deny'}), scope='local')
+        self.chat.teams.put(Team(
+            name='site', type='hierarchical', manager='manager',
+            members=[TeamStage(role='worker')]), scope='local')
+        self.chat.provider.chat.side_effect = [self._result('manager done')]
+        out = self.chat._run_tool('call', {
+            'target': 'site', 'kind': 'team', 'task': 'x'})
+        self.assertIn('[call site] manager done', out)
+
+    def test_hierarchical_manager_call_deny_denies(self):
+        self.chat.roles.put(
+            Role(name='manager', system_prompt='m',
+                 tool_permission={'call': 'deny'}), scope='local')
+        self.chat.roles.put(Role(name='worker', system_prompt='w'), scope='local')
+        self.chat.teams.put(Team(
+            name='site', type='hierarchical', manager='manager',
+            members=[TeamStage(role='worker')]), scope='local')
+        out = self.chat._run_tool('call', {
+            'target': 'site', 'kind': 'team', 'task': 'x'})
+        self.assertIn('disabled by tool policy', out)
 
 
 if __name__ == '__main__':

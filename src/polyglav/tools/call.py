@@ -6,24 +6,45 @@ _WRITE_PREFIXES = ('Created ', 'Overwritten ', 'Appended ')
 _RANK = {'deny': 0, 'ask': 1, 'allow': 2}
 
 
-def _role_action(engine, role_name: str) -> str:
-    entry = engine.roles.find(role_name)
+def _callable_action(entry) -> str:
     if entry is None:
         return 'deny'
-    action = (entry.tool_permission or {}).get('call', 'allow')
+    action = getattr(entry, 'callable', 'allow') or 'allow'
     return action if action in _RANK else 'allow'
 
 
+def _role_action(engine, role_name: str) -> str:
+    entry = engine.roles.find(role_name)
+    return _callable_action(entry)
+
+
 def _team_action(engine, team) -> str:
+    if getattr(team, 'type', 'sequential') == 'hierarchical':
+        manager = engine.roles.find(team.manager)
+        if manager is None:
+            return 'deny'
+        target = _callable_action(manager)
+        if target == 'deny':
+            return 'deny'
+        action = (manager.tool_permission or {}).get('call', 'allow')
+        if action not in _RANK:
+            action = 'allow'
+        if action == 'deny':
+            return 'deny'
+        if action == 'ask' or target == 'ask':
+            action = 'ask'
+        for member in team.members:
+            entry = engine.roles.find(member.role)
+            if _callable_action(entry) == 'deny':
+                return 'deny'
+        return action
     action = 'allow'
     for stage in team.stages:
         entry = engine.roles.find(stage.role)
-        if entry is None:
-            continue
-        stage_action = (entry.tool_permission or {}).get('call', 'allow')
-        if stage_action == 'deny':
+        target = _callable_action(entry)
+        if target == 'deny':
             return 'deny'
-        if stage_action == 'ask':
+        if target == 'ask':
             action = 'ask'
     return action
 
@@ -187,7 +208,12 @@ def register_call_tool(registry, engine) -> Callable:
                 team = engine.teams.find(name)
                 if team is None:
                     return f'Error: unknown team "{name}"'
-                if not team.stages:
+                if getattr(team, 'type', 'sequential') == 'hierarchical':
+                    if not team.manager:
+                        return f'Error: team "{name}" has no manager'
+                    if not team.members:
+                        return f'Error: team "{name}" has no members'
+                elif not team.stages:
                     return f'Error: team "{name}" has no stages'
                 res = engine.run_team(team, task, skills=skills,
                                       resume=resume, context=context)
