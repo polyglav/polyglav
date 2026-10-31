@@ -194,6 +194,16 @@ def _render_command(part: dict, ts: str) -> list[str]:
     return lines
 
 
+def _usage_text(usage: dict | None) -> str:
+    usage = usage or {}
+    prompt = usage.get('prompt_tokens') or 0
+    completion = usage.get('completion_tokens') or 0
+    total = usage.get('total_tokens') or (prompt + completion)
+    if not total:
+        return ''
+    return f'{int(prompt):,} in / {int(completion):,} out / {int(total):,} total'
+
+
 def _turn_line(turn: dict) -> str:
     index = turn.get('index', 0)
     status = turn.get('status', '')
@@ -201,9 +211,8 @@ def _turn_line(turn: dict) -> str:
     duration_str = f'{duration}s' if duration is not None else '-'
     count = _turn_tool_count(turn)
     tools = f'{count} tool' + ('' if count == 1 else 's')
-    usage = turn.get('usage') or {}
-    total = usage.get('total_tokens')
-    tokens = f'  {int(total):,} tokens' if total else ''
+    usage_text = _usage_text(turn.get('usage'))
+    tokens = f'  {usage_text}' if usage_text else ''
     prompt = _clip(_turn_prompt(turn), SUMMARY_PROMPT_CHARS)
     return f'#{index}  [{status}]  {duration_str}  {tools}{tokens}  {prompt}'
 
@@ -272,6 +281,7 @@ def _turn_meta(turn: dict) -> list[str]:
         f'provider:  {_meta(turn.get("provider"))}',
         f'mode:      {_meta(turn.get("mode"))}',
         f'reasoning: {_meta(turn.get("reasoning"))}',
+        f'usage:     {_meta(_usage_text(turn.get("usage")))}',
     ]
 
 
@@ -311,15 +321,14 @@ def _tool_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
             text = loaded
     lines = [label]
     duration = part.get('duration')
-    usage = part.get('usage') or {}
-    total = usage.get('total_tokens')
+    usage_text = _usage_text(part.get('usage'))
     if duration is not None:
         stats = f'duration: {float(duration):.1f}s'
-        if total:
-            stats += f' ({int(total):,} tokens)'
+        if usage_text:
+            stats += f' ({usage_text})'
         lines.append(stats)
-    elif total:
-        lines.append(f'tokens: {int(total):,}')
+    elif usage_text:
+        lines.append(f'usage: {usage_text}')
     if part.get('input') is not None:
         lines.append('input:')
         lines.extend(_body(_arguments(part['input']), full, cap))

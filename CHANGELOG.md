@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Showed in, out, and total tokens - `/history` and `/print` now render prompt, completion, and total token counts from the recorded turn usage
 - Fixed the web plugin manifest to list `web_fetch` and `web_search`, matching the registered tools
 - Changed the role and team prompts to run `code_check` and `code_test` by default, with lint and format only when the quality plugin is enabled
 - Split code quality - `code_test` and the new stdlib `code_check` stay on by default, while `code_lint` and `code_format` moved to the off-by-default `polyglav-core-quality` plugin. Tests: `polyglav-core-dev`, `polyglav-core-quality`

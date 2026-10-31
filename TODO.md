@@ -86,7 +86,6 @@
 - [ ] Move `report.webhook` to the webhook plugin
 - [ ] Move memory keys to the memory plugin
 - [ ] Move `plan.dir` to the bookkeeping plugin
-- [ ] Record in, out, and total tokens in sessions and show them in `/history` and `/print`
 - [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
 - [ ] Add plugin config defaults and descriptions to `/config`
 - [ ] Remove all config compatibility aliases
@@ -187,6 +186,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Showed in, out, and total tokens in history and print
 - [x] Fixed the web plugin manifest tool names
 - [x] Changed role and team prompts for code_check
 - [x] Split code quality and added code_check
