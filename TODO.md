@@ -68,7 +68,6 @@
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
-- [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
 - [ ] Remove all config compatibility aliases
 
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
@@ -161,6 +160,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added onboarding provider presets
 - [x] Added the SQLite session store plugin
 - [x] Moved session render into the sessions plugin
 - [x] Moved bookkeeping config to the bookkeeping plugin

@@ -118,13 +118,20 @@ def _derive_name(url: str) -> str:
     return name or 'custom'
 
 
+PRESETS = {'lmstudio': 'http://localhost:1234/v1'}
+
+
 def _provider_names(chat):
     merged = chat._merged_providers()
     names = [n for n in sorted(merged) if n != 'openai-compatible']
     if 'ollama' in names:
         names.remove('ollama')
         names.insert(0, 'ollama')
+    for name in PRESETS:
+        if name not in names:
+            names.append(name)
     names.append('openai-compatible')
+    names.append('custom')
     extras = sorted({entry.provider for entry in chat.providers.all()}
                     - set(names))
     return names + extras, merged
@@ -163,10 +170,14 @@ def _provider_setup(chat, ask, secret):
         provider = detected if detected != 'openai-compatible' else _derive_name(url)
         base_url = url
     else:
-        factory = merged.get(provider)
-        base_url = '' if provider == 'openai-compatible' else (
-            chat.providers.base_url_for(provider) or (
-                getattr(factory, 'DEFAULT_BASE_URL', '') if factory else ''))
+        if provider == 'custom':
+            base_url = _ask(ask, 'Custom base URL: ', '')
+        else:
+            factory = merged.get(provider)
+            base_url = PRESETS.get(provider) or (
+                '' if provider == 'openai-compatible' else (
+                    chat.providers.base_url_for(provider) or (
+                        getattr(factory, 'DEFAULT_BASE_URL', '') if factory else '')))
         if not base_url:
             default_url = '' if provider == 'openai-compatible' else (
                 chat.config.get('base_url') or '')

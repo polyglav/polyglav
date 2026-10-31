@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added onboarding provider presets - LM Studio and a custom URL join the built-in providers, with the local LM Studio endpoint prefilled
 - Added the SQLite session store plugin - `polyglav-core-storage-sqlite` is off by default and keeps sessions in `.polyglav/sessions/sessions.db` with stdlib `sqlite3`
 - Moved session render into the sessions plugin - transcript rendering, `/print`, `/history`, and export/import handlers now live with `polyglav-core-sessions`
 - Moved bookkeeping config to the bookkeeping plugin - `plan.dir` is declared by `polyglav-core-bookkeeping`

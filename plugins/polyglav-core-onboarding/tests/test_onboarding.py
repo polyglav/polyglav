@@ -208,6 +208,11 @@ class TestOnboarding(unittest.TestCase):
         self.assertEqual(chat.providers.keys['ollama'], 'key-123')
         self.assertEqual(self.config.get('model'), 'model-b')
 
+    def test_provider_presets_include_lmstudio_and_custom(self):
+        names, _ = plugin._provider_names(self._chat())
+        self.assertIn('lmstudio', names)
+        self.assertIn('custom', names)
+
     def test_run_custom_provider_url(self):
         chat = self._chat()
         answers = self._answers(**{
