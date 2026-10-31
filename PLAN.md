@@ -19,8 +19,8 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Sessions plugin | S | export and import outside the core |
 | Move the role registry into the roles plugin | M | optional roles and delegation |
 | Move the team registry and `run_team` into the teams plugin | M | optional teams on top of roles |
-| Skills plugin | S-M | optional skills |
-| Bookkeeping plugin | S-M | optional plan and todo |
+| Move the skill registry and improvement into the skills plugin | S-M | optional skills |
+| Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Memory plugin | M | optional memory |
 | Jobs plugin | M | optional scheduling |
 | Fleet plugin | M | optional supervision |

@@ -8,6 +8,7 @@ from polyglav.tools.registry import ToolRegistry
 
 BUNDLED = {
     'polyglav-core-anthropic',
+    'polyglav-core-bookkeeping',
     'polyglav-core-dev',
     'polyglav-core-edit',
     'polyglav-core-eval',
@@ -22,6 +23,7 @@ BUNDLED = {
     'polyglav-core-opencode',
     'polyglav-core-providers',
     'polyglav-core-roles',
+    'polyglav-core-skills',
     'polyglav-core-teams',
     'polyglav-core-web',
     'polyglav-core-webhook',

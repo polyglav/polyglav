@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
     },
     'plugins': [
         'polyglav-core-anthropic',
+        'polyglav-core-bookkeeping',
         'polyglav-core-dev',
         'polyglav-core-edit',
         'polyglav-core-eval',
@@ -87,6 +88,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-opencode',
         'polyglav-core-providers',
         'polyglav-core-roles',
+        'polyglav-core-skills',
         'polyglav-core-teams',
         'polyglav-core-web',
         'polyglav-core-webhook',

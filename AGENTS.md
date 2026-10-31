@@ -88,20 +88,23 @@ Polyglav/
 │       ├── __init__.py
 │       └── http.py          # urllib-based SSE streaming
 └── plugins/                 # bundled plugins (shipped as polyglav.plugins.bundled), each is {src/, tests/}
-├── polyglav-core-edit/        # file_edit
     ├── polyglav-core-anthropic/   # AnthropicProvider
+    ├── polyglav-core-bookkeeping/ # plan and todo tools and commands
     ├── polyglav-core-dev/         # code_test, code_lint, code_format
+    ├── polyglav-core-edit/        # file_edit
     ├── polyglav-core-eval/        # eval fixture catalog for polyglav eval
     ├── polyglav-core-exec/        # run_command
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
+    ├── polyglav-core-mcp/         # MCP client and server
     ├── polyglav-core-ollama/      # OllamaProvider
     ├── polyglav-core-onboarding/  # first-run project setup (/onboard)
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-providers/   # provider connections and model commands
     ├── polyglav-core-roles/       # role catalog and the call tool
+    ├── polyglav-core-skills/      # skill catalog
     ├── polyglav-core-teams/       # team catalog and team runs
     ├── polyglav-core-web/         # web_search, web_fetch + search service
     └── polyglav-core-webhook/     # report-back connector (job run reports)

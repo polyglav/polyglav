@@ -87,8 +87,7 @@
 - [ ] Add the sessions plugin - `/sessions`, export, import, and render
 - [ ] Move the role registry into the roles plugin and remove the core `roles.py` dependency
 - [ ] Move the team registry and `run_team` into the teams plugin
-- [ ] Add the skills plugin - skill registry, `/skills`, and skill improvement
-- [ ] Add the bookkeeping plugin - plan and todo tools and commands
+- [ ] Move the skill registry and skill improvement into the skills plugin
 - [ ] Add the memory plugin - memory files, injection, refresh, and `/memorize`
 - [ ] Add the jobs plugin - jobs, scheduler, `/jobs`, `polyglav jobs`, and job memory
 - [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
@@ -268,6 +267,8 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved bookkeeping to a plugin
+- [x] Moved skill management to a plugin
 - [x] Moved team management to a plugin
 - [x] Moved role commands and call to a plugin
 - [x] Changed command aliases and added clear new and summary

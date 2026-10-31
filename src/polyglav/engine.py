@@ -1641,16 +1641,12 @@ class Engine:
         from .tools.delegate import register_delegate_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
-        from .tools.plan import register_plan_tool
-        from .tools.todo import register_todo_tool
         from .modes import merge_policy, mode_cap, read_keys
         mode = self._mode()
         self._tool_registry = ToolRegistry(engine=self)
         register_delegate_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)
-        register_plan_tool(self._tool_registry, self)
-        register_todo_tool(self._tool_registry, self)
         plugin_manager = getattr(self, '_plugin_manager', None)
         if plugin_manager is not None:
             plugin_manager.register_tools(self._tool_registry)
