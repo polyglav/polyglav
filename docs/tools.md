@@ -16,7 +16,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
 | `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
-| `delegate` | core | `delegate` | `delegate` | Delegate a read-only sub-task to an anonymous sibling |
+| `delegate` | core | `delegate` | `delegate` | Delegate a sub-task to an anonymous sibling that inherits the caller mode and cap |
 | `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |
 | `file_read` | polyglav-core-fs | `read` | `read` | Read a file with numbered lines (aliases `read_file`, `read`, `view`) |
 | `file_write` | polyglav-core-fs | `write` | `edit` | Create/overwrite/append a file (aliases `write_file`, `write`) |

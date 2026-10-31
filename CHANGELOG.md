@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed the delegate contract - the tool now describes an anonymous sibling that inherits the caller mode and permission cap, not a read-only helper
 - Moved the HTTP API and cancel into the serve plugin - the stdlib server, `POST /chat`, `POST /cancel`, and `polyglav serve` now live with the plugin. Tests: `polyglav-core-serve`
 - Added the providers CLI - `polyglav providers list`, `connect`, `probe`, and `remove` use the stored connections and set the active provider. Tests: `polyglav-core-providers`
 - Added the JSONL session store - `session.storage = jsonl` appends meta and turn events and restores the last event per turn, with JSON still the default. Tests: `test_session_io.py`

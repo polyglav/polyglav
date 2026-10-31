@@ -65,7 +65,6 @@
 - [ ] Add plugin tests for every extracted command and tool
 
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
-- [ ] Change the delegate contract - describe an anonymous sibling that inherits the caller's mode and cap, not a read-only helper
 - [ ] Rename `bash_allow` to `exec_allow` with no alias
 - [ ] Split code quality - keep `code_test`, move `code_lint` and `code_format` to an off-by-default plugin, and add a stdlib `code_check`
 - [ ] Change role and team prompts for `code_check` and an optional configured linter or formatter
@@ -194,6 +193,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed the delegate contract
 - [x] Moved the HTTP API and cancel into the serve plugin
 - [x] Changed the UI commands task
 - [x] Changed the fleet and swarm task

@@ -58,7 +58,7 @@ def register_delegate_tool(registry, engine) -> Callable:
         category='delegate',
         permission='delegate',
         key_arg='task',
-        short='Delegate a read-only sub-task to a sibling',
+        short='Delegate a sub-task to an anonymous sibling',
         glyph='↳',
         verb='Delegate',
         loop=True,
