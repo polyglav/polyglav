@@ -170,22 +170,20 @@ def _connect_save(chat, providers, provider, base_url, api_key):
         print(f'  Detected provider "{detected}" from base URL - switching')
         provider = detected
     was_known = chat.providers.find(provider) is not None
-    checkout = chat.config.get('connect_check', True)
     models: list[str] = []
-    if checkout:
-        ok, msg, _models = chat.check_connection(
-            base_url=base_url, api_key=api_key, provider=provider)
-        models = _models
-        if not ok:
-            print(f'  {RED}✗ Connection test failed: {msg}{RESET}')
-            try:
-                answer = input('  Save anyway? [Y/n] ').strip().lower()
-            except (EOFError, KeyboardInterrupt):
-                print()
-                return
-            if answer in ('n', 'no'):
-                print('  Connection not saved - run /connect again with corrected values')
-                return
+    ok, msg, _models = chat.check_connection(
+        base_url=base_url, api_key=api_key, provider=provider)
+    models = _models
+    if not ok:
+        print(f'  {RED}✗ Connection test failed: {msg}{RESET}')
+        try:
+            answer = input('  Save anyway? [Y/n] ').strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return
+        if answer in ('n', 'no'):
+            print('  Connection not saved - run /connect again with corrected values')
+            return
     chat.providers.put(provider, base_url, api_key)
     chat.config.set('provider', provider)
     if base_url:
@@ -193,10 +191,7 @@ def _connect_save(chat, providers, provider, base_url, api_key):
     _cache_models(chat, provider, models)
     chat._reinit_provider()
     verb = 'Updated' if was_known else 'Added'
-    if checkout:
-        print(f'Connected to {provider} ({base_url}) - {msg}')
-    else:
-        print(f'Connected to {provider} ({base_url})')
+    print(f'Connected to {provider} ({base_url}) - {msg}')
     print(f'  {verb} provider "{provider}"')
     print(f'  Pick a model with /models list {provider} or /model {provider}/<model>')
 
@@ -311,11 +306,10 @@ def register_commands(commands):
             chat.config.set('provider', arg.strip())
             chat._reinit_provider()
             print(f'Provider set to: {chat.config.get("provider")}')
-            if chat.config.get('connect_check', True):
-                ok, msg, _ = chat.check_connection()
-                if not ok:
-                    print(f'  Warning: connection test failed - {msg}')
-                    print('  Run /connect to fix provider settings')
+            ok, msg, _ = chat.check_connection()
+            if not ok:
+                print(f'  Warning: connection test failed - {msg}')
+                print('  Run /connect to fix provider settings')
         else:
             print(f'Current provider: {chat.config.get("provider")}')
 

@@ -243,17 +243,13 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(c.get('footer_tokens'), ['tokens'])
         self.assertEqual(c.get('temperature'), 0.1)
 
-    def test_output_keys_migrate_from_old_names(self):
+    def test_legacy_output_key_aliases_are_gone(self):
         self.write_local({'noise_tools': ['web_fetch'],
                           'session_tool_max_chars': 25})
         c = Config(path=str(self.project))
-        self.assertEqual(c.get('tools_output_drop'), ['web_fetch'])
-        self.assertEqual(c.get('tools_output_max_chars'), 25)
-        saved = self.local()
-        self.assertNotIn('noise_tools', saved)
-        self.assertNotIn('session_tool_max_chars', saved)
-        self.assertEqual(saved['tools_output_drop'], ['web_fetch'])
-        self.assertEqual(saved['tools_output_max_chars'], 25)
+        self.assertEqual(c.get('tools_output_drop'),
+                         ['web_fetch', 'open', 'fetch_page'])
+        self.assertEqual(c.get('tools_output_max_chars'), 0)
 
     def test_reload_keeps_nested_defaults(self):
         self.write_local({'tool_permission': {'bash': 'allow'}})

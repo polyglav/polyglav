@@ -52,7 +52,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `clear_screen`              | `true`                 | Clear the screen before the REPL banner                                |
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth |
-| `connect_check`             | `true`                 | Test the provider connection on config changes: `/connect` probes before saving (broken values rejected unless confirmed), `/provider` warns on a failed probe. `false` skips all probes |
 | `delegate_depth`            | `1`                    | Maximum nested `delegate` siblings. `0` = unlimited. A sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
 | `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |

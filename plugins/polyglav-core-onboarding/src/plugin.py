@@ -190,14 +190,13 @@ def _provider_setup(chat, ask, secret):
     api_key = _secret(secret, prompt, stored)
 
     models = []
-    if chat.config.get('connect_check', True):
-        ok, message, models = chat.check_connection(
-            base_url=base_url, api_key=api_key, provider=provider)
-        if not ok:
-            _warn(chat, f'Connection test failed: {message}')
-            if _ask(ask, PROMPT_SAVE_ANYWAY, 'y').lower() in ('n', 'no'):
-                _warn(chat, 'Provider not saved.')
-                return None
+    ok, message, models = chat.check_connection(
+        base_url=base_url, api_key=api_key, provider=provider)
+    if not ok:
+        _warn(chat, f'Connection test failed: {message}')
+        if _ask(ask, PROMPT_SAVE_ANYWAY, 'y').lower() in ('n', 'no'):
+            _warn(chat, 'Provider not saved.')
+            return None
 
     chat.providers.put(provider, base_url, api_key)
     chat.config.set('provider', provider, scope='local')

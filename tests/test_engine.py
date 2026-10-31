@@ -20,7 +20,6 @@ def make_engine(config_data: dict | None = None) -> Engine:
         'provider': 'ollama',
         'model': 'test-model',
         'base_url': 'https://test.api.com',
-        'api_key': '',
         'temperature': 0.7,
         'max_tokens': 2048,
     }
@@ -83,12 +82,10 @@ class TestEngine(unittest.TestCase):
 
     def test_reinit_provider_uses_registry_api_key(self):
         self.engine.providers.put('ollama', 'https://test.api.com', 'reg-key')
-        self.engine.config.apply('api_key', 'cfg-key')
         self.engine._reinit_provider()
         self.assertEqual(self.engine.provider.api_key, 'reg-key')
 
     def test_reinit_provider_no_registry_key_is_empty(self):
-        self.engine.config.apply('api_key', 'cfg-key')
         self.assertIsNone(self.engine.providers.find('ollama'))
         self.engine._reinit_provider()
         self.assertEqual(self.engine.provider.api_key, '')

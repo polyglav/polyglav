@@ -223,7 +223,7 @@ class TestToolCommand(unittest.TestCase):
 
     def test_config_listing_sorts_extra_key(self):
         output = self._dispatch('/config')
-        self.assertLess(output.index('api_key'), output.index('provider'))
+        self.assertLess(output.index('base_url'), output.index('provider'))
 
     def test_config_parses_json_list(self):
         self._dispatch('/config tools.deny ["run_command", "web_search"]')
@@ -273,12 +273,6 @@ class TestToolCommand(unittest.TestCase):
         self.assertIn('(global)', output)
         self.assertEqual(self._global_raw().get('temperature'), 0.3)
         self.assertEqual(self._local_raw().get('temperature'), 0.7)
-
-    def test_config_global_api_key_writes_global(self):
-        output = self._dispatch('/config --global api_key sk-456')
-        self.assertEqual(self._global_raw().get('api_key'), 'sk-456')
-        self.assertEqual(self._local_raw().get('api_key'), '')
-        self.assertIn('sk-456', output)
 
     def test_config_local_flag_explicit(self):
         self._dispatch('/config --local temperature 0.4')
@@ -513,11 +507,11 @@ class TestConnectCommand(unittest.TestCase):
         self.assertIn('Connected to ollama (https://api.ollama.com)', output)
         self.assertEqual(self.chat.providers.api_key_for('ollama'), 'sk-risk')
 
-    def test_connect_check_disabled_skips_probe(self):
-        self.chat.config.set('connect_check', False)
-        with patch.object(self.chat, 'check_connection') as probe:
+    def test_connect_always_probes(self):
+        with patch.object(self.chat, 'check_connection',
+                          return_value=(True, 'ok', [])) as probe:
             output = self._dispatch('/connect ollama', ['sk-123'])
-        probe.assert_not_called()
+        probe.assert_called_once()
         self.assertIn('Connected to ollama (https://api.ollama.com)', output)
         self.assertEqual(self.chat.providers.api_key_for('ollama'), 'sk-123')
 
@@ -760,11 +754,11 @@ class TestProviderWarn(unittest.TestCase):
         self.assertIn('Provider set to: openai', output)
         self.assertNotIn('Warning', output)
 
-    def test_provider_no_probe_when_disabled(self):
-        self.chat.config.set('connect_check', False)
-        with patch.object(self.chat, 'check_connection') as probe:
+    def test_provider_always_probes(self):
+        with patch.object(self.chat, 'check_connection',
+                          return_value=(True, 'ok', [])) as probe:
             output = self._dispatch('/provider openai')
-        probe.assert_not_called()
+        probe.assert_called_once()
         self.assertNotIn('Warning', output)
 
 

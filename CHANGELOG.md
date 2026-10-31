@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Removed unused legacy config keys - `api_key`, `connect_check`, `noise_tools`, and `session_tool_max_chars` are gone, provider probes always run, and the output-key migration is removed
 - Changed auto-continue to `auto_continue_max` only - `0` turns continuation off and a positive value enables it, with no separate boolean
 - Renamed `bash_allow` to `exec_allow` with no alias - the exec allowlist keeps the same prefix, chain, and heredoc rules under `tool_permission.exec_allow`
 - Changed the delegate contract - the tool now describes an anonymous sibling that inherits the caller mode and permission cap, not a read-only helper

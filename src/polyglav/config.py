@@ -17,7 +17,6 @@ DEFAULT_CONFIG = {
     'clear_screen': True,
     'compact_keep': 4,
     'confirm_timeout': 0,
-    'connect_check': True,
     'delegate_depth': 1,
     'footer_tokens': ['context'],
     'glyphs': {},
@@ -204,7 +203,6 @@ def config_bool(value, default: bool = False) -> bool:
 
 CONFIG_DESCRIPTIONS = {
     'access': 'Read-class permission keys; any key not listed is write-class',
-    'api_key': 'Legacy, ignored (API keys live in providers.json)',
     'ask_min_question_chars': 'Minimum direction-ask question length without context or options',
     'ask_policy': 'Routing for the ask tool by kind',
     'auto_continue_max': 'Max continuation rounds per turn (0 is off)',
@@ -212,7 +210,6 @@ CONFIG_DESCRIPTIONS = {
     'clear_screen': 'Clear the screen before the REPL banner',
     'compact_keep': 'Turns to keep when compacting the provider context',
     'confirm_timeout': 'Seconds a confirm or ask prompt waits before auto-denying',
-    'connect_check': 'Probe the provider connection on config changes',
     'delegate_depth': 'Maximum nested delegate siblings',
     'footer_tokens': 'Token counts the footer shows, in order',
     'glyphs': 'Glyph overrides, or "ascii" for the ASCII preset',
@@ -244,7 +241,6 @@ CONFIG_DESCRIPTIONS = {
     'report.webhook': 'URL a completed job run is POSTed to',
     'search_results': 'Number of search results to fetch',
     'session.storage': 'Session storage format: json or jsonl',
-    'session_tool_max_chars': 'Legacy, renamed tools_output_max_chars',
     'show_version': 'Show the version in the REPL banner',
     'stream_retries': 'Extra attempts when a stream ends without content',
     'stream_retry_delay': 'Seconds between stream retries',
@@ -281,11 +277,6 @@ CONFIG_CHOICES = {
     'word_streaming': ('true', 'false'),
 }
 
-
-_OUTPUT_KEY_ALIASES = {
-    'noise_tools': 'tools_output_drop',
-    'session_tool_max_chars': 'tools_output_max_chars',
-}
 
 _MISSING = object()
 
@@ -324,33 +315,10 @@ class Config:
             with open(self.local_path) as f:
                 self._local_raw = json.load(f)
         self.data = self._merged()
-        self._migrate_output_keys()
         self._migrate_verbosity()
 
     def _merged(self) -> dict:
         return _merge(_merge(DEFAULT_CONFIG, self._global_raw), self._local_raw)
-
-    def _migrate_output_keys(self):
-        local = self._rename_output_keys(self._local_raw)
-        global_ = self._rename_output_keys(self._global_raw)
-        if local or global_:
-            self.data = self._merged()
-        if local:
-            self._save_local()
-        if global_:
-            self._write_global({})
-
-    @staticmethod
-    def _rename_output_keys(raw: dict) -> bool:
-        changed = False
-        for old, new in _OUTPUT_KEY_ALIASES.items():
-            if old not in raw:
-                continue
-            if new not in raw:
-                raw[new] = raw[old]
-            raw.pop(old, None)
-            changed = True
-        return changed
 
     def _migrate_verbosity(self):
         local = self._migrate_verbosity_raw(self._local_raw)
