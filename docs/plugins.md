@@ -104,6 +104,21 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Eval fixtures
 
+`provides.config` declares plugin-owned config keys. Each key maps to an object with `default` and `description`. Loaded plugins register those defaults with the config service, so `/config` validates the key, shows the description, and uses the default when neither the global nor the local file sets it.
+
+```json
+{
+  "provides": {
+    "config": {
+      "web.search_results": {
+        "default": 10,
+        "description": "Number of search results to fetch"
+      }
+    }
+  }
+}
+```
+
 `register_fixtures(fixtures)` contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture `id` to fixture data (same shape as the JSON fixtures under `.polyglav/eval/`, see [eval.md](eval.md)). Local and global fixture files override plugin fixtures by `id`. The bundled `polyglav-core-eval` plugin ships the default catalog this way.
 
 ### Startup

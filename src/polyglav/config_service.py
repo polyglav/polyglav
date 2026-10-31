@@ -23,12 +23,15 @@ class ConfigService:
         return self.config.origin(key)
 
     def default(self, key: str) -> str | None:
-        if key not in DEFAULT_CONFIG:
-            return None
-        return str(DEFAULT_CONFIG[key])
+        if key in DEFAULT_CONFIG:
+            return str(DEFAULT_CONFIG[key])
+        if key in self.config._plugin_defaults:
+            return str(self.config._plugin_defaults[key])
+        return None
 
     def description(self, key: str) -> str:
-        return CONFIG_DESCRIPTIONS.get(key, '')
+        return (CONFIG_DESCRIPTIONS.get(key)
+                or self.config.plugin_descriptions.get(key, ''))
 
     def options(self, key: str) -> str:
         choices = CONFIG_CHOICES.get(key)

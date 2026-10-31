@@ -305,6 +305,8 @@ class Config:
         self.data = copy.deepcopy(DEFAULT_CONFIG)
         self._global_raw: dict = {}
         self._local_raw: dict = {}
+        self._plugin_defaults: dict = {}
+        self.plugin_descriptions: dict = {}
         self._load()
 
     def _load(self):
@@ -318,7 +320,24 @@ class Config:
         self._migrate_verbosity()
 
     def _merged(self) -> dict:
-        return _merge(_merge(DEFAULT_CONFIG, self._global_raw), self._local_raw)
+        base = _merge(DEFAULT_CONFIG, self._plugin_defaults)
+        return _merge(_merge(base, self._global_raw), self._local_raw)
+
+    def register_plugin_defaults(self, defaults: dict) -> None:
+        changed = False
+        for key, entry in (defaults or {}).items():
+            if not isinstance(entry, dict):
+                continue
+            if key not in self._plugin_defaults:
+                self._plugin_defaults[key] = copy.deepcopy(
+                    entry.get('default'))
+                changed = True
+            description = entry.get('description')
+            if description and key not in self.plugin_descriptions:
+                self.plugin_descriptions[key] = str(description)
+                changed = True
+        if changed:
+            self.data = self._merged()
 
     def _migrate_verbosity(self):
         local = self._migrate_verbosity_raw(self._local_raw)

@@ -36,7 +36,8 @@ class PluginInfo:
         return self.origin == 'global'
 
 
-DEFAULT_PROVIDES = {'tools': [], 'providers': [], 'commands': []}
+DEFAULT_PROVIDES = {'tools': [], 'providers': [], 'commands': [],
+                    'config': {}}
 
 
 @dataclass
@@ -226,6 +227,11 @@ class PluginManager:
                 continue
             self._import(info)
         self._collect_services()
+        for info in self._plugins.values():
+            if info.status != 'loaded':
+                continue
+            self.config.register_plugin_defaults(
+                info.provides.get('config') or {})
 
     def _load_order(self, enabled: set[str]) -> list[str]:
         order: list[str] = []

@@ -55,7 +55,6 @@
 - [ ] Add the quality plugin - `code_lint` and `code_format`, off by default
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
-- [ ] Add plugin config registration through `provides.config`
 - [ ] Add plugin docs for ownership, defaults, and dependencies
 - [ ] Add plugin tests for every extracted command and tool
 
@@ -177,6 +176,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added plugin config registration
 - [x] Added session load validation
 - [x] Removed session compatibility
 - [x] Changed CLI help grouping

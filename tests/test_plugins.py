@@ -551,6 +551,20 @@ class TestRegistration(PluginTestBase):
         self.pm.register_skills({})
         self.assertIn('register_skills failed', self.pm.get('boom').error)
 
+    def test_config_provides_registers_defaults(self):
+        write_plugin(
+            self.plugins_dir, 'withconfig', '',
+            {'name': 'withconfig',
+             'provides': {'config': {
+                 'demo.limit': {'default': 7,
+                                'description': 'Demo limit'}}}})
+        self.pm.load()
+        self.assertEqual(self.config.get('demo.limit'), 7)
+        from polyglav.config_service import ConfigService
+        service = ConfigService(self.config)
+        self.assertEqual(service.description('demo.limit'), 'Demo limit')
+        self.assertEqual(service.default('demo.limit'), '7')
+
     def test_register_fixtures_hook(self):
         write_plugin(self.plugins_dir, 'eval', FIXTURE_PLUGIN, {'name': 'eval'})
         self.pm.load()
