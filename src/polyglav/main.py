@@ -84,15 +84,6 @@ def _add_eval_parser(sub):
                    help='Print tool status and diagnostics to stderr')
 
 
-def _add_serve_parser(sub):
-    p = sub.add_parser('serve', help='HTTP JSON API server (stdlib http.server)')
-    p.add_argument('--host', default='127.0.0.1')
-    p.add_argument('--port', type=int, default=8787)
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Project path (default: current directory)')
-    p.add_argument('--mode', help='Agent mode override (read or write, default read)')
-
-
 def _add_mcp_parser(sub):
     p = sub.add_parser('mcp', help='Run polyglav as an MCP server over stdio')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -233,7 +224,6 @@ def _build_parser(config, pm):
     _add_import_parser(sub)
     _add_models_parser(sub)
     _add_eval_parser(sub)
-    _add_serve_parser(sub)
     _add_mcp_parser(sub)
     _add_config_parser(sub)
     _add_plugins_parser(sub)
@@ -279,9 +269,6 @@ def main(argv=None):
     if args.command == 'eval':
         from .cli import cmd_eval
         return cmd_eval(args)
-    if args.command == 'serve':
-        from .cli import cmd_serve
-        return cmd_serve(args)
     if args.command == 'mcp':
         from .cli import cmd_mcp
         return cmd_mcp(args)

@@ -23,7 +23,7 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
 | Fleet plugin | M | optional supervision |
-| Serve plugin | S-M | optional HTTP access |
+| Move the HTTP API and cancel into the serve plugin | S-M | optional HTTP access |
 | Eval plugin | S | optional development harness |
 | Quality plugin | S | optional lint and format |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |
@@ -54,7 +54,6 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 |------|--------|----------|
 | Jobs scheduler and shared job service | M | one jobs surface |
 | Fleet plugin CLI | M | supervised agents outside the core |
-| Serve plugin CLI | S-M | a replaceable HTTP access layer |
 | Sessions CLI export and import | S | storage formats outside the core |
 | Eval plugin CLI | S | a development harness outside the core |
 | Config service and validation | S-M | one config behavior |

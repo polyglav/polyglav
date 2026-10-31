@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the serve CLI to a plugin - `polyglav serve` registers from `polyglav-core-serve`. Tests: `test_cli.py`, `test_plugins.py`
 - Moved the jobs CLI to a plugin - `polyglav jobs` registers from `polyglav-core-jobs`, and the core keeps the handler for now. Tests: `test_plugins.py`, `test_cli.py`
 - Moved the sessions command to a plugin - `/sessions` lives in `polyglav-core-sessions`. Tests: `test_session_import.py`, `test_commands.py`
 - Moved the jobs command to a plugin - `/jobs` lives in `polyglav-core-jobs`. Tests: `test_jobs.py`, `test_commands.py`

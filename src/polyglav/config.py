@@ -91,6 +91,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-providers',
         'polyglav-core-roles',
         'polyglav-core-sessions',
+        'polyglav-core-serve',
         'polyglav-core-skills',
         'polyglav-core-teams',
         'polyglav-core-web',

@@ -91,7 +91,7 @@
 - [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
 - [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
-- [ ] Add the serve plugin - HTTP API and cancel
+- [ ] Move the HTTP API and cancel into the serve plugin
 - [ ] Add the eval plugin - eval harness
 - [ ] Add the quality plugin - `code_lint` and `code_format`, off by default
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
@@ -267,6 +267,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the serve CLI to a plugin
 - [x] Moved the jobs CLI to a plugin
 - [x] Moved the sessions command to a plugin
 - [x] Moved the jobs command to a plugin
