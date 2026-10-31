@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added CLI and front-end plugin hooks - plugins register CLI subcommands and named front-end factories, the core REPL is the default front-end, and `--frontend` selects another. Tests: `test_plugins.py`
 - Added plugin dependency loading - manifest `depends` loads dependencies first, reports missing and disabled dependencies, and marks cycles as errors. Tests: `test_plugins.py`
 
 ## v0.49.0 - 2026-10-26

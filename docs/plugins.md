@@ -68,7 +68,7 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 
 ## Entry contract
 
-The entry module may define any of nine hooks (all optional):
+The entry module may define any of eleven hooks (all optional):
 
 ```python
 def register_tools(registry) -> None: ...        # @registry.register(...) - same as core tools
@@ -80,7 +80,13 @@ def register_teams(teams) -> None: ...           # register into the TeamRegistr
 def register_skills(skills) -> None: ...         # skills.add_plugin({...}) - see skills.md
 def register_fixtures(fixtures) -> None: ...     # fixtures["id"] = fixture data - see eval.md
 def register_startup(hooks) -> None: ...         # hooks.append(callable(chat)) - run once when the REPL starts
+def register_cli(cli) -> None: ...               # cli.add_parser(...) - plugin CLI subcommand
+def register_frontends(frontends) -> None: ...   # frontends.register(name, factory) - access layer
 ```
+
+`register_cli(cli)` runs while the command-line parser is built, after the core subcommands. `cli.add_parser(name, **kwargs)` returns an `argparse` parser and rejects duplicate names. A plugin attaches its handler with `parser.set_defaults(func=handler)`. The handler receives the parsed `args`, and `args._polyglav_config` and `args._polyglav_plugins` are available for the loaded config and plugin manager. A plugin that raises while registering its command is marked as an error, and the rest of the CLI still starts.
+
+`register_frontends(frontends)` registers a named front-end factory `factory(config, plugin_manager)`. The core REPL is the default `repl` front-end and a plugin may override it. `--frontend <name>` selects another registered front-end when no subcommand is given. Unknown names fail with a clear error.
 
 Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
 

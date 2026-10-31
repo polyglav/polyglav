@@ -139,8 +139,6 @@
 - [ ] Add plugin config defaults and descriptions to `/config`
 - [ ] Remove all config compatibility aliases
 
-- [ ] Add a plugin CLI subcommand hook - `register_cli(subparsers)` so plugins own their commands
-- [ ] Add a front-end registration hook - load the REPL and serve without core imports
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
 - [ ] Move `polyglav fleet` into the fleet plugin
 - [ ] Move `polyglav serve` into the serve plugin
@@ -277,6 +275,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added CLI and front-end plugin hooks
 - [x] Added plugin dependency loading
 - [x] Changed ask styling
 - [x] Updated team and verbosity docs

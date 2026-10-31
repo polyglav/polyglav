@@ -6,7 +6,9 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from polyglav.config import Config
-from polyglav.plugins.manager import PluginManager, PluginError, version_matches
+from polyglav.plugins.manager import (CLIRegistry, FrontendRegistry,
+                                     PluginManager, PluginError,
+                                     version_matches)
 from polyglav.tools.registry import ToolRegistry
 from polyglav.tools.policy import ToolPolicy
 from polyglav.commands.registry import CommandRegistry
@@ -75,6 +77,26 @@ def register_tools(registry):
 SERVICE_PLUGIN = '''
 def register_services(services):
     services['greet'] = lambda: 'hello from service'
+'''
+
+CLI_PLUGIN = '''
+def _run(args):
+    return 'frob ' + args.value
+
+
+def register_cli(cli):
+    parser = cli.add_parser('frobnicate', help='Frobnicate')
+    parser.add_argument('value')
+    parser.set_defaults(func=_run)
+'''
+
+FRONTEND_PLUGIN = '''
+def _make(config, plugin_manager):
+    return 'custom-front'
+
+
+def register_frontends(frontends):
+    frontends.register('custom', _make, 'A custom front-end')
 '''
 
 TYPE_PLUGIN = '''
@@ -365,6 +387,45 @@ class TestPluginsConfig(PluginTestBase):
         pm.load()
         self.assertEqual(pm.get('a').status, 'loaded')
         self.assertEqual(pm.get('b').status, 'loaded')
+
+
+class TestHooks(PluginTestBase):
+
+    def test_plugin_cli_command_registers_and_dispatches(self):
+        import argparse
+        write_plugin(self.plugins_dir, 'cli', CLI_PLUGIN, {'name': 'cli'})
+        self.pm.load()
+        parser = argparse.ArgumentParser()
+        sub = parser.add_subparsers(dest='command')
+        cli = CLIRegistry(sub, self.config, self.pm)
+        self.pm.register_cli(cli)
+        args = parser.parse_args(['frobnicate', 'x'])
+        self.assertEqual(args.func(args), 'frob x')
+        self.assertEqual(cli.names(), ['frobnicate'])
+
+    def test_plugin_frontend_registers(self):
+        write_plugin(self.plugins_dir, 'front', FRONTEND_PLUGIN,
+                     {'name': 'front'})
+        self.pm.load()
+        registry = FrontendRegistry()
+        self.pm.register_frontends(registry)
+        frontend = registry.get('custom')
+        self.assertIsNotNone(frontend)
+        self.assertEqual(frontend.factory(self.config, self.pm), 'custom-front')
+        self.assertEqual(registry.names(), ['custom'])
+
+    def test_duplicate_cli_command_is_plugin_error(self):
+        import argparse
+        write_plugin(self.plugins_dir, 'cli', CLI_PLUGIN, {'name': 'cli'})
+        self.pm.load()
+        parser = argparse.ArgumentParser()
+        sub = parser.add_subparsers(dest='command')
+        sub.add_parser('frobnicate')
+        cli = CLIRegistry(sub, self.config, self.pm)
+        self.pm.register_cli(cli)
+        info = self.pm.get('cli')
+        self.assertEqual(info.status, 'error')
+        self.assertIn('register_cli failed', info.error)
 
 
 class TestEntryErrors(PluginTestBase):

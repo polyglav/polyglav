@@ -3,6 +3,7 @@ import argparse
 
 from .config import Config
 from .chat import ChatLoop
+from .plugins.manager import CLIRegistry, FrontendRegistry, PluginManager
 from . import get_version
 
 
@@ -282,11 +283,27 @@ def _version():
     return get_version()
 
 
-def main(argv=None):
+def _preparse_path(argv):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--path', default=None)
+    known, _ = parser.parse_known_args(argv)
+    return known.path
+
+
+def _load_plugins(argv):
+    config = Config(path=_preparse_path(argv))
+    pm = PluginManager(config)
+    pm.load()
+    return config, pm
+
+
+def _build_parser(config, pm):
     parser = argparse.ArgumentParser(
         description='Polyglav - a terminal-based agentic REPL with headless CLI and API modes'
     )
     parser.add_argument('--path', '-p', help='Project path (default: current directory)')
+    parser.add_argument('--frontend', default='repl',
+                        help='Front-end to start when no subcommand is given (default: repl)')
     parser.add_argument('--unattended', action='store_true',
                         help='Run the REPL without touching stdin from any depth '
                              '(confirms auto-deny, user asks park or '
@@ -305,7 +322,31 @@ def main(argv=None):
     _add_plugins_parser(sub)
     _add_jobs_parser(sub)
     _add_fleet_parser(sub)
+    pm.register_cli(CLIRegistry(sub, config, pm))
+    return parser
+
+
+def _repl_frontend(config, plugin_manager):
+    return ChatLoop(config, plugin_manager=plugin_manager)
+
+
+def _frontends(pm):
+    registry = FrontendRegistry()
+    pm.register_frontends(registry)
+    if registry.get('repl') is None:
+        registry.register('repl', _repl_frontend, 'Terminal REPL')
+    return registry
+
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    config, pm = _load_plugins(argv)
+    parser = _build_parser(config, pm)
     args = parser.parse_args(argv)
+
+    handler = getattr(args, 'func', None)
+    if handler is not None:
+        return handler(args)
 
     if args.command == 'run':
         from .cli import cmd_run
@@ -341,10 +382,13 @@ def main(argv=None):
         from .cli import cmd_fleet
         return cmd_fleet(args)
 
-    config = Config(path=args.path)
     if getattr(args, 'unattended', False):
         config.apply('unattended', True)
-    chat = ChatLoop(config)
+    frontend = _frontends(pm).get(args.frontend or 'repl')
+    if frontend is None:
+        print(f'Unknown front-end: {args.frontend}', file=sys.stderr)
+        return 1
+    chat = frontend.factory(config, pm)
 
     try:
         chat.run()

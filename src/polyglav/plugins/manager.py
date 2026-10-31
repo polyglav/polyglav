@@ -39,6 +39,55 @@ class PluginInfo:
 DEFAULT_PROVIDES = {'tools': [], 'providers': [], 'commands': []}
 
 
+@dataclass
+class Frontend:
+    name: str
+    factory: object
+    description: str = ''
+
+
+class FrontendRegistry:
+    def __init__(self):
+        self._items: dict[str, Frontend] = {}
+
+    def register(self, name: str, factory, description: str = '') -> None:
+        key = str(name or '').strip()
+        if not key:
+            raise ValueError('frontend name is required')
+        if key in self._items:
+            raise ValueError(f'frontend already registered: {key}')
+        self._items[key] = Frontend(key, factory, description)
+
+    def get(self, name: str) -> Frontend | None:
+        return self._items.get(str(name or '').strip())
+
+    def names(self) -> list[str]:
+        return sorted(self._items)
+
+
+class CLIRegistry:
+    def __init__(self, subparsers, config: Config, plugin_manager=None):
+        self.subparsers = subparsers
+        self.config = config
+        self.plugin_manager = plugin_manager
+        self._commands: dict[str, object] = {}
+
+    def add_parser(self, name: str, **kwargs):
+        key = str(name or '').strip()
+        if not key:
+            raise ValueError('command name is required')
+        if key in self._commands:
+            raise ValueError(f'CLI command already registered: {key}')
+        parser = self.subparsers.add_parser(key, **kwargs)
+        parser.set_defaults(_polyglav_config=self.config,
+                            _polyglav_plugins=self.plugin_manager)
+        self._commands[key] = parser
+        return parser
+
+    def names(self) -> list[str]:
+        return sorted(self._commands)
+
+
 def version_matches(version: str, constraint: str) -> bool:
     if not constraint:
         return True
@@ -393,6 +442,12 @@ class PluginManager:
 
     def register_startup(self, hooks: list) -> None:
         self._run_hook('register_startup', hooks)
+
+    def register_cli(self, cli) -> None:
+        self._run_hook('register_cli', cli)
+
+    def register_frontends(self, frontends) -> None:
+        self._run_hook('register_frontends', frontends)
 
     def provider_classes(self) -> dict[str, type]:
         return dict(self._provider_classes)

@@ -86,9 +86,9 @@ def _strip_open(text: str, delim: str) -> str:
 
 
 class ChatLoop(Engine):
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, plugin_manager=None):
         ui = ReplUI(self)
-        super().__init__(config, ui=ui)
+        super().__init__(config, ui=ui, plugin_manager=plugin_manager)
         self._model_cache: dict[str, list[str]] = {}
         self._output_log = None
         self._output_log_session = ''
