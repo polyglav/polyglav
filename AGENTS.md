@@ -105,7 +105,7 @@ Polyglav/
     ├── polyglav-core-onboarding/  # first-run project setup (/onboard)
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
-    ├── polyglav-core-providers/   # provider connections and model commands
+    ├── polyglav-core-providers/   # provider connections, model commands, models CLI
     ├── polyglav-core-roles/       # role catalog and the call tool
     ├── polyglav-core-sessions/    # session catalog, export, and import
     ├── polyglav-core-serve/       # serve CLI

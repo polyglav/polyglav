@@ -370,3 +370,22 @@ def register_commands(commands):
             _remove_model(chat, arg[len('remove'):].strip())
         else:
             print('Usage: /models [list [provider]|remove <provider>/<model>]')
+
+
+def _run_models(args):
+    from polyglav.cli import cmd_models
+    return cmd_models(args)
+
+
+def register_cli(cli):
+    import argparse
+    p = cli.add_parser(
+        'models',
+        help="List configured models, or probe a provider's available models")
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    g = p.add_subparsers(dest='action')
+    gl = g.add_parser('list', help='Probe a provider advertised models (default: current provider)')
+    gl.add_argument('provider', nargs='?', default='',
+                    help='Provider name (default: current)')
+    p.set_defaults(func=_run_models)

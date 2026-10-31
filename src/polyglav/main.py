@@ -54,16 +54,6 @@ def _add_import_parser(sub):
                    help='Project path (default: current directory)')
 
 
-def _add_models_parser(sub):
-    p = sub.add_parser('models', help='List configured models, or probe a provider\'s available models')
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Project path (default: current directory)')
-    g = p.add_subparsers(dest='action')
-    gl = g.add_parser('list', help='Probe a provider\'s advertised models (default: current provider)')
-    gl.add_argument('provider', nargs='?', default='',
-                    help='Provider name (default: current)')
-
-
 def _add_mcp_parser(sub):
     p = sub.add_parser('mcp', help='Run polyglav as an MCP server over stdio')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -153,7 +143,6 @@ def _build_parser(config, pm):
     _add_run_parser(sub)
     _add_export_parser(sub)
     _add_import_parser(sub)
-    _add_models_parser(sub)
     _add_mcp_parser(sub)
     _add_config_parser(sub)
     _add_plugins_parser(sub)
@@ -192,9 +181,6 @@ def main(argv=None):
     if args.command == 'import':
         from .cli import cmd_import
         return cmd_import(args)
-    if args.command == 'models':
-        from .cli import cmd_models
-        return cmd_models(args)
     if args.command == 'mcp':
         from .cli import cmd_mcp
         return cmd_mcp(args)

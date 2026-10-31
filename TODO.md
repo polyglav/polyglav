@@ -265,6 +265,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the models CLI to the providers plugin
 - [x] Moved the fleet CLI to a plugin
 - [x] Moved the eval CLI to a plugin
 - [x] Moved the serve CLI to a plugin

@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the models CLI to the providers plugin - `polyglav models` registers from `polyglav-core-providers`. Tests: `test_models.py`, `test_plugins.py`
 - Moved the fleet CLI to a plugin - `polyglav fleet` registers from `polyglav-core-fleet`. Tests: `test_fleet.py`, `test_plugins.py`
 - Moved the eval CLI to a plugin - `polyglav eval` registers from `polyglav-core-eval`, which already owns the fixtures. Tests: `test_eval.py`, `test_plugins.py`
 - Moved the serve CLI to a plugin - `polyglav serve` registers from `polyglav-core-serve`. Tests: `test_cli.py`, `test_plugins.py`

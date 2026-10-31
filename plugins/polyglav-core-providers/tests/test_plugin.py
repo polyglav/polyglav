@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from polyglav.commands.registry import CommandRegistry
+from polyglav.plugins.manager import CLIRegistry
 
 SRC = Path(__file__).resolve().parents[1] / 'src'
 if str(SRC) not in sys.path:
@@ -41,3 +42,15 @@ class TestProvidersPlugin(unittest.TestCase):
         self.assertEqual(
             plugin._derive_provider_name('https://llm.acme.example/v1'),
             'acme-example')
+
+    def test_registers_models_cli(self):
+        import argparse
+        parser = argparse.ArgumentParser()
+        sub = parser.add_subparsers(dest='command')
+        cli = CLIRegistry(sub, object(), None)
+        plugin.register_cli(cli)
+        self.assertIn('models', cli.names())
+        args = parser.parse_args(['models', 'list', 'openai'])
+        self.assertEqual(args.action, 'list')
+        self.assertEqual(args.provider, 'openai')
+        self.assertTrue(callable(args.func))
