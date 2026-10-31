@@ -353,51 +353,6 @@ def ensure_task_file(worktree: Path, job: 'Job') -> Path:
     return path
 
 
-SUPERVISOR_ROLE = 'leader'
-
-SUPERVISOR_TASK_TEMPLATE = """# {name}
-
-## Task
-Describe the standing goal the supervisor owns. On each run it plans, runs the
-right teams or agents, parks any question it cannot decide for the user, and
-finishes with a short summary.
-
-## Done when
-How we know this run succeeded.
-
-## Notes
-- The supervisor is the `leader` type: it coordinates and delegates, it does not
-  implement. It may call `team`/`delegate` and `ask`.
-- Under unattended mode a user question parks in .polyglav/asks.json. Answer it
-  with /asks or POST /asks/<id>/answer, then resume the run's session.
-"""
-
-
-def add_supervisor_job(registry: 'JobRegistry', name: str, worktree: Path,
-                       schedule: dict, task: str = '', task_file: str = '',
-                       require_approval: bool = False) -> 'Job':
-    if registry.find(name) is not None:
-        raise ValueError(f'Job already exists: {name}')
-    validate_schedule(schedule)
-    job = Job(
-        name=name,
-        schedule=schedule,
-        prompt=task or 'Lead the work, coordinate the teams, and report back.',
-        role=SUPERVISOR_ROLE,
-        mode='write',
-        task_file=task_file or f'.polyglav/jobs/{name}.md',
-        status='waiting_approval' if require_approval else 'approved',
-        enabled=True,
-        require_approval=require_approval,
-    )
-    path = task_file_path(Path(worktree), job)
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(SUPERVISOR_TASK_TEMPLATE.format(name=name))
-    registry.put(job)
-    return job
-
-
 def read_task_file(worktree: Path, job: 'Job') -> str | None:
     path = task_file_path(worktree, job)
     if path.exists():

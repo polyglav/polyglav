@@ -16,7 +16,6 @@ def register_commands(commands):
         ('reject', 'Reject a proposed job'),
         ('enable', 'Enable a disabled job'),
         ('disable', 'Disable a job'),
-        ('stop', 'Stop a job - same as disable'),
         ('edit', 'Open the job task file in $EDITOR (creates the template first)'),
         ('remove', 'Remove a job definition'),
         ('run', 'Run a job now'),
@@ -49,7 +48,7 @@ def register_commands(commands):
             else:
                 print(f'Job not found: {name}')
             return
-        if action in ('approve', 'reject', 'enable', 'disable', 'stop'):
+        if action in ('approve', 'reject', 'enable', 'disable'):
             name = tokens[1] if len(tokens) > 1 else ''
             job = registry.find(name) if name else None
             if job is None:
@@ -95,43 +94,6 @@ def register_commands(commands):
             if parked:
                 print('  parked asks: '
                       + ', '.join(f'#{a["id"]}' for a in parked))
-            return
-        if action == 'add-supervisor':
-            if len(tokens) < 2:
-                print('Usage: /jobs add-supervisor <name> '
-                      '[--at ISO | --interval N | --cron "expr"] '
-                      '[--task "text" | --file path]')
-                return
-            opts = {}
-            i = 2
-            while i < len(tokens):
-                tok = tokens[i]
-                if tok in ('--at', '--interval', '--cron', '--task', '--file'):
-                    opts[tok] = tokens[i + 1] if i + 1 < len(tokens) else ''
-                    i += 2
-                else:
-                    i += 1
-            schedule = {}
-            if opts.get('--cron'):
-                schedule['cron'] = opts['--cron']
-            elif opts.get('--interval'):
-                schedule['interval'] = int(opts['--interval'])
-            elif opts.get('--at'):
-                schedule['at'] = opts['--at']
-            else:
-                schedule['interval'] = 86400
-            from polyglav.jobs import add_supervisor_job, describe_schedule
-            try:
-                job = add_supervisor_job(
-                    registry, tokens[1], chat.config.local_path.parent.parent,
-                    schedule, task=opts.get('--task', ''),
-                    task_file=opts.get('--file', ''))
-            except ValueError as e:
-                print(f'Error: {e}')
-                return
-            print(f'Added supervisor job: {job.name} [{job.status}]')
-            print(f'  schedule:  {describe_schedule(job)}')
-            print(f'  run now:   /jobs run {job.name}')
             return
         if action == 'add':
             if len(tokens) < 2:
@@ -219,7 +181,7 @@ def register_commands(commands):
             subprocess.call(shlex.split(editor) + [str(path)])
             return
         print('Usage: /jobs [list|status|show <name>|add <name> ...|approve <name>|'
-              'reject <name>|enable <name>|disable <name>|stop <name>|'
+              'reject <name>|enable <name>|disable <name>|'
               'edit <name>|remove <name>|run <name>]')
 
 
@@ -278,27 +240,11 @@ def register_cli(cli):
     ga.add_argument('--approval', choices=['manual', 'auto'], default='manual',
                     help='manual starts proposed and waits for approve (default); '
                          'auto starts approved')
-    gsup = g.add_parser('add-supervisor',
-                        help='Add an approved supervisor job (type=leader) that plans, '
-                             'runs teams, parks questions, and reports back')
-    gsup.add_argument('name')
-    gsup.add_argument('--task', default='',
-                      help='Task prompt (default: direct the work and report back)')
-    gsup.add_argument('--file', help='Task file (default .polyglav/jobs/<name>.md, '
-                      'created from a supervisor template)')
-    gsup_sched = gsup.add_mutually_exclusive_group()
-    gsup_sched.add_argument('--cron', help='5-field cron expression')
-    gsup_sched.add_argument('--interval', type=int,
-                            help='Seconds between runs (default 86400 = daily)')
-    gsup_sched.add_argument('--at', help='One-shot run at an ISO datetime')
-    gsup.add_argument('--require-approval', action='store_true',
-                      help='Park each run in waiting_approval until approved')
     for name, help_text in (
             ('approve', 'Approve a job so it runs on schedule'),
             ('reject', 'Reject a proposed job'),
             ('enable', 'Enable a disabled job'),
             ('disable', 'Disable a job'),
-            ('stop', 'Stop a job - same as disable, no scheduled runs'),
             ('edit', 'Open the job task file in $EDITOR (creates the template first)'),
             ('remove', 'Remove a job definition')):
         cmd = g.add_parser(name, help=help_text)

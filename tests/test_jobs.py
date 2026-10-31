@@ -812,37 +812,6 @@ class TestSchedulerReport(unittest.TestCase):
         self.assertEqual(run.status, 'verified')
 
 
-class TestAddSupervisor(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.config = _config(self.tmp)
-        self.registry = JobRegistry(self.config.local_path.parent / 'jobs.json')
-
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def test_scaffolds_supervisor_job(self):
-        from polyglav.jobs import add_supervisor_job, read_task_file
-        worktree = self.config.local_path.parent.parent
-        job = add_supervisor_job(self.registry, 'night', worktree,
-                                 {'interval': 86400}, task='Lead.')
-        self.assertEqual(job.role, 'leader')
-        self.assertEqual(job.status, 'approved')
-        self.assertTrue(job.enabled)
-        task = read_task_file(worktree, job)
-        self.assertIn('supervisor', task)
-        self.assertIn('leader', task)
-
-    def test_duplicate_name_rejected(self):
-        from polyglav.jobs import add_supervisor_job
-        worktree = self.config.local_path.parent.parent
-        add_supervisor_job(self.registry, 'night', worktree,
-                           {'interval': 86400})
-        with self.assertRaises(ValueError):
-            add_supervisor_job(self.registry, 'night', worktree,
-                               {'interval': 60})
-
-
 class TestRender(unittest.TestCase):
     def test_list_and_show(self):
         registry = JobRegistry(Path('/nonexistent/jobs.json'))
@@ -1006,16 +975,6 @@ class TestJobsCli(unittest.TestCase):
                 code = cmd_jobs(self._args(action='run', name='bad', no_retry=True))
         self.assertEqual(code, 1)
         self.assertIn('failed', buf.getvalue())
-
-    def test_stop_disables_job(self):
-        from polyglav.cli import cmd_jobs
-        cmd_jobs(self._args(action='add', name='x', prompt='p', interval=3600,
-                            approval='auto'))
-        with patch('sys.stdout', new=io.StringIO()) as buf:
-            cmd_jobs(self._args(action='stop', name='x'))
-            self.assertIn('disabled', buf.getvalue())
-        fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
-        self.assertFalse(fresh.find('x').enabled)
 
     def test_add_require_approval_parks_until_approve(self):
         from polyglav.cli import cmd_jobs

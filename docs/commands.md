@@ -14,7 +14,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/exit`                 | `/quit`        | Save and exit                                                  |
 | `/help`                 |                | Show available commands and tools (`/help <cmd|tool>` for detail) |
 | `/history`              |                | List the active session's turns as a numbered index: `/history [n|all] [--thoughts [all]] [--run <target>] [--tree]`. Default last 10, `--thoughts` adds a dim thinking excerpt (`all` prints it in full), `--run` reads another run's session, and `--tree` lists the root and its sub-runs. Turn lines include the turn's total tokens when the provider reported usage. See [session.md](session.md) |
-| `/jobs`                 |                | Manage scheduled and durable jobs: `add`, `add-supervisor`, `approve`, `disable`, `enable`, `list`, `reject`, `remove`, `run`, `show`, `status`, `stop`. See [jobs.md](jobs.md) |
+| `/jobs`                 |                | Manage scheduled and durable jobs: `add`, `approve`, `disable`, `enable`, `list`, `reject`, `remove`, `run`, `show`, `status`. See [jobs.md](jobs.md) |
 | `/mcp`                  |                | Manage MCP servers: `connect` (all if no name), `disconnect` (all if no name), `list`. See [mcp.md](mcp.md) |
 | `/memorize`             |                | Summarize the active run into bounded memory: `/memorize` (active role), or `/memorize <role\|team\|job> <name>`. Writes `.polyglav/memory/<scopes>/<name>.md`. See [config.md](config.md) |
 | `/mode`                 |                | Show the current agent mode, or switch it (`/mode <name>`). See [modes.md](modes.md) |
@@ -180,7 +180,6 @@ Scheduled and durable jobs (cron / interval / one-shot), with retries, backoff, 
 | Subcommand    | Description                                                              |
 |---------------|--------------------------------------------------------------------------|
 | `add`         | `polyglav jobs add <name> --file jobs/<name>.md --cron "0 2 * * *"` (or `--interval N` / `--at ISO`, with `--prompt` optional when `--file` given), plus `--mode`, `--provider`/`--model`, `--role`, `--system-prompt`, `--tools-deny`, `--tool-permission`, `--retries`, `--backoff`, `--timeout`, `--require-approval`, `--approve-model`, `--approval auto` |
-| `add-supervisor` | `polyglav jobs add-supervisor <name> [--interval N | --at ISO | --cron "expr"] [--task "text" | --file path]` - scaffold an approved `leader`-typed supervisor job from the supervisor task template |
 | `approve`     | `approve <name>` - activate a job (or arm the next run for `--require-approval` jobs) |
 | `daemon`      | `daemon [--tick 15] [--quiet]` - scheduler loop, Ctrl-C to stop           |
 | `edit`        | `edit <name>` - open the job's linked task file in `$EDITOR` (creates the template first) |

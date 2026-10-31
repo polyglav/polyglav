@@ -94,4 +94,4 @@ Each bundled plugin ships its unit tests in its own directory (`plugins/<name>/t
 
 Manual live tests against a real provider API are done ad-hoc, not automated. Use a local model (Ollama) or a disposable API key, and verify a turn end-to-end: streaming output, a tool call round trip, and session persistence.
 
-The overnight autonomous run is verified live with a real model: `polyglav jobs add-supervisor night --interval 86400 --task "..."`, run it (`polyglav jobs run night` or the daemon), watch `/asks` for a parked question, answer it, and confirm the run completes and (with `report.webhook` set) the report arrives. See the [Supervisor overnight run](jobs.md#supervisor-overnight-run) section in `docs/jobs.md`.
+The overnight autonomous run is verified live with a real model: `polyglav jobs add <name> --role manager --interval 86400 --file .polyglav/jobs/<name>.md`, run it (`polyglav jobs run <name>` or the daemon), and confirm the run completes and, with `report.webhook` set, the report arrives. See [jobs.md](jobs.md).

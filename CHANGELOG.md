@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Removed the jobs stop and add-supervisor commands - `disable` is the only stop path, and scheduled teams replace the broken supervisor scaffold. Tests: `test_jobs.py`, `test_commands.py`
 - Removed `--session-id` - `polyglav run` always creates an auto-named session. Tests: `test_cli.py`
 - Moved the export and import CLI to the sessions plugin - `polyglav export` and `polyglav import` register from `polyglav-core-sessions`. Tests: `test_session_import.py`, `test_plugins.py`
 - Moved the models CLI to the providers plugin - `polyglav models` registers from `polyglav-core-providers`. Tests: `test_models.py`, `test_plugins.py`

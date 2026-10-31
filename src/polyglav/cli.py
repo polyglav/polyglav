@@ -388,7 +388,7 @@ def cmd_jobs(args) -> int:
             return 0
         print(f'Job not found: {args.name}', file=sys.stderr)
         return 1
-    if action in ('approve', 'reject', 'enable', 'disable', 'stop'):
+    if action in ('approve', 'reject', 'enable', 'disable'):
         job = registry.find(args.name)
         if job is None:
             print(f'Job not found: {args.name}', file=sys.stderr)
@@ -402,14 +402,14 @@ def cmd_jobs(args) -> int:
             job.status = 'proposed'
             job.enabled = False
             job.approval_pending = False
+        elif action == 'enable':
+            job.enabled = True
         else:
             job.enabled = False
         registry.save()
         print(f'Job {args.name}: status={job.status}, '
               f'{"enabled" if job.enabled else "disabled"}')
         return 0
-    if action == 'add-supervisor':
-        return _jobs_add_supervisor(config, registry, args)
     if action == 'add':
         file_arg = getattr(args, 'file', None) or ''
         prompt = getattr(args, 'prompt', '') or ''
@@ -494,7 +494,7 @@ def cmd_jobs(args) -> int:
                                  verbose=not getattr(args, 'quiet', False))
         return scheduler.daemon(tick_seconds=getattr(args, 'tick', 15.0))
     print('Usage: polyglav jobs [list|status|show|add|approve|reject|enable|'
-          'disable|stop|edit|remove|run|daemon]')
+          'disable|edit|remove|run|daemon]')
     return 1
 
 
@@ -508,37 +508,6 @@ def _store_task_file(worktree: Path, value: str) -> str:
         return str(path.relative_to(Path(worktree)))
     except ValueError:
         return str(path)
-
-
-def _jobs_add_supervisor(config, registry, args) -> int:
-    from .jobs import add_supervisor_job, describe_schedule
-    name = args.name
-    schedule = {}
-    if getattr(args, 'cron', None):
-        schedule['cron'] = args.cron
-    elif getattr(args, 'interval', None):
-        schedule['interval'] = args.interval
-    elif getattr(args, 'at', None):
-        schedule['at'] = args.at
-    else:
-        schedule['interval'] = 86400
-    try:
-        job = add_supervisor_job(
-            registry, name, config.local_path.parent.parent, schedule,
-            task=getattr(args, 'task', '') or '',
-            task_file=getattr(args, 'file', None) or '',
-            require_approval=bool(getattr(args, 'require_approval', False)))
-    except ValueError as e:
-        print(f'Error: {e}', file=sys.stderr)
-        return 1
-    print(f'Added supervisor job: {job.name} [{job.status}]')
-    print(f'  role:      {job.role}')
-    print(f'  schedule:  {describe_schedule(job)}')
-    print(f'  task file: {job.task_file}')
-    print(f'  run now:   polyglav jobs run {job.name}')
-    print(f'  daemon:    polyglav jobs daemon')
-    print('  parked asks: /asks  (or GET /asks on polyglav serve)')
-    return 0
 
 
 def _jobs_run(config, registry, args) -> int:

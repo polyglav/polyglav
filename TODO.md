@@ -142,8 +142,6 @@
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Add `polyglav jobs add --team` for scheduled team runs
-- [ ] Remove `polyglav jobs add-supervisor`
-- [ ] Remove `polyglav jobs stop`
 - [ ] Move plugin CLI tests into each plugin suite
 - [ ] Change CLI help to group core commands and plugin commands
 - [ ] Add a config service shared by `/config` and `polyglav config`
@@ -263,6 +261,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed the jobs stop and add-supervisor commands
 - [x] Removed --session-id
 - [x] Moved the export and import CLI to the sessions plugin
 - [x] Moved the models CLI to the providers plugin

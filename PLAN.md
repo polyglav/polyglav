@@ -56,7 +56,6 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 | Config service and validation | S-M | one config behavior |
 | Provider CLI - list, connect, remove, probe | S | provider management |
 | Signal and exit contract | S | predictable interruption |
-| Remove `--session-id`, `jobs stop`, and `jobs add-supervisor` | S | a smaller CLI |
 
 ## Config surface
 

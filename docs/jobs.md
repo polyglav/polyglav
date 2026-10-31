@@ -91,7 +91,6 @@ polyglav jobs add <name> --at 2026-08-27T02:00:00Z --prompt "..." [options]
 polyglav jobs approve <name>                      # proposed -> approved (or arm the next run)
 polyglav jobs reject <name>                       # proposed, disabled
 polyglav jobs enable <name> / disable <name>      # toggle the enabled gate
-polyglav jobs stop <name>                         # same as disable - stop it now
 polyglav jobs edit <name>                         # open/ create the task file in $EDITOR
 polyglav jobs remove <name>                       # definition only. Sessions stay
 polyglav jobs run <name> [--no-retry] [--verbose] # run now, apply retries, print result
@@ -140,26 +139,9 @@ A finished or failed run is surfaced in-band and, optionally, out-of-band, so an
 - **Delegated and team runs** show their outcome in the REPL stage lines (`↳ Call`, `✓ Worked`, `↲`) when `verbosity.output` includes the role.
 - **Out-of-band**: after each completed run the scheduler dispatches one `job.run.completed` event to a registered `report` service. The bundled `polyglav-core-webhook` plugin implements it: set `report.webhook` to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty `report.webhook` is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).
 
-## Supervisor overnight run
+## Scheduled teams
 
-A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park user questions as asks, and report back. One command scaffolds it:
-
-```bash
-polyglav jobs add-supervisor night --interval 86400 --task "Lead the work."
-# creates .polyglav/jobs/night.md from a supervisor template, role=leader, approved
-polyglav jobs daemon            # runs it on schedule
-polyglav jobs run night         # or run it once now
-```
-
-The job role is `leader`, whose `grant_permission` lets it delegate categories it denies itself (bash, web) to team stages, and whose `ask_policy` routes decisions to the user (parking them under unattended mode). The task file (`.polyglav/jobs/<name>.md`) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (`/model`, or `--approve-model` when a role or team references a model).
-
-While it runs:
-
-- `/asks` (or `GET /asks` on `polyglav serve`) lists parked asks. `/asks answer <id> <text>` (or `POST /asks/<id>/answer`) marks one answered and injects the answer into its origin session.
-- `polyglav jobs status` shows the last run plus any parked asks. `polyglav jobs run`/`/jobs run` print the run summary and parked asks.
-- With `report.webhook` set, each completed run is POSTed out-of-band, so a finished or failed night is reported without the terminal being watched.
-
-Resuming a parked ask: the ask lives in the run's sub-session. Answer it, then continue that session with `polyglav run --session-id <origin> "continue"` (or `/session load <origin>` in the REPL).
+A recurring team run is not available as a shorthand yet. Schedule a manager role with `polyglav jobs add --role manager --file .polyglav/jobs/<name>.md`, and the manager delegates through `call` when the roles plugin is loaded. `jobs add --team` is planned.
 
 ## Session files per run
 
