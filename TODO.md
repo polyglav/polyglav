@@ -183,31 +183,30 @@
   - [ ] RBAC - role-based access control for enterprise deployments
   - [ ] Queue-based scaling - many sensor and chat feeds without blocking the loop
 
-
 - [ ] Add session interchange - Markdown import and shareable or published sessions
+
 ## Done
-- [x] Showed in, out, and total tokens in history and print
+- [x] Added token usage to history and print
 - [x] Fixed the web plugin manifest tool names
 - [x] Changed role and team prompts for code_check
-- [x] Split code quality and added code_check
+- [x] Added code_check
 - [x] Moved the fleet supervisor into the fleet plugin
 - [x] Moved the eval harness into the eval plugin
 - [x] Removed unused legacy config keys
-- [x] Changed auto-continue to auto_continue_max
+- [x] Changed auto-continue to one key
 - [x] Renamed bash_allow to exec_allow
 - [x] Changed the delegate contract
-- [x] Moved the HTTP API and cancel into the serve plugin
+- [x] Moved the HTTP API into the serve plugin
 - [x] Changed the UI commands task
 - [x] Changed the fleet and swarm task
 - [x] Changed the plugin test harness task
-- [x] Retargeted inbound events
-- [x] Merged multiuser tasks
-- [x] Merged agent status tasks
-- [x] Merged session interchange tasks
-- [x] Merged content ingestion tasks
-- [x] Merged memory and skill tasks
-- [x] Merged control API tasks
-- [x] Merged job notification tasks
+- [x] Changed multiuser tasks
+- [x] Changed agent status tasks
+- [x] Changed session interchange tasks
+- [x] Changed content ingestion tasks
+- [x] Changed memory and skill tasks
+- [x] Changed control API tasks
+- [x] Changed job notification tasks
 - [x] Removed the swarm and command audit umbrellas
 - [x] Removed parking tasks
 - [x] Removed landed and non-project tasks
