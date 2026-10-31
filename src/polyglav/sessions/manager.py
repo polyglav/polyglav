@@ -76,6 +76,8 @@ class Session:
         self.plan = plan or ''
         self._open: dict | None = None
         self._dirty = True
+        self._saved_turns = 0
+        self._saved_meta = ''
 
     def _touch(self):
         self.updated_at = datetime.now(timezone.utc).isoformat(timespec='seconds')
@@ -311,8 +313,9 @@ def session_from_document(data: dict) -> Session:
 
 
 class SessionManager:
-    def __init__(self, sessions_dir: Path):
+    def __init__(self, sessions_dir: Path, storage: str = 'json'):
         self.sessions_dir = sessions_dir
+        self.storage = str(storage or 'json').strip().lower()
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
         self.current: Session | None = None
 
@@ -345,7 +348,9 @@ class SessionManager:
         session_id = (session_id or '').strip().lower()
         if not session_id:
             return None
-        for path in sorted(self.sessions_dir.glob(f'*_{session_id}.json')):
+        paths = sorted(self.sessions_dir.glob(f'*_{session_id}.json'))
+        paths += sorted(self.sessions_dir.glob(f'*_{session_id}.jsonl'))
+        for path in paths:
             session = self.read(path.stem)
             if session is not None:
                 return session
@@ -358,6 +363,9 @@ class SessionManager:
         return s
 
     def read(self, session_name: str) -> Session | None:
+        jsonl = self.sessions_dir / f'{session_name}.jsonl'
+        if jsonl.exists():
+            return self._read_jsonl(session_name, jsonl)
         path = self.sessions_dir / f'{session_name}.json'
         if not path.exists():
             return None
@@ -371,6 +379,70 @@ class SessionManager:
             return Session.from_dict(data)
         except (ValueError, KeyError, TypeError):
             return None
+
+    def _read_jsonl(self, session_name: str, path: Path) -> Session | None:
+        meta: dict = {}
+        turns_by_index: dict[int, dict] = {}
+        try:
+            with open(path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    event = json.loads(line)
+                    if event.get('type') == 'meta':
+                        meta = dict(event.get('meta') or {})
+                    elif event.get('type') == 'turn':
+                        turn = event.get('turn') or {}
+                        index = int(turn.get('index') or 0)
+                        if index:
+                            turns_by_index[index] = turn
+        except (json.JSONDecodeError, OSError, ValueError) as e:
+            self._log_io('read', session_name, e)
+            return None
+        data = dict(meta)
+        data['turns'] = [turns_by_index[i]
+                         for i in sorted(turns_by_index)]
+        try:
+            session = Session.from_dict(data)
+        except (ValueError, KeyError, TypeError):
+            return None
+        session._saved_turns = len(session.turns)
+        session._saved_meta = json.dumps(meta, sort_keys=True)
+        session._dirty = False
+        last = session.turns[-1] if session.turns else None
+        if last is not None and last.get('status') in ('running', 'paused'):
+            session._open = last
+        return session
+
+    def _save_jsonl(self, session: Session, max_chars: int = 0,
+                    drop_tools: list[str] | None = None, spill=None) -> None:
+        path = self.sessions_dir / f'{session.session_name}.jsonl'
+        data = session.to_dict(max_chars=max_chars, drop_tools=drop_tools,
+                               spill=spill)
+        meta = {k: v for k, v in data.items() if k != 'turns'}
+        meta_key = json.dumps(meta, sort_keys=True)
+        turns_list = data.get('turns') or []
+        start = session._saved_turns
+        if 0 < start <= len(turns_list):
+            start -= 1
+        events = []
+        if meta_key != session._saved_meta:
+            events.append({'type': 'meta', 'meta': meta})
+        for turn in turns_list[start:]:
+            events.append({'type': 'turn', 'turn': turn})
+        if not events and path.exists():
+            session._dirty = False
+            return
+        try:
+            with open(path, 'a') as f:
+                for event in events:
+                    f.write(json.dumps(event, separators=(',', ':')) + '\n')
+            session._saved_meta = meta_key
+            session._saved_turns = len(turns_list)
+            session._dirty = False
+        except OSError as e:
+            self._log_io('save', session.session_name, e)
 
     def summary_path(self, session_name: str) -> Path:
         return self.sessions_dir.parent / 'summaries' / f'{session_name}.md'
@@ -395,9 +467,13 @@ class SessionManager:
         s = session or self.current
         if s is None:
             return
-        path = self.sessions_dir / f'{s.session_name}.json'
-        if not getattr(s, '_dirty', True) and path.exists():
+        if not getattr(s, '_dirty', True):
             return
+        if self.storage == 'jsonl':
+            self._save_jsonl(s, max_chars=max_chars, drop_tools=drop_tools,
+                             spill=spill)
+            return
+        path = self.sessions_dir / f'{s.session_name}.json'
         tmp = path.with_suffix('.json.tmp')
         try:
             with open(tmp, 'w') as f:
@@ -415,7 +491,9 @@ class SessionManager:
             self._log_io('save', s.session_name, e)
 
     def list(self) -> list[str]:
-        return sorted(p.stem for p in self.sessions_dir.glob('*.json'))
+        names = {p.stem for p in self.sessions_dir.glob('*.json')}
+        names.update(p.stem for p in self.sessions_dir.glob('*.jsonl'))
+        return sorted(names)
 
     def tree(self, session_name: str) -> list[tuple[int, Session]]:
         root = self.read(session_name)
@@ -470,9 +548,13 @@ class SessionManager:
 
     def delete(self, session_name: str,
                extra_dirs: list[Path] | None = None) -> bool:
-        path = self.sessions_dir / f'{session_name}.json'
-        if path.exists():
-            path.unlink()
+        found = False
+        for suffix in ('.json', '.jsonl'):
+            path = self.sessions_dir / f'{session_name}{suffix}'
+            if path.exists():
+                path.unlink()
+                found = True
+        if found:
             shutil.rmtree(self.tmp_dir / session_name, ignore_errors=True)
             for root in extra_dirs or []:
                 shutil.rmtree(Path(root) / session_name, ignore_errors=True)

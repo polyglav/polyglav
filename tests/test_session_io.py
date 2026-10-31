@@ -81,3 +81,50 @@ class TestSessionIoLog(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestJsonlSessionStore(unittest.TestCase):
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self._tmp.name)
+        self.sm = SessionManager(self.dir, storage='jsonl')
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_round_trip_and_no_json(self):
+        session = self.sm.create('log')
+        session.add_user('hello')
+        session.add_text('world')
+        session.end_turn('ok')
+        self.sm.save(session)
+        self.assertTrue((self.dir / 'log.jsonl').exists())
+        self.assertFalse((self.dir / 'log.json').exists())
+        loaded = SessionManager(self.dir, storage='jsonl').read('log')
+        self.assertIsNotNone(loaded)
+        self.assertEqual(loaded.turns[0]['parts'][0]['text'], 'hello')
+        self.assertEqual(loaded.turns[0]['parts'][1]['text'], 'world')
+
+    def test_append_after_new_turn(self):
+        session = self.sm.create('log')
+        session.add_user('one')
+        session.end_turn('ok')
+        self.sm.save(session)
+        before = (self.dir / 'log.jsonl').read_text().count('\n')
+        session.add_user('two')
+        session.end_turn('ok')
+        self.sm.save(session)
+        after = (self.dir / 'log.jsonl').read_text().count('\n')
+        self.assertGreater(after, before)
+        loaded = self.sm.read('log')
+        self.assertEqual(len(loaded.turns), 2)
+
+    def test_paused_turn_restores_open(self):
+        session = self.sm.create('log')
+        session.add_user('one')
+        session.open_turn()['status'] = 'paused'
+        self.sm.save(session)
+        loaded = self.sm.read('log')
+        self.assertIsNotNone(loaded.open_turn())
+        self.assertEqual(loaded.open_turn()['status'], 'paused')

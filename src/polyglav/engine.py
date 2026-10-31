@@ -156,7 +156,8 @@ class Engine:
             self.provider = provider
         self._seen_catalog_version = self._catalog_version()
         sessions_dir = config.local_path.parent / 'sessions'
-        self.sessions = SessionManager(sessions_dir)
+        self.sessions = SessionManager(
+            sessions_dir, storage=self.config.get('session.storage', 'json'))
         self.current_session = self.sessions.create(role=self.role)
         self._bind_provider_session()
         self.runs = runs if runs is not None else RunRegistry()

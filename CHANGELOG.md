@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added the JSONL session store - `session.storage = jsonl` appends meta and turn events and restores the last event per turn, with JSON still the default. Tests: `test_session_io.py`
 - Added `/init` - onboarding writes an `AGENTS.md` skeleton, hints it when missing, and supports `--force` and `--update`. Tests: `polyglav-core-onboarding`
 - Added `jobs add --team` - a scheduled job can run a named team through `Engine.run_team`, with each stage keeping its own session. Tests: `test_jobs.py`
 - Removed the tool analysis and auto-search config - `tool_analysis` and `web_search` are gone, and asks always run through the tool loop. Tests: `test_session_log.py`, `test_engine.py`

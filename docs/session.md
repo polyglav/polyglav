@@ -2,6 +2,10 @@
 
 Sessions are complete, append-only conversation logs. Every turn (the user prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's `.polyglav/sessions/` directory. Entries are never removed. Compaction only trims the provider context, never the log.
 
+## JSONL storage
+
+Set `session.storage = "jsonl"` to write append-only `.polyglav/sessions/<name>.jsonl` files beside the JSON store. Each line is a `meta` or `turn` event, the last event per turn wins on load, and JSON stays the export and import format. The default remains `json`.
+
 ## Where sessions live
 
 Each session is one JSON file: `.polyglav/sessions/<name>.json`, next to the local `.polyglav/config.json`.

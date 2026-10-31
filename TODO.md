@@ -54,12 +54,10 @@
 ## Open
 
 - [ ] Change runtime session JSON to compact serialization
-- [ ] Add an append-only JSONL session store with per-round appends
 - [ ] Add JSON materialization on exit, session switch, and manual export
 - [ ] Add a SQLite session store plugin, off by default
 - [ ] Add paused turn persistence and `/continue` across a restart
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
-- [ ] Add session storage tests - atomic replace, save counts, JSONL replay, pause, and missing refs
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
 - [ ] Remove landed tasks - first-run onboarding, thinking visibility, manager role, core dev team, role docs, PM/dev/tester orchestration, and root role memory
@@ -241,6 +239,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added the JSONL session store
 - [x] Added init and the onboarding hint
 - [x] Added jobs add --team
 - [x] Removed tool_analysis and web_search config
