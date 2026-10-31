@@ -38,7 +38,7 @@ The REPL exposes one canonical name per command, separates commands from tools, 
 |------|--------|----------|
 | Command grammar - singular current, plural catalog, verbs for actions, and no aliases | S | a predictable command set |
 | `/continue parent` and `/continue <id>` | S-M | switch to a parent or prior session |
-| Remove `/asks`, `/unattended`, `/runs`, and `/tool` | S | a smaller command surface |
+| Remove `/runs` and `/tool` | S | a smaller command surface |
 | `/help` lists commands and tools | S | one help entry point |
 | `/connect` as `/providers connect` | S | provider shorthand |
 | `/init` and onboarding hint | S | project setup |
@@ -75,7 +75,7 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove ask parking and add supervisor routing | M | one inline ask path and autonomous jobs |
+| Add job supervisor routing | M | autonomous job decisions |
 | Fix the delegate contract | S | correct expectations |
 | Rename `exec_allow` and move exec config | S | plugin-owned shell policy |
 | Split code quality and add `code_check` | M | working defaults |

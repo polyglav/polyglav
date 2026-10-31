@@ -109,10 +109,6 @@ def _build_parser(config, pm):
     parser.add_argument('--path', '-p', help='Project path (default: current directory)')
     parser.add_argument('--frontend', default='repl',
                         help='Front-end to start when no subcommand is given (default: repl)')
-    parser.add_argument('--unattended', action='store_true',
-                        help='Run the REPL without touching stdin from any depth '
-                             '(confirms auto-deny, user asks park or '
-                             'return without pausing)')
     parser.add_argument('--version', '-v', action='version',
                         help='Print version and exit', version=_version())
     sub = parser.add_subparsers(dest='command')
@@ -159,8 +155,6 @@ def main(argv=None):
         from .cli import cmd_config
         return cmd_config(args)
 
-    if getattr(args, 'unattended', False):
-        config.apply('unattended', True)
     frontend = _frontends(pm).get(args.frontend or 'repl')
     if frontend is None:
         print(f'Unknown front-end: {args.frontend}', file=sys.stderr)

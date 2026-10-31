@@ -460,33 +460,8 @@ def render_list(registry: JobRegistry, print=print):
                 'proposed' if job.status == 'proposed' else 'disabled'))
         print(f'  {job.name:<20} {schedule:<28} {job.status:<8} '
               f'{gate:<17} next: {next_at:<27} last: {last}')
-    print('  (stop a job with: polyglav jobs stop <name> | '
+    print('  (disable a job with: polyglav jobs disable <name> | '
           'polyglav jobs status for a runtime summary)')
-
-
-def parked_asks_for_run(polyglav_dir: Path, session: str) -> list[dict]:
-    if not session:
-        return []
-    from .asks import AskStore
-    from .sessions.manager import SessionManager
-    sessions_dir = Path(polyglav_dir) / 'sessions'
-    if not sessions_dir.exists():
-        return []
-    manager = SessionManager(sessions_dir)
-    seen: set[str] = set()
-    queue = [session]
-    while queue:
-        name = queue.pop()
-        if not name or name in seen:
-            continue
-        seen.add(name)
-        loaded = manager.read(name)
-        if loaded is not None:
-            for child in (loaded.sub_sessions or []):
-                if child not in seen:
-                    queue.append(child)
-    store = AskStore(Path(polyglav_dir) / 'asks.json')
-    return [a.to_dict() for a in store.list('pending') if a.origin in seen]
 
 
 def render_status(registry: JobRegistry, print=print):
@@ -518,9 +493,6 @@ def render_status(registry: JobRegistry, print=print):
                 detail += f' {last.reason[:60]}'
             if last.session:
                 detail += f' {last.session}'
-            parked = parked_asks_for_run(registry.path.parent, last.session)
-            if parked:
-                detail += f' [{len(parked)} parked ask(s)]'
             print(f'      last run: {detail}')
         if job.require_approval:
             pending = job.approval_pending

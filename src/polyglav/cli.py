@@ -548,13 +548,10 @@ def _jobs_run(config, registry, args) -> int:
         print(f'  reason: {run.reason}')
     if run.session:
         print(f'  session: {run.session}')
-    from .jobs import read_memory, parked_asks_for_run
+    from .jobs import read_memory
     memory = read_memory(config.local_path.parent.parent, job)
     if memory:
         print(f'  summary: {" ".join(memory.split())[:200]}')
-    parked = parked_asks_for_run(config.local_path.parent, run.session)
-    if parked:
-        print('  parked asks: ' + ', '.join(f'#{a["id"]}' for a in parked))
     return 0 if run.status == 'verified' else 1
 
 

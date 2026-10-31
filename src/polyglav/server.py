@@ -52,9 +52,6 @@ class ChatHandler(BaseHTTPRequestHandler):
         if self.path == '/mcp':
             self._mcp_request()
             return
-        if self.path.startswith('/asks/'):
-            self._answer_ask()
-            return
         if self.path != '/chat':
             self._send(404, {'error': 'not found'})
             return
@@ -86,52 +83,8 @@ class ChatHandler(BaseHTTPRequestHandler):
             with server.lock:
                 names = server.engine.sessions.list()
             self._send(200, {'sessions': names})
-        elif self.path == '/asks':
-            asks = [a.to_dict() for a in server.engine.asks.list()]
-            self._send(200, {'asks': asks})
         else:
             self._send(404, {'error': 'not found'})
-
-    def _answer_ask(self):
-        server = self.server
-        rest = self.path[len('/asks/'):]
-        if not rest.endswith('/answer'):
-            self._send(404, {'error': 'not found'})
-            return
-        aid = rest[:-len('/answer')]
-        try:
-            ask_id = int(aid)
-        except ValueError:
-            self._send(404, {'error': 'not found'})
-            return
-        try:
-            length = int(self.headers.get('Content-Length', 0))
-            raw = self.rfile.read(length) if length else b'{}'
-            body = json.loads(raw.decode('utf-8') or '{}')
-        except (ValueError, json.JSONDecodeError):
-            self._send(400, {'error': 'invalid JSON body'})
-            return
-        answer = body.get('answer')
-        if not isinstance(answer, str) or not answer.strip():
-            self._send(400, {'error': 'missing "answer"'})
-            return
-        from .asks import inject_answer
-        store = server.engine.asks
-        asked = store.find(ask_id)
-        if asked is None:
-            self._send(404, {'error': f'ask not found: {ask_id}'})
-            return
-        resolved = store.answer(ask_id, answer.strip())
-        if resolved is None:
-            self._send(404, {'error': f'ask not found: {ask_id}'})
-            return
-        injected = inject_answer(store, resolved)
-        self._send(200, {
-            'ask': resolved.to_dict(),
-            'session': resolved.origin,
-            'resume': f'polyglav run --session-id {resolved.origin} "continue"',
-            'injected': injected,
-        })
 
     def log_message(self, fmt, *args):
         sys.stderr.write(f'[polyglav] {fmt % args}\n')

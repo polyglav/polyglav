@@ -52,7 +52,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `base_url`                  | `"https://api.ollama.com"` | Provider endpoint                                                  |
 | `clear_screen`              | `true`                 | Clear the screen before the REPL banner                                |
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
-| `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth, so an unattended-but-watched run still cannot freeze on a prompt. See [Unattended mode](#unattended-mode) |
+| `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth |
 | `connect_check`             | `true`                 | Test the provider connection on config changes: `/connect` probes before saving (broken values rejected unless confirmed), `/provider` warns on a failed probe. `false` skips all probes |
 | `delegate_depth`            | `1`                    | Maximum nested `delegate` siblings. `0` = unlimited. A sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `footer_tokens`             | `["context"]`          | Token counts the footer shows, in order, joined by `/`. `context` = `<n> tokens` (context/input size, chars/4 fallback), `in`/`out`/`thinking` = `<n>t` from provider usage (unavailable counts skipped). Empty list hides the section |
@@ -100,7 +100,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps the inline persisted tool-result content, while the full text stays at the ref |
 | `tools_output_spill`        | `false`                | Persist every tool result under `tools_output_dir` instead of the system temp directory. Every part records a `ref` |
 | `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of the spill roots. Oldest files are removed past the cap. `0` = unlimited |
-| `unattended`                | `false`                | Unattended mode: no stdin is read at any depth. Confirms auto-deny and `ask target='user'` parks as a pending request (`.polyglav/asks.json`) instead of prompting. See [Unattended mode](#unattended-mode) |
 | `verbosity`                 | `"normal"`             | Display preset: `quiet`, `normal`, or `verbose`                         |
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
 | `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
@@ -195,7 +194,7 @@ Routes the `ask` tool by kind:
 }
 ```
 
-`permission` is `auto` (ask the user) or `deny` (disable permission asks). `direction` always asks the user; `caller` and `auto` are accepted as `user` for one version. A sub-agent inherits the root `ReplUI` as `_ask_ui`, so its asks reach the terminal; under unattended mode they park instead.
+`permission` is `auto` (ask the user) or `deny` (disable permission asks). `direction` always asks the user; `caller` and `auto` are accepted as `user` for one version. A sub-agent inherits the root `ReplUI` as `_ask_ui`, so its asks reach the terminal.
 
 - `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). The user answers at the terminal. In `read` mode a request for a write key or for a category with declared write actions (for example `catalog save`) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` prompts the user, `deny` disables grants. A request above the mode-derived ceiling is always denied. The user may grant `always` (reusable for the rest of that sub-agent's run) or `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
 - `direction` - a decision or scope change. It always asks the user; `caller` and `auto` are accepted as `user` for one version. An explicit `target` is no longer part of the schema.
@@ -214,16 +213,6 @@ A sub-agent's effective permissions are the parent's `tool_permission`, narrowed
 A role that sets `grant_permission` may delegate categories it does not use itself. For example, a supervisor with `edit`/`bash` denied for itself but allowed in its ceiling can hand them to an `implementer` while never running them, as long as the session is in `write` mode.
 
 An approved permission request creates a one-shot grant on the asking sub-agent (`once`), consumed by the next matching call. The user may grant `always`, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session `permissions` audit array.
-
-### Unattended mode
-
-`unattended: true` guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:
-
-- **Confirms auto-deny.** A tool whose policy action is `ask` (e.g. `run_command` with `bash: ask`) returns `[cancelled] User declined the <name> call` instead of prompting.
-- **`ask target='user'` parks instead of prompting.** The root engine drops its terminal UI (`_ask_ui` is not propagated down the tree), and any user-routed ask becomes a pending request persisted in `.polyglav/asks.json`, returned to the agent as `[parked] Ask #<id> ...` so it continues or finishes. A sub-agent's user ask parks rather than consulting a caller, so the user decides. Permission asks park the same way.
-- **Model approval is not prompted.** An unapproved role/team model is denied (the run reports the error) unless the headless `approve_models` flag was passed. Launch with `--approve-model` if the run needs to approve one itself.
-
-Enable it per run with `polyglav --unattended` (not persisted), in config with `unattended: true`, or live with `/unattended`. Parked asks are listed and answered with `/asks` or the serve API (`GET /asks`, `POST /asks/<id>/answer`). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the user's decision in context. Scheduled/durable job engines run unattended, so a job parks its user asks the same way. `confirm_timeout` (seconds, default `0` = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.
 
 ### `bash_allow` - command allowlist for `run_command`
 

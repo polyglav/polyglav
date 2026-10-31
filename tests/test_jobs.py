@@ -764,28 +764,6 @@ class TestSchedulerReport(unittest.TestCase):
         self.assertEqual(self.reporter.payloads[0]['status'], 'failed')
         self.assertIn('unknown type', self.reporter.payloads[0]['reason'])
 
-    def test_report_includes_parked_asks(self):
-        from polyglav.asks import AskStore
-        from polyglav.sessions.manager import SessionManager
-        polyglav_dir = self.config.local_path.parent
-        sessions = SessionManager(polyglav_dir / 'sessions')
-        root = sessions.create('job.a')
-        root.sub_sessions = ['sub_1']
-        sessions.save(root)
-        sub = sessions.create('sub_1')
-        sessions.save(sub)
-        AskStore(polyglav_dir / 'asks.json').add('which port?', 'sub_1')
-        self._patch_engine([
-            TurnResult(status='ok', content='done', duration=1.0, session='job.a'),
-        ])
-        job = Job('a', {'interval': 60}, prompt='work', status='approved',
-                  session='job.a')
-        self.registry.put(job)
-        self.scheduler.run_job(job)
-        parked = self.reporter.payloads[0]['parked_asks']
-        self.assertEqual([a['id'] for a in parked], [1])
-        self.assertEqual(parked[0]['origin'], 'sub_1')
-
     def test_no_service_no_dispatch(self):
         self.scheduler._pm = _FakePM(None)
         self._patch_engine([

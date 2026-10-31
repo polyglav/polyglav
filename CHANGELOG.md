@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Removed ask parking and unattended mode - asks are inline only, `.polyglav/asks.json`, `/asks`, the ask API, scheduler reporting, and `/unattended` are gone, and headless asks return no-answer. Tests: `test_ask.py`, `test_jobs.py`, `test_server.py`
 - Added Ctrl-C pause, `/continue`, and `/cancel` - Ctrl-C pauses the root turn, child runs stop as cancelled, `/continue` resumes a paused or targeted session, and a normal prompt asks before cancelling. Tests: `test_commands.py`, `test_engine.py`
 - Changed the history selectors - `/history` takes turn ranges, relative ranges, and `session:<name>` targets, and no longer uses `--run`. Tests: `test_history.py`
 - Changed the print selectors - `/print` takes turn ranges, relative ranges, parts, and `session:<name>` targets, and no longer uses `--run`. Tests: `test_print.py`

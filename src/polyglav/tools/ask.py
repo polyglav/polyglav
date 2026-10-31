@@ -31,22 +31,6 @@ def _permission_scope(answer: str) -> str:
     return 'none'
 
 
-def _park(engine, question: str, context: str, options: list,
-          kind: str, permission: str) -> str:
-    store = getattr(engine, 'asks', None)
-    if store is None:
-        return _NO_ONE
-    try:
-        ask = store.add(question, engine.current_session.session_name,
-                        context=context, options=options,
-                        kind=kind, permission=permission)
-    except Exception:
-        return _NO_ONE
-    return (f'[parked] Ask #{ask.id} parked for the user '
-            f'(session {ask.origin}); continue or return the question '
-            'as an open item')
-
-
 def _permission_key(engine, permission: str) -> str:
     if permission in engine.permission_categories():
         return permission
@@ -111,10 +95,6 @@ def _ask_permission(engine, question: str, context: str, options: list,
                         f'retry "{permission}".')
             return (f'[denied] Permission "{permission}" needs write mode, '
                     'which the user declined.')
-        if engine._is_unattended():
-            return _park(engine, prompt, context or '',
-                         ['Approve (switch to write)', 'Deny'],
-                         'permission', permission)
         return (f'[denied] Permission "{permission}" needs write mode. '
                 "Request it with ask(kind='direction') to switch this session "
                 'to write mode.')
@@ -128,9 +108,6 @@ def _ask_permission(engine, question: str, context: str, options: list,
     result = _prompt_permission(engine, question, context, permission, key)
     if result is not None:
         return result
-    if engine._is_unattended():
-        return _park(engine, question, context or '', options or [],
-                     'permission', permission)
     return _NO_ONE
 
 
@@ -156,9 +133,6 @@ def _prompt_direction(engine, question: str, context: str,
 
 
 def _ask_direction(engine, question: str, context: str, options: list) -> str:
-    if engine._is_unattended():
-        return _park(engine, question, context or '', options or [],
-                     'direction', '')
     result = _prompt_direction(engine, question, context, options)
     return result if result is not None else _NO_ONE
 

@@ -56,11 +56,11 @@ class TestToolCommand(unittest.TestCase):
         self.assertIn('\n    new', output)
 
     def test_help_subcommands_sorted(self):
-        output = self._dispatch('/help asks')
+        output = self._dispatch('/help sessions')
         rows = [line.strip().split()[0] for line in output.splitlines()
                 if line.startswith('    ') and line.strip()]
         self.assertEqual(rows, sorted(rows))
-        self.assertEqual(rows, ['answer', 'list', 'show'])
+        self.assertEqual(rows, ['delete', 'export', 'import', 'list', 'preview'])
 
     def test_help_lists_tools_under_tool(self):
         self.chat.config.set('mode', 'write')

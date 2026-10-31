@@ -100,7 +100,6 @@
 - [ ] Add plugin docs for ownership, defaults, and dependencies
 - [ ] Add plugin tests for every extracted command and tool
 
-- [ ] Remove ask parking and the ask store - delete `.polyglav/asks.json`, `/asks`, the `/asks` API, scheduler reporting, and `_park`, and keep asks inline
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
 - [ ] Change the delegate contract - describe an anonymous sibling that inherits the caller's mode and cap, not a read-only helper
 - [ ] Rename `bash_allow` to `exec_allow` with no alias
@@ -147,8 +146,6 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Remove `/asks` and ask parking
-- [ ] Remove `/unattended`
 - [ ] Remove `/tool` and make `/help` list commands and tools
 - [ ] Remove `/runs` and keep the run registry internal
 - [ ] Change `/connect` - keep it as a `/providers connect` shorthand
@@ -252,6 +249,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed ask parking and unattended
 - [x] Added Ctrl-C pause continue and cancel
 - [x] Changed the history selectors
 - [x] Changed the print selectors

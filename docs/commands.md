@@ -6,7 +6,6 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 
 | Command                 | Aliases        | Description                                                    |
 |-------------------------|----------------|----------------------------------------------------------------|
-| `/asks`                 |                | List and answer parked asks from unattended runs (`/asks answer <id> <text>`, `/asks list [all|pending|answered]`, `/asks show <id>`). Answering resumes the origin session. See [config.md](config.md#unattended-mode) |
 | `/cancel`               |                | Close a paused turn as cancelled |
 | `/clear`                |                | Clear the screen and reprint the header without leaving or changing the session |
 | `/compact`              |                | Summarize the conversation and trim the provider context       |
@@ -45,7 +44,6 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/todo`                 |                | Show or edit the current run's internal todo: `add <title>`, `start <id>`, `done <id>`, `block <id> [note]`, `remove <id>`, `list`. See [modes.md](modes.md) |
 | `/todos`                |                | List every stored todo, marking the current one. `/todos <id>` prints one by session id or name. See [modes.md](modes.md) |
 | `/tool`                 |                | Run a tool directly (`/tool <name> {"key": "value"}`)          |
-| `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, user asks park or return without pausing. See [config.md](config.md#unattended-mode) |
 | `/version`              |                | Show the Polyglav version                                       |
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: `/connect`, `/provider`, `/providers`, and `/models list` complete provider names, and `/model` completes a provider then its known models (from `models.json` and a cached live probe).

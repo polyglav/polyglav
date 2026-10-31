@@ -8,7 +8,7 @@ from .config import Config, verbosity_level
 from .engine import Engine, TurnResult
 from .sessions import turns
 from .jobs import (Job, JobRun, JobRegistry, compute_next_run, job_session_name,
-                   parked_asks_for_run, parse_dt, read_memory,
+                   parse_dt, read_memory,
                    system_prompt_for, write_memory)
 from .ui import HeadlessUI
 
@@ -61,7 +61,6 @@ def _build_engine(config: Config, job: Job, verbose: bool,
         if section:
             system_text = system_text.rstrip() + '\n\n' + section
     sub_config.apply('system_prompt', system_text)
-    sub_config.apply('unattended', True)
     sub_config.apply('mode', job.mode or 'write')
     if job.provider:
         sub_config.apply('provider', job.provider)
@@ -154,8 +153,6 @@ class JobScheduler:
                 return
             worktree = self.config.local_path.parent.parent
             memory = read_memory(worktree, job)
-            parked = parked_asks_for_run(self.config.local_path.parent,
-                                         run.session)
             payload = {
                 'event': 'job.run.completed',
                 'job': job.name,
@@ -168,7 +165,6 @@ class JobScheduler:
                 'content': run.content,
                 'worktree': str(worktree),
                 'memory': (' '.join(memory.split()))[:1000] if memory else '',
-                'parked_asks': parked,
             }
             reporter(payload, self.config)
             self._out(f'{job.name}: report dispatched')

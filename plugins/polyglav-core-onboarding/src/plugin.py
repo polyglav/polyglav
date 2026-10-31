@@ -60,8 +60,6 @@ def should_run(chat) -> bool:
             return False
     except OSError:
         return False
-    if chat._is_unattended():
-        return False
     try:
         return sys.stdin.isatty()
     except (AttributeError, ValueError):
@@ -237,8 +235,6 @@ def _pick_model(chat, provider, base_url, api_key, models, ask):
 
 def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
     if not force and not should_run(chat):
-        return False
-    if chat._is_unattended():
         return False
     _say(WELCOME)
 

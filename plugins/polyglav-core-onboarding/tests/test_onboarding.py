@@ -70,18 +70,13 @@ class FakeModels:
 
 
 class FakeChat:
-    def __init__(self, config, unattended=False,
-                 connected=True, models=None):
+    def __init__(self, config, connected=True, models=None):
         self.config = config
-        self._unattended = unattended
         self.providers = FakeProviders()
         self.models = FakeModels()
         self.connected = connected
         self.model_list = list(models or ['model-a', 'model-b'])
         self.reinitialized = False
-
-    def _is_unattended(self):
-        return self._unattended
 
     def _merged_providers(self):
         return {'ollama': FakeFactory, 'openai': FakeOpenAIFactory}
@@ -108,8 +103,8 @@ class TestOnboarding(unittest.TestCase):
         self._stdin.stop()
         self.tmp.cleanup()
 
-    def _chat(self, unattended=False, **kwargs):
-        return FakeChat(self.config, unattended=unattended, **kwargs)
+    def _chat(self, **kwargs):
+        return FakeChat(self.config, **kwargs)
 
     def _answers(self, **values):
         return values.get
@@ -135,9 +130,6 @@ class TestOnboarding(unittest.TestCase):
         self.config.local_path.parent.mkdir(parents=True, exist_ok=True)
         self.config.local_path.write_text('{}')
         self.assertFalse(plugin.should_run(self._chat()))
-
-    def test_should_run_false_unattended(self):
-        self.assertFalse(plugin.should_run(self._chat(unattended=True)))
 
     def test_run_writes_config(self):
         chat = self._chat()
@@ -345,10 +337,6 @@ class TestOnboarding(unittest.TestCase):
         })
         self.assertTrue(plugin.run(chat, force=True, ask=answers,
                                    secret=lambda _: ''))
-
-    def test_run_skips_unattended(self):
-        self.assertFalse(plugin.run(self._chat(unattended=True), force=True,
-                                    ask=lambda q: 'x'))
 
     def test_register_startup_appends_run(self):
         hooks = []

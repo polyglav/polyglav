@@ -186,7 +186,6 @@ A command and a compaction record:
 
 A `command` part with a `summary` is a compaction record: `summary` holds the text and `compact_from` the turn `index` where the kept portion starts. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
 
-Answering a parked ask (`/asks answer <id> <text>` or `POST /asks/<id>/answer` on `polyglav serve`) appends a `user` part `[answer to parked ask #<id>] <answer>` to the ask's origin session, so the next turn on that session resumes with the user's decision in context. See [config.md](config.md#unattended-mode).
 
 ## Errors
 

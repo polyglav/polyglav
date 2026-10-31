@@ -122,19 +122,6 @@ class TestAskTool(unittest.TestCase):
         self.assertIn('[granted]', out)
         self.assertTrue(ask.called)
 
-    def test_permission_ask_parks_when_unattended(self):
-        chat = make_chat({'unattended': True})
-        try:
-            chat._init_tooling()
-            with patch('builtins.input',
-                       side_effect=AssertionError('stdin must not be read')):
-                out = chat._run_tool('ask', {
-                    'question': 'may I use the catalog?', 'kind': 'permission',
-                    'permission': 'catalog'})
-            self.assertIn('[parked]', out)
-        finally:
-            chat._tmp.cleanup()
-
     def test_read_mode_catalog_ask_offers_mode_switch(self):
         self.chat._init_tooling()
         with patch.object(self.chat._ask_ui, 'ask',

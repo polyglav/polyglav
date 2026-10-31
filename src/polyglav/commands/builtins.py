@@ -463,31 +463,6 @@ def register_builtins(registry):
             chat.config.set('verbosity.thinking', new)
             print(f'{DIM}@ Thinking: {new}{RESET}')
 
-    @registry.register('unattended',
-                       description='Show or toggle unattended mode (no stdin from any depth: '
-                                   'confirms auto-deny, user asks park or '
-                                   'return without pausing)')
-    def unattended_cmd(arg=''):
-        arg = arg.strip().lower()
-        current = chat._is_unattended() if hasattr(chat, '_is_unattended') \
-            else chat.config.get('unattended', False)
-        if arg in ('on', '1', 'true', 'yes', 'enable'):
-            new = True
-        elif arg in ('off', '0', 'false', 'no', 'disable'):
-            new = False
-        elif arg in ('', '?', 'status'):
-            new = None
-        else:
-            print(f"Usage: /unattended [on|off]  (current: {'on' if current else 'off'})")
-            return
-        if new is None:
-            print(f'Unattended mode: {"on" if current else "off"}')
-        else:
-            chat.config.set('unattended', new)
-            if hasattr(chat, 'set_unattended'):
-                chat.set_unattended(new)
-            print(f'Unattended mode: {"on" if new else "off"}')
-
     @registry.register('mode', description='Show or switch the agent mode for this session (read or write)')
     def mode_cmd(arg=''):
         from ..modes import resolve_mode
@@ -791,81 +766,6 @@ def register_builtins(registry):
                 continue
             print(render_turn(turn, full=full, cap=cap, resolve=resolve))
             print()
-
-    @registry.register('asks', description='List parked asks and answer them', subcommands=[
-        ('list', 'List parked asks (list [all|pending|answered])'),
-        ('show', 'Show a parked ask in full (show <id>)'),
-        ('answer', 'Answer a parked ask (answer <id> <text>)'),
-    ])
-    def asks_cmd(arg=''):
-        store = chat.asks
-        parts = arg.strip().split(maxsplit=1)
-        action = parts[0] if parts else ''
-        rest = parts[1].strip() if len(parts) > 1 else ''
-
-        if not action or action == 'list':
-            scope = (rest or 'pending').lower()
-            if scope not in ('pending', 'answered', 'all'):
-                print('Usage: /asks list [all|pending|answered]')
-                return
-            asks = store.list(None if scope == 'all' else scope)
-            if not asks:
-                print(f'  No {scope} asks')
-                return
-            for a in asks:
-                mark = '' if a.status == 'pending' else f'  ({a.status})'
-                preview = a.question.replace('\n', ' ')[:70]
-                print(f'  #{a.id}  {preview}{mark}')
-            return
-        if action == 'show':
-            if not rest:
-                print('Usage: /asks show <id>')
-                return
-            try:
-                a = store.find(int(rest))
-            except ValueError:
-                print('Usage: /asks show <id>')
-                return
-            if a is None:
-                print(f'Ask not found: {rest}')
-                return
-            print(f'#{a.id}  [{a.kind}{(": " + a.permission) if a.permission else ""}]'
-                  f'  {a.status}')
-            print(f'  origin:    {a.origin}')
-            print(f'  question:  {a.question}')
-            if a.context:
-                print(f'  context:   {a.context}')
-            if a.options:
-                print('  options:   ' + ' / '.join(a.options))
-            if a.answer:
-                print(f'  answer:    {a.answer}')
-            return
-        if action == 'answer':
-            aid, _, text = rest.partition(' ')
-            if not aid or not text.strip():
-                print('Usage: /asks answer <id> <text>')
-                return
-            try:
-                target = store.find(int(aid))
-            except ValueError:
-                print('Usage: /asks answer <id> <text>')
-                return
-            if target is None:
-                print(f'Ask not found: {aid}')
-                return
-            answered = store.answer(int(aid), text.strip())
-            if answered is None:
-                print(f'Ask not found: {aid}')
-                return
-            from ..asks import inject_answer
-            injected = inject_answer(store, answered)
-            if injected and chat.current_session.session_name == answered.origin:
-                chat.load_or_create_session(answered.origin)
-            note = f' -> resumed in session {answered.origin}' if injected \
-                else ' (origin session missing)'
-            print(f'Answered ask #{answered.id}{note}')
-            return
-        _render_commands(registry, ['asks'])
 
     @registry.register('compact',
                        description='Summarize the conversation and trim the context')

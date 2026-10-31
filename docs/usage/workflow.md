@@ -34,7 +34,7 @@ The user can watch this flow, stay out of it, or inspect it with `/runs`, which 
 
 ### Scheduled maintainer
 
-Recurring work is a job. A job carries its own role and skills, so a convention like "keep the docs in sync with AGENTS.md" lives in a skill rather than in every prompt. The scheduler runs it unattended, and a run memory carries context from one run to the next.
+Recurring work is a job. A job carries its own role and skills, so a convention like "keep the docs in sync with AGENTS.md" lives in a skill rather than in every prompt. The scheduler runs it in the background, and a run memory carries context from one run to the next.
 
 ### Supervised fleet
 

@@ -143,10 +143,7 @@ class Engine:
         self._ui = ui
         self._sub_run = False
         self._denied_streak = 0
-        self._unattended = bool(config.get('unattended'))
         self._ask_ui = ui if isinstance(ui, ReplUI) else None
-        if self._unattended:
-            self._ask_ui = None
         self._owns_provider = provider is None
         if plugin_manager is None:
             self._plugin_manager = PluginManager(config)
@@ -173,17 +170,6 @@ class Engine:
         register_builtins(self.registry)
         self._plugin_manager.register_commands(self.registry)
 
-    def _is_unattended(self) -> bool:
-        return bool(getattr(self, '_unattended',
-                            self.config.get('unattended', False)))
-
-    def set_unattended(self, enabled: bool):
-        self._unattended = bool(enabled)
-        if enabled:
-            self._ask_ui = None
-        else:
-            self._ask_ui = self._ui if isinstance(self._ui, ReplUI) else None
-
     @property
     def ui(self):
         if getattr(self, '_ui', None) is None:
@@ -196,13 +182,6 @@ class Engine:
             from .models import ModelRegistry
             self._models = ModelRegistry()
         return self._models
-
-    @property
-    def asks(self):
-        if getattr(self, '_asks', None) is None:
-            from .asks import AskStore
-            self._asks = AskStore(self.config.local_path.parent / 'asks.json')
-        return self._asks
 
     @property
     def providers(self):
@@ -298,8 +277,6 @@ class Engine:
         if getattr(self, 'approve_models', False):
             self.models.put(provider, model)
             return True
-        if self._is_unattended():
-            return False
         if isinstance(self.ui, ReplUI):
             try:
                 ok = self.ui.confirm('model', f'Approve model "{provider}/{model}"')
@@ -617,7 +594,6 @@ class Engine:
             sub_config.apply('system_prompt',
                              (prompt + '\n\n' + note).strip() if prompt else note)
         sub_config.apply('mode', mode or self._mode())
-        sub_config.apply('unattended', self._is_unattended())
         ask_policy = dict(self.config.get('ask_policy') or {})
         if agent_role is not None and agent_role.ask_policy:
             ask_policy.update(agent_role.ask_policy)
@@ -1781,8 +1757,6 @@ class Engine:
         self.current_session.add_permission(name, action, decision, path, **extra)
 
     def _confirm_tool(self, name: str, args: dict) -> bool:
-        if self._is_unattended():
-            return False
         key_arg = self._tool_registry.key_arg_for(name)
         label = name
         if key_arg and args.get(key_arg):

@@ -21,9 +21,9 @@ def register_commands(commands):
         ('run', 'Run a job now'),
     ])
     def jobs_cmd(arg=''):
-        from polyglav.jobs import (Job, JobRegistry, parked_asks_for_run, publish,
-                            read_memory, render_list, render_show,
-                            render_status, validate_schedule)
+        from polyglav.jobs import (Job, JobRegistry, publish, read_memory,
+                            render_list, render_show, render_status,
+                            validate_schedule)
         import shlex
         registry = JobRegistry(chat.config.local_path.parent / 'jobs.json')
         tokens = shlex.split(arg)
@@ -89,11 +89,6 @@ def register_commands(commands):
             memory = read_memory(chat.config.local_path.parent.parent, job)
             if memory:
                 print(f'  summary: {" ".join(memory.split())[:200]}')
-            parked = parked_asks_for_run(chat.config.local_path.parent,
-                                         run.session)
-            if parked:
-                print('  parked asks: '
-                      + ', '.join(f'#{a["id"]}' for a in parked))
             return
         if action == 'add':
             if len(tokens) < 2:
