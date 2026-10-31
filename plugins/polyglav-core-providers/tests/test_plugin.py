@@ -54,3 +54,6 @@ class TestProvidersPlugin(unittest.TestCase):
         self.assertEqual(args.action, 'list')
         self.assertEqual(args.provider, 'openai')
         self.assertTrue(callable(args.func))
+        providers = parser.parse_args(['providers', 'list'])
+        self.assertEqual(providers.action, 'list')
+        self.assertTrue(callable(providers.func))

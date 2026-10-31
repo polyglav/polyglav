@@ -389,3 +389,78 @@ def register_cli(cli):
     gl.add_argument('provider', nargs='?', default='',
                     help='Provider name (default: current)')
     p.set_defaults(func=_run_models)
+    _register_providers_cli(cli)
+
+
+def _providers_cli(args):
+    from polyglav.config import Config
+    from polyglav.engine import Engine
+    from polyglav.providers.registry import ProviderRegistry
+    from polyglav.ui import NullUI
+    config = Config(path=getattr(args, 'path', None))
+    registry = ProviderRegistry()
+    action = getattr(args, 'action', None)
+    if action == 'list':
+        entries = registry.all()
+        if not entries:
+            print('No provider connections configured')
+            return 0
+        active = config.get('provider')
+        for entry in sorted(entries, key=lambda e: e.provider):
+            mark = '>' if entry.provider == active else ' '
+            key = ' (key)' if entry.api_key else ''
+            base = f'  {entry.base_url}' if entry.base_url else ''
+            print(f'  {mark} {entry.provider}{key}{base}')
+        return 0
+    if action == 'remove':
+        ok = registry.remove(args.name)
+        print(f'Removed provider: {args.name}' if ok else f'Provider not found: {args.name}')
+        return 0 if ok else 1
+    if action == 'probe':
+        entry = registry.find(args.name)
+        if entry is None:
+            print(f'Provider not found: {args.name}')
+            return 1
+        engine = Engine(config, ui=NullUI())
+        ok, msg, _ = engine.check_connection(
+            base_url=entry.base_url, api_key=entry.api_key,
+            provider=entry.provider)
+        print(msg if ok else f'Failed: {msg}')
+        return 0 if ok else 1
+    if action == 'connect':
+        base_url = getattr(args, 'base_url', '') or ''
+        api_key = getattr(args, 'key', '') or ''
+        if not base_url:
+            entry = registry.find(args.name)
+            base_url = entry.base_url if entry else ''
+        if not base_url:
+            print('Error: --base-url is required for a new provider')
+            return 1
+        if not api_key:
+            entry = registry.find(args.name)
+            api_key = entry.api_key if entry else ''
+        registry.put(args.name, base_url, api_key)
+        config.set('provider', args.name)
+        config.set('base_url', base_url)
+        print(f'Connected provider: {args.name} ({base_url})')
+        return 0
+    print('Usage: polyglav providers [list|connect|remove|probe]')
+    return 1
+
+
+def _register_providers_cli(cli):
+    import argparse
+    p = cli.add_parser('providers', help='Manage provider connections')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    g = p.add_subparsers(dest='action', required=True)
+    g.add_parser('list', help='List provider connections')
+    gp = g.add_parser('probe', help='Probe a provider connection')
+    gp.add_argument('name')
+    gr = g.add_parser('remove', help='Remove a provider connection')
+    gr.add_argument('name')
+    gc = g.add_parser('connect', help='Add or update a provider connection')
+    gc.add_argument('name')
+    gc.add_argument('--base-url', help='Provider base URL')
+    gc.add_argument('--key', help='API key')
+    p.set_defaults(func=_providers_cli)

@@ -131,7 +131,6 @@
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
 - [ ] Move `polyglav serve` into the serve plugin
 - [ ] Move `polyglav export` and `polyglav import` into the sessions plugin
-- [ ] Add `polyglav providers` - list, connect, remove, and probe
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
@@ -239,6 +238,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added the providers CLI
 - [x] Added the JSONL session store
 - [x] Added init and the onboarding hint
 - [x] Added jobs add --team

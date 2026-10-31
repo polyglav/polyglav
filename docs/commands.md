@@ -102,6 +102,19 @@ Import a session from a JSON export (see [session.md](session.md)).
 | `--force`        | off                          | Overwrite an existing session with that name |
 | `--path`         |                              | Project path                      |
 
+### `polyglav providers`
+
+Manage provider connections.
+
+```bash
+polyglav providers list
+polyglav providers connect <name> --base-url <url> --key <key>
+polyglav providers probe <name>
+polyglav providers remove <name>
+```
+
+`connect` stores the connection in `providers.json` and sets the active provider and base URL. `probe` tests the stored endpoint. The key is never printed.
+
 ### `polyglav models`
 
 List configured models, or probe a provider's available models (mirrors `/models`).
