@@ -146,8 +146,6 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Remove `/tool` and make `/help` list commands and tools
-- [ ] Remove `/runs` and keep the run registry internal
 - [ ] Change `/connect` - keep it as a `/providers connect` shorthand
 - [ ] Add `/init` - generate an `AGENTS.md` skeleton and hint it from onboarding
 - [ ] Defer `/bookmark`, `/agent`, and `/spawn` until the plugin surface is ready
@@ -249,6 +247,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed the runs and tool commands
 - [x] Removed ask parking and unattended
 - [x] Added Ctrl-C pause continue and cancel
 - [x] Changed the history selectors

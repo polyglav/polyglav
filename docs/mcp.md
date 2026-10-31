@@ -2,7 +2,7 @@
 
 Polyglav speaks MCP in both directions through the bundled `polyglav-core-mcp` plugin. It is stdlib-only, with no third-party `mcp` library, and uses JSON-RPC 2.0 over newline-delimited stdio and SSE over urllib:
 
-- **Client** - connect to external MCP servers (stdio or HTTP), import their tools into the `ToolRegistry`, and call them like any other Polyglav tool. Tool policy, `/tool`, `/help`, glyph activity lines, query refinement and session logging all apply.
+- **Client** - connect to external MCP servers (stdio or HTTP), import their tools into the `ToolRegistry`, and call them like any other Polyglav tool. Tool policy, `/help`, glyph activity lines, query refinement and session logging all apply.
 - **Server** - expose Polyglav's registered tools and sessions as an MCP server to external agents (Claude, opencode, and other MCP clients) over stdio (`polyglav mcp`) and HTTP (`POST /mcp` on `polyglav serve`).
 
 Both eras are supported and negotiated per connection: the modern stateless revision (`2026-07-28`, per-request `_meta`) and the legacy `initialize`-handshake revisions (`2025-11-25` and earlier). The client probes `server/discover` and falls back to `initialize`. The server serves either, based on how the client opens.

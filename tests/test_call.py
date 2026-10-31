@@ -166,8 +166,7 @@ class TestDelegateTool(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         with patch('sys.stdout', new=io.StringIO()) as buf:
-            self.chat.registry.dispatch(
-                '/tool call {"role": "writer", "task": "write"}')
+            self.chat.chat_tool('call', {'role': 'writer', 'task': 'write'})
         out = buf.getvalue()
         self.assertEqual(out.count('Sub result.'), 1)
         self.assertIn('↳ Call writer', out)
@@ -184,8 +183,7 @@ class TestDelegateTool(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         with patch('sys.stdout', new=io.StringIO()):
-            self.chat.registry.dispatch(
-                '/tool call {"role": "writer", "task": "write"}')
+            self.chat.chat_tool('call', {'role': 'writer', 'task': 'write'})
         roles = [p['type'] for t in self.chat.current_session.turns
                  for p in t.get('parts') or []]
         self.assertIn('text', roles)

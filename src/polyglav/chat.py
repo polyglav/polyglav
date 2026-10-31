@@ -151,11 +151,6 @@ class ChatLoop(Engine):
                 if state < len(options):
                     return options[state] + ' '
                 return None
-        if head.endswith('/tool '):
-            options = sorted(n for n in self._tool_names() if n.startswith(text))
-            if state < len(options):
-                return options[state] + ' '
-            return None
         if head.endswith('/mode '):
             from .modes import mode_list
             options = sorted(m.name for m in mode_list(self.config)
@@ -186,16 +181,6 @@ class ChatLoop(Engine):
                 return '/' + options[state] + ' '
             return None
         return None
-
-    def _tool_names(self):
-        if not getattr(self, '_tool_registry', None):
-            return []
-        policy = getattr(self, '_tool_policy', None)
-        names = self._tool_registry.names()
-        if policy is None:
-            return names
-        return [n for n in names
-                if policy.allowed(n, self._tool_registry.permission_for(n))]
 
     def _provider_names(self):
         names = set(self._merged_providers())

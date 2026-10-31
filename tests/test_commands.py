@@ -32,10 +32,11 @@ class TestToolCommand(unittest.TestCase):
     def _search_service(self):
         return self.chat._plugin_manager.service('search')
 
-    def test_tool_lists_names_without_args(self):
-        output = self._dispatch('/tool')
+    def test_help_lists_tools(self):
+        output = self._dispatch('/help')
+        self.assertIn('Available tools:', output)
         self.assertIn('web_search', output)
-        self.assertIn('fetch_page', output)
+        self.assertIn('Use /help <tool> for details', output)
 
     def test_help_lists_aliases_inline(self):
         output = self._dispatch('/help')
@@ -62,19 +63,14 @@ class TestToolCommand(unittest.TestCase):
         self.assertEqual(rows, sorted(rows))
         self.assertEqual(rows, ['delete', 'export', 'import', 'list', 'preview'])
 
-    def test_help_lists_tools_under_tool(self):
+    def test_help_lists_tools(self):
         self.chat.config.set('mode', 'write')
         output = self._dispatch('/help')
-        self.assertNotIn('Available tools:', output)
-        self.assertIn('\n    run_command', output)
+        self.assertIn('Available tools:', output)
+        self.assertIn('\n  run_command', output)
         self.assertIn('Run a shell command', output)
         self.assertIn('Find files matching a glob pattern', output)
         self.assertNotIn('[exec · bash: ask]', output)
-
-    def test_help_tool_shows_tool_rows(self):
-        output = self._dispatch('/help tool')
-        self.assertIn('\n    read_file', output)
-        self.assertIn('Read the contents of a text file', output)
 
     def test_help_tool_detail(self):
         output = self._dispatch('/help read_file')
@@ -100,11 +96,6 @@ class TestToolCommand(unittest.TestCase):
     def test_help_unknown(self):
         output = self._dispatch('/help nosuch')
         self.assertIn('No help available for "nosuch"', output)
-
-    def test_tool_listing_points_to_help(self):
-        output = self._dispatch('/tool')
-        self.assertIn('Use /help <tool> for details', output)
-        self.assertNotIn(', web_search', output)
 
     def test_session_no_args_shows_current(self):
         output = self._dispatch('/session')
@@ -305,49 +296,6 @@ class TestToolCommand(unittest.TestCase):
         self._dispatch('/config --global tools.deny -a run_command')
         self.assertEqual(self._global_raw().get('tools.deny'), ['run_command'])
         self.assertEqual(self._local_raw().get('tools.deny', []), [])
-
-    def test_tool_executes_via_registry(self):
-        with patch.object(self._search_service(), 'search', return_value=[
-            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
-        ]) as search_mock:
-            output = self._dispatch('/tool web_search {"query": "python news"}')
-        search_mock.assert_called_once_with('python news')
-        self.assertIn('python news', output)
-
-    def test_tool_disabled_when_tool_calling_off(self):
-        self.chat.config.set('tool_calling', False)
-        output = self._dispatch('/tool web_search {"query": "x"}')
-        self.assertIn('disabled', output)
-
-    def test_tool_invalid_json(self):
-        output = self._dispatch('/tool web_search not-json')
-        self.assertIn('Usage: /tool', output)
-
-    def test_tool_denied_by_policy(self):
-        self.chat.config.set('tools.deny', ['web_search'])
-        output = self._dispatch('/tool web_search {"query": "x"}')
-        self.assertIn('disabled by tool policy', output)
-
-    def test_tool_listing_respects_deny(self):
-        self.chat.config.set('tools.deny', ['web_search'])
-        output = self._dispatch('/tool')
-        self.assertNotIn('\n  web_search', output)
-        self.assertIn('\n  read_file', output)
-
-    def test_tool_ask_prompt_declined(self):
-        self.chat.config.set('tool_permission', {'web': 'ask'})
-        with patch('polyglav.ui.input', return_value='n'):
-            output = self._dispatch('/tool web_search {"query": "x"}')
-        self.assertIn('[cancelled]', output)
-
-    def test_tool_ask_prompt_accepted(self):
-        self.chat.config.set('tool_permission', {'web': 'ask'})
-        with patch.object(self._search_service(), 'search', return_value=[
-            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
-        ]), patch('polyglav.ui.input', return_value='y'):
-            output = self._dispatch('/tool web_search {"query": "python"}')
-        self.assertNotIn('[cancelled]', output)
-        self.assertIn('python', output)
 
     def test_schema_filters_denied_tools(self):
         self.chat.config.set('tools.deny', ['web_search', 'run_command'])
@@ -1018,7 +966,8 @@ class TestModeCommand(unittest.TestCase):
 
     def test_read_mode_denies_write_tool(self):
         self._dispatch('/mode read')
-        output = self._dispatch('/tool write_file {"path": "x.txt", "content": "x"}')
+        self.chat._init_tooling()
+        output = self.chat._run_tool('write_file', {'path': 'x.txt', 'content': 'x'})
         self.assertIn('disabled by tool policy', output)
 
     def test_read_mode_filters_schema(self):
@@ -1031,7 +980,7 @@ class TestModeCommand(unittest.TestCase):
 
     def test_read_mode_tool_listing_hides_write_tools(self):
         self._dispatch('/mode read')
-        output = self._dispatch('/tool')
+        output = self._dispatch('/help')
         self.assertNotIn('\n  write_file', output)
         self.assertNotIn('\n  run_command', output)
         self.assertIn('\n  read_file', output)
@@ -1039,10 +988,10 @@ class TestModeCommand(unittest.TestCase):
     def test_read_mode_help_hides_write_tools(self):
         self._dispatch('/mode read')
         output = self._dispatch('/help')
-        self.assertNotIn('\n    write_file', output)
-        self.assertNotIn('\n    run_command', output)
-        self.assertIn('\n    read_file', output)
-        self.assertIn('\n    list_dir', output)
+        self.assertNotIn('\n  write_file', output)
+        self.assertNotIn('\n  run_command', output)
+        self.assertIn('\n  read_file', output)
+        self.assertIn('\n  list_dir', output)
 
     def test_switch_back_to_write_restores_tools(self):
         self._dispatch('/mode read')

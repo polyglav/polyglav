@@ -31,7 +31,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
-Plugins register additional tools the same way and automatically inherit tool policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. See [plugins.md](plugins.md).
+Plugins register additional tools the same way and automatically inherit tool policy, `/help`, query refinement, `tools_output_drop`, and session logging. See [plugins.md](plugins.md).
 
 ## Asking the user
 
@@ -62,9 +62,9 @@ The ask is not additionally gated: `tool_permission.ask` defaults to `allow`, si
 
 Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a `(cancelled)` note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (`n` still declines just that tool). Headless behavior mirrors this, and `polyglav run` exits non-zero on a cancelled turn.
 
-## Running a tool directly
+## Inspecting a tool
 
-`/tool <name> {"key": "value"}` runs any registered tool from the REPL, routed through the same policy. `/help <tool>` shows a tool's description, parameters, category, and permission.
+`/help <tool>` shows a tool's description, parameters, category, and permission. There is no direct REPL tool runner; tools run through the model loop or a command that wraps them.
 
 ## Registration metadata
 
@@ -85,7 +85,7 @@ Tools are registered with `@registry.register(name, description, parameters)` pl
 | `short` | Short label for `/help` listing (defaults to the description truncated) |
 | `aliases` | Extra tool names resolving to this tool (e.g. `read`/`view` for `file_read`, `open`/`fetch_page` for `web_fetch`) - absorbed at call time, never advertised |
 | `param_aliases` | Caller-side parameter synonyms mapped onto declared parameters (e.g. `cursor` -> `offset`, `query` -> `pattern`) |
-| `loop` | When true, `/tool <name>` runs the tool as a real agent-loop turn (`Engine.chat_tool`) - the tool call and result persist, then the model streams its final answer. Used by `call` so a `/tool call` plan, results, and answer land in the session and a later prompt can continue the work. Direct `ToolRegistry.execute()` calls are unaffected |
+| `loop` | When true, the tool runs as a real agent-loop turn (`Engine.chat_tool`) - the tool call and result persist, then the model streams its final answer. Used by `call` so a call plan, results, and answer land in the session and a later prompt can continue the work. Direct `ToolRegistry.execute()` calls are unaffected |
 | `confirm` | When false, the tool is never Y/n confirm-gated even when its category action is `ask`, so the call proceeds and the permission audit records it as granted. Used by `ask` so a question is never blocked by the prompt it needs |
 | `error` | A `Callable[[str], bool]` predicate over the raw result. When true, the echoed result renders red instead of dim, so a failed command is visible. Used by `run_command` and the dev wrappers, which read the `exit N` line |
 
@@ -131,7 +131,7 @@ Tool results are sent to the model verbatim, up to the `tool_max_result_chars` c
 
 ## Tool policy
 
-Every tool call is gated by `ToolPolicy` (`src/polyglav/tools/policy.py`), the single permission resolution point. The loop and `/tool` both route through it, so never special-case tool names for permission logic.
+Every tool call is gated by `ToolPolicy` (`src/polyglav/tools/policy.py`), the single permission resolution point. The loop routes through it, so never special-case tool names for permission logic.
 
 Actions are `allow` (no prompt), `ask` (Y/n confirm in the loop), or `deny` (tool filtered from the provider schema and refused on direct calls).
 
@@ -186,6 +186,6 @@ Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool cal
 
 At `verbosity.tools = full`, the parameters the model passed (excluding the one already shown in the label) are appended: `← Read engine.py [offset=299, limit=85]`, `$ Run pytest [cwd=/workspace, timeout=600]`. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving. At `summary`, only the one-line summary shows.
 
-When a tool call fails, the first line of its `Error:` result is echoed as a red `✗ ...` line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop, `/tool`, and policy-denied calls alike.
+When a tool call fails, the first line of its `Error:` result is echoed as a red `✗ ...` line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop and policy-denied calls alike.
 
 Soft tool results (short one-line informational notes a tool returns instead of content, like `(empty file)`, `(empty directory)`, `(no matches for "x")`, `(end of content)`, or `No search results found.`) surface as a dimmed info line under the activity line at `summary`/`full`; `verbosity.tools = off` hides them. A tool opts in by declaring a `note` predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.

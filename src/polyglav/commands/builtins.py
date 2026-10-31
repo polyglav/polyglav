@@ -62,33 +62,6 @@ def _run_todo(chat, args):
     return chat._tool_registry.execute('todo', args)
 
 
-def _run_line(runs, run, current_id, indent=0, switch=False):
-    mark = '*' if run.id == current_id else ' '
-    role = run.role or 'root'
-    task = (run.task or '').strip().splitlines()
-    head = task[0][:60] if task else ''
-    line = f'{"  " * indent}{mark} #{run.id} {role} [{run.status}] {run.session}'
-    if run.session_id:
-        line += f' {run.session_id}'
-    if run.duration:
-        line += f' {run.duration:.1f}s'
-    total = runs.rollup(run.id)
-    own = int((run.usage or {}).get('total_tokens') or 0)
-    tree = int(total.get('total_tokens') or 0)
-    if tree:
-        line += (f' ({own:,}/{tree:,} tokens)' if own
-                 else f' ({tree:,} tokens)')
-    if head:
-        line += f'  {head}'
-    return line
-
-
-def _run_tree(runs, run, current_id, indent=0):
-    print(_run_line(runs, run, current_id, indent))
-    for child in runs.children(run.id):
-        _run_tree(runs, child, current_id, indent + 1)
-
-
 def _live_session_for_run(chat, run_id):
     current = getattr(chat, 'current_run', None)
     if current is not None and current.id == run_id:
@@ -298,6 +271,13 @@ def register_builtins(registry):
             return
         print('Available commands:')
         _render_commands(registry, sorted(registry.meta), chat)
+        rows = _tool_rows(chat)
+        if rows:
+            print('\nAvailable tools:')
+            name_w = max(len(n) for n, _ in rows)
+            for n, tdesc in rows:
+                print(f'  {n:<{name_w + 2}}{tdesc}')
+            print('Use /help <tool> for details')
 
     @registry.register('exit', aliases=['quit'], description='Exit the REPL')
     def exit_cmd(_=None):
@@ -652,16 +632,6 @@ def register_builtins(registry):
         else:
             _render_commands(registry, ['session'])
 
-    @registry.register('runs', description='Show the run tree without switching runs')
-    def runs_cmd(arg=''):
-        current = getattr(chat.active(), 'current_run', None) \
-            if hasattr(chat, 'active') else getattr(chat, 'current_run', None)
-        current_id = current.id if current is not None else -1
-        print(f'{DIM}@ Runs{RESET}')
-        for run in chat.runs.runs():
-            if run.parent is None:
-                _run_tree(chat.runs, run, current_id)
-
     @registry.register('history',
                        description='List the session turns as a numbered index '
                                    '(/history [N|N-O|-O|N-|all] '
@@ -776,39 +746,6 @@ def register_builtins(registry):
                        description='Summarize the session without trimming the context')
     def summary_cmd(_=None):
         chat.summary_session()
-
-    @registry.register('tool', description='Run a tool directly (no args lists tools)')
-    def tool_cmd(arg=''):
-        chat._init_tooling()
-        if not chat._tool_registry or not chat._tool_policy:
-            print('Tool calling is disabled (tool_calling: false)')
-            return
-        parts = arg.strip().split(maxsplit=1)
-        if not arg:
-            rows = _tool_rows(chat)
-            if rows is None:
-                print('Tool calling is disabled (tool_calling: false)')
-                return
-            if not rows:
-                print('No tools allowed')
-                return
-            print('Available tools:')
-            name_w = max(len(n) for n, _ in rows)
-            for n, tdesc in rows:
-                print(f'  {n:<{name_w + 2}}{tdesc}')
-            print('Use /help <tool> for details')
-            return
-        name = parts[0]
-        args_str = parts[1] if len(parts) > 1 else '{}'
-        try:
-            arguments = json.loads(args_str) if args_str else {}
-        except json.JSONDecodeError:
-            print('Usage: /tool <name> {"key": "value"}')
-            return
-        if chat._tool_registry.loop_for(name):
-            chat.chat_tool(name, arguments)
-            return
-        print(chat._run_tool(name, arguments, echo=False))
 
     @registry.register('plugins', aliases=['plugin'],
                        description='Manage plugins', subcommands=[
