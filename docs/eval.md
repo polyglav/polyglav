@@ -83,4 +83,4 @@ The catalog is contributed through the `register_fixtures(fixtures)` plugin entr
 
 ## Testing
 
-`tests/test_eval.py` covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The `polyglav eval` CLI is covered in `tests/test_cli.py`, and the `register_fixtures` hook in `tests/test_plugins.py`.
+`plugins/polyglav-core-eval/tests/test_eval.py` covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The `polyglav eval` CLI is covered in `tests/test_cli.py`, and the `register_fixtures` hook in `tests/test_plugins.py`.

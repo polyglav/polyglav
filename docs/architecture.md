@@ -84,7 +84,6 @@ src/polyglav/
 ├── commands/            # command registry + builtins
 ├── config.py            # JSON config (global + local merge)
 ├── engine.py            # headless agent core - Engine, TurnResult, chat_tool, run_subagent, run_team
-├── eval.py              # tool-use eval harness (polyglav eval)
 ├── fleet.py             # FleetController - supervised serve agents
 ├── jobs.py              # Job/JobRun model + registry
 ├── main.py              # CLI arg parsing + bootstrap (REPL, run, serve, ...)

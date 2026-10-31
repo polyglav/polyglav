@@ -7,9 +7,6 @@ SRC = Path(__file__).resolve().parents[1] / 'src'
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from polyglav.eval import EvalFixture, verify_fixture
-
-
 def _load_plugin(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, str(path))
     module = importlib.util.module_from_spec(spec)
@@ -19,6 +16,8 @@ def _load_plugin(name: str, path: Path):
 
 
 eval_plugin = _load_plugin('polyglav_eval_plugin', SRC / 'plugin.py')
+EvalFixture = eval_plugin.EvalFixture
+verify_fixture = eval_plugin.verify_fixture
 
 
 class TestEvalFixtures(unittest.TestCase):

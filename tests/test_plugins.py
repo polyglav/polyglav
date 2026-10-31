@@ -554,8 +554,14 @@ class TestRegistration(PluginTestBase):
     def test_register_fixtures_hook(self):
         write_plugin(self.plugins_dir, 'eval', FIXTURE_PLUGIN, {'name': 'eval'})
         self.pm.load()
-        from polyglav.eval import discover_fixtures
-        fixtures = discover_fixtures(plugin_manager=self.pm)
+        import importlib.util
+        from pathlib import Path
+        path = (Path(__file__).resolve().parents[1] / 'plugins'
+                / 'polyglav-core-eval' / 'src' / 'plugin.py')
+        spec = importlib.util.spec_from_file_location('polyglav_core_eval', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        fixtures = module.discover_fixtures(plugin_manager=self.pm)
         self.assertIn('read-foo', fixtures)
         self.assertEqual(fixtures['read-foo'].expected, ['file_read'])
         self.assertEqual(fixtures['list-dir'].task, 'List the dir')

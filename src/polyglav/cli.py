@@ -138,52 +138,6 @@ def cmd_models(args) -> int:
     return 0
 
 
-def cmd_eval(args) -> int:
-    import json as _json
-    from .eval import (discover_eval, format_compare, format_results,
-                       run_compare, run_suite, select_fixtures)
-    source = Config(path=getattr(args, 'path', None))
-    fixtures = discover_eval(source)
-    if getattr(args, 'action', None) == 'list':
-        if not fixtures:
-            print('No eval fixtures found.')
-            return 0
-        for fid in sorted(fixtures):
-            fixture = fixtures[fid]
-            expected = ', '.join(fixture.expected) if fixture.expected else 'any'
-            label = fixture.description or fixture.task
-            print(f'{fid} - {label[:60]} (expected: {expected})')
-        return 0
-    selected = select_fixtures(fixtures, getattr(args, 'fixture', None))
-    if not selected:
-        print('No eval fixtures found.', file=sys.stderr)
-        return 1
-    if getattr(args, 'compare', None):
-        providers = [p.strip() for p in args.compare.split(',') if p.strip()]
-        rows = run_compare(selected, source, providers,
-                           getattr(args, 'model', None) or '')
-        if args.output == 'json':
-            sys.stdout.write(_json.dumps(
-                {row['provider']: row['summary'] for row in rows}, indent=2) + '\n')
-        else:
-            sys.stdout.write(format_compare(rows) + '\n')
-        return 0
-    overrides = {}
-    if getattr(args, 'provider', None):
-        overrides['provider'] = args.provider
-    if getattr(args, 'model', None):
-        overrides['model'] = args.model
-    if getattr(args, 'base_url', None):
-        overrides['base_url'] = args.base_url
-    results, summary = run_suite(selected, source, overrides)
-    if args.output == 'json':
-        sys.stdout.write(_json.dumps(
-            {'summary': summary, 'results': results}, indent=2) + '\n')
-    else:
-        sys.stdout.write(format_results(results, summary) + '\n')
-    return 0
-
-
 def cmd_mcp(args) -> int:
     config = Config(path=args.path)
     ui = HeadlessUI(auto='deny', verbose=False, stream=False,

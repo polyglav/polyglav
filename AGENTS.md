@@ -59,7 +59,6 @@ Polyglav/
 │   ├── scheduler.py         # JobScheduler - durable job daemon (retries, approvals, auto-compact)
 │   ├── fleet.py             # Fleet supervisor - AgentDef manifest, FleetController (ports, health, restart)
 │   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
-│   ├── eval.py              # Tool-use eval harness - fixtures, runner, metrics (polyglav eval)
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers
 │   │   ├── base.py          # BaseProvider + OpenAICompatibleProvider (HOST_PATTERNS)

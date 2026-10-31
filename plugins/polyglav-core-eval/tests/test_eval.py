@@ -4,11 +4,24 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import importlib.util
+
 from polyglav.config import Config
-from polyglav.eval import (EvalFixture, discover_fixtures, format_results,
-                         redundant_count, run_fixture, run_suite,
-                         select_fixtures, summarize, token_total,
-                         verify_fixture)
+
+_plugin_path = Path(__file__).resolve().parents[1] / 'src' / 'plugin.py'
+_spec = importlib.util.spec_from_file_location('polyglav_core_eval', _plugin_path)
+_eval = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_eval)
+EvalFixture = _eval.EvalFixture
+discover_fixtures = _eval.discover_fixtures
+format_results = _eval.format_results
+redundant_count = _eval.redundant_count
+run_fixture = _eval.run_fixture
+run_suite = _eval.run_suite
+select_fixtures = _eval.select_fixtures
+summarize = _eval.summarize
+token_total = _eval.token_total
+verify_fixture = _eval.verify_fixture
 
 
 class _Base(unittest.TestCase):
