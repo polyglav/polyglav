@@ -46,7 +46,7 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Change the plugin test harness task - external plugins only, bundled suites already ship
+- [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 - [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
@@ -162,7 +162,6 @@
   - [ ] WhatsApp adapter - business-API HTTP channel
   - [ ] More adapters (Discord, Signal, email)
   - [ ] Remote auth + session scoping + headless deny
-- [ ] Plugin test harness - `polyglav plugins test <name>` ships. Bundled plugin suites live next to the plugins (`plugins/<name>/tests/`, discovered by the core suite). Remaining: external plugins are expected to ship a test suite, and `polyglav plugins test` is the runner for them
 - [ ] Session recall - full-text search across past sessions (grep/index over `.polyglav/sessions/`) so an agent can answer from its own history
 - [ ] Tool dry-run mode - propose tool args/effects without executing (enterprise tool-gateway requirement)
 - [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > polyglav-core-web, `open ../...` > polyglav-core-fs), with merged schemas and args-aware policy accessors
@@ -198,6 +197,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed the plugin test harness task
 - [x] Retargeted inbound events
 - [x] Merged multiuser tasks
 - [x] Merged agent status tasks
