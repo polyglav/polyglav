@@ -1,7 +1,5 @@
 # TODO
 
-- One-window status - `/status` shows sessions, running agents, and configured jobs on the current machine, with logs reachable from the same place (the journalctl-style alternative)
-- Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding
 - Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)
 - Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time
 - Runtime pluginization - make models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI replaceable plugins, and move the REPL to a plugin. Five replaceable layers: access, orchestration, capability, model, storage
@@ -12,7 +10,6 @@
 - Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots
 - Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.polyglav/tmp/` referenced from the session log
 - Context UI polish - auto-compaction, context trim, highlighting, and context desaturation
-- Fleet awareness - the supervisor always knows which agents and teams run on a machine, with oversight across multiple machines
 - Open WebUI and OpenTUI connectors - drive Polyglav from external chat and terminal UIs
 - Tool-call quality enhancer - steer tool calling toward correct, cheaper calls (for example web-search parameters that find the right references) and better results
 - PlantUML plugin - an external plugin that draws configurations and workflows as node diagrams instead of ASCII
@@ -51,10 +48,8 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge agent status - health monitoring, fleet awareness, and one-window status
 - [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
 - [ ] Retarget inbound webhooks - start a run or answer a job question, not a parked ask
-- [ ] Update the status task - one `/status` surface for sessions, runs, jobs, and fleet
 - [ ] Change the plugin test harness task - external plugins only, bundled suites already ship
 - [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
@@ -162,6 +157,7 @@
 - [ ] Add the jobs and fleet control surface - GET /jobs and POST /jobs/<name>/approve|reject|run|disable on polyglav serve, a fleet-wide list --root, and a stdlib web Control UI on the same API
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
 - [ ] Auto team selection - the assistant picks roles, teams, and skills from the registries for a task and delegates in sequence (team orchestration as a user-facing pattern, e.g. "compare with competitors" -> Researcher > Writer > Referencer > Editor)
+- [ ] Add agent status - one /status surface for sessions, runs, jobs, fleet health, and configured agents across machines
 - [ ] `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
 - [ ] Remote channels - command agents from messaging apps (OpenClaw channels parity):
   - [ ] Channel gateway - one adapter surface over the engine/serve API
@@ -204,6 +200,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Merged agent status tasks
 - [x] Merged session interchange tasks
 - [x] Merged content ingestion tasks
 - [x] Merged memory and skill tasks
