@@ -40,7 +40,6 @@
 - Self-update - `polyglav update` (Pi `pi update --self` analogue)
 - Standalone binary build - Pi-style release script producing a single executable (contentious for a zero-dep Python package)
 - Opt-in telemetry contracts - vendor-neutral event schema (OpenCode, Pi `@earendil-works/pi-telemetry`). Decide whether it fits the no-telemetry stance
-- Conversation sharing - web-shareable session links (OpenCode `/share`) or published sessions (Pi `pi-share-hf`), building on the planned Markdown export
 - Plugin registry / marketplace - discoverable plugin sharing (OpenClaw ClawHub analogue). PyPI entry-point source is a prerequisite
 
 ## Open
@@ -52,7 +51,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge session interchange - Markdown import and conversation sharing
 - [ ] Merge agent status - health monitoring, fleet awareness, and one-window status
 - [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
 - [ ] Retarget inbound webhooks - start a run or answer a job question, not a parked ask
@@ -202,9 +200,11 @@
   - [ ] Onboarding wizard (`polyglav wizard`) for data-source / MES interface setup
   - [ ] RBAC - role-based access control for enterprise deployments
   - [ ] Queue-based scaling - many sensor and chat feeds without blocking the loop
-- [ ] Session import from Markdown
 
+
+- [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Merged session interchange tasks
 - [x] Merged content ingestion tasks
 - [x] Merged memory and skill tasks
 - [x] Merged control API tasks

@@ -102,7 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Merge session interchange | S | one session exchange |
 | Merge agent status | S | one status view |
 | Merge multiuser and queue | S | one scaling story |
 | Retarget inbound events | S | a coherent event model |
@@ -305,8 +304,7 @@ Session artifacts become portable and navigable.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Conversation sharing links - web-shareable sessions (builds on Markdown export) | M | shareable sessions |
-| Session import from Markdown | M | round-trip session exchange |
+| Session interchange - Markdown import and shareable or published sessions | M | round-trip and sharing |
 | Bookmarks (`/bookmark`) | S | session pinning |
 | Command palette / fuzzy history - CTRL-P style history search | M | fast history search |
 
