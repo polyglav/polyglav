@@ -102,7 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove landed and non-project tasks | S | a truthful backlog |
 | Remove parking tasks | S | a synchronous ask model |
 | Merge job notifications | S | one notification stream |
 | Merge control API and UI | S-M | one control surface |

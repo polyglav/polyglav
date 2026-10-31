@@ -1,6 +1,5 @@
 # TODO
 
-- First-run onboarding - the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users
 - One-window status - `/status` shows sessions, running agents, and configured jobs on the current machine, with logs reachable from the same place (the journalctl-style alternative)
 - Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding
 - Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)
@@ -34,7 +33,6 @@
 - Hash-chained / tamper-evident audit log - additive on session logs (enterprise.md recommendation), hash-chained append or WORM storage
 - Single-purpose agent fleet with "one agent per process, scoped to a folder" as the headline pattern. README + `docs/fleet.md` set the niche
 - Fleet and swarm orchestration as the two layers - fleet: supervisor running many scoped `polyglav serve` instances (port allocation, health checks, restart policy, per-agent config generation), swarm: `/agent` types, auditor agents, generate > check > correct
-- Community presence - decide on Discord/X channels and fill the README community link slots
 - Add multiuser capability or queue for API requests (request queue, per-token rate limits)
 - Add ReadTheDocs documentation
 - Citations / source attribution - return URL + snippet with every answer
@@ -44,7 +42,6 @@
 - Hybrid web + local RAG - vector store (FAISS/Weaviate), embeddings, local document search
 - Command palette / fuzzy search - CTRL-P style history search
 - Topic-aware ranking - classifier for query intent to weight search results
-- Competitor research - validate USPs against actual peers (OpenClaw, Claude Code, opencode, agentic-infra services). Comparison notes now live in `docs/compare/` and feed the feature backlog (Plan/Build modes, Web Control UI, plugin marketplace, telemetry, binary builds, sharing)
 - Self-update - `polyglav update` (Pi `pi update --self` analogue)
 - Standalone binary build - Pi-style release script producing a single executable (contentious for a zero-dep Python package)
 - Opt-in telemetry contracts - vendor-neutral event schema (OpenCode, Pi `@earendil-works/pi-telemetry`). Decide whether it fits the no-telemetry stance
@@ -60,8 +57,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Remove landed tasks - first-run onboarding, thinking visibility, manager role, core dev team, role docs, PM/dev/tester orchestration, and root role memory
-- [ ] Remove non-project ideas - community presence and competitor research
 - [ ] Remove parking tasks - batched structured asks, ask continuation, decide-vs-park, and mid-run blocking job approval
 - [ ] Remove the swarm orchestration umbrella and the command audit umbrella
 - [ ] Merge job notification tasks - job connectors, report-back connectors, and human-in-the-loop channels
@@ -169,7 +164,6 @@
 - [ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing
 - [ ] `memorize` as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
-- [ ] Root role memory - inject `.polyglav/memory/roles/<role>.md` in `bind_root_agent` through a shared prompt-composition helper, with a refresh path
 - [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/runs` stays a read-only history
 - [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
@@ -177,10 +171,6 @@
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
 - [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
-- [ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs
-- [ ] Assistant-roles track docs - record the assistant, composer, and manager architecture and the work packages in VISION, PLAN, and TODO
-- [ ] Core dev team configuration - a development team with the review loop plus the project lead/support teams and their skills
-- [ ] Manager role - a role that runs one or many teams and reports, sequential first
 - [ ] Per-job report destination - a `report_url` (or connector list) on a job so different jobs report to different endpoints, instead of one global `report.webhook`
 - [ ] Per-task decide-vs-park for `direction` asks - a task class (or per-run switch) that lets the supervisor auto-resolve a direction ask after a timeout instead of always parking it for the operator
 - [ ] Full `file_*` namespace extension - if `file_glob`/`file_grep` prove better with most models, extend the prefix to `list_dir`/`glob`/`grep` (old names stay aliases)
@@ -192,7 +182,6 @@
 - [ ] Fleet jobs overview - `polyglav jobs list --root <dir>` scanning agent worktrees (agent, job, status, next run, task table), then the web Control UI on top
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
 - [ ] Auto team selection - the assistant picks roles, teams, and skills from the registries for a task and delegates in sequence (team orchestration as a user-facing pattern, e.g. "compare with competitors" -> Researcher > Writer > Referencer > Editor)
-- [ ] Thinking visibility - `/thinking on` + `reasoning` config documented, per-provider `reasoning_content` check so reasoning shows in the REPL
 - [ ] `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
 - [ ] Remote channels - command agents from messaging apps (OpenClaw channels parity):
   - [ ] Channel gateway - one adapter surface over the engine/serve API
@@ -222,7 +211,6 @@
 - [ ] Workspace sessions - tools write into a scoped `--workspace` dir, optional `--git` sync
 - [ ] Sandboxed exec - namespace/container isolation for `run_command` (documented, planned for a later version)
 - [ ] `/agent` types - interactive type selection/run UX (type registry, sub-engine, and `call` landed. The `/agent` command itself remains)
-- [ ] PM/dev/tester team orchestration as a user-facing pattern (the roles + `call` primitives landed, and it needs the jobs/team-config layer to be a pattern)
 - [ ] Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin
 - [ ] Enterprise plugins (stdlib-first, third-party deps optional):
   - [ ] Data ingestion - `read_stream` / `write_stream` (MQTT, OPC-UA, Modbus)
@@ -238,6 +226,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed landed and non-project tasks
 - [x] Added the providers CLI
 - [x] Added the JSONL session store
 - [x] Added init and the onboarding hint
