@@ -100,6 +100,7 @@ Polyglav/
     ├── polyglav-core-onboarding/  # first-run project setup (/onboard)
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
+    ├── polyglav-core-providers/   # provider connections and model commands
     ├── polyglav-core-web/         # web_search, web_fetch + search service
     └── polyglav-core-webhook/     # report-back connector (job run reports)
 ```

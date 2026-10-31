@@ -16,7 +16,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Task | Effort | Provides |
 |------|--------|----------|
 | REPL plugin | M-L | a replaceable terminal front-end |
-| Providers plugin | M | provider management outside the core |
 | Sessions plugin | S | export and import outside the core |
 | Roles plugin with `call` | M | optional roles and delegation |
 | Teams plugin with `run_team` | M | optional teams on top of roles |
@@ -76,7 +75,6 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 | Plugin config ownership through manifests | M | legible groups |
 | Config service, object view, `--json`, and validation | S-M | one behavior |
 | Model ref and generic `openai-compatible` entry | M | one model source of truth |
-| Move provider management to the providers plugin | M | capability ownership |
 | Move display keys to the REPL plugin | S | presentation outside the core |
 | Move web, exec, fs, MCP, webhook, memory, and bookkeeping keys | S-M | capability ownership |
 | `auto_continue_max` only and token records | S | simpler continuation and usage |

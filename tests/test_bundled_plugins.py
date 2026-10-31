@@ -20,6 +20,7 @@ BUNDLED = {
     'polyglav-core-onboarding',
     'polyglav-core-openai',
     'polyglav-core-opencode',
+    'polyglav-core-providers',
     'polyglav-core-web',
     'polyglav-core-webhook',
 }

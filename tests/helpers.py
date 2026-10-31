@@ -67,4 +67,5 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
 
     chat.registry = CommandRegistry(chat)
     register_builtins(chat.registry)
+    chat._plugin_manager.register_commands(chat.registry)
     return chat

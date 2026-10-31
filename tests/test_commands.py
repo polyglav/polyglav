@@ -127,7 +127,7 @@ class TestToolCommand(unittest.TestCase):
         s = self.chat.sessions.create('saved1')
         s.add_user('hello from saved session')
         self.chat.sessions.save(s)
-        with patch('polyglav.commands.builtins.input', return_value='n'):
+        with patch('builtins.input', return_value='n'):
             self._dispatch('/session load saved1')
         self.assertIsNot(self.chat.current_session, old)
         texts = [p['text'] for t in self.chat.current_session.turns
@@ -138,7 +138,7 @@ class TestToolCommand(unittest.TestCase):
         s = self.chat.sessions.create('saved2')
         s.add_user('hello world')
         self.chat.sessions.save(s)
-        with patch('polyglav.commands.builtins.input', return_value='n'):
+        with patch('builtins.input', return_value='n'):
             output = self._dispatch('/session load saved2')
         self.assertIn('messages', output)
         self.assertIn('context', output)
@@ -152,7 +152,7 @@ class TestToolCommand(unittest.TestCase):
         s.add_user('x')
         self.chat.sessions.save(s)
         self.chat.compact_session = unittest.mock.MagicMock()
-        with patch('polyglav.commands.builtins.input', return_value='y'):
+        with patch('builtins.input', return_value='y'):
             self._dispatch('/session load big1')
         self.chat.compact_session.assert_called_once()
 
@@ -161,7 +161,7 @@ class TestToolCommand(unittest.TestCase):
         s.add_user('x')
         self.chat.sessions.save(s)
         self.chat.compact_session = unittest.mock.MagicMock()
-        with patch('polyglav.commands.builtins.input', return_value='n'):
+        with patch('builtins.input', return_value='n'):
             self._dispatch('/session load big2')
         self.chat.compact_session.assert_not_called()
 
@@ -258,12 +258,12 @@ class TestToolCommand(unittest.TestCase):
         self.assertNotIn('run_command', self.chat.config.get('tools.deny'))
 
     def test_config_unknown_key_prompts(self):
-        with patch('polyglav.commands.builtins.input', return_value='y'):
+        with patch('builtins.input', return_value='y'):
             self._dispatch('/config frobnicate 1')
         self.assertEqual(self.chat.config.get('frobnicate'), 1)
 
     def test_config_unknown_key_declined(self):
-        with patch('polyglav.commands.builtins.input', return_value='n'):
+        with patch('builtins.input', return_value='n'):
             output = self._dispatch('/config frobnicate 1')
         self.assertIn('Skipped', output)
         self.assertIsNone(self.chat.config.get('frobnicate'))
@@ -376,13 +376,13 @@ class TestConnectCommand(unittest.TestCase):
             if inputs is None:
                 self.chat.registry.dispatch(line)
             else:
-                with patch('polyglav.commands.builtins.input', side_effect=inputs):
+                with patch('builtins.input', side_effect=inputs):
                     self.chat.registry.dispatch(line)
         return out.getvalue()
 
     def test_connect_pick_lists_providers(self):
         self.chat.providers.put('openai', 'https://api.openai.com/v1', 'oak')
-        with patch('polyglav.commands.builtins.input', side_effect=EOFError):
+        with patch('builtins.input', side_effect=EOFError):
             output = self._dispatch('/connect')
         self.assertIn('1. ollama', output)
         self.assertIn('openai (key)', output)
@@ -414,7 +414,7 @@ class TestConnectCommand(unittest.TestCase):
         self.chat.providers.put('ollama', 'https://api.ollama.com', 'old-key')
         with patch.object(self.chat, 'check_connection',
                           return_value=(True, 'ok', [])):
-            with patch('polyglav.commands.builtins.input',
+            with patch('builtins.input',
                        side_effect=['new-key']) as inp:
                 output = self._dispatch('/connect ollama')
         inp.assert_called_once_with('  API key [<stored>]: ')

@@ -85,7 +85,6 @@
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Add the providers plugin - `/connect`, `/provider`, `/providers`, `/models`, probes, and model picker
 - [ ] Add the sessions plugin - `/sessions`, export, import, and render
 - [ ] Add the roles plugin - role registry, `/role`, `/roles`, `call`, and role memory hooks
 - [ ] Add the teams plugin - team registry, `/teams`, `run_team`, and team memory hooks
@@ -124,7 +123,6 @@
 - [ ] Change `/config` and `polyglav config` - grouped object view, `--json`, validation, and no unknown-key prompt
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
-- [ ] Change provider management - move `/connect`, `/provider`, `/providers`, and `/models` to the providers plugin
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
 - [ ] Move web config to the web plugin - `query_refine*` and `search_results` with a default of 10
 - [ ] Move the exec allowlist to `exec_allow` in the exec plugin
@@ -275,6 +273,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved provider management to a plugin
 - [x] Added CLI and front-end plugin hooks
 - [x] Added plugin dependency loading
 - [x] Changed ask styling
