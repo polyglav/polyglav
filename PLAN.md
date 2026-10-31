@@ -79,7 +79,6 @@ The session log stays append-only in meaning, writes are atomic, and runtime cos
 |------|--------|----------|
 | SQLite store plugin, off by default | M | optional database storage |
 | Session load validation | S | clear missing role and team warnings |
-| Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]` | S | clean logs |
 
 ## Self-development team enablement
 

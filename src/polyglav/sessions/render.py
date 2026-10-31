@@ -317,8 +317,7 @@ def _tool_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
     text = str(part.get('output') or '')
     if resolve is not None and part.get('ref'):
         loaded = resolve(str(part['ref']))
-        if loaded is not None:
-            text = loaded
+        text = loaded if loaded is not None else '[tool log missing]'
     lines = [label]
     for ref in part.get('refs') or []:
         title = str(ref.get('title') or '').strip()

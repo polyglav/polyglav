@@ -197,6 +197,15 @@ class TestTurnSummary(unittest.TestCase):
         turn = s.turns[-1]
         self.assertIn('/model x', turn_summary(turn))
 
+    def test_missing_tool_ref(self):
+        s = Session('s')
+        s.add_user('hello')
+        part = s.add_tool('file_read', {'path': 'x'})
+        part['ref'] = 'gone.txt'
+        turns.finish_tool(part, '')
+        out = render_turn(s.turns[-1], resolve=lambda ref: None)
+        self.assertIn('[tool log missing]', out)
+
     def test_tool_stats(self):
         s = Session('s')
         s.add_user('hello')

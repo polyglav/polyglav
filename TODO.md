@@ -42,7 +42,6 @@
 - [ ] Change runtime session JSON to compact serialization
 - [ ] Add a SQLite session store plugin, off by default
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
-- [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
@@ -179,6 +178,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Removed session compatibility
 - [x] Changed CLI help grouping
 - [x] Added web result references
 - [x] Changed command grammar
