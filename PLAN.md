@@ -102,7 +102,7 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Merge job notifications | S | one notification stream |
+| Job notifications and outbound connectors | M | one notification stream |
 | Merge control API and UI | S-M | one control surface |
 | Merge memory and skill tasks | S-M | one memory pipeline |
 | Merge content ingestion | S | one content plugin family |

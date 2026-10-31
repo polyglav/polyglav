@@ -25,8 +25,6 @@
 - Model picker - `/models` autocomplete and a direct numeric selection of a model
 - Centralized static strings - move hardcoded prompts and static strings into one module
 - Code cleanup pass - a dedicated pass over the core for dead code, naming, and rough edges
-- Report-back connectors - job summaries delivered out-of-band (email first, idea only) when the terminal is closed
-- Human-in-the-loop channels - job events outbound (`proposed`, `will_run`, `failed`, `waiting_approval`) plus inbound actions (`approve`/`reject`/`run`/`disable`) over configurable connectors (webhook first, then email, then Telegram), so a job can reach an operator who is not on the box
 - Global jobs overview across agents - `polyglav jobs list --root <dir>` fleet scan, a `GET /jobs` + `POST /jobs/<name>/approve|reject|run|disable` operator API on `polyglav serve`, then a web Control UI, so one view shows which agents run next and with which task
 - Edge / offline store-and-forward buffering - offline-capable agents with local buffering for unreliable connectivity (enterprise use case)
 - Immutable agent config - `polyglav serve` agents must never be able to change their own configuration, permissions, or tool list (control-plane rule from the use-case reference architecture)
@@ -57,7 +55,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge job notification tasks - job connectors, report-back connectors, and human-in-the-loop channels
 - [ ] Merge control tasks - jobs operator API, fleet jobs overview, and the minimal web Control UI
 - [ ] Merge memory tasks - memory references, conclusion stage, and auto-improving skills
 - [ ] Merge content ingestion - research cache, web scraper, and PDF-to-text
@@ -170,7 +167,7 @@
 - [ ] Full `file_*` namespace extension - if `file_glob`/`file_grep` prove better with most models, extend the prefix to `list_dir`/`glob`/`grep` (old names stay aliases)
 - [ ] Tool spec polish - rename `grep.glob` -> `include` (alias `glob`), add examples and prefer-`web_fetch` guidance to tool descriptions
 - [ ] Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`. Channel-agnostic core, first consumers are the connectors and the operator API
-- [ ] Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps, works with n8n/IFTTT/any URL) first. External email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API so operators can react in time
+- [ ] Add job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API
 - [ ] Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, so clients (web Control UI, connectors, fleet supervisor) can see and act per agent
 - [ ] Fleet jobs overview - `polyglav jobs list --root <dir>` scanning agent worktrees (agent, job, status, next run, task table), then the web Control UI on top
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
@@ -218,6 +215,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Merged job notification tasks
 - [x] Removed the swarm and command audit umbrellas
 - [x] Removed parking tasks
 - [x] Removed landed and non-project tasks
