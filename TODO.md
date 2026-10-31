@@ -53,6 +53,27 @@
 
 ## Open
 
+- [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
+- [ ] Remove the `/c`, `/h`, `/q`, and `/v` aliases and keep `/quit`
+- [ ] Add `/clear` - clear the screen and reprint the header without leaving or changing the session
+- [ ] Add `/status` - show provider, model, mode, current session, live runs, jobs, fleet agents, and plugin state
+- [ ] Add `/new` - create a new session as shorthand for `/session new`
+- [ ] Add `/summary` - summarize and store the current session without compacting its context
+- [ ] Add Ctrl-C pause - pause the root turn, stop the active child run, and print a hint at idle
+- [ ] Add `/continue [parent|<id>]` - resume the last active paused session, the parent session, or any run or session ID
+- [ ] Add `/cancel` - close a paused root turn as cancelled
+- [ ] Change a normal prompt while paused - ask `[Y/n]` to cancel the paused turn and start a new turn
+- [ ] Remove `/pause` and `/resume`
+- [ ] Remove `/asks` and ask parking
+- [ ] Remove `/unattended`
+- [ ] Remove `/tool` and make `/help` list commands and tools
+- [ ] Change `/print` selectors - `N`, `N-O`, `-O`, `N-`, `N.M`, and `session:<name>`
+- [ ] Change `/history` selectors - the same turn ranges, with `--thoughts` and `--tree`, and no `--run`
+- [ ] Remove `/runs` and keep the run registry internal
+- [ ] Change `/connect` - keep it as a `/providers connect` shorthand
+- [ ] Add `/init` - generate an `AGENTS.md` skeleton and hint it from onboarding
+- [ ] Defer `/bookmark`, `/agent`, and `/spawn` until the plugin surface is ready
+
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
 - [ ] `apple-fm` chat provider - `BaseProvider` subclass named `apple-fm` with model `on-device` and base URL `local://apple-fm`, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring `tools` and `reasoning`, mapping `temperature` and `max_tokens` to `GenerationOptions`, and answering `_fetch_models`, `list_models`, and `check_connection` from `is_available()`

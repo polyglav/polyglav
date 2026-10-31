@@ -9,6 +9,24 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
+## Slash command surface
+
+The REPL exposes one canonical name per command, separates commands from tools, and keeps current-state singular commands apart from catalog plural commands.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Command grammar - singular current, plural catalog, verbs for actions, and no aliases | S | a predictable command set |
+| `/clear` and header extraction | S | a clean screen without losing the session |
+| `/status` - sessions, live runs, jobs, fleet agents, and plugin state | M | one read-only overview |
+| `/new` and `/summary` | S | session convenience |
+| Ctrl-C pause, `/continue`, and `/cancel` | M | interrupt and resume without losing the turn |
+| `/continue parent` and `/continue <id>` | S-M | switch to a parent or prior session |
+| Remove `/asks`, `/unattended`, `/pause`, `/resume`, `/runs`, and `/tool` | S | a smaller command surface |
+| `/help` lists commands and tools | S | one help entry point |
+| `/print` and `/history` selectors - index, range, relative, and session | S-M | readable turn access |
+| `/connect` as `/providers connect` | S | provider shorthand |
+| `/init` and onboarding hint | S | project setup |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
