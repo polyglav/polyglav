@@ -80,6 +80,14 @@ class TestEngine(unittest.TestCase):
     def tearDown(self):
         self.engine._tmp.cleanup()
 
+    def test_catalog_warnings_name_missing_entries(self):
+        session = self.engine.sessions.create('ghost')
+        session.role = 'ghost-role'
+        session.team = 'ghost-team'
+        warnings = self.engine.catalog_warnings(session)
+        self.assertTrue(any('ghost-role' in w for w in warnings))
+        self.assertTrue(any('ghost-team' in w for w in warnings))
+
     def test_reinit_provider_uses_registry_api_key(self):
         self.engine.providers.put('ollama', 'https://test.api.com', 'reg-key')
         self.engine._reinit_provider()

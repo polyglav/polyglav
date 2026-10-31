@@ -78,7 +78,6 @@ The session log stays append-only in meaning, writes are atomic, and runtime cos
 | Task | Effort | Provides |
 |------|--------|----------|
 | SQLite store plugin, off by default | M | optional database storage |
-| Session load validation | S | clear missing role and team warnings |
 
 ## Self-development team enablement
 

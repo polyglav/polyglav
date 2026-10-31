@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added session load validation - a loaded session warns when its role or team no longer exists, and the team is recorded with the session
 - Removed session compatibility - a missing tool-log ref renders `[tool log missing]` instead of stale inline text
 - Changed CLI help grouping - `polyglav --help` lists core commands and plugin commands separately
 - Added web result references - `web_search` stores title, URL, and snippet on the tool part, and `/print` renders them

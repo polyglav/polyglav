@@ -463,6 +463,8 @@ class Engine:
         self.sessions.materialize(self.current_session)
         if name and self.sessions.read(name) is not None:
             self.current_session = self.sessions.load(name)
+            for warning in self.catalog_warnings(self.current_session):
+                self.ui.info(warning)
         elif name:
             self.current_session = self.sessions.create(name, role=self.role)
         else:
@@ -471,6 +473,16 @@ class Engine:
         self.current_run.session_id = self.current_session.session_id
         self._bind_provider_session()
         return self.current_session
+
+    def catalog_warnings(self, session) -> list[str]:
+        warnings: list[str] = []
+        if session.role and self.roles.find(session.role) is None:
+            warnings.append(
+                f'Warning: role "{session.role}" no longer exists')
+        if session.team and self.teams.find(session.team) is None:
+            warnings.append(
+                f'Warning: team "{session.team}" no longer exists')
+        return warnings
 
     def _grant(self) -> dict:
         ceiling = getattr(self, '_grant_ceiling', None)
@@ -906,6 +918,7 @@ class Engine:
                          f'Team nesting limit reached ({max_depth}): {team.name}'}])
         self._team_stack = stack + [team.name]
         self._team_depth = depth + 1
+        self.current_session.team = team.name
         self.ui.info(f'{glyph(self.config, "enter", "↳")} Team {team.name}')
         try:
             result = self._run_team_stages(

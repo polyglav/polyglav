@@ -56,6 +56,7 @@ class Session:
                  parent_id: str = '',
                  sub_sessions: list | None = None,
                  role: str = '',
+                 team: str = '',
                  session_id: str = '',
                  version: str = '',
                  mode: str = '',
@@ -72,6 +73,7 @@ class Session:
         self.parent_id = parent_id or ''
         self.sub_sessions = sub_sessions or []
         self.role = role or ''
+        self.team = team or ''
         self.mode = mode or ''
         self.plan = plan or ''
         self._open: dict | None = None
@@ -266,6 +268,7 @@ class Session:
             'parent_id': self.parent_id,
             'sub_sessions': self.sub_sessions,
             'role': self.role,
+            'team': self.team,
             'mode': self.mode,
             'plan': self.plan,
             'version': self.version,
@@ -277,18 +280,19 @@ class Session:
             raise ValueError('legacy session format (no turns)')
         return cls(
             data['session_name'],
-            data.get('turns', []),
-            data.get('errors', []),
-            data.get('permissions', []),
-            data.get('created_at'),
-            data.get('updated_at'),
-            data.get('parent_id', ''),
-            data.get('sub_sessions', []),
-            data.get('role', ''),
-            data.get('session_id', ''),
-            data.get('version', ''),
-            data.get('mode', ''),
-            data.get('plan', ''),
+            turns_list=data.get('turns', []),
+            errors=data.get('errors', []),
+            permissions=data.get('permissions', []),
+            created_at=data.get('created_at'),
+            updated_at=data.get('updated_at'),
+            parent_id=data.get('parent_id', ''),
+            sub_sessions=data.get('sub_sessions', []),
+            role=data.get('role', ''),
+            team=data.get('team', ''),
+            session_id=data.get('session_id', ''),
+            version=data.get('version', ''),
+            mode=data.get('mode', ''),
+            plan=data.get('plan', ''),
         )
 
 
@@ -319,12 +323,13 @@ class SessionManager:
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
         self.current: Session | None = None
 
-    def create(self, session_name: str | None = None, role: str = '') -> Session:
+    def create(self, session_name: str | None = None, role: str = '',
+               team: str = '') -> Session:
         if not session_name:
             session_name = coded_session_name('ses', role, sessions_dir=self.sessions_dir)
         self.current = Session(
             session_name, session_id=session_id_from_name(session_name), role=role,
-            version=get_version())
+            team=team, version=get_version())
         return self.current
 
     def import_document(self, data: dict, name: str = '',

@@ -106,6 +106,13 @@ class TestJsonlSessionStore(unittest.TestCase):
         self.assertEqual(loaded.turns[0]['parts'][0]['text'], 'hello')
         self.assertEqual(loaded.turns[0]['parts'][1]['text'], 'world')
 
+    def test_team_round_trip(self):
+        session = self.sm.create('log', role='researcher', team='docs')
+        self.sm.save(session)
+        loaded = SessionManager(self.dir).read('log')
+        self.assertEqual(loaded.role, 'researcher')
+        self.assertEqual(loaded.team, 'docs')
+
     def test_materialize_writes_json(self):
         session = self.sm.create('log')
         session.add_user('hello')

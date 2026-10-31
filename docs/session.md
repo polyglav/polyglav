@@ -2,7 +2,7 @@
 
 Sessions are complete, append-only conversation logs. Every turn (the user prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's `.polyglav/sessions/` directory. Entries are never removed. Compaction only trims the provider context, never the log.
 
-A paused turn is restored as open when the session loads, so `/continue` works after a restart.
+A paused turn is restored as open when the session loads, so `/continue` works after a restart. A loaded session warns when its recorded role or team no longer exists.
 
 A JSONL session is materialized to `.json` on session switch and exit, so the JSON stays portable. JSONL remains the source when both files exist.
 
