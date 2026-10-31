@@ -39,7 +39,6 @@
 
 ## Open
 
-- [ ] Change runtime session JSON to compact serialization
 
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
@@ -50,7 +49,6 @@
 - [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
-- [ ] Add the quality plugin - `code_lint` and `code_format`, off by default
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
 - [ ] Add plugin docs for ownership, defaults, and dependencies
@@ -62,7 +60,6 @@
 - [ ] Add a session tool log - one `<session>.tools.log` beside the session, with line-range refs and summaries
 - [ ] Remove `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes`
 - [ ] Move tool config, permissions, and tests into the owning plugins
-- [ ] Remove old tool log compatibility - a missing ref prints `[tool log missing]`
 - [ ] Add `tool_output_log` and remove age retention
 
 - [ ] Remove legacy config keys without migration - `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
@@ -72,12 +69,9 @@
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
 - [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
-- [ ] Add plugin config defaults and descriptions to `/config`
 - [ ] Remove all config compatibility aliases
 
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
-- [ ] Move `polyglav serve` into the serve plugin
-- [ ] Move `polyglav export` and `polyglav import` into the sessions plugin
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
