@@ -57,7 +57,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Remove the swarm orchestration umbrella and the command audit umbrella
 - [ ] Merge job notification tasks - job connectors, report-back connectors, and human-in-the-loop channels
 - [ ] Merge control tasks - jobs operator API, fleet jobs overview, and the minimal web Control UI
 - [ ] Merge memory tasks - memory references, conclusion stage, and auto-improving skills
@@ -149,7 +148,6 @@
 - [ ] Per-agent request overlays - a role sets request headers and a JSON body overlay applied to its provider calls, for per-agent temperature or routing, with providers that ignore them degrading gracefully
 - [ ] Dev tool fallback - `code_lint`/`code_format` report a clear setup hint when the configured linter/formatter (`ruff`) is absent, and honor the `dev.lint_cmd`/`dev.format_cmd` overrides
 - [ ] Shared codebase research across roles - a role consults a shared research note (or memory) so roles do not re-read the same files
-- [ ] Command audit - review the slash commands for opaque or overlapping behavior and consolidate
 - [ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change
 - [ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay
 - [ ] Docs writer commits each added task - the docs writer commits the tasks right after the operator's prompt and then works through the single points one at a time
@@ -188,7 +186,6 @@
 - [ ] Session recall - full-text search across past sessions (grep/index over `.polyglav/sessions/`) so an agent can answer from its own history
 - [ ] Tool dry-run mode - propose tool args/effects without executing (enterprise tool-gateway requirement)
 - [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > polyglav-core-web, `open ../...` > polyglav-core-fs), with merged schemas and args-aware policy accessors
-- [ ] Swarm orchestration - agent cooperation layer (`docs/swarm.md`): `/agent` types, auditor agents, generate > check > correct, and team patterns as sub-tasks below
 - [ ] Grep text index - internal bundled plugin (stdlib) that indexes converted text files for local search, bridging toward the vector store
 - [ ] Agent folder watcher - internal bundled plugin (stdlib `threading` + `pathlib` polling) that detects new files in an agent's folder and triggers their processing (e.g. convert new PDFs on arrival), scoped capability, no deps
 - [ ] Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API (OpenClaw Control UI analogue). Richer frameworks stay plugin-first
@@ -221,6 +218,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed the swarm and command audit umbrellas
 - [x] Removed parking tasks
 - [x] Removed landed and non-project tasks
 - [x] Added the providers CLI

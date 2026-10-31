@@ -201,7 +201,6 @@ Agents cooperate through types, delegation, and team stages. Sub-agents use the 
 | Auditor agents + generate > check > correct orchestration - run a main agent, an auditor, and a fix pass in a loop until passing | M-L | review-and-fix loops (later phase, listed in VISION.md out-of-scope) |
 | Custom system prompts per session | S-M | per-site instructions |
 | Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown | S-M | portable role definitions |
-| Swarm orchestration umbrella (TODO item) | - | decomposed by this package |
 
 ## Jobs operations + report-back
 
