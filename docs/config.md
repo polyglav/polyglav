@@ -164,7 +164,7 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
 {
   "ask": "allow",
   "bash": "ask",
-  "bash_allow": ["pytest", "python -m unittest", "ruff", "git"],
+  "exec_allow": ["pytest", "python -m unittest", "ruff", "git"],
   "call": "allow",
   "catalog": "allow",
   "delegate": "allow",
@@ -212,15 +212,15 @@ A role that sets `grant_permission` may delegate categories it does not use itse
 
 An approved permission request creates a one-shot grant on the asking sub-agent (`once`), consumed by the next matching call. The user may grant `always`, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session `permissions` audit array.
 
-### `bash_allow` - command allowlist for `run_command`
+### `exec_allow` - command allowlist for `run_command`
 
-`tool_permission.bash_allow` (list, default `[]`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
+`tool_permission.exec_allow` (list, default `[]`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
 
 - Commands split into chained segments over `&&`, `||`, `;`, `|`, and `&`. Every segment must start with an allowed prefix (e.g. `pytest -q && ruff check .` needs both `pytest` and `ruff`).
 - Shell-script forms are rejected outright: multi-line commands and heredocs (`<<`) always return `deny`.
 - A matching command falls through to the normal `bash` action (`ask` by default, `allow`/`deny` per config). A non-matching command is `deny`.
 
-The check runs through the per-invocation policy resolver, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `bash_allow` gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.
+The check runs through the per-invocation policy resolver, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `exec_allow` gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.
 
 ## Model registry (not config)
 

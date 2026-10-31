@@ -118,7 +118,7 @@ DEFAULT_CONFIG = {
     'tool_permission': {
         'ask': 'allow',
         'bash': 'ask',
-        'bash_allow': [],
+        'exec_allow': [],
         'call': 'allow',
         'catalog': 'allow',
         'delegate': 'allow',

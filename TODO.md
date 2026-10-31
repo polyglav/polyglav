@@ -65,7 +65,6 @@
 - [ ] Add plugin tests for every extracted command and tool
 
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
-- [ ] Rename `bash_allow` to `exec_allow` with no alias
 - [ ] Split code quality - keep `code_test`, move `code_lint` and `code_format` to an off-by-default plugin, and add a stdlib `code_check`
 - [ ] Change role and team prompts for `code_check` and an optional configured linter or formatter
 - [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
@@ -85,7 +84,7 @@
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
 - [ ] Move web config to the web plugin - `query_refine*` and `search_results` with a default of 10
-- [ ] Move the exec allowlist to `exec_allow` in the exec plugin
+- [ ] Move the exec allowlist into the exec plugin
 - [ ] Move `list_dir_max_entries` to the filesystem plugin
 - [ ] Move MCP keys to the MCP plugin
 - [ ] Move `report.webhook` to the webhook plugin
@@ -193,6 +192,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Renamed bash_allow to exec_allow
 - [x] Changed the delegate contract
 - [x] Moved the HTTP API and cancel into the serve plugin
 - [x] Changed the UI commands task

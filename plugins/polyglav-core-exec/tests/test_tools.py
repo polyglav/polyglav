@@ -92,64 +92,64 @@ class TestExecTools(unittest.TestCase):
         self.assertEqual(self.registry.resolver_for('run_command'),
                          exec_plugin._run_command_permission)
 
-    def test_bash_allow_allows_prefix(self):
+    def test_exec_allow_allows_prefix(self):
         out = exec_plugin._run_command_permission(
-            {'command': 'pytest -q'}, {'bash_allow': ['pytest', 'python -m unittest']})
+            {'command': 'pytest -q'}, {'exec_allow': ['pytest', 'python -m unittest']})
         self.assertIsNone(out)
 
-    def test_bash_allow_denies_other(self):
+    def test_exec_allow_denies_other(self):
         out = exec_plugin._run_command_permission(
-            {'command': 'rm -rf /'}, {'bash_allow': ['pytest', 'python -m unittest']})
+            {'command': 'rm -rf /'}, {'exec_allow': ['pytest', 'python -m unittest']})
         self.assertEqual(out, 'deny')
 
-    def test_bash_allow_chain_all_segments(self):
+    def test_exec_allow_chain_all_segments(self):
         out = exec_plugin._run_command_permission(
             {'command': 'pytest -q && ruff check .'},
-            {'bash_allow': ['pytest', 'ruff']})
+            {'exec_allow': ['pytest', 'ruff']})
         self.assertIsNone(out)
 
-    def test_bash_allow_chain_denies_unlisted_segment(self):
+    def test_exec_allow_chain_denies_unlisted_segment(self):
         out = exec_plugin._run_command_permission(
             {'command': 'pytest -q && rm -rf /'},
-            {'bash_allow': ['pytest', 'ruff']})
+            {'exec_allow': ['pytest', 'ruff']})
         self.assertEqual(out, 'deny')
 
-    def test_bash_allow_pipe_segments(self):
+    def test_exec_allow_pipe_segments(self):
         out = exec_plugin._run_command_permission(
             {'command': 'git diff | grep foo'},
-            {'bash_allow': ['git', 'grep']})
+            {'exec_allow': ['git', 'grep']})
         self.assertIsNone(out)
 
-    def test_bash_allow_rejects_heredoc(self):
+    def test_exec_allow_rejects_heredoc(self):
         out = exec_plugin._run_command_permission(
             {'command': 'cat <<EOF\nx\nEOF'},
-            {'bash_allow': ['cat']})
+            {'exec_allow': ['cat']})
         self.assertEqual(out, 'deny')
 
-    def test_bash_allow_rejects_multiline(self):
+    def test_exec_allow_rejects_multiline(self):
         out = exec_plugin._run_command_permission(
             {'command': 'pytest\nruff check .'},
-            {'bash_allow': ['pytest', 'ruff']})
+            {'exec_allow': ['pytest', 'ruff']})
         self.assertEqual(out, 'deny')
 
-    def test_bash_allow_empty_list_is_unrestricted(self):
+    def test_exec_allow_empty_list_is_unrestricted(self):
         out = exec_plugin._run_command_permission(
-            {'command': 'rm -rf /'}, {'bash_allow': []})
+            {'command': 'rm -rf /'}, {'exec_allow': []})
         self.assertIsNone(out)
 
-    def test_bash_allow_no_permissions_is_unrestricted(self):
+    def test_exec_allow_no_permissions_is_unrestricted(self):
         out = exec_plugin._run_command_permission({'command': 'rm -rf /'})
         self.assertIsNone(out)
 
-    def test_bash_allow_whitespace_prefix(self):
+    def test_exec_allow_whitespace_prefix(self):
         out = exec_plugin._run_command_permission(
-            {'command': '  pytest -q'}, {'bash_allow': ['pytest']})
+            {'command': '  pytest -q'}, {'exec_allow': ['pytest']})
         self.assertIsNone(out)
 
-    def test_bash_allow_semicolon_chain(self):
+    def test_exec_allow_semicolon_chain(self):
         out = exec_plugin._run_command_permission(
             {'command': 'pytest; ruff check .'},
-            {'bash_allow': ['pytest', 'ruff']})
+            {'exec_allow': ['pytest', 'ruff']})
         self.assertIsNone(out)
 
 

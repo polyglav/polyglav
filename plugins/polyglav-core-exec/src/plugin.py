@@ -36,7 +36,7 @@ def _command_allowed(command: str, allowlist: list[str]) -> bool:
 
 
 def _run_command_permission(args: dict, _permissions: dict | None = None) -> str | None:
-    allowlist = list((_permissions or {}).get('bash_allow') or [])
+    allowlist = list((_permissions or {}).get('exec_allow') or [])
     if not allowlist:
         return None
     command = str((args or {}).get('command') or '')

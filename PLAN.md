@@ -72,7 +72,7 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 | Task | Effort | Provides |
 |------|--------|----------|
 | Add job supervisor routing | M | autonomous job decisions |
-| Rename `exec_allow` and move exec config | S | plugin-owned shell policy |
+| Move exec config into the exec plugin | S | plugin-owned shell policy |
 | Split code quality and add `code_check` | M | working defaults |
 | Catalog registry service and one `catalog` tool | M | one model-facing catalog |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
