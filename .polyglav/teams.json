@@ -19,7 +19,7 @@
       },
       {
         "role": "programmer",
-        "task_hint": "Implement the developer's proposed solution in the Polyglav codebase, reading only the files the investigation did not cover. Edit surgically with file_edit, run the related tests with code_test then the whole suite once, lint with code_lint until they pass, then code_format. Keep changes minimal, stdlib-only, and scoped to the task. Do not commit; return a proposed commit message in the repo style.",
+        "task_hint": "Implement the developer's proposed solution in the Polyglav codebase, reading only the files the investigation did not cover. Edit surgically with file_edit, run code_check and the related tests with code_test, then the whole suite once. Lint with code_lint and format with code_format when the quality plugin is enabled. Keep changes minimal, stdlib-only, and scoped to the task. Do not commit; return a proposed commit message in the repo style.",
         "handoff_note": "Hand the changed files, implementation summary, and proposed commit message to the tester."
       },
       {

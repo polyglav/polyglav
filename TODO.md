@@ -64,7 +64,6 @@
 - [ ] Add plugin tests for every extracted command and tool
 
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
-- [ ] Change role and team prompts for `code_check` and an optional configured linter or formatter
 - [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
 - [ ] Add a session tool log - one `<session>.tools.log` beside the session, with line-range refs and summaries
@@ -189,6 +188,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed role and team prompts for code_check
 - [x] Split code quality and added code_check
 - [x] Moved the fleet supervisor into the fleet plugin
 - [x] Moved the eval harness into the eval plugin
