@@ -53,6 +53,26 @@
 
 ## Open
 
+- [ ] Add plugin dependency loading - manifest `depends`, topological load, cycle detection, and clear missing-dependency errors
+- [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
+- [ ] Add the providers plugin - `/connect`, `/provider`, `/providers`, `/models`, probes, and model picker
+- [ ] Add the sessions plugin - `/sessions`, export, import, and render
+- [ ] Add the roles plugin - role registry, `/role`, `/roles`, `call`, and role memory hooks
+- [ ] Add the teams plugin - team registry, `/teams`, `run_team`, and team memory hooks
+- [ ] Add the skills plugin - skill registry, `/skills`, and skill improvement
+- [ ] Add the bookkeeping plugin - plan and todo tools and commands
+- [ ] Add the memory plugin - memory files, injection, refresh, and `/memorize`
+- [ ] Add the jobs plugin - jobs, scheduler, `/jobs`, `polyglav jobs`, and job memory
+- [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
+- [ ] Add the serve plugin - HTTP API and cancel
+- [ ] Add the eval plugin - eval harness
+- [ ] Add the quality plugin - `code_lint` and `code_format`, off by default
+- [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
+- [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
+- [ ] Add plugin config registration through `provides.config`
+- [ ] Add plugin docs for ownership, defaults, and dependencies
+- [ ] Add plugin tests for every extracted command and tool
+
 - [ ] Remove ask parking and the ask store - delete `.polyglav/asks.json`, `/asks`, the `/asks` API, scheduler reporting, and `_park`, and keep asks inline
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
 - [ ] Change the delegate contract - describe an anonymous sibling that inherits the caller's mode and cap, not a read-only helper

@@ -9,6 +9,30 @@ Finished tasks are removed from this file and live as one-liners in `TODO.md` `#
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
+## Plugin boundary
+
+The core keeps the loop, registry, policy, providers base, config, sessions, and runs. Access, orchestration, capability, and storage extras load as plugins with declared dependencies.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Plugin dependency loading | S-M | reliable plugin composition |
+| REPL plugin | M-L | a replaceable terminal front-end |
+| Providers plugin | M | provider management outside the core |
+| Sessions plugin | S | export and import outside the core |
+| Roles plugin with `call` | M | optional roles and delegation |
+| Teams plugin with `run_team` | M | optional teams on top of roles |
+| Skills plugin | S-M | optional skills |
+| Bookkeeping plugin | S-M | optional plan and todo |
+| Memory plugin | M | optional memory |
+| Jobs plugin | M | optional scheduling |
+| Fleet plugin | M | optional supervision |
+| Serve plugin | S-M | optional HTTP access |
+| Eval plugin | S | optional development harness |
+| Quality plugin | S | optional lint and format |
+| Plugin defaults and core boundary | S | opt-in autonomy and network |
+| Plugin config registration | S-M | grouped config and validation |
+| Plugin docs and tests | S-M | maintained plugins |
+
 ## Slash command surface
 
 The REPL exposes one canonical name per command, separates commands from tools, and keeps current-state singular commands apart from catalog plural commands.
