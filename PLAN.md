@@ -102,6 +102,23 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 | Add web result references | S | cited results |
 | Move tool config, permissions, and tests to plugins | M | capability ownership |
 
+## Backlog hygiene
+
+The backlog names each feature once, landed work leaves, and every remaining package maps to a capability.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Remove landed and non-project tasks | S | a truthful backlog |
+| Remove parking tasks | S | a synchronous ask model |
+| Merge job notifications | S | one notification stream |
+| Merge control API and UI | S-M | one control surface |
+| Merge memory and skill tasks | S-M | one memory pipeline |
+| Merge content ingestion | S | one content plugin family |
+| Merge session interchange | S | one session exchange |
+| Merge agent status | S | one status view |
+| Merge multiuser and queue | S | one scaling story |
+| Retarget inbound events | S | a coherent event model |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

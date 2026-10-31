@@ -53,6 +53,24 @@
 
 ## Open
 
+- [ ] Remove landed tasks - first-run onboarding, thinking visibility, manager role, core dev team, role docs, PM/dev/tester orchestration, and root role memory
+- [ ] Remove non-project ideas - community presence and competitor research
+- [ ] Remove parking tasks - batched structured asks, ask continuation, decide-vs-park, and mid-run blocking job approval
+- [ ] Remove the swarm orchestration umbrella and the command audit umbrella
+- [ ] Merge job notification tasks - job connectors, report-back connectors, and human-in-the-loop channels
+- [ ] Merge control tasks - jobs operator API, fleet jobs overview, and the minimal web Control UI
+- [ ] Merge memory tasks - memory references, conclusion stage, and auto-improving skills
+- [ ] Merge content ingestion - research cache, web scraper, and PDF-to-text
+- [ ] Merge session interchange - Markdown import and conversation sharing
+- [ ] Merge agent status - health monitoring, fleet awareness, and one-window status
+- [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
+- [ ] Retarget inbound webhooks - start a run or answer a job question, not a parked ask
+- [ ] Update the status task - one `/status` surface for sessions, runs, jobs, and fleet
+- [ ] Update the AGENTS task - `/init` generates the skeleton and onboarding hints it
+- [ ] Change the plugin test harness task - external plugins only, bundled suites already ship
+- [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
+- [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
+
 - [ ] Add plugin dependency loading - manifest `depends`, topological load, cycle detection, and clear missing-dependency errors
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
 - [ ] Add the providers plugin - `/connect`, `/provider`, `/providers`, `/models`, probes, and model picker
