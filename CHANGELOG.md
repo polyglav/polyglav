@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed the history selectors - `/history` takes turn ranges, relative ranges, and `session:<name>` targets, and no longer uses `--run`. Tests: `test_history.py`
 - Changed the print selectors - `/print` takes turn ranges, relative ranges, parts, and `session:<name>` targets, and no longer uses `--run`. Tests: `test_print.py`
 - Added `/status` - a read-only view of the model, mode, session, runs, plugins, jobs, and fleet state. Tests: `test_commands.py`
 - Added a shared config service - `/config` and `polyglav config` validate keys through one service, and unknown keys fail instead of prompting. Tests: `test_config.py`, `test_commands.py`

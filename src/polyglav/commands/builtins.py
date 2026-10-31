@@ -130,15 +130,14 @@ def _target_error(target):
 
 
 HISTORY_DEFAULT_LIMIT = 10
-HISTORY_USAGE = ('Usage: /history [n|all] [--thoughts [all]] '
-                 '[--run <target>] [--tree]')
+HISTORY_USAGE = ('Usage: /history [N|N-O|-O|N-|all] '
+                 '[session:<name> ...] [--thoughts [all]] [--tree]')
 
 
 def _parse_history(arg):
     import shlex
-    limit = HISTORY_DEFAULT_LIMIT
     thoughts: bool | str = False
-    run_target = ''
+    session_target = ''
     tree = False
     positional: list[str] = []
     tokens = shlex.split(arg)
@@ -152,31 +151,24 @@ def _parse_history(arg):
                 i += 2
                 continue
             i += 1
-        elif tok == '--run':
-            if i + 1 >= len(tokens):
-                return None, None, None, None, HISTORY_USAGE
-            run_target = tokens[i + 1]
-            i += 2
-        elif tok.startswith('--run='):
-            run_target = tok.split('=', 1)[1]
-            i += 1
         elif tok == '--tree':
             tree = True
             i += 1
         else:
             positional.append(tok)
             i += 1
-    if len(positional) > 1:
-        return None, None, None, None, HISTORY_USAGE
-    if positional:
-        tok = positional[0]
-        if tok == 'all':
-            limit = 0
-        elif tok.isdigit() and int(tok) > 0:
-            limit = int(tok)
-        else:
-            return None, None, None, None, f'Unknown argument: {tok}'
-    return limit, thoughts, run_target, tree, ''
+    if len(positional) > 2:
+        return '', '', None, False, HISTORY_USAGE
+    if positional and positional[0].startswith('session:'):
+        session_target = positional[0].split(':', 1)[1].strip()
+        if not session_target:
+            return '', '', None, False, HISTORY_USAGE
+        spec = positional[1] if len(positional) > 1 else ''
+    else:
+        spec = positional[0] if positional else ''
+        if len(positional) > 1:
+            return '', '', None, False, HISTORY_USAGE
+    return spec, session_target, thoughts, tree, ''
 
 
 PRINT_USAGE = ('Usage: /print [N|N-O|-O|N-|N.M] '
@@ -202,6 +194,8 @@ def _parse_print(arg):
         return None, None, None, False, PRINT_USAGE
     if positional and positional[0].startswith('session:'):
         session_target = positional[0].split(':', 1)[1].strip()
+        if not session_target:
+            return None, None, None, False, PRINT_USAGE
         spec = positional[1] if len(positional) > 1 else ''
     elif positional:
         spec = positional[0]
@@ -679,31 +673,48 @@ def register_builtins(registry):
 
     @registry.register('history',
                        description='List the session turns as a numbered index '
-                                   '(/history [n|all] [--thoughts [all]] '
-                                   '[--run <target>] [--tree])')
+                                   '(/history [N|N-O|-O|N-|all] '
+                                   '[session:<name> ...] [--thoughts [all]] '
+                                   '[--tree])')
     def history_cmd(arg=''):
-        limit, thoughts, run_target, tree, error = _parse_history(arg)
+        spec, session_target, thoughts, tree, error = _parse_history(arg)
         if error:
             print(error)
             return
         session = chat.current_session
-        if run_target:
-            session, error = _target_session(chat, run_target)
+        if session_target:
+            session, error = _target_session(chat, session_target)
             if session is None:
                 print(error)
                 return
+
+        def shown_turns(turns):
+            if not spec:
+                return turns[-HISTORY_DEFAULT_LIMIT:] if len(turns) > HISTORY_DEFAULT_LIMIT else turns
+            indices, err = _turn_indices(spec, len(turns))
+            if err:
+                return err
+            wanted = set(indices)
+            return [t for t in turns if t.get('index') in wanted]
+
         if tree:
             for depth, item in chat.sessions.tree(session.session_name):
                 role = f' [{item.role}]' if item.role else ''
                 print(f'{"  " * depth}{item.session_name} - '
                       f'{len(item.turns)} turns{role}')
-                shown = item.turns if limit == 0 else item.turns[-limit:]
+                shown = shown_turns(item.turns)
+                if isinstance(shown, str):
+                    print(shown)
+                    continue
                 for turn in shown:
                     print(f'{"  " * (depth + 1)}'
                           f'{turn_summary(turn, thoughts=thoughts)}')
             return
         turns = session.turns or []
-        shown = turns if limit == 0 else turns[-limit:]
+        shown = shown_turns(turns)
+        if isinstance(shown, str):
+            print(shown)
+            return
         role = f' [{session.role}]' if session.role else ''
         session_id = f' [{session.session_id}]' if session.session_id else ''
         print(f'{session.session_name} - {len(turns)} turns{role}{session_id}')

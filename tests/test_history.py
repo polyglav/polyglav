@@ -68,7 +68,7 @@ class TestHistoryCommand(unittest.TestCase):
 
     def test_limit_shows_last_n(self):
         self._many(12)
-        out = self._dispatch('/history 3')
+        out = self._dispatch('/history -3')
         self.assertIn('#10 ', out)
         self.assertIn('#11 ', out)
         self.assertIn('#12 ', out)
@@ -133,7 +133,7 @@ class TestHistoryCommand(unittest.TestCase):
         self._saved('other', user='other prompt')
         add_turn(self.chat.current_session, user='current prompt')
         before = self.chat.current_session
-        out = self._dispatch('/history --run session:other')
+        out = self._dispatch('/history session:other')
         self.assertIn('other - 1 turns', out)
         self.assertIn('other prompt', out)
         self.assertNotIn('current prompt', out)
@@ -141,33 +141,33 @@ class TestHistoryCommand(unittest.TestCase):
 
     def test_run_bare_session_name(self):
         self._saved('other', user='other prompt')
-        out = self._dispatch('/history --run other')
+        out = self._dispatch('/history session:other')
         self.assertIn('other - 1 turns', out)
 
     def test_run_id_uses_live_session(self):
         add_turn(self.chat.current_session, user='live run prompt')
         run_id = self.chat.current_run.id
         before = self.chat.current_session
-        out = self._dispatch(f'/history --run #{run_id}')
+        out = self._dispatch(f'/history session:#{run_id}')
         self.assertIn('live run prompt', out)
         self.assertIs(self.chat.current_session, before)
 
     def test_session_id_uses_live_session(self):
         add_turn(self.chat.current_session, user='coded prompt')
-        out = self._dispatch(f'/history --run #{self.chat.current_run.session_id}')
+        out = self._dispatch(f'/history session:#{self.chat.current_run.session_id}')
         self.assertIn('coded prompt', out)
 
     def test_session_id_reads_saved_session(self):
         s = self.chat.sessions.create()
         add_turn(s, user='saved coded prompt')
         self.chat.sessions.save(s)
-        out = self._dispatch(f'/history --run #{s.session_id}')
+        out = self._dispatch(f'/history session:#{s.session_id}')
         self.assertIn('saved coded prompt', out)
 
     def test_run_id_falls_back_to_saved_session(self):
         run = self.chat.runs.start(role='', session='saved_run')
         self._saved('saved_run', user='saved run prompt')
-        out = self._dispatch(f'/history --run #{run.id}')
+        out = self._dispatch(f'/history session:#{run.id}')
         self.assertIn('saved_run - 1 turns', out)
         self.assertIn('saved run prompt', out)
 
@@ -177,28 +177,28 @@ class TestHistoryCommand(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.chat.run_subagent('researcher', 'research prompt')
-        out = self._dispatch('/history --run researcher')
+        out = self._dispatch('/history session:researcher')
         self.assertIn('research prompt', out)
 
     def test_run_role_falls_back_to_saved_session(self):
         self._saved('writer', user='writer prompt')
-        out = self._dispatch('/history --run writer')
+        out = self._dispatch('/history session:writer')
         self.assertIn('writer prompt', out)
 
     def test_unknown_target(self):
-        out = self._dispatch('/history --run nope')
+        out = self._dispatch('/history session:nope')
         self.assertIn('Target not found: nope', out)
 
     def test_unknown_positional(self):
         out = self._dispatch('/history foo')
-        self.assertIn('Unknown argument: foo', out)
+        self.assertIn('Invalid turn: foo', out)
 
     def test_too_many_positionals(self):
         out = self._dispatch('/history 1 2')
         self.assertIn('Usage: /history', out)
 
     def test_missing_run_value(self):
-        out = self._dispatch('/history --run')
+        out = self._dispatch('/history session:')
         self.assertIn('Usage: /history', out)
 
     def test_empty_session_header(self):

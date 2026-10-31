@@ -155,7 +155,6 @@
 - [ ] Remove `/asks` and ask parking
 - [ ] Remove `/unattended`
 - [ ] Remove `/tool` and make `/help` list commands and tools
-- [ ] Change `/history` selectors - the same turn ranges, with `--thoughts` and `--tree`, and no `--run`
 - [ ] Remove `/runs` and keep the run registry internal
 - [ ] Change `/connect` - keep it as a `/providers connect` shorthand
 - [ ] Add `/init` - generate an `AGENTS.md` skeleton and hint it from onboarding
@@ -258,6 +257,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed the history selectors
 - [x] Changed the print selectors
 - [x] Added the status command
 - [x] Added a shared config service
