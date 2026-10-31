@@ -4,7 +4,16 @@ import unittest
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from polyglav.server import HeadlessServer, ChatHandler
+import importlib.util
+from pathlib import Path
+
+_spec = importlib.util.spec_from_file_location(
+    "polyglav_core_serve",
+    Path(__file__).resolve().parents[1] / "src" / "plugin.py")
+_server = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_server)
+HeadlessServer = _server.HeadlessServer
+ChatHandler = _server.ChatHandler
 from tests.test_engine import make_engine
 
 
@@ -66,6 +75,11 @@ class TestServer(unittest.TestCase):
         with self.assertRaises(HTTPError) as ctx:
             self._post('/chat', {})
         self.assertEqual(ctx.exception.code, 400)
+
+    def test_cancel_idle(self):
+        status, data = self._post('/cancel', {})
+        self.assertEqual(status, 200)
+        self.assertEqual(data['status'], 'idle')
 
     def test_unknown_route(self):
         with self.assertRaises(HTTPError) as ctx:

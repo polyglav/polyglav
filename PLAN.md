@@ -23,7 +23,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
 | Fleet plugin | M | optional supervision |
-| Move the HTTP API and cancel into the serve plugin | S-M | optional HTTP access |
 | Eval plugin | S | optional development harness |
 | Quality plugin | S | optional lint and format |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |

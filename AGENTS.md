@@ -60,7 +60,6 @@ Polyglav/
 │   ├── fleet.py             # Fleet supervisor - AgentDef manifest, FleetController (ports, health, restart)
 │   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
 │   ├── eval.py              # Tool-use eval harness - fixtures, runner, metrics (polyglav eval)
-│   ├── server.py            # stdlib HTTP JSON API (POST /chat, GET /sessions, GET /health, GET /version)
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers
 │   │   ├── base.py          # BaseProvider + OpenAICompatibleProvider (HOST_PATTERNS)
