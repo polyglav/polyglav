@@ -106,6 +106,17 @@ class TestJsonlSessionStore(unittest.TestCase):
         self.assertEqual(loaded.turns[0]['parts'][0]['text'], 'hello')
         self.assertEqual(loaded.turns[0]['parts'][1]['text'], 'world')
 
+    def test_materialize_writes_json(self):
+        session = self.sm.create('log')
+        session.add_user('hello')
+        session.end_turn('ok')
+        self.sm.save(session)
+        path = self.sm.materialize(session)
+        self.assertIsNotNone(path)
+        self.assertTrue(path.exists())
+        loaded = SessionManager(self.dir).read('log')
+        self.assertEqual(loaded.turns[0]['parts'][0]['text'], 'hello')
+
     def test_paused_turn_restores_from_json(self):
         session = self.sm.create('log')
         session.add_user('one')

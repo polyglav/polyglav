@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added JSON materialization - JSONL stores write a portable `.json` snapshot on session switch and exit
 - Added paused turn persistence - JSON and JSONL sessions both restore the last paused turn as open, so `/continue` works after a restart
 - Showed in, out, and total tokens - `/history` and `/print` now render prompt, completion, and total token counts from the recorded turn usage
 - Fixed the web plugin manifest to list `web_fetch` and `web_search`, matching the registered tools

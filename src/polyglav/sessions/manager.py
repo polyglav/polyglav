@@ -450,6 +450,25 @@ class SessionManager:
         except OSError as e:
             self._log_io('save', session.session_name, e)
 
+    def materialize(self, session: Session | None = None) -> Path | None:
+        s = session or self.current
+        if s is None or self.storage != 'jsonl':
+            return None
+        path = self.sessions_dir / f'{s.session_name}.json'
+        tmp = path.with_suffix('.json.tmp')
+        try:
+            with open(tmp, 'w') as f:
+                json.dump(s.to_dict(), f, separators=(',', ':'))
+            tmp.replace(path)
+        except OSError as e:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+            self._log_io('materialize', s.session_name, e)
+            return None
+        return path
+
     def summary_path(self, session_name: str) -> Path:
         return self.sessions_dir.parent / 'summaries' / f'{session_name}.md'
 

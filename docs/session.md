@@ -4,6 +4,8 @@ Sessions are complete, append-only conversation logs. Every turn (the user promp
 
 A paused turn is restored as open when the session loads, so `/continue` works after a restart.
 
+A JSONL session is materialized to `.json` on session switch and exit, so the JSON stays portable. JSONL remains the source when both files exist.
+
 ## JSONL storage
 
 Set `session.storage = "jsonl"` to write append-only `.polyglav/sessions/<name>.jsonl` files beside the JSON store. Each line is a `meta` or `turn` event, the last event per turn wins on load, and JSON stays the export and import format. The default remains `json`.

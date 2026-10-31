@@ -460,6 +460,7 @@ class Engine:
             spill_store.prune(root, max_bytes)
 
     def load_or_create_session(self, name: str | None = None):
+        self.sessions.materialize(self.current_session)
         if name and self.sessions.read(name) is not None:
             self.current_session = self.sessions.load(name)
         elif name:

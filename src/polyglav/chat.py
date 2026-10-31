@@ -406,6 +406,7 @@ class ChatLoop(Engine):
         self.print_header()
 
     def new_session(self):
+        self.sessions.materialize(self.current_session)
         self.current_session = self.sessions.create(role=getattr(self, 'role', ''))
         print(f'New session: {self.current_session.session_name}')
         self.session_auto_save()
@@ -460,3 +461,4 @@ class ChatLoop(Engine):
 
     def _save_sessions(self):
         self.session_auto_save()
+        self.sessions.materialize(self.current_session)
