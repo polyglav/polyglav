@@ -53,6 +53,19 @@
 
 ## Open
 
+- [ ] Add atomic session writes - serialize to a temp file and replace the target
+- [ ] Change session save frequency - save at turn end, exit, compaction, sub-session append, and pause, and remove the per-command save
+- [ ] Add a dirty flag so unchanged sessions are not rewritten
+- [ ] Change runtime session JSON to compact serialization
+- [ ] Add an append-only JSONL session store with per-round appends
+- [ ] Add JSON materialization on exit, session switch, and manual export
+- [ ] Add a SQLite session store plugin, off by default
+- [ ] Add paused turn persistence and `/continue` across a restart
+- [ ] Add session load validation - warn when a role or team in the session no longer exists
+- [ ] Add session storage tests - atomic replace, save counts, JSONL replay, pause, and missing refs
+- [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
+- [ ] Add `/summary` storage - `.polyglav/summaries/<session>.md` plus a command part without `compact_from`
+
 - [ ] Remove landed tasks - first-run onboarding, thinking visibility, manager role, core dev team, role docs, PM/dev/tester orchestration, and root role memory
 - [ ] Remove non-project ideas - community presence and competitor research
 - [ ] Remove parking tasks - batched structured asks, ask continuation, decide-vs-park, and mid-run blocking job approval

@@ -102,6 +102,22 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 | Add web result references | S | cited results |
 | Move tool config, permissions, and tests to plugins | M | capability ownership |
 
+## Session storage
+
+The session log stays append-only in meaning, writes are atomic, and runtime cost is proportional to new data rather than total history.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Atomic JSON writes | S | no corrupt sessions |
+| Save frequency and dirty checks | S-M | less disk churn |
+| Compact runtime JSON | S | smaller files |
+| Append-only JSONL store | M | O(new data) writes |
+| JSON materialization on exit, switch, and export | S | portable sessions |
+| SQLite store plugin, off by default | M | optional database storage |
+| Paused turn persistence | S-M | continue across restart |
+| Session load validation | S | clear missing role and team warnings |
+| Session storage tests | S | recovery and write-count confidence |
+
 ## Backlog hygiene
 
 The backlog names each feature once, landed work leaves, and every remaining package maps to a capability.
