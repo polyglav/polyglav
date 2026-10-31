@@ -13,7 +13,7 @@
 - Open WebUI and OpenTUI connectors - drive Polyglav from external chat and terminal UIs
 - Tool-call quality enhancer - steer tool calling toward correct, cheaper calls (for example web-search parameters that find the right references) and better results
 - PlantUML plugin - an external plugin that draws configurations and workflows as node diagrams instead of ASCII
-- UI commands - `/clear`, `/new`, `/providers`, `/providers list`, `/thinking [hide|show]`, and persist error logs
+- UI commands - keep `/clear` and `/new`, and persist error logs
 - Feedback - capture operator feedback on a run or answer and feed it back into memory and skills
 - Plugin management UI - list, enable, disable, install, and update plugins from a UI surface, not only slash commands
 - Model picker - `/models` autocomplete and a direct numeric selection of a model
@@ -47,7 +47,6 @@
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
-- [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
 - [ ] Move session render into the sessions plugin
@@ -196,6 +195,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed the UI commands task
 - [x] Changed the fleet and swarm task
 - [x] Changed the plugin test harness task
 - [x] Retargeted inbound events
