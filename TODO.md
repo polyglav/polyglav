@@ -66,7 +66,6 @@
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
 - [ ] Add a session tool log - one `<session>.tools.log` beside the session, with line-range refs and summaries
 - [ ] Remove `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes`
-- [ ] Add web result references - title, URL, and snippet in the session and in `/print`
 - [ ] Move tool config, permissions, and tests into the owning plugins
 - [ ] Remove old tool log compatibility - a missing ref prints `[tool log missing]`
 - [ ] Add `tool_output_log` and remove age retention
@@ -181,6 +180,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added web result references
 - [x] Changed command grammar
 - [x] Changed the connect shorthand
 - [x] Added JSON materialization

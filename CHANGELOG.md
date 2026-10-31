@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added web result references - `web_search` stores title, URL, and snippet on the tool part, and `/print` renders them
 - Changed the connect shorthand - `/providers connect` now runs the provider flow and `/connect` stays as the shorthand
 - Added JSON materialization - JSONL stores write a portable `.json` snapshot on session switch and exit
 - Added paused turn persistence - JSON and JSONL sessions both restore the last paused turn as open, so `/continue` works after a restart

@@ -320,6 +320,16 @@ def _tool_lines(part: dict, full: bool, cap: int, resolve=None) -> list[str]:
         if loaded is not None:
             text = loaded
     lines = [label]
+    for ref in part.get('refs') or []:
+        title = str(ref.get('title') or '').strip()
+        url = str(ref.get('url') or '').strip()
+        snippet = str(ref.get('snippet') or '').strip()
+        if title:
+            lines.append(f'  - {title}')
+        if url:
+            lines.append(f'    {url}')
+        if snippet:
+            lines.append(f'    {snippet}')
     duration = part.get('duration')
     usage_text = _usage_text(part.get('usage'))
     if duration is not None:

@@ -1569,6 +1569,9 @@ class Engine:
                 part['usage'] = dict(usage)
             tool_start = time.monotonic()
             output = self._run_tool(name, args)
+            refs = self._tool_registry.refs_for(name, args, output)
+            if refs:
+                part['refs'] = refs
             duration = round(time.monotonic() - tool_start, 1)
             if (self._tool_registry.echo_for(name) and output
                     and not self._tool_registry.is_note_result(name, output)

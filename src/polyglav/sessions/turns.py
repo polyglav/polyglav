@@ -81,11 +81,13 @@ def command_part(command: str, summary: str = '', compact_from=None,
 
 def tool_part(name: str, input=None, output: str = '', is_error: bool = False,
               analysis: str | None = None, timestamp: str | None = None,
-              call_id: str = '') -> dict:
+              call_id: str = '', refs: list | None = None) -> dict:
     part = _part('tool', name=name, input=input, output=output,
                  is_error=is_error, analysis=analysis, timestamp=timestamp)
     if call_id:
         part['call_id'] = call_id
+    if refs:
+        part['refs'] = list(refs)
     return part
 
 

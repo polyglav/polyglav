@@ -42,7 +42,8 @@ class ToolRegistry:
                  write_actions: list | None = None,
                  loop: bool = False, confirm: bool = True,
                  silent: bool = False,
-                 error: Callable[[str], bool] | None = None):
+                 error: Callable[[str], bool] | None = None,
+                 refs: Callable[[dict, str], list[dict] | None] = None):
         def wrapper(fn):
             def build_schema(tool_name: str) -> dict:
                 return {
@@ -75,6 +76,7 @@ class ToolRegistry:
                 'confirm': confirm,
                 'silent': silent,
                 'error': error,
+                'refs': refs,
                 'schema': build_schema(name),
             }
             self._tools[name] = entry
@@ -126,6 +128,18 @@ class ToolRegistry:
             return fn(**args)
         except Exception as e:
             return f'Error executing {name}: {e}'
+
+    def refs_for(self, name: str, arguments: dict, output: str) -> list[dict]:
+        canon, tool = self._canonical(name)
+        if not tool:
+            return []
+        fn = tool.get('refs')
+        if fn is None:
+            return []
+        try:
+            return list(fn(arguments, output) or [])
+        except Exception:
+            return []
 
     def status_parts(self, name: str, arguments: dict) -> tuple[str, list[str]]:
         canon, tool = self._canonical(name)

@@ -208,6 +208,20 @@ class TestTurnSummary(unittest.TestCase):
         out = render_turn(s.turns[-1])
         self.assertIn('duration: 1.2s (0 in / 0 out / 1,234 total)', out)
 
+    def test_tool_refs(self):
+        s = Session('s')
+        s.add_user('hello')
+        part = s.add_tool('web_search', {'query': 'q'})
+        part['refs'] = [{'title': 'T1', 'url': 'http://x.dev/1',
+                         'snippet': 'S1'}]
+        turns.finish_tool(part, 'out')
+        s.add_text('answer')
+        s.end_turn('ok')
+        out = render_turn(s.turns[-1])
+        self.assertIn('- T1', out)
+        self.assertIn('http://x.dev/1', out)
+        self.assertIn('S1', out)
+
     def test_turn_usage(self):
         turn = self._turn()
         turn['usage'] = {'prompt_tokens': 1000, 'completion_tokens': 234,

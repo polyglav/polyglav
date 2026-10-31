@@ -140,6 +140,11 @@ def register_tools(registry):
         aliases=['search', 'web'],
         param_aliases={'q': 'query'},
         note=lambda r: r == 'No search results found.',
+        refs=lambda args, out: [
+            {'title': r.get('title', ''), 'url': r.get('url', ''),
+             'snippet': r.get('snippet', '')}
+            for r in SERVICE.last_results
+        ],
     )
     def web_search(query: str) -> str:
         results = SERVICE.search(query)

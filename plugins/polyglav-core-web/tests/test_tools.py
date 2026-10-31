@@ -218,6 +218,14 @@ class TestRegistration(unittest.TestCase):
         self.assertIn('T1', out)
         self.assertEqual(ws_plugin.SERVICE.last_results[0]['url'], 'http://x.dev/1')
 
+    def test_web_search_refs(self):
+        with patch('search.search', return_value=[
+            {'url': 'http://x.dev/1', 'title': 'T1', 'snippet': 'S1'}]):
+            self.registry.execute('web_search', {'query': 'hi'})
+        refs = self.registry.refs_for('web_search', {}, '')
+        self.assertEqual(refs, [
+            {'title': 'T1', 'url': 'http://x.dev/1', 'snippet': 'S1'}])
+
     def test_search_alias_resolves_to_web_search(self):
         self.assertTrue(self.registry.is_registered('search'))
         with patch('search.search', return_value=[
