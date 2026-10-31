@@ -21,7 +21,7 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move the team registry and `run_team` into the teams plugin | M | optional teams on top of roles |
 | Move the skill registry and improvement into the skills plugin | S-M | optional skills |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
-| Memory plugin | M | optional memory |
+| Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Jobs plugin | M | optional scheduling |
 | Fleet plugin | M | optional supervision |
 | Serve plugin | S-M | optional HTTP access |

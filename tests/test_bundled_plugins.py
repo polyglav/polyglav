@@ -17,6 +17,7 @@ BUNDLED = {
     'polyglav-core-git',
     'polyglav-core-groq',
     'polyglav-core-mcp',
+    'polyglav-core-memory',
     'polyglav-core-ollama',
     'polyglav-core-onboarding',
     'polyglav-core-openai',

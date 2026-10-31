@@ -88,7 +88,7 @@
 - [ ] Move the role registry into the roles plugin and remove the core `roles.py` dependency
 - [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
-- [ ] Add the memory plugin - memory files, injection, refresh, and `/memorize`
+- [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Add the jobs plugin - jobs, scheduler, `/jobs`, `polyglav jobs`, and job memory
 - [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
 - [ ] Add the serve plugin - HTTP API and cancel
@@ -267,6 +267,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the memorize command to a plugin
 - [x] Moved bookkeeping to a plugin
 - [x] Moved skill management to a plugin
 - [x] Moved team management to a plugin

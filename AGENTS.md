@@ -98,6 +98,7 @@ Polyglav/
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
     ├── polyglav-core-mcp/         # MCP client and server
+    ├── polyglav-core-memory/      # memory commands and summaries
     ├── polyglav-core-ollama/      # OllamaProvider
     ├── polyglav-core-onboarding/  # first-run project setup (/onboard)
     ├── polyglav-core-openai/      # OpenAIProvider
