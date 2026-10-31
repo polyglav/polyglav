@@ -102,7 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove parking tasks | S | a synchronous ask model |
 | Merge job notifications | S | one notification stream |
 | Merge control API and UI | S-M | one control surface |
 | Merge memory and skill tasks | S-M | one memory pipeline |
@@ -176,11 +175,7 @@ The assistant is the operator's entry point. A composer turns a task into a team
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Manager role - runs one or many teams and reports, sequential first | M | one window over several teams |
 | Composer plugin (nice-to-have) - a bundled role that designs a team from an under-specified request by asking clarifying questions and saving it | M | guided team design |
-| Core dev team configuration - a development team with the review loop plus the project lead/support teams and skills | S | ready-made teams and skills |
-| Role-name sync - adopt assistant, composer, manager, and specialist across types, prompts, and docs | S | one canonical vocabulary |
-| Assistant-roles track docs - record the architecture and work packages in VISION, PLAN, and TODO | S | documented direction |
 | Leader PM posture - hold the whole picture, push back on a request that breaks the project, and concretize an ambiguous prompt | S | a leader that holds the line |
 | Prompt brevity budget - every role prompt states a short output budget and a fixed report shape | S | less scrolling |
 
@@ -190,7 +185,6 @@ The assistant is the operator's single window to the machine: served agents are 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Onboarding - first run: the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users | M | a supported first step |
 | One-window status - `/status` lists sessions, running agents, and configured jobs on the machine, with logs reachable from the same surface | M | see everything from one place |
 | Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding | S-M | alert when an agent is down |
 | `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it | S-M | fleet agents from the terminal |
@@ -205,7 +199,6 @@ Agents cooperate through types, delegation, and team stages. Sub-agents use the 
 | Auto team selection - the assistant composes the team (types + order + briefs) for a task and calls the stages in sequence | M | team orchestration as a user-facing pattern |
 | `/agent` types - interactive type selection/run UX (type registry, sub-engine, and `call` landed) | M | pick a type and run with it |
 | Auditor agents + generate > check > correct orchestration - run a main agent, an auditor, and a fix pass in a loop until passing | M-L | review-and-fix loops (later phase, listed in VISION.md out-of-scope) |
-| PM/dev/tester team orchestration as a user-facing pattern | M | team pattern on top of the teams registry |
 | Custom system prompts per session | S-M | per-site instructions |
 | Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown | S-M | portable role definitions |
 | Swarm orchestration umbrella (TODO item) | - | decomposed by this package |

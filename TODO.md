@@ -57,7 +57,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Remove parking tasks - batched structured asks, ask continuation, decide-vs-park, and mid-run blocking job approval
 - [ ] Remove the swarm orchestration umbrella and the command audit umbrella
 - [ ] Merge job notification tasks - job connectors, report-back connectors, and human-in-the-loop channels
 - [ ] Merge control tasks - jobs operator API, fleet jobs overview, and the minimal web Control UI
@@ -154,7 +153,6 @@
 - [ ] Tester loop scope - the tester runs only the related tests during the loop and the whole suite once, as a role-prompt change
 - [ ] Prompt brevity budget - every role prompt states a short output budget and a fixed report shape, so a report is a few lines instead of an essay
 - [ ] Docs writer commits each added task - the docs writer commits the tasks right after the operator's prompt and then works through the single points one at a time
-- [ ] Batched structured asks - `ask` handles one question at a time, so several decisions cannot be asked in one call
 - [ ] Committer as a callable stage - a run calls the committer to land the current state as one commit with a correct message, so a long run does not accumulate uncommitted work
 - [ ] Researcher role with fresh context - a researcher role template with web access, started fresh for every task so research never inherits stale context
 - [ ] `.polyglav` directory layout - decide and document the reserved subfolders and file names under `.polyglav/`
@@ -166,16 +164,13 @@
 - [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
 - [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/runs` stays a read-only history
-- [ ] Ask continuation - answering a parked ask resumes and continues its origin run in place, instead of only injecting the answer into the session
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
 - [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
 - [ ] Per-job report destination - a `report_url` (or connector list) on a job so different jobs report to different endpoints, instead of one global `report.webhook`
-- [ ] Per-task decide-vs-park for `direction` asks - a task class (or per-run switch) that lets the supervisor auto-resolve a direction ask after a timeout instead of always parking it for the operator
 - [ ] Full `file_*` namespace extension - if `file_glob`/`file_grep` prove better with most models, extend the prefix to `list_dir`/`glob`/`grep` (old names stay aliases)
 - [ ] Tool spec polish - rename `grep.glob` -> `include` (alias `glob`), add examples and prefer-`web_fetch` guidance to tool descriptions
-- [ ] Mid-run blocking job approval - an `ask` tool inside a running job pauses the run in place (per-tool-call `waiting_approval`), notifies via a connector, and resumes the same session when the operator replies. Needs resumable mid-run state, a wait loop inside the run, and the connectors/transport below (deeper than the shipped per-run `--require-approval` gate)
 - [ ] Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`. Channel-agnostic core, first consumers are the connectors and the operator API
 - [ ] Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps, works with n8n/IFTTT/any URL) first. External email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API so operators can react in time
 - [ ] Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, so clients (web Control UI, connectors, fleet supervisor) can see and act per agent
@@ -226,6 +221,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed parking tasks
 - [x] Removed landed and non-project tasks
 - [x] Added the providers CLI
 - [x] Added the JSONL session store
