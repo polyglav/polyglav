@@ -128,7 +128,15 @@ class TestSpill(unittest.TestCase):
             ref = chat._store_tool_output(part, 'full page body', 1, 0)
             turns.finish_tool(part, 'marker')
             part['dropped'] = {'reason': 'drop', 'ref': ref}
-            from polyglav.sessions.render import render_turn
+            import importlib.util
+            from pathlib import Path
+            path = (Path(__file__).resolve().parents[1] / 'plugins'
+                    / 'polyglav-core-sessions' / 'src' / 'render.py')
+            spec = importlib.util.spec_from_file_location(
+                'polyglav_core_sessions_render_test', path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            render_turn = module.render_turn
             turn = chat.current_session.turns[0]
             out = render_turn(turn, resolve=chat.resolve_tool_ref)
             self.assertIn('full page body', out)

@@ -111,6 +111,14 @@ class TestConfigScopes(_IsolatedConfigBase):
         self.assertFalse(self.local_path.exists())
         self.assertFalse(self.global_path.exists())
 
+    def test_apply_survives_plugin_defaults(self):
+        c = Config(path=str(self.project))
+        c.apply('model', 'override-model')
+        c.register_plugin_defaults({'demo.key': {
+            'default': 1, 'description': 'Demo'}})
+        self.assertEqual(c.get('model'), 'override-model')
+        self.assertEqual(c.get('demo.key'), 1)
+
     def test_apply_does_not_survive_reload(self):
         c = Config(path=str(self.project))
         c.apply('temperature', 0.5)

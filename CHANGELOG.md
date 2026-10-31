@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved session render into the sessions plugin - transcript rendering, `/print`, `/history`, and export/import handlers now live with `polyglav-core-sessions`
 - Moved bookkeeping config to the bookkeeping plugin - `plan.dir` is declared by `polyglav-core-bookkeeping`
 - Moved MCP config to the MCP plugin - `mcp.servers` and `mcp_server.allow_ask` are declared by `polyglav-core-mcp`
 - Moved fs, memory, and webhook config to plugins - `list_dir_max_entries`, `memory*`, and `report.webhook` are declared by their owning plugins

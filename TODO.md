@@ -45,7 +45,6 @@
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Move session render into the sessions plugin
 - [ ] Move the role registry into the roles plugin and remove the core `roles.py` dependency
 - [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
@@ -169,6 +168,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved session render into the sessions plugin
 - [x] Moved bookkeeping config to the bookkeeping plugin
 - [x] Moved MCP config to the MCP plugin
 - [x] Moved fs memory and webhook config to plugins

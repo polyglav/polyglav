@@ -94,7 +94,7 @@ src/polyglav/
 │   ├── base.py          # BaseProvider + OpenAICompatibleProvider
 │   └── registry.py      # ProviderRegistry (providers.json - keys + base URLs)
 ├── scheduler.py         # JobScheduler - durable job daemon
-├── sessions/            # session CRUD + markdown render
+├── sessions/            # session CRUD
 ├── skills.py            # SkillRegistry (per-role instructions)
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo

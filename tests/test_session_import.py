@@ -4,7 +4,16 @@ from pathlib import Path
 
 from polyglav.sessions.manager import (Session, SessionManager,
                                        session_from_document)
-from polyglav.sessions.render import export_document
+import importlib.util
+from pathlib import Path
+
+_render_path = (Path(__file__).resolve().parents[1] / 'plugins'
+                / 'polyglav-core-sessions' / 'src' / 'render.py')
+_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_sessions_render_test', _render_path)
+_render = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_render)
+export_document = _render.export_document
 
 
 class TestSessionFromDocument(unittest.TestCase):

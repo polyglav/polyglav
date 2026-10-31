@@ -7,7 +7,18 @@ from unittest.mock import patch
 
 from polyglav.sessions import turns
 from polyglav.sessions.manager import Session
-from polyglav.sessions.render import render_session, render_turn, turn_summary
+import importlib.util
+from pathlib import Path
+
+_render_path = (Path(__file__).resolve().parents[1] / 'plugins'
+                / 'polyglav-core-sessions' / 'src' / 'render.py')
+_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_sessions_render_test', _render_path)
+_render = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_render)
+render_session = _render.render_session
+render_turn = _render.render_turn
+turn_summary = _render.turn_summary
 from tests.helpers import make_chat
 
 

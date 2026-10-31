@@ -1,7 +1,17 @@
 import unittest
 
 from polyglav.sessions import turns
-from polyglav.sessions.render import prompt_origin, render_turn
+import importlib.util
+from pathlib import Path
+
+_render_path = (Path(__file__).resolve().parents[1] / 'plugins'
+                / 'polyglav-core-sessions' / 'src' / 'render.py')
+_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_sessions_render_test', _render_path)
+_render = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_render)
+prompt_origin = _render.prompt_origin
+render_turn = _render.render_turn
 from tests.helpers import make_chat, seed_roles
 
 

@@ -285,6 +285,7 @@ class Config:
         self._local_raw: dict = {}
         self._plugin_defaults: dict = {}
         self.plugin_descriptions: dict = {}
+        self._applied: dict = {}
         self._load()
 
     def _load(self):
@@ -299,7 +300,9 @@ class Config:
 
     def _merged(self) -> dict:
         base = _merge(DEFAULT_CONFIG, self._plugin_defaults)
-        return _merge(_merge(base, self._global_raw), self._local_raw)
+        merged = _merge(_merge(base, self._global_raw), self._local_raw)
+        merged.update(self._applied)
+        return merged
 
     def register_plugin_defaults(self, defaults: dict) -> None:
         changed = False
@@ -388,15 +391,18 @@ class Config:
         self.data = copy.deepcopy(DEFAULT_CONFIG)
         self._global_raw = {}
         self._local_raw = {}
+        self._applied = {}
         self._load()
 
     def get(self, key, default=None):
         return self.data.get(key, default)
 
     def apply(self, key, value):
+        self._applied[key] = value
         self.data[key] = value
 
     def set(self, key, value, scope: str = 'local'):
+        self._applied.pop(key, None)
         raw = self._global_raw if scope == 'global' else self._local_raw
         raw[key] = value
         if scope == 'global':
@@ -411,6 +417,7 @@ class Config:
             self._save_local()
 
     def unset(self, key, scope: str = 'local'):
+        self._applied.pop(key, None)
         raw = self._global_raw if scope == 'global' else self._local_raw
         raw.pop(key, None)
         value = self._merged().get(key, _MISSING)

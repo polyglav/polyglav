@@ -40,65 +40,6 @@ def cmd_run(args) -> int:
     return 0 if result.status in ('ok', 'truncated') else 1
 
 
-def cmd_export(args) -> int:
-    from .sessions.manager import SessionManager
-    from .sessions.render import (
-        render_session, render_session_tree, session_to_json,
-        session_tree_to_json,
-    )
-    config = Config(path=getattr(args, 'path', None))
-    sessions = SessionManager(config.local_path.parent / 'sessions')
-    session = sessions.read(args.name)
-    if session is None:
-        print(f'Session not found: {args.name}', file=sys.stderr)
-        return 1
-    ext = '.json' if getattr(args, 'json', False) else '.md'
-    if getattr(args, 'tree', False):
-        nodes = sessions.tree(args.name)
-        content = (session_tree_to_json(nodes)
-                   if getattr(args, 'json', False)
-                   else render_session_tree(nodes))
-        default = f'{args.name}_tree{ext}'
-    else:
-        content = (session_to_json(session)
-                   if getattr(args, 'json', False)
-                   else render_session(session))
-        default = f'{args.name}{ext}'
-    out = getattr(args, 'out', None)
-    if out == '-':
-        sys.stdout.write(content)
-        return 0
-    if out:
-        path = Path(out)
-    else:
-        path = sessions.sessions_dir.parent / 'exports' / default
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content)
-    print(f'Exported session: {args.name} -> {path}')
-    return 0
-
-
-def cmd_import(args) -> int:
-    from .sessions.manager import SessionManager
-    config = Config(path=getattr(args, 'path', None))
-    sessions = SessionManager(config.local_path.parent / 'sessions')
-    path = Path(args.file)
-    try:
-        data = json.loads(path.read_text())
-    except (OSError, json.JSONDecodeError) as e:
-        print(f'Cannot read session file: {e}', file=sys.stderr)
-        return 1
-    try:
-        session = sessions.import_document(
-            data, name=getattr(args, 'name', '') or '',
-            force=getattr(args, 'force', False))
-    except ValueError as e:
-        print(str(e), file=sys.stderr)
-        return 1
-    print(f'Imported session: {path} -> {session.session_name}')
-    return 0
-
-
 def cmd_models(args) -> int:
     from .ui import NullUI
     config = Config(path=getattr(args, 'path', None))

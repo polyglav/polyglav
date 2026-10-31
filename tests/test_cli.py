@@ -6,11 +6,21 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from polyglav.cli import cmd_run, cmd_export, cmd_import, cmd_models, cmd_plugins
+from polyglav.cli import cmd_run, cmd_models, cmd_plugins
 from polyglav.main import main
 from polyglav import get_version
 from polyglav.config import Config
 from polyglav.sessions.manager import Session
+
+import importlib.util
+_plugin_path = (Path(__file__).resolve().parents[1] / 'plugins'
+                / 'polyglav-core-sessions' / 'src' / 'plugin.py')
+_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_sessions_plugin_test', _plugin_path)
+_sessions_plugin = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_sessions_plugin)
+cmd_export = _sessions_plugin.cmd_export
+cmd_import = _sessions_plugin.cmd_import
 
 
 def _factory(rounds):
@@ -615,7 +625,7 @@ class TestCliImport(unittest.TestCase):
         s.end_turn('ok')
         with open(sessions / 'alpha.json', 'w') as f:
             json.dump(s.to_dict(), f)
-        from polyglav.sessions.render import export_document
+        export_document = _sessions_plugin.export_document
         self.out_file = Path(self.path) / 'export.json'
         self.out_file.write_text(json.dumps(export_document(s)))
 

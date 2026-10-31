@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from .manager import Session
+from polyglav.sessions.manager import Session
 
 SUMMARY_PROMPT_CHARS = 80
 THOUGHTS_CHARS = 100

@@ -65,7 +65,6 @@ Polyglav/
 │   ├── sessions/
 │   │   ├── __init__.py
 │   │   ├── manager.py       # Session CRUD (turn/part JSON files)
-│   │   ├── render.py        # Session -> Markdown transcript
 │   │   └── turns.py         # Turn/part model + provider-context reconstruction
 │   ├── commands/
 │   │   ├── __init__.py
@@ -105,7 +104,7 @@ Polyglav/
     ├── polyglav-core-providers/   # provider connections, model commands, models CLI
     ├── polyglav-core-quality/     # code_lint, code_format (off by default)
     ├── polyglav-core-roles/       # role catalog and the call tool
-    ├── polyglav-core-sessions/    # session catalog, export, and import
+    ├── polyglav-core-sessions/    # session catalog, render, export, and import
     ├── polyglav-core-serve/       # serve CLI
     ├── polyglav-core-skills/      # skill catalog
     ├── polyglav-core-teams/       # team catalog and team runs
