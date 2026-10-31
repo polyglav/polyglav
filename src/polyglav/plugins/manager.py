@@ -23,6 +23,7 @@ class PluginInfo:
     description: str = ''
     entry: str = 'plugin.py'
     requires: list = field(default_factory=list)
+    depends: list = field(default_factory=list)
     provides: dict = field(default_factory=dict)
     source: str = ''
     polyglav_version: str = ''
@@ -155,17 +156,76 @@ class PluginManager:
             if base.exists():
                 self._discover(base)
         cfg = [str(n) for n in (self.config.get('plugins') or [])]
-        for name, info in list(self._plugins.items()):
-            if cfg and name not in cfg:
+        enabled = set(self._plugins) if not cfg else set(cfg)
+        for name, info in self._plugins.items():
+            if name not in enabled:
                 info.status = 'disabled'
+            elif info.status == 'error':
                 continue
-            if info.status == 'error':
-                continue
-            if not self._compatible(info):
+            elif not self._compatible(info):
                 info.status = 'incompatible'
+            else:
+                info.status = 'pending'
+        for name in self._load_order(enabled):
+            info = self._plugins[name]
+            if info.status != 'pending':
+                continue
+            blocked = self._blocked_dependency(info, enabled)
+            if blocked:
+                info.status = 'disabled' if blocked['kind'] == 'disabled' else 'error'
+                info.error = blocked['message']
                 continue
             self._import(info)
         self._collect_services()
+
+    def _load_order(self, enabled: set[str]) -> list[str]:
+        order: list[str] = []
+        state: dict[str, str] = {}
+
+        def visit(name: str, chain: list[str]) -> None:
+            info = self._plugins.get(name)
+            if info is None:
+                return
+            marker = state.get(name)
+            if marker == 'done':
+                return
+            if marker == 'visiting':
+                start = chain.index(name) if name in chain else 0
+                cycle = chain[start:] + [name]
+                message = 'dependency cycle: ' + ' -> '.join(cycle)
+                for member in cycle:
+                    node = self._plugins.get(member)
+                    if node is not None and node.status not in ('loaded', 'error'):
+                        node.status = 'error'
+                        node.error = message
+                return
+            state[name] = 'visiting'
+            for dep in info.depends:
+                visit(str(dep), chain + [name])
+            state[name] = 'done'
+            order.append(name)
+
+        for name in sorted(enabled):
+            visit(name, [])
+        return order
+
+    def _blocked_dependency(self, info: PluginInfo, enabled: set[str]) -> dict | None:
+        for dep in info.depends:
+            dep = str(dep)
+            if dep not in self._plugins:
+                return {'kind': 'error',
+                        'message': f'missing dependency: {dep}'}
+            if dep not in enabled:
+                return {'kind': 'disabled',
+                        'message': f'depends on disabled plugin: {dep}'}
+            node = self._plugins[dep]
+            if node.status == 'error':
+                return {'kind': 'error',
+                        'message': f'dependency failed: {dep}'}
+            if node.status in ('disabled', 'incompatible'):
+                return {'kind': 'disabled',
+                        'message': f'dependency unavailable: {dep} ({node.status})'}
+        return None
 
     def _discover(self, base: Path):
         for entry in sorted(base.iterdir()):
@@ -218,6 +278,7 @@ class PluginManager:
             description=str(data.get('description') or ''),
             entry=str(data.get('entry') or 'plugin.py'),
             requires=list(data.get('requires') or []),
+            depends=[str(n) for n in (data.get('depends') or [])],
             provides=dict(data.get('provides') or {}),
             source=str(data.get('source') or ''),
             polyglav_version=str(data.get('polyglav_version') or ''),

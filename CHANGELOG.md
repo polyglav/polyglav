@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.50.0
+
+- Added plugin dependency loading - manifest `depends` loads dependencies first, reports missing and disabled dependencies, and marks cycles as errors. Tests: `test_plugins.py`
+
 ## v0.49.0 - 2026-10-26
 
 - Changed ask styling - the question line uses orange, the description and options use the default colour, and the answer prompt is a plain `> ` instead of the mode colour. Tests: `test_repl_output.py`, `test_ui.py`

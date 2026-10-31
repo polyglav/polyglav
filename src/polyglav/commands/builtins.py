@@ -2053,6 +2053,8 @@ def _render_plugins(pm):
             missing = [p for p, ok in pm.dep_status(info) if not ok]
             if missing:
                 parts.append('needs: ' + ', '.join(missing))
+        if info.depends:
+            parts.append('depends: ' + ', '.join(info.depends))
         print('  ' + ' - '.join(parts))
 
 
@@ -2070,6 +2072,8 @@ def _render_plugin_detail(pm, info):
         print('  requires:')
         for pkg, ok in pm.dep_status(info):
             print(f'    {pkg} - {"installed" if ok else "missing"}')
+    if info.depends:
+        print('  depends: ' + ', '.join(info.depends))
     provides = info.provides or {}
     for kind in ('tools', 'providers', 'commands'):
         items = provides.get(kind, [])

@@ -84,7 +84,6 @@
 - [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
-- [ ] Add plugin dependency loading - manifest `depends`, topological load, cycle detection, and clear missing-dependency errors
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
 - [ ] Add the providers plugin - `/connect`, `/provider`, `/providers`, `/models`, probes, and model picker
 - [ ] Add the sessions plugin - `/sessions`, export, import, and render
@@ -278,6 +277,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added plugin dependency loading
 - [x] Changed ask styling
 - [x] Updated team and verbosity docs
 - [x] Changed onboarding visibility

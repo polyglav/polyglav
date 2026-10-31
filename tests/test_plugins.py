@@ -225,6 +225,51 @@ class TestDiscovery(PluginTestBase):
         self.assertEqual(info.description, 'A test plugin')
         self.assertEqual(info.status, 'loaded')
 
+    def test_dependency_loads_first(self):
+        write_plugin(self.plugins_dir, 'base', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'base'})
+        write_plugin(
+            self.plugins_dir, 'dependent',
+            "import sys\n"
+            "if '_polyglav_plugin_base' not in sys.modules:\n"
+            "    raise RuntimeError('base not loaded first')\n"
+            "def register_tools(registry):\n    pass\n",
+            {'name': 'dependent', 'depends': ['base']})
+        self.pm.load()
+        self.assertEqual(self.pm.get('base').status, 'loaded')
+        self.assertEqual(self.pm.get('dependent').status, 'loaded')
+        self.assertEqual(self.pm.get('dependent').depends, ['base'])
+
+    def test_missing_dependency_is_error(self):
+        write_plugin(self.plugins_dir, 'dependent', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'dependent', 'depends': ['missing']})
+        self.pm.load()
+        info = self.pm.get('dependent')
+        self.assertEqual(info.status, 'error')
+        self.assertIn('missing dependency: missing', info.error)
+
+    def test_disabled_dependency_disables_dependent(self):
+        write_plugin(self.plugins_dir, 'base', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'base'})
+        write_plugin(self.plugins_dir, 'dependent', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'dependent', 'depends': ['base']})
+        pm = self.make_pm({'plugins': ['dependent']})
+        pm.load()
+        self.assertEqual(pm.get('base').status, 'disabled')
+        info = pm.get('dependent')
+        self.assertEqual(info.status, 'disabled')
+        self.assertIn('depends on disabled plugin: base', info.error)
+
+    def test_dependency_cycle_is_error(self):
+        write_plugin(self.plugins_dir, 'a', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'a', 'depends': ['b']})
+        write_plugin(self.plugins_dir, 'b', SIMPLE_TOOL_PLUGIN,
+                     {'name': 'b', 'depends': ['a']})
+        self.pm.load()
+        self.assertEqual(self.pm.get('a').status, 'error')
+        self.assertEqual(self.pm.get('b').status, 'error')
+        self.assertIn('dependency cycle', self.pm.get('a').error)
+
     def test_directory_without_manifest_skipped(self):
         write_plugin(self.plugins_dir, 'orphan', SIMPLE_TOOL_PLUGIN)
         self.pm.load()

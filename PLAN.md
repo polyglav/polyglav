@@ -15,7 +15,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Plugin dependency loading | S-M | reliable plugin composition |
 | REPL plugin | M-L | a replaceable terminal front-end |
 | Providers plugin | M | provider management outside the core |
 | Sessions plugin | S | export and import outside the core |

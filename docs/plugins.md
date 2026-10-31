@@ -39,6 +39,7 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
   "python": ">=3.11",
   "entry": "plugin.py",
   "requires": ["beautifulsoup4", "lxml"],
+  "depends": ["polyglav-core-web"],
   "provides": {"tools": ["scrape_page"], "providers": [], "commands": ["/scrape"]},
   "source": "https://github.com/example/polyglav-web-scraper"
 }
@@ -53,8 +54,17 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 | `python`         | `""`          | Minimum/maximum Python, same range syntax (`>=3.11`) |
 | `entry`          | `"plugin.py"` | Module to load, relative to the plugin directory (may point into `src/`) |
 | `requires`       | `[]`          | Third-party packages, metadata for status and `--deps` install, never imported by the core |
+| `depends`        | `[]`          | Other plugin names that must load first. Missing, disabled, incompatible, or cyclic dependencies block the dependent |
 | `provides`       | `{}`          | Declared tools/providers/commands for `/plugins` display |
 | `source`         | `""`          | Origin recorded on install, used by `update` |
+
+### Plugin dependencies
+
+`depends` lists other plugin names, not Python packages. Loading is topological: every dependency loads before its dependent. A missing dependency is an error, a disabled or incompatible dependency disables the dependent, and a cycle marks every member as an error. Disabling a plugin disables the plugins that depend on it. `/plugins` shows the declared dependencies.
+
+```json
+{ "name": "polyglav-core-teams", "depends": ["polyglav-core-roles"] }
+```
 
 ## Entry contract
 
