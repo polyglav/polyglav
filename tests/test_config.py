@@ -121,9 +121,7 @@ class TestConfigScopes(_IsolatedConfigBase):
     def test_tool_result_cap_defaults(self):
         c = Config(path=str(self.project))
         self.assertEqual(c.get('tool_max_result_chars'), 100000)
-        self.assertEqual(c.get('list_dir_max_entries'), 200)
         self.assertEqual(DEFAULT_CONFIG['tool_max_result_chars'], 100000)
-        self.assertEqual(DEFAULT_CONFIG['list_dir_max_entries'], 200)
 
     def test_origin(self):
         c = Config(path=str(self.project))
@@ -202,6 +200,9 @@ class TestConfigMerge(_IsolatedConfigBase):
     def test_partial_memory_scopes_keeps_default_keys(self):
         self.write_local({'memory_scopes': {'job': False}})
         c = Config(path=str(self.project))
+        c.register_plugin_defaults({'memory_scopes': {
+            'default': {'role': True, 'team': True, 'job': True},
+            'description': 'Per-scope memory toggles'}})
         self.assertEqual(c.get('memory_scopes'),
                          {'role': True, 'team': True, 'job': False})
 

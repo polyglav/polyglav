@@ -9,6 +9,14 @@
     "tools": [],
     "providers": [],
     "commands": [],
-    "services": ["report"]
+    "services": [
+      "report"
+    ],
+    "config": {
+      "report.webhook": {
+        "default": "",
+        "description": "URL a completed job run is POSTed to"
+      }
+    }
   }
 }

@@ -10,6 +10,24 @@
     "providers": [],
     "commands": [
       "/memorize"
-    ]
+    ],
+    "config": {
+      "memory": {
+        "default": true,
+        "description": "Enable bounded memory summaries under .polyglav/memory/"
+      },
+      "memory_max_chars": {
+        "default": 2000,
+        "description": "Cap characters of an injected memory summary"
+      },
+      "memory_scopes": {
+        "default": {
+          "role": true,
+          "team": true,
+          "job": true
+        },
+        "description": "Per-scope memory toggles"
+      }
+    }
   }
 }

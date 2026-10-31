@@ -56,6 +56,13 @@ class TestBundledPlugins(unittest.TestCase):
             self.assertEqual(info.status, expected, n)
             self.assertEqual(info.origin, 'bundled', n)
 
+    def test_plugin_config_registered(self):
+        self.pm.load()
+        self.assertEqual(self.config.get('list_dir_max_entries'), 200)
+        self.assertTrue(self.config.get('memory'))
+        self.assertEqual(self.config.get('memory_max_chars'), 2000)
+        self.assertEqual(self.config.get('report.webhook'), '')
+
     def test_web_config_registered(self):
         self.pm.load()
         self.assertEqual(self.config.get('search_results'), 10)

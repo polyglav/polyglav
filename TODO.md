@@ -73,11 +73,7 @@
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
-- [ ] Move the exec allowlist into the exec plugin
-- [ ] Move `list_dir_max_entries` to the filesystem plugin
 - [ ] Move MCP keys to the MCP plugin
-- [ ] Move `report.webhook` to the webhook plugin
-- [ ] Move memory keys to the memory plugin
 - [ ] Move `plan.dir` to the bookkeeping plugin
 - [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
 - [ ] Add plugin config defaults and descriptions to `/config`
@@ -175,6 +171,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved fs memory and webhook config to plugins
 - [x] Moved web config to the web plugin
 - [x] Added plugin config registration
 - [x] Added session load validation

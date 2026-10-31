@@ -14,6 +14,12 @@
       "grep"
     ],
     "providers": [],
-    "commands": []
+    "commands": [],
+    "config": {
+      "list_dir_max_entries": {
+        "default": 200,
+        "description": "Cap entries list_dir returns"
+      }
+    }
   }
 }
