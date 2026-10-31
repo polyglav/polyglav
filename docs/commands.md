@@ -7,9 +7,11 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | Command                 | Aliases        | Description                                                    |
 |-------------------------|----------------|----------------------------------------------------------------|
 | `/asks`                 |                | List and answer parked asks from unattended runs (`/asks answer <id> <text>`, `/asks list [all|pending|answered]`, `/asks show <id>`). Answering resumes the origin session. See [config.md](config.md#unattended-mode) |
+| `/cancel`               |                | Close a paused turn as cancelled |
 | `/clear`                |                | Clear the screen and reprint the header without leaving or changing the session |
 | `/compact`              |                | Summarize the conversation and trim the provider context       |
 | `/config`              |                | Show, get, set, or unset config values (`/config <key> <value>`, `/config unset <key>`, `/config --global <key> <value>` for a global line). The default listing is alphabetical with `key`, `value`, and origin columns (`(default)`, `(global)`, or `(local)`) and hides descriptions. `/config <key>` shows the value, origin, default, and description, and `/config --verbose` (or `-v`) adds every default and description on an indented line. A value too long for the value column prints as an indented `value`/`source` block |
+| `/continue`             |                | Resume the last active paused turn, or `parent` or a run or session ID |
 | `/connect`              |                | Connect a provider. `/connect` picks interactively from the known providers. `/connect <name>` presets a known provider's defaults and (re)enters its API key. `/connect <url>` detects a known host or creates a named custom provider (derived from the host, or `/connect <url> <name>` to name it). Tests the connection before saving, stores the API key + base URL in global `providers.json`, and writes `provider`/`base_url` into config - the model is picked separately with `/model` |
 | `/exit`                 | `/quit`        | Save and exit                                                  |
 | `/help`                 |                | Show available commands and tools (`/help <cmd|tool>` for detail) |
@@ -23,14 +25,12 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/modes`                |                | List the available agent modes, marking the current one. `/modes --verbose` adds each mode's description, and `/modes <name>` prints that mode's instruction. See [modes.md](modes.md) |
 | `/new`                  |                | Start a new session, the same as `/session new` |
 | `/onboard`              |                | Set up this project (provider, model, mode, purpose, assistant, output log). See [plugins.md](plugins.md) |
-| `/pause`                |                | Hold the next turn at the turn boundary; `/resume` clears it. State prints as `@ Paused #n` and `@ Resumed #n` |
 | `/plan`                 |                | Show the current run's internal plan, attach one (`use <path>`), or detach it (`off`). See [modes.md](modes.md) |
 | `/plans`                |                | List every stored plan, marking the attached one. `/plans <id>` prints one by plan id or session id. See [modes.md](modes.md) |
 | `/plugins`              | `/plugin`      | Manage plugins: `disable`, `enable`, `install`, `list`, `uninstall`, `update` |
 | `/print`                |                | Reprint turns: `/print [N|N-O|-O|N-|N.M] [session:<name> ...] [--full] [--tree]`. `N` prints one turn, `N-O` a range, `-O` the last O turns, `N-` from N to the current turn, and `N.M` a part. `session:<name>` reads another session. `--tree` renders the root and its sub-runs. See [session.md](session.md) |
 | `/provider`              |                | Show or switch the active provider                             |
 | `/providers`             |                | List provider connections, alphabetical, with the active one marked and `(key)` when a key is stored, and `(custom)` for a provider with no built-in factory |
-| `/resume`               |                | Clear a paused run and continue at the next turn |
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
 | `/runs`                 |                | Show the run tree read-only: run id, role, status, session, session id, duration, and own/tree tokens. Use `/print --run <target>` for a run's output. See [session.md](session.md) |

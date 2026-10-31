@@ -37,9 +37,8 @@ The REPL exposes one canonical name per command, separates commands from tools, 
 | Task | Effort | Provides |
 |------|--------|----------|
 | Command grammar - singular current, plural catalog, verbs for actions, and no aliases | S | a predictable command set |
-| Ctrl-C pause, `/continue`, and `/cancel` | M | interrupt and resume without losing the turn |
 | `/continue parent` and `/continue <id>` | S-M | switch to a parent or prior session |
-| Remove `/asks`, `/unattended`, `/pause`, `/resume`, `/runs`, and `/tool` | S | a smaller command surface |
+| Remove `/asks`, `/unattended`, `/runs`, and `/tool` | S | a smaller command surface |
 | `/help` lists commands and tools | S | one help entry point |
 | `/connect` as `/providers connect` | S | provider shorthand |
 | `/init` and onboarding hint | S | project setup |

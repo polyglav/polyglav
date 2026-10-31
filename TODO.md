@@ -147,11 +147,6 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Add Ctrl-C pause - pause the root turn, stop the active child run, and print a hint at idle
-- [ ] Add `/continue [parent|<id>]` - resume the last active paused session, the parent session, or any run or session ID
-- [ ] Add `/cancel` - close a paused root turn as cancelled
-- [ ] Change a normal prompt while paused - ask `[Y/n]` to cancel the paused turn and start a new turn
-- [ ] Remove `/pause` and `/resume`
 - [ ] Remove `/asks` and ask parking
 - [ ] Remove `/unattended`
 - [ ] Remove `/tool` and make `/help` list commands and tools
@@ -257,6 +252,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added Ctrl-C pause continue and cancel
 - [x] Changed the history selectors
 - [x] Changed the print selectors
 - [x] Added the status command

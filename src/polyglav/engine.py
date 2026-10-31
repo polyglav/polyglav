@@ -1225,6 +1225,33 @@ class Engine:
                 return TurnResult(status='empty', session=self.current_session.session_name)
         return self._agent_loop()
 
+    def paused_turn(self):
+        turn = self.current_session.open_turn()
+        if turn is not None and turn.get('status') == 'paused':
+            return turn
+        return None
+
+    def continue_turn(self) -> TurnResult | None:
+        turn = self.paused_turn()
+        if turn is None:
+            self.ui.info('No paused turn to continue')
+            return None
+        self.current_session.add_part(turns.user_part(CONTINUE_INSTRUCTION))
+        turn['status'] = 'running'
+        self.current_run.status = 'running'
+        self.session_auto_save()
+        return self._agent_loop()
+
+    def cancel_turn(self) -> bool:
+        turn = self.paused_turn()
+        if turn is None:
+            self.ui.info('No paused turn to cancel')
+            return False
+        self.current_session.end_turn('cancelled')
+        self.runs.finish(self.current_run.id, 'cancelled')
+        self.session_auto_save()
+        return True
+
     def chat_tool(self, name: str, arguments: dict) -> TurnResult:
         if getattr(self, '_provider_error', None):
             return TurnResult(status='error',
@@ -1285,6 +1312,7 @@ class Engine:
 
         reason = ''
         status = 'ok'
+        paused = False
         content = ''
         thinking = ''
         executed_tool_calls: list[dict] = []
@@ -1427,8 +1455,13 @@ class Engine:
                         end_thinking()
                         content += s_content
                         thinking += s_thinking
-                        self.ui.info('(cancelled)')
-                        status = 'cancelled'
+                        if getattr(self, '_sub_run', False):
+                            self.ui.info('(cancelled)')
+                            status = 'cancelled'
+                        else:
+                            self.ui.info('(paused)')
+                            status = 'paused'
+                            paused = True
                         aborted = True
                     except Exception as e:
                         end_thinking()
@@ -1496,8 +1529,13 @@ class Engine:
                 if aborted or not tool_calls_detected:
                     break
         except KeyboardInterrupt:
-            self.ui.info('(cancelled)')
-            status = 'cancelled'
+            if getattr(self, '_sub_run', False):
+                self.ui.info('(cancelled)')
+                status = 'cancelled'
+            else:
+                self.ui.info('(paused)')
+                status = 'paused'
+                paused = True
         finally:
             if content or thinking:
                 end = datetime.now(timezone.utc)
@@ -1509,11 +1547,17 @@ class Engine:
                 counts = self._usage_counts(usage_total)
                 counts['tree'] = self._tree_tokens(usage_total)
                 self.ui.footer(duration, counts)
-            self.current_session.end_turn(
-                status, usage=usage_total,
-                context_tokens=self._context_tokens(usage_total),
-                finish_reason=reason)
-            self._record_model_outcome(status)
+            if paused:
+                turn = self.current_session.open_turn()
+                if turn is not None:
+                    turn['status'] = 'paused'
+                    self.current_session._touch()
+            else:
+                self.current_session.end_turn(
+                    status, usage=usage_total,
+                    context_tokens=self._context_tokens(usage_total),
+                    finish_reason=reason)
+                self._record_model_outcome(status)
             self.session_auto_save()
 
         usage = usage_total

@@ -308,6 +308,36 @@ def register_builtins(registry):
     def clear_cmd(_=None):
         chat.redraw()
 
+    @registry.register('continue',
+                       description='Resume the last active paused turn, or a parent or session ID')
+    def continue_cmd(arg=''):
+        target = arg.strip()
+        if target:
+            name = ''
+            if target == 'parent':
+                name = getattr(chat.current_session, 'parent_id', '') or ''
+            else:
+                run, resolved = chat.resolve_target(target)
+                name = resolved or ''
+            if not name:
+                print(f'{RED}✗ Session not found: {target}{RESET}')
+                return
+            session = chat.sessions.read(name)
+            if session is None:
+                print(f'{RED}✗ Session not found: {name}{RESET}')
+                return
+            chat.session_auto_save()
+            chat.current_session = session
+            if hasattr(chat, '_sync_output_log'):
+                chat._sync_output_log()
+        result = chat.continue_turn()
+        if result is not None and result.content:
+            print(result.content)
+
+    @registry.register('cancel', description='Cancel a paused turn')
+    def cancel_cmd(_=None):
+        chat.cancel_turn()
+
     @registry.register('status', description='Show the current session, runs, jobs, and plugins')
     def status_cmd(_=None):
         from ..modes import mode_name
@@ -457,20 +487,6 @@ def register_builtins(registry):
             if hasattr(chat, 'set_unattended'):
                 chat.set_unattended(new)
             print(f'Unattended mode: {"on" if new else "off"}')
-
-    @registry.register('pause', description='Pause this run at the next turn boundary')
-    def pause_cmd(arg=''):
-        engine = chat.active() if hasattr(chat, 'active') else chat
-        engine._paused = True
-        label = engine.role or 'root'
-        print(f'{DIM}@ Paused #{engine.current_run.id} {label}{RESET}')
-
-    @registry.register('resume', description='Resume this paused run')
-    def resume_cmd(arg=''):
-        engine = chat.active() if hasattr(chat, 'active') else chat
-        engine._paused = False
-        label = engine.role or 'root'
-        print(f'{DIM}@ Resumed #{engine.current_run.id} {label}{RESET}')
 
     @registry.register('mode', description='Show or switch the agent mode for this session (read or write)')
     def mode_cmd(arg=''):

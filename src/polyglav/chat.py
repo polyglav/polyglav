@@ -242,9 +242,18 @@ class ChatLoop(Engine):
     def _read_line(self) -> str | None:
         try:
             raw = self._read_input(self._prompt())
-        except (EOFError, KeyboardInterrupt):
+        except EOFError:
             print()
             return None
+        except KeyboardInterrupt:
+            import time
+            now = time.monotonic()
+            if now - getattr(self, '_last_interrupt', 0.0) < 2.0:
+                print()
+                return None
+            self._last_interrupt = now
+            print('\nCtrl-C again to exit, /exit to quit')
+            return ''
         line = raw.strip()
         self._reprint_line(line)
         delim = _open_delim(line)
@@ -444,10 +453,20 @@ class ChatLoop(Engine):
                     engine.registry.dispatch(line)
                     engine.session_auto_save()
                     self._sync_output_log()
-                elif getattr(engine, '_paused', False):
-                    label = engine.role or 'root'
-                    print(f'{DIM}@ Paused #{engine.current_run.id} {label}{RESET}')
                 else:
+                    if engine.paused_turn() is not None:
+                        try:
+                            answer = input(
+                                'Paused turn is open. Cancel it and start a new turn? [Y/n] '
+                            ).strip().lower()
+                        except (EOFError, KeyboardInterrupt):
+                            print()
+                            continue
+                        if answer not in ('n', 'no'):
+                            engine.cancel_turn()
+                        else:
+                            print('Use /continue to resume or /cancel to close the paused turn')
+                            continue
                     engine.chat(line)
             except Exception as e:
                 engine.current_session.add_error(0, str(e))

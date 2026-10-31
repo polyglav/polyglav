@@ -3,6 +3,7 @@ import io
 import json
 from unittest.mock import MagicMock, patch
 
+from polyglav.engine import TurnResult
 from tests.helpers import make_chat
 
 
@@ -378,6 +379,26 @@ class TestCommandSurface(unittest.TestCase):
         self.assertIn('ollama/test-model', text)
         self.assertIn('session:', text)
         self.assertIn('runs:', text)
+
+    def _pause_turn(self):
+        self.chat.current_session.add_user('paused prompt')
+        turn = self.chat.current_session.open_turn()
+        turn['status'] = 'paused'
+        return turn
+
+    def test_continue_resumes_paused_turn(self):
+        turn = self._pause_turn()
+        self.chat._agent_loop = MagicMock(return_value=TurnResult(
+            status='ok', content='done', session=self.chat.current_session.session_name))
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.registry.dispatch('/continue')
+        self.chat._agent_loop.assert_called_once_with()
+        self.assertEqual(turn['status'], 'running')
+
+    def test_cancel_closes_paused_turn(self):
+        self._pause_turn()
+        self.chat.registry.dispatch('/cancel')
+        self.assertIsNone(self.chat.current_session.open_turn())
 
     def test_new_starts_a_session(self):
         before = self.chat.current_session.session_name
