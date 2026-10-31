@@ -22,7 +22,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
-| Fleet plugin | M | optional supervision |
 | Quality plugin | S | optional lint and format |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |
 | Plugin config registration | S-M | grouped config and validation |

@@ -13,9 +13,22 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import importlib.util
+
 from polyglav.config import Config
-from polyglav.fleet import (AgentDef, AgentState, FleetController, FleetManifest, FleetState, find_free_port, probe_health)
-from polyglav.cli import cmd_fleet
+
+_plugin_path = Path(__file__).resolve().parents[1] / 'src' / 'plugin.py'
+_spec = importlib.util.spec_from_file_location('polyglav_core_fleet', _plugin_path)
+_fleet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_fleet)
+AgentDef = _fleet.AgentDef
+AgentState = _fleet.AgentState
+FleetController = _fleet.FleetController
+FleetManifest = _fleet.FleetManifest
+FleetState = _fleet.FleetState
+find_free_port = _fleet.find_free_port
+probe_health = _fleet.probe_health
+cmd_fleet = _fleet.cmd_fleet
 
 MOCK_HEALTHY = r'''
 import os, signal, sys

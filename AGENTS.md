@@ -57,7 +57,6 @@ Polyglav/
 │   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser
 │   ├── memory.py            # Bounded role/team/job memory under .polyglav/memory/
 │   ├── scheduler.py         # JobScheduler - durable job daemon (retries, approvals, auto-compact)
-│   ├── fleet.py             # Fleet supervisor - AgentDef manifest, FleetController (ports, health, restart)
 │   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers

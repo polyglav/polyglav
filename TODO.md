@@ -55,7 +55,7 @@
 - [ ] Move the skill registry and skill improvement into the skills plugin
 - [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
-- [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
+- [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 - [ ] Add the quality plugin - `code_lint` and `code_format`, off by default
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
@@ -190,6 +190,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Moved the fleet supervisor into the fleet plugin
 - [x] Moved the eval harness into the eval plugin
 - [x] Removed unused legacy config keys
 - [x] Changed auto-continue to auto_continue_max
