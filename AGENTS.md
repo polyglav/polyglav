@@ -97,6 +97,7 @@ Polyglav/
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
+    ├── polyglav-core-jobs/        # scheduled and durable jobs
     ├── polyglav-core-mcp/         # MCP client and server
     ├── polyglav-core-memory/      # memory commands and summaries
     ├── polyglav-core-ollama/      # OllamaProvider

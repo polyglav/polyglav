@@ -16,6 +16,7 @@ BUNDLED = {
     'polyglav-core-fs',
     'polyglav-core-git',
     'polyglav-core-groq',
+    'polyglav-core-jobs',
     'polyglav-core-mcp',
     'polyglav-core-memory',
     'polyglav-core-ollama',

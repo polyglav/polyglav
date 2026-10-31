@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the jobs command to a plugin - `/jobs` lives in `polyglav-core-jobs`. Tests: `test_jobs.py`, `test_commands.py`
 - Moved the memorize command to a plugin - `/memorize` lives in `polyglav-core-memory`. Tests: `test_memory.py`, `test_commands.py`
 - Moved bookkeeping to a plugin - `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` live in `polyglav-core-bookkeeping`. Tests: `test_plan_todo.py`, `test_commands.py`
 - Moved skill management to a plugin - `/skills` lives in `polyglav-core-skills`. Tests: `test_commands.py`, `test_skills.py`

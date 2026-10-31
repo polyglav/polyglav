@@ -89,7 +89,7 @@
 - [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
 - [ ] Move memory files, injection, and refresh into the memory plugin
-- [ ] Add the jobs plugin - jobs, scheduler, `/jobs`, `polyglav jobs`, and job memory
+- [ ] Move the jobs scheduler, CLI, and job memory into the jobs plugin
 - [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
 - [ ] Add the serve plugin - HTTP API and cancel
 - [ ] Add the eval plugin - eval harness
@@ -267,6 +267,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the jobs command to a plugin
 - [x] Moved the memorize command to a plugin
 - [x] Moved bookkeeping to a plugin
 - [x] Moved skill management to a plugin

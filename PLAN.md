@@ -22,7 +22,7 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move the skill registry and improvement into the skills plugin | S-M | optional skills |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
-| Jobs plugin | M | optional scheduling |
+| Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
 | Fleet plugin | M | optional supervision |
 | Serve plugin | S-M | optional HTTP access |
 | Eval plugin | S | optional development harness |
