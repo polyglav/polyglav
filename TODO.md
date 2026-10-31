@@ -89,7 +89,7 @@
 - [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
 - [ ] Move memory files, injection, and refresh into the memory plugin
-- [ ] Move the jobs scheduler, CLI, and job memory into the jobs plugin
+- [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
 - [ ] Add the fleet plugin - supervisor, health, and later `/spawn`
 - [ ] Add the serve plugin - HTTP API and cancel
 - [ ] Add the eval plugin - eval harness
@@ -267,6 +267,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the jobs CLI to a plugin
 - [x] Moved the sessions command to a plugin
 - [x] Moved the jobs command to a plugin
 - [x] Moved the memorize command to a plugin

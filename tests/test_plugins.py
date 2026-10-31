@@ -401,7 +401,7 @@ class TestHooks(PluginTestBase):
         self.pm.register_cli(cli)
         args = parser.parse_args(['frobnicate', 'x'])
         self.assertEqual(args.func(args), 'frob x')
-        self.assertEqual(cli.names(), ['frobnicate'])
+        self.assertIn('frobnicate', cli.names())
 
     def test_plugin_frontend_registers(self):
         write_plugin(self.plugins_dir, 'front', FRONTEND_PLUGIN,

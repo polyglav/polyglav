@@ -52,7 +52,7 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Jobs plugin CLI and shared job service | M | one jobs surface |
+| Jobs scheduler and shared job service | M | one jobs surface |
 | Fleet plugin CLI | M | supervised agents outside the core |
 | Serve plugin CLI | S-M | a replaceable HTTP access layer |
 | Sessions CLI export and import | S | storage formats outside the core |
