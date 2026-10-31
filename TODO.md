@@ -90,7 +90,6 @@
 - [ ] Move `report.webhook` to the webhook plugin
 - [ ] Move memory keys to the memory plugin
 - [ ] Move `plan.dir` to the bookkeeping plugin
-- [ ] Change auto-continue to `auto_continue_max` only - 0 is off and a positive value is on
 - [ ] Record in, out, and total tokens in sessions and show them in `/history` and `/print`
 - [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
 - [ ] Add plugin config defaults and descriptions to `/config`
@@ -192,6 +191,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed auto-continue to auto_continue_max
 - [x] Renamed bash_allow to exec_allow
 - [x] Changed the delegate contract
 - [x] Moved the HTTP API and cancel into the serve plugin

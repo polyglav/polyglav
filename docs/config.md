@@ -47,8 +47,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `access`                    | `{"read_tools": [...]}` | Read-class permission keys (`read`, `list`, `web`, `catalog`, `ask`, `delegate`). Any key not listed is write-class, and unknown/new plugin keys default write (fail-closed). See [modes.md](modes.md) |
 | `ask_min_question_chars`    | `8`                    | Minimum length of a `kind='direction'` ask question when it has no `context` and no `options`. A shorter question is rejected with an error so the model asks a self-contained question. `0` disables the guard |
 | `ask_policy`                | *(see below)*          | Routing for the `ask` tool by kind (`permission`/`direction`)          |
-| `auto_continue`             | `true`                 | On truncation (`finish_reason=length`) with a partial answer, re-request with a "continue" instruction and stitch the parts into one message |
-| `auto_continue_max`         | `2`                    | Max continuation rounds per turn before reporting truncation     |
+| `auto_continue_max`         | `2`                    | Max continuation rounds per turn on truncation. `0` turns continuation off |
 | `base_url`                  | `"https://api.ollama.com"` | Provider endpoint                                                  |
 | `clear_screen`              | `true`                 | Clear the screen before the REPL banner                                |
 | `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |

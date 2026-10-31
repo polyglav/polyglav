@@ -61,7 +61,7 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 | Model ref and generic `openai-compatible` entry | M | one model source of truth |
 | Move display keys to the REPL plugin | S | presentation outside the core |
 | Move web, exec, fs, MCP, webhook, memory, and bookkeeping keys | S-M | capability ownership |
-| `auto_continue_max` only and token records | S | simpler continuation and usage |
+| Token records in history and print | S | usage visibility |
 | Onboarding provider presets | S | a guided first run |
 | Remove compatibility aliases | S | a clean schema |
 

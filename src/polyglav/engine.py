@@ -1314,7 +1314,6 @@ class Engine:
                 tools_schema = self._tool_schema()
                 max_attempts = 1 + max(0, int(self.config.get('stream_retries', 2)))
                 retry_delay = max(0.0, float(self.config.get('stream_retry_delay', 0.5)))
-                auto_continue = self.config.get('auto_continue', True)
                 max_continues = max(0, int(self.config.get('auto_continue_max', 2)))
                 content = ''
                 thinking = ''
@@ -1446,7 +1445,7 @@ class Engine:
                     thinking += s_thinking
                     if got_done:
                         if reason == 'length':
-                            if content and auto_continue and consumes < max_continues:
+                            if content and max_continues > 0 and consumes < max_continues:
                                 consumes += 1
                                 attempt = 1
                                 self.ui.info(f'(output truncated - continuing '

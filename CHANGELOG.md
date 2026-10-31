@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed auto-continue to `auto_continue_max` only - `0` turns continuation off and a positive value enables it, with no separate boolean
 - Renamed `bash_allow` to `exec_allow` with no alias - the exec allowlist keeps the same prefix, chain, and heredoc rules under `tool_permission.exec_allow`
 - Changed the delegate contract - the tool now describes an anonymous sibling that inherits the caller mode and permission cap, not a read-only helper
 - Moved the HTTP API and cancel into the serve plugin - the stdlib server, `POST /chat`, `POST /cancel`, and `polyglav serve` now live with the plugin. Tests: `polyglav-core-serve`

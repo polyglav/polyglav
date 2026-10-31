@@ -172,17 +172,17 @@ class TestAgentLoop(unittest.TestCase):
             raise KeyboardInterrupt()
         return gen()
 
-    def test_keyboard_interrupt_mid_stream_cancels_turn(self):
+    def test_keyboard_interrupt_mid_stream_pauses_turn(self):
         self.chat.provider.chat.return_value = self._interrupt_stream()
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             result = self.chat._agent_loop()
-        self.assertEqual(result.status, 'cancelled')
+        self.assertEqual(result.status, 'paused')
         self.assertEqual(result.errors, [])
         self.assertEqual(result.content, 'Partial')
-        self.assertIn('(cancelled)', out.getvalue())
+        self.assertIn('(paused)', out.getvalue())
 
-    def test_keyboard_interrupt_after_tool_call_cancels_turn(self):
+    def test_keyboard_interrupt_after_tool_call_pauses_turn(self):
         target = self.chat.config.local_path.parent
         self.chat.provider.chat.side_effect = [
             [{'type': 'tool_calls', 'tool_calls': [
@@ -195,7 +195,7 @@ class TestAgentLoop(unittest.TestCase):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             result = self.chat._agent_loop()
-        self.assertEqual(result.status, 'cancelled')
+        self.assertEqual(result.status, 'paused')
         self.assertEqual(result.errors, [])
         tool_msgs = self._parts('tool')
         self.assertEqual(len(tool_msgs), 1)
@@ -219,7 +219,7 @@ class TestAgentLoop(unittest.TestCase):
 
     def test_length_finish_logs_truncation_error(self):
         self.chat.config.set('max_tokens', 500)
-        self.chat.config.set('auto_continue', False)
+        self.chat.config.set('auto_continue_max', 0)
         self.chat.provider.chat.return_value = [
             {'type': 'token', 'content': 'Part of an answer'},
             {'type': 'done', 'reason': 'length'},
@@ -232,7 +232,7 @@ class TestAgentLoop(unittest.TestCase):
 
     def test_length_finish_unset_limit_mentions_provider_default(self):
         self.chat.config.set('max_tokens', 0)
-        self.chat.config.set('auto_continue', False)
+        self.chat.config.set('auto_continue_max', 0)
         self.chat.provider.chat.return_value = [
             {'type': 'token', 'content': 'Part of an answer'},
             {'type': 'done', 'reason': 'length'},
@@ -244,7 +244,6 @@ class TestAgentLoop(unittest.TestCase):
         self.assertNotIn('(0)', errors[0]['message'])
 
     def test_length_finish_auto_continues_until_completion(self):
-        self.chat.config.set('auto_continue', True)
         self.chat.config.set('auto_continue_max', 3)
         self.chat.provider.chat.side_effect = [
             [{'type': 'token', 'content': 'Part 1'},
@@ -264,7 +263,6 @@ class TestAgentLoop(unittest.TestCase):
                       continuation['content'])
 
     def test_length_finish_auto_continue_obeyed_cap_then_truncates(self):
-        self.chat.config.set('auto_continue', True)
         self.chat.config.set('auto_continue_max', 1)
         self.chat.provider.chat.side_effect = [
             [{'type': 'token', 'content': 'A'},
