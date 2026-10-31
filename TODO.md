@@ -98,7 +98,6 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Change `/connect` - keep it as a `/providers connect` shorthand
 - [ ] Defer `/bookmark`, `/agent`, and `/spawn` until the plugin surface is ready
 
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
@@ -184,6 +183,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed the connect shorthand
 - [x] Added JSON materialization
 - [x] Added paused turn persistence
 - [x] Added token usage to history and print

@@ -313,8 +313,14 @@ def register_commands(commands):
         else:
             print(f'Current provider: {chat.config.get("provider")}')
 
-    @commands.register('providers', description='List provider connections')
+    @commands.register(
+        'providers',
+        description='List provider connections, or connect a provider',
+        subcommands=[('connect', 'Connect a provider - providers connect <name|url> [name]')])
     def providers_cmd(arg=''):
+        text = arg.strip()
+        if text == 'connect' or text.startswith('connect '):
+            return connect_cmd(text[len('connect'):].strip())
         _render_provider_status(chat, _providers(chat))
 
     @commands.register(
