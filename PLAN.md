@@ -44,6 +44,23 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 | Signal and exit contract | S | predictable interruption |
 | Remove `--session-id`, `jobs stop`, and `jobs add-supervisor` | S | a smaller CLI |
 
+## Config surface
+
+The config schema loses legacy keys, gains an owner per key, and renders grouped objects in both the REPL and the CLI.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Remove legacy keys without migration | S | a smaller schema |
+| Plugin config ownership through manifests | M | legible groups |
+| Config service, object view, `--json`, and validation | S-M | one behavior |
+| Model ref and generic `openai-compatible` entry | M | one model source of truth |
+| Move provider management to the providers plugin | M | capability ownership |
+| Move display keys to the REPL plugin | S | presentation outside the core |
+| Move web, exec, fs, MCP, webhook, memory, and bookkeeping keys | S-M | capability ownership |
+| `auto_continue_max` only and token records | S | simpler continuation and usage |
+| Onboarding provider presets | S | a guided first run |
+| Remove compatibility aliases | S | a clean schema |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.

@@ -53,6 +53,26 @@
 
 ## Open
 
+- [ ] Remove legacy config keys without migration - `api_key`, `session_tool_max_chars`, `noise_tools`, `tool_analysis`, `web_search`, `connect_check`, `auto_continue`, `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `unattended`, `provider`
+- [ ] Add config ownership - core and plugin groups, with plugin manifests declaring `provides.config`
+- [ ] Change `/config` and `polyglav config` - grouped object view, `--json`, validation, and no unknown-key prompt
+- [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
+- [ ] Add the generic `openai-compatible` provider entry to `providers.json`
+- [ ] Change provider management - move `/connect`, `/provider`, `/providers`, and `/models` to the providers plugin
+- [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
+- [ ] Move web config to the web plugin - `query_refine*` and `search_results` with a default of 10
+- [ ] Move the exec allowlist to `exec_allow` in the exec plugin
+- [ ] Move `list_dir_max_entries` to the filesystem plugin
+- [ ] Move MCP keys to the MCP plugin
+- [ ] Move `report.webhook` to the webhook plugin
+- [ ] Move memory keys to the memory plugin
+- [ ] Move `plan.dir` to the bookkeeping plugin
+- [ ] Change auto-continue to `auto_continue_max` only - 0 is off and a positive value is on
+- [ ] Record in, out, and total tokens in sessions and show them in `/history` and `/print`
+- [ ] Add onboarding provider presets - local Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom
+- [ ] Add plugin config defaults and descriptions to `/config`
+- [ ] Remove all config compatibility aliases
+
 - [ ] Add a plugin CLI subcommand hook - `register_cli(subparsers)` so plugins own their commands
 - [ ] Add a front-end registration hook - load the REPL and serve without core imports
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
