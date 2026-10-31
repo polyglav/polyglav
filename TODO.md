@@ -155,7 +155,6 @@
 - [ ] Remove `/asks` and ask parking
 - [ ] Remove `/unattended`
 - [ ] Remove `/tool` and make `/help` list commands and tools
-- [ ] Change `/print` selectors - `N`, `N-O`, `-O`, `N-`, `N.M`, and `session:<name>`
 - [ ] Change `/history` selectors - the same turn ranges, with `--thoughts` and `--tree`, and no `--run`
 - [ ] Remove `/runs` and keep the run registry internal
 - [ ] Change `/connect` - keep it as a `/providers connect` shorthand
@@ -259,6 +258,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed the print selectors
 - [x] Added the status command
 - [x] Added a shared config service
 - [x] Removed the jobs stop and add-supervisor commands

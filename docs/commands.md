@@ -27,7 +27,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/plan`                 |                | Show the current run's internal plan, attach one (`use <path>`), or detach it (`off`). See [modes.md](modes.md) |
 | `/plans`                |                | List every stored plan, marking the attached one. `/plans <id>` prints one by plan id or session id. See [modes.md](modes.md) |
 | `/plugins`              | `/plugin`      | Manage plugins: `disable`, `enable`, `install`, `list`, `uninstall`, `update` |
-| `/print`                |                | Reprint a turn (or one part) in full: `/print <n>[.<m>] [--full] [--run <target>] [--tree]`. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Tool output is read from its stored `ref` when the inline copy was dropped or capped. Each part is capped by `print_max_chars`, and `--full` drops the cap. `--tree` renders the root and its sub-runs. See [session.md](session.md) |
+| `/print`                |                | Reprint turns: `/print [N|N-O|-O|N-|N.M] [session:<name> ...] [--full] [--tree]`. `N` prints one turn, `N-O` a range, `-O` the last O turns, `N-` from N to the current turn, and `N.M` a part. `session:<name>` reads another session. `--tree` renders the root and its sub-runs. See [session.md](session.md) |
 | `/provider`              |                | Show or switch the active provider                             |
 | `/providers`             |                | List provider connections, alphabetical, with the active one marked and `(key)` when a key is stored, and `(custom)` for a provider with no built-in factory |
 | `/resume`               |                | Clear a paused run and continue at the next turn |

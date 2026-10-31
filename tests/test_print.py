@@ -88,7 +88,20 @@ class TestPrintCommand(unittest.TestCase):
 
     def test_unknown_turn(self):
         out = self._dispatch('/print 5')
-        self.assertIn('Turn not found: 5', out)
+        self.assertIn('Turn out of range: 5', out)
+
+    def test_range_and_relative_selectors(self):
+        add_turn(self.chat.current_session, user='one')
+        add_turn(self.chat.current_session, user='two')
+        add_turn(self.chat.current_session, user='three')
+        out = self._dispatch('/print 2-3')
+        self.assertIn('two', out)
+        self.assertIn('three', out)
+        out = self._dispatch('/print -1')
+        self.assertIn('three', out)
+        out = self._dispatch('/print 2-')
+        self.assertIn('two', out)
+        self.assertIn('three', out)
 
     def test_cap_uses_config(self):
         self.chat.config.set('print_max_chars', 5)
@@ -109,14 +122,14 @@ class TestPrintCommand(unittest.TestCase):
         self._saved('other', user='other prompt')
         add_turn(self.chat.current_session, user='current prompt')
         before = self.chat.current_session
-        out = self._dispatch('/print 1 --run session:other')
+        out = self._dispatch('/print session:other 1')
         self.assertIn('other prompt', out)
         self.assertNotIn('current prompt', out)
         self.assertIs(self.chat.current_session, before)
 
     def test_run_bare_session_name(self):
         self._saved('other', user='other prompt')
-        out = self._dispatch('/print 1 --run other')
+        out = self._dispatch('/print session:other 1')
         self.assertIn('other prompt', out)
 
     def test_run_role_live_run(self):
@@ -125,26 +138,26 @@ class TestPrintCommand(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.chat.run_subagent('researcher', 'researcher prompt')
-        out = self._dispatch('/print 1 --run researcher')
+        out = self._dispatch('/print session:researcher 1')
         self.assertIn('researcher prompt', out)
 
     def test_run_role_falls_back_to_saved(self):
         self._saved('writer', user='writer prompt')
-        out = self._dispatch('/print 1 --run writer')
+        out = self._dispatch('/print session:writer 1')
         self.assertIn('writer prompt', out)
 
     def test_session_id_uses_live_session(self):
         add_turn(self.chat.current_session, user='coded prompt')
-        out = self._dispatch(f'/print 1 --run #{self.chat.current_run.session_id}')
+        out = self._dispatch(f'/print session:#{self.chat.current_run.session_id} 1')
         self.assertIn('coded prompt', out)
 
     def test_run_id_uses_live_session(self):
         add_turn(self.chat.current_session, user='live prompt')
-        out = self._dispatch(f'/print 1 --run #{self.chat.current_run.id}')
+        out = self._dispatch(f'/print session:#{self.chat.current_run.id} 1')
         self.assertIn('live prompt', out)
 
     def test_run_unknown_target(self):
-        out = self._dispatch('/print 1 --run nope')
+        out = self._dispatch('/print session:nope 1')
         self.assertIn('Target not found: nope', out)
 
     def test_usage_without_spec(self):
@@ -156,7 +169,7 @@ class TestPrintCommand(unittest.TestCase):
         self.assertIn('Usage: /print', out)
 
     def test_usage_missing_run_value(self):
-        out = self._dispatch('/print 1 --run')
+        out = self._dispatch('/print session:')
         self.assertIn('Usage: /print', out)
 
     def test_invalid_turn_spec(self):

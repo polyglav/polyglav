@@ -179,44 +179,75 @@ def _parse_history(arg):
     return limit, thoughts, run_target, tree, ''
 
 
-PRINT_USAGE = 'Usage: /print <n>[.<m>] [--full] [--run <target>] [--tree]'
+PRINT_USAGE = ('Usage: /print [N|N-O|-O|N-|N.M] '
+               '[session:<name> [N|N-O|-O|N-]] [--full] [--tree]')
 
 
 def _parse_print(arg):
     import shlex
     spec = ''
+    session_target = ''
     full = False
-    run_target = ''
     tree = False
     positional: list[str] = []
     tokens = shlex.split(arg)
-    i = 0
-    while i < len(tokens):
-        tok = tokens[i]
+    for tok in tokens:
         if tok == '--full':
             full = True
-            i += 1
-        elif tok == '--run':
-            if i + 1 >= len(tokens):
-                return None, None, None, None, PRINT_USAGE
-            run_target = tokens[i + 1]
-            i += 2
-        elif tok.startswith('--run='):
-            run_target = tok.split('=', 1)[1]
-            i += 1
         elif tok == '--tree':
             tree = True
-            i += 1
         else:
             positional.append(tok)
-            i += 1
-    if len(positional) > 1:
-        return None, None, None, None, PRINT_USAGE
-    if positional:
+    if len(positional) > 2:
+        return None, None, None, False, PRINT_USAGE
+    if positional and positional[0].startswith('session:'):
+        session_target = positional[0].split(':', 1)[1].strip()
+        spec = positional[1] if len(positional) > 1 else ''
+    elif positional:
         spec = positional[0]
+        if len(positional) > 1:
+            return None, None, None, False, PRINT_USAGE
     if not spec and not tree:
-        return None, None, None, None, PRINT_USAGE
-    return spec, full, run_target, tree, ''
+        return None, None, None, False, PRINT_USAGE
+    return spec, full, session_target, tree, ''
+
+
+def _turn_indices(spec, total):
+    if not spec:
+        return [], ''
+    text = spec[1:] if spec.startswith('#') else spec
+    if text == 'all':
+        return list(range(1, total + 1)), ''
+    if '.' in text and not text.startswith('-') and not text.endswith('-'):
+        n, _, rest = text.partition('.')
+        if n.isdigit() and rest.isdigit():
+            return [int(n)], ''
+        return [], f'Invalid turn: {spec}'
+    if text.startswith('-') and text[1:].isdigit():
+        count = int(text[1:])
+        if count <= 0:
+            return [], f'Invalid range: {spec}'
+        start = max(1, total - count + 1)
+        return list(range(start, total + 1)), ''
+    if text.endswith('-') and text[:-1].isdigit():
+        start = int(text[:-1])
+        if start <= 0 or start > total:
+            return [], f'Turn out of range: {spec}'
+        return list(range(start, total + 1)), ''
+    if '-' in text:
+        left, _, right = text.partition('-')
+        if left.isdigit() and right.isdigit():
+            start, end = int(left), int(right)
+            if start <= 0 or end < start or start > total:
+                return [], f'Turn out of range: {spec}'
+            return list(range(start, min(end, total) + 1)), ''
+        return [], f'Invalid range: {spec}'
+    if text.isdigit():
+        n = int(text)
+        if n <= 0 or n > total:
+            return [], f'Turn out of range: {spec}'
+        return [n], ''
+    return [], f'Invalid turn: {spec}'
 
 
 def _parse_turn_ref(spec):
@@ -681,17 +712,16 @@ def register_builtins(registry):
         print('/print <n> reprints a turn')
 
     @registry.register('print',
-                       description='Reprint a turn (or one part) in full - '
-                                   '/print <n>[.<m>] [--full] [--run <target>] '
-                                   '[--tree]')
+                       description='Reprint turns - /print [N|N-O|-O|N-|N.M] '
+                                   '[session:<name> ...] [--full] [--tree]')
     def print_cmd(arg=''):
-        spec, full, run_target, tree, error = _parse_print(arg)
+        spec, full, session_target, tree, error = _parse_print(arg)
         if error:
             print(error)
             return
         session = chat.current_session
-        if run_target:
-            session, error = _target_session(chat, run_target)
+        if session_target:
+            session, error = _target_session(chat, session_target)
             if session is None:
                 print(error)
                 return
@@ -706,20 +736,34 @@ def register_builtins(registry):
                                       resolve=resolve))
                     print()
             return
-        n, m, error = _parse_turn_ref(spec)
+        turns_list = session.turns or []
+        if '.' in spec and not spec.startswith('-') and not spec.endswith('-'):
+            n, m, error = _parse_turn_ref(spec)
+            if error:
+                print(error)
+                return
+            turn = next((t for t in turns_list if t.get('index') == n), None)
+            if turn is None:
+                print(f'Turn not found: {n}')
+                return
+            parts = turn.get('parts') or []
+            if m is not None and m > len(parts):
+                print(f'Turn {n} has no part {m} (1-{len(parts)})')
+                return
+            print(render_turn(turn, part=m, full=full, cap=cap,
+                              resolve=resolve))
+            return
+        indices, error = _turn_indices(spec, len(turns_list))
         if error:
             print(error)
             return
-        turn = next((t for t in (session.turns or [])
-                     if t.get('index') == n), None)
-        if turn is None:
-            print(f'Turn not found: {n}')
-            return
-        parts = turn.get('parts') or []
-        if m is not None and m > len(parts):
-            print(f'Turn {n} has no part {m} (1-{len(parts)})')
-            return
-        print(render_turn(turn, part=m, full=full, cap=cap, resolve=resolve))
+        for n in indices:
+            turn = next((t for t in turns_list if t.get('index') == n), None)
+            if turn is None:
+                print(f'Turn not found: {n}')
+                continue
+            print(render_turn(turn, full=full, cap=cap, resolve=resolve))
+            print()
 
     @registry.register('asks', description='List parked asks and answer them', subcommands=[
         ('list', 'List parked asks (list [all|pending|answered])'),
