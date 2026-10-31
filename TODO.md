@@ -42,7 +42,6 @@
 - [ ] Change runtime session JSON to compact serialization
 - [ ] Add JSON materialization on exit, session switch, and manual export
 - [ ] Add a SQLite session store plugin, off by default
-- [ ] Add paused turn persistence and `/continue` across a restart
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
@@ -186,6 +185,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added paused turn persistence
 - [x] Added token usage to history and print
 - [x] Fixed the web plugin manifest tool names
 - [x] Changed role and team prompts for code_check

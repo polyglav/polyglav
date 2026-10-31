@@ -376,9 +376,11 @@ class SessionManager:
             self._log_io('read', session_name, e)
             return None
         try:
-            return Session.from_dict(data)
+            session = Session.from_dict(data)
         except (ValueError, KeyError, TypeError):
             return None
+        self._restore_open(session)
+        return session
 
     def _read_jsonl(self, session_name: str, path: Path) -> Session | None:
         meta: dict = {}
@@ -410,10 +412,14 @@ class SessionManager:
         session._saved_turns = len(session.turns)
         session._saved_meta = json.dumps(meta, sort_keys=True)
         session._dirty = False
+        self._restore_open(session)
+        return session
+
+    @staticmethod
+    def _restore_open(session: Session) -> None:
         last = session.turns[-1] if session.turns else None
         if last is not None and last.get('status') in ('running', 'paused'):
             session._open = last
-        return session
 
     def _save_jsonl(self, session: Session, max_chars: int = 0,
                     drop_tools: list[str] | None = None, spill=None) -> None:

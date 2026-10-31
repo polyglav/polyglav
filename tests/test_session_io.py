@@ -106,6 +106,15 @@ class TestJsonlSessionStore(unittest.TestCase):
         self.assertEqual(loaded.turns[0]['parts'][0]['text'], 'hello')
         self.assertEqual(loaded.turns[0]['parts'][1]['text'], 'world')
 
+    def test_paused_turn_restores_from_json(self):
+        session = self.sm.create('log')
+        session.add_user('one')
+        session.open_turn()['status'] = 'paused'
+        self.sm.save(session)
+        loaded = SessionManager(self.dir).read('log')
+        self.assertIsNotNone(loaded.open_turn())
+        self.assertEqual(loaded.open_turn()['status'], 'paused')
+
     def test_append_after_new_turn(self):
         session = self.sm.create('log')
         session.add_user('one')

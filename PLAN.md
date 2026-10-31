@@ -84,7 +84,6 @@ The session log stays append-only in meaning, writes are atomic, and runtime cos
 |------|--------|----------|
 | JSON materialization on exit, switch, and export | S | portable sessions |
 | SQLite store plugin, off by default | M | optional database storage |
-| Paused turn persistence | S-M | continue across restart |
 | Session load validation | S | clear missing role and team warnings |
 | Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]` | S | clean logs |
 
