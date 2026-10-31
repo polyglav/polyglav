@@ -1,7 +1,7 @@
 import unittest
 import io
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from tests.helpers import make_chat
 
@@ -38,8 +38,9 @@ class TestToolCommand(unittest.TestCase):
 
     def test_help_lists_aliases_inline(self):
         output = self._dispatch('/help')
-        self.assertIn('/help, /h', output)
-        self.assertIn('/exit, /quit, /q', output)
+        self.assertIn('/exit, /quit', output)
+        self.assertNotIn('/exit, /quit, /q', output)
+        self.assertNotIn('/help, /h', output)
         self.assertNotIn('aliases:', output)
 
     def test_help_shows_subcommands(self):
@@ -92,8 +93,8 @@ class TestToolCommand(unittest.TestCase):
         self.assertIn('Start a new session', output)
 
     def test_help_alias_resolution(self):
-        output = self._dispatch('/help h')
-        self.assertIn('Show available commands and tools', output)
+        output = self._dispatch('/help quit')
+        self.assertIn('Exit the REPL', output)
 
     def test_help_unknown(self):
         output = self._dispatch('/help nosuch')
@@ -360,6 +361,36 @@ class TestToolCommand(unittest.TestCase):
         self.assertNotIn('web_search', names)
         self.assertNotIn('run_command', names)
         self.assertIn('file_read', names)
+
+
+class TestCommandSurface(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def test_clear_redraws_header(self):
+        with patch.object(self.chat, 'redraw') as redraw:
+            self.chat.registry.dispatch('/clear')
+        redraw.assert_called_once_with()
+
+    def test_new_starts_a_session(self):
+        before = self.chat.current_session.session_name
+        self.chat.registry.dispatch('/new')
+        self.assertNotEqual(self.chat.current_session.session_name, before)
+
+    def test_summary_stores_without_compaction(self):
+        self.chat.current_session.add_user('hello')
+        self.chat._summarize = MagicMock(return_value='short summary')
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.summary_session()
+        part = self.chat.current_session.last_command_part()
+        self.assertEqual(part['summary'], 'short summary')
+        self.assertNotIn('compact_from', part)
+        self.assertEqual(self.chat.current_session.turns[-1]['parts'][-1]['summary'],
+                         'short summary')
 
 
 class TestConnectCommand(unittest.TestCase):

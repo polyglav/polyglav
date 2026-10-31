@@ -185,6 +185,8 @@ def compaction(turns) -> tuple[str, int]:
         for part in turn.get('parts') or []:
             if part.get('type') != 'command' or not part.get('summary'):
                 continue
+            if part.get('compact_from') is None:
+                continue
             summary = part['summary']
             value = part.get('compact_from')
             if isinstance(value, int) and value > boundary:

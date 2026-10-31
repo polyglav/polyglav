@@ -7,11 +7,12 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | Command                 | Aliases        | Description                                                    |
 |-------------------------|----------------|----------------------------------------------------------------|
 | `/asks`                 |                | List and answer parked asks from unattended runs (`/asks answer <id> <text>`, `/asks list [all|pending|answered]`, `/asks show <id>`). Answering resumes the origin session. See [config.md](config.md#unattended-mode) |
-| `/compact`              | `/c`           | Summarize the conversation and trim the provider context       |
+| `/clear`                |                | Clear the screen and reprint the header without leaving or changing the session |
+| `/compact`              |                | Summarize the conversation and trim the provider context       |
 | `/config`              |                | Show, get, set, or unset config values (`/config <key> <value>`, `/config unset <key>`, `/config --global <key> <value>` for a global line). The default listing is alphabetical with `key`, `value`, and origin columns (`(default)`, `(global)`, or `(local)`) and hides descriptions. `/config <key>` shows the value, origin, default, and description, and `/config --verbose` (or `-v`) adds every default and description on an indented line. A value too long for the value column prints as an indented `value`/`source` block |
 | `/connect`              |                | Connect a provider. `/connect` picks interactively from the known providers. `/connect <name>` presets a known provider's defaults and (re)enters its API key. `/connect <url>` detects a known host or creates a named custom provider (derived from the host, or `/connect <url> <name>` to name it). Tests the connection before saving, stores the API key + base URL in global `providers.json`, and writes `provider`/`base_url` into config - the model is picked separately with `/model` |
-| `/exit`                 | `/quit`, `/q`  | Save and exit                                                  |
-| `/help`                 | `/h`           | Show available commands and tools (`/help <cmd|tool>` for detail) |
+| `/exit`                 | `/quit`        | Save and exit                                                  |
+| `/help`                 |                | Show available commands and tools (`/help <cmd|tool>` for detail) |
 | `/history`              |                | List the active session's turns as a numbered index: `/history [n|all] [--thoughts [all]] [--run <target>] [--tree]`. Default last 10, `--thoughts` adds a dim thinking excerpt (`all` prints it in full), `--run` reads another run's session, and `--tree` lists the root and its sub-runs. Turn lines include the turn's total tokens when the provider reported usage. See [session.md](session.md) |
 | `/jobs`                 |                | Manage scheduled and durable jobs: `add`, `add-supervisor`, `approve`, `disable`, `enable`, `list`, `reject`, `remove`, `run`, `show`, `status`, `stop`. See [jobs.md](jobs.md) |
 | `/mcp`                  |                | Manage MCP servers: `connect` (all if no name), `disconnect` (all if no name), `list`. See [mcp.md](mcp.md) |
@@ -20,6 +21,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/model`                 |                | Show or switch the active model. `/model <name>` sets it on the current provider. `/model <provider>/<model>` switches provider and model together, approving the model on confirm |
 | `/models`                |                | List configured models, or probe a provider's available models. `/models` shows the approved-model history grouped by provider (`(key)` when the provider has a stored key), marking `(unused)` when a model never completed a run and `(failed)` when its last run errored. `/models list [provider]` probes a provider's advertised models live (default: current provider), and `/models remove <provider>/<model>` drops a model from the registry, asking first when it is the active one |
 | `/modes`                |                | List the available agent modes, marking the current one. `/modes --verbose` adds each mode's description, and `/modes <name>` prints that mode's instruction. See [modes.md](modes.md) |
+| `/new`                  |                | Start a new session, the same as `/session new` |
 | `/onboard`              |                | Set up this project (provider, model, mode, purpose, assistant, output log). See [plugins.md](plugins.md) |
 | `/pause`                |                | Hold the next turn at the turn boundary; `/resume` clears it. State prints as `@ Paused #n` and `@ Resumed #n` |
 | `/plan`                 |                | Show the current run's internal plan, attach one (`use <path>`), or detach it (`off`). See [modes.md](modes.md) |
@@ -35,6 +37,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. Saved-session catalog operations live under `/sessions` |
 | `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
+| `/summary`              |                | Summarize the current session into `.polyglav/summaries/<session>.md` without trimming the provider context |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
 | `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). Prints `@ Thinking: <scope>` |
 | `/verbosity`            | `/verbose`     | Show or set display scopes: `/verbosity`, `/verbosity <scope>`, `/verbosity <scope> <value>`, `/verbosity preset quiet\|normal\|verbose`, `/verbosity reset [scope]` |
@@ -42,7 +45,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/todos`                |                | List every stored todo, marking the current one. `/todos <id>` prints one by session id or name. See [modes.md](modes.md) |
 | `/tool`                 |                | Run a tool directly (`/tool <name> {"key": "value"}`)          |
 | `/unattended`           |                | Show or toggle unattended mode (`/unattended on`/`off`): no stdin at any depth, confirms auto-deny, user asks park or return without pausing. See [config.md](config.md#unattended-mode) |
-| `/version`              | `/v`           | Show the Polyglav version                                       |
+| `/version`              |                | Show the Polyglav version                                       |
 
 `/help` renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under `/tool`. `/tool` with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: `/connect`, `/provider`, `/providers`, and `/models list` complete provider names, and `/model` completes a provider then its known models (from `models.json` and a cached live probe).
 

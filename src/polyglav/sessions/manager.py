@@ -156,6 +156,15 @@ class Session:
         self._touch()
         return part
 
+    def set_summary(self, summary: str) -> dict:
+        part = self.last_command_part()
+        if part is None or part.get('summary'):
+            part = self.add_command('/summary')
+        part['summary'] = summary
+        part.pop('compact_from', None)
+        self._touch()
+        return part
+
     def add_error(self, code, message: str, timestamp: str | None = None):
         ts = timestamp or datetime.now(timezone.utc).isoformat(timespec='seconds')
         self.errors.append({'code': code, 'message': message, 'timestamp': ts})

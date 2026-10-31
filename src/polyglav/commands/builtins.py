@@ -345,7 +345,7 @@ def _render_tool_detail(chat, name):
 def register_builtins(registry):
     chat = registry.chat_loop
 
-    @registry.register('help', aliases=['h'],
+    @registry.register('help',
                        description='Show available commands and tools (use /help <cmd|tool> for details)')
     def help_cmd(arg=''):
         arg = arg.strip().lstrip('/')
@@ -363,12 +363,20 @@ def register_builtins(registry):
         print('Available commands:')
         _render_commands(registry, sorted(registry.meta), chat)
 
-    @registry.register('exit', aliases=['quit', 'q'], description='Exit the REPL')
+    @registry.register('exit', aliases=['quit'], description='Exit the REPL')
     def exit_cmd(_=None):
         chat.session_auto_save()
         sys.exit(0)
 
-    @registry.register('version', aliases=['v'], description='Show the Polyglav version')
+    @registry.register('clear', description='Clear the screen and reprint the header')
+    def clear_cmd(_=None):
+        chat.redraw()
+
+    @registry.register('new', description='Start a new session')
+    def new_cmd(_=None):
+        chat.new_session()
+
+    @registry.register('version', description='Show the Polyglav version')
     def version_cmd(_=None):
         print(f'Polyglav {get_version()}')
 
@@ -1085,9 +1093,7 @@ def register_builtins(registry):
             return
 
         if action == 'new':
-            chat.current_session = chat.sessions.create(
-                role=getattr(chat, 'role', ''))
-            print(f'New session: {chat.current_session.session_name}')
+            chat.new_session()
         elif action == 'load':
             name = parts[1] if len(parts) > 1 else ''
             if not name:
@@ -1375,10 +1381,15 @@ def register_builtins(registry):
             return
         _render_commands(registry, ['asks'])
 
-    @registry.register('compact', aliases=['c'],
+    @registry.register('compact',
                        description='Summarize the conversation and trim the context')
     def compact_cmd(_=None):
         chat.compact_session()
+
+    @registry.register('summary',
+                       description='Summarize the session without trimming the context')
+    def summary_cmd(_=None):
+        chat.summary_session()
 
     @registry.register('memorize', description='Summarize the run into role, team, or job memory', subcommands=[
         ('', 'Memorize the active run into the active role memory'),

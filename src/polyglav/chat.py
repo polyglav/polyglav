@@ -387,11 +387,7 @@ class ChatLoop(Engine):
         finally:
             self._close_output_log()
 
-    def _run_repl(self):
-        if self.config.get('clear_screen', True):
-            sys.stdout.write('\033[3J\033[2J\033[H')
-            sys.stdout.flush()
-
+    def print_header(self):
         model_str = self.config.get('model', '?')
         provider_str = self.config.get('provider', '?')
         session_mode = self.current_session.mode or None
@@ -409,6 +405,24 @@ class ChatLoop(Engine):
         print(f'\033[1m{title}\033[0m {DIM}{location}{RESET}')
         print(f'{DIM}\033[3m/help to list commands{RESET}')
         print(f'{DIM}@ {mode_str} mode ({provider_str}/{model_str}){RESET}')
+
+    def redraw(self):
+        sys.stdout.write('\033[3J\033[2J\033[H')
+        sys.stdout.flush()
+        self.print_header()
+
+    def new_session(self):
+        self.current_session = self.sessions.create(role=getattr(self, 'role', ''))
+        print(f'New session: {self.current_session.session_name}')
+        self.session_auto_save()
+        self._sync_output_log()
+
+    def _run_repl(self):
+        if self.config.get('clear_screen', True):
+            sys.stdout.write('\033[3J\033[2J\033[H')
+            sys.stdout.flush()
+
+        self.print_header()
 
         self._run_startup()
         self._sync_output_log()

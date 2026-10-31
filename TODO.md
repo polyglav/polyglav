@@ -64,7 +64,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Add session storage tests - atomic replace, save counts, JSONL replay, pause, and missing refs
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
-- [ ] Add `/summary` storage - `.polyglav/summaries/<session>.md` plus a command part without `compact_from`
 
 - [ ] Remove landed tasks - first-run onboarding, thinking visibility, manager role, core dev team, role docs, PM/dev/tester orchestration, and root role memory
 - [ ] Remove non-project ideas - community presence and competitor research
@@ -155,11 +154,7 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Remove the `/c`, `/h`, `/q`, and `/v` aliases and keep `/quit`
-- [ ] Add `/clear` - clear the screen and reprint the header without leaving or changing the session
 - [ ] Add `/status` - show provider, model, mode, current session, live runs, jobs, fleet agents, and plugin state
-- [ ] Add `/new` - create a new session as shorthand for `/session new`
-- [ ] Add `/summary` - summarize and store the current session without compacting its context
 - [ ] Add Ctrl-C pause - pause the root turn, stop the active child run, and print a hint at idle
 - [ ] Add `/continue [parent|<id>]` - resume the last active paused session, the parent session, or any run or session ID
 - [ ] Add `/cancel` - close a paused root turn as cancelled
@@ -273,6 +268,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed command aliases and added clear new and summary
 - [x] Moved provider management to a plugin
 - [x] Added CLI and front-end plugin hooks
 - [x] Added plugin dependency loading

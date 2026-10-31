@@ -1873,6 +1873,28 @@ class Engine:
             return None
         return summary
 
+    def summary_session(self):
+        base = list(self.current_session.turns)
+        if base and turns.command_only(base[-1]):
+            base = base[:-1]
+        if not base:
+            self.ui.info('Nothing to summarize')
+            return
+        summary = self._summarize(turns.provider_messages(base))
+        if summary is None:
+            return
+        self.current_session.set_summary(summary)
+        try:
+            header = (f'# Summary: {self.current_session.session_name}\n\n'
+                      f'- Version: {self.current_session.version or "-"}\n\n')
+            self.sessions.write_summary(
+                self.current_session.session_name, header + summary)
+        except OSError:
+            pass
+        self.ui.info('--- summary ---')
+        self.ui.info(summary)
+        self.session_auto_save()
+
     def compact_session(self):
         keep = max(0, int(self.config.get('compact_keep', 4)))
         base = list(self.current_session.turns)
