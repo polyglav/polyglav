@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed CLI help grouping - `polyglav --help` lists core commands and plugin commands separately
 - Added web result references - `web_search` stores title, URL, and snippet on the tool part, and `/print` renders them
 - Changed the connect shorthand - `/providers connect` now runs the provider flow and `/connect` stays as the shorthand
 - Added JSON materialization - JSONL stores write a portable `.json` snapshot on session switch and exit

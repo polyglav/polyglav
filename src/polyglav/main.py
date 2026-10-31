@@ -104,7 +104,8 @@ def _load_plugins(argv):
 
 def _build_parser(config, pm):
     parser = argparse.ArgumentParser(
-        description='Polyglav - a terminal-based agentic REPL with headless CLI and API modes'
+        description='Polyglav - a terminal-based agentic REPL with headless CLI and API modes',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument('--path', '-p', help='Project path (default: current directory)')
     parser.add_argument('--frontend', default='repl',
@@ -116,7 +117,12 @@ def _build_parser(config, pm):
     _add_mcp_parser(sub)
     _add_config_parser(sub)
     _add_plugins_parser(sub)
-    pm.register_cli(CLIRegistry(sub, config, pm))
+    cli = CLIRegistry(sub, config, pm)
+    core = list(cli.names())
+    pm.register_cli(cli)
+    plugins = [name for name in cli.names() if name not in core]
+    parser.epilog = ('Core commands: ' + ', '.join(core) + '\n'
+                     'Plugin commands: ' + (', '.join(plugins) or '(none)'))
     return parser
 
 

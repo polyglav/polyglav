@@ -23,6 +23,18 @@ def _factory(rounds):
     return _f
 
 
+class TestCliHelp(unittest.TestCase):
+
+    def test_help_groups_core_and_plugin_commands(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out), self.assertRaises(SystemExit):
+            main(['--help'])
+        text = out.getvalue()
+        self.assertIn('Core commands:', text)
+        self.assertIn('Plugin commands:', text)
+        self.assertIn('serv', text)
+
+
 class TestCliRun(unittest.TestCase):
 
     def setUp(self):

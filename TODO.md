@@ -93,7 +93,6 @@
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
-- [ ] Change CLI help to group core commands and plugin commands
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 
@@ -180,6 +179,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed CLI help grouping
 - [x] Added web result references
 - [x] Changed command grammar
 - [x] Changed the connect shorthand
