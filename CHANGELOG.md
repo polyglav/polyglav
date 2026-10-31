@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Split code quality - `code_test` and the new stdlib `code_check` stay on by default, while `code_lint` and `code_format` moved to the off-by-default `polyglav-core-quality` plugin. Tests: `polyglav-core-dev`, `polyglav-core-quality`
 - Moved the fleet supervisor into the fleet plugin - the manifest, controller, health checks, restart policy, and `polyglav fleet` CLI now live with `polyglav-core-fleet`. Tests: `polyglav-core-fleet`
 - Moved the eval harness into the eval plugin - the fixture model, runner, metrics, and `polyglav eval` CLI now live with `polyglav-core-eval`. Tests: `polyglav-core-eval`
 - Removed unused legacy config keys - `api_key`, `connect_check`, `noise_tools`, and `session_tool_max_chars` are gone, provider probes always run, and the output-key migration is removed

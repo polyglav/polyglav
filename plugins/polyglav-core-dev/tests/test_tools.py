@@ -123,30 +123,6 @@ class TestDevTools(unittest.TestCase):
     def test_default_timeout_fits_full_suite(self):
         self.assertGreaterEqual(dev_plugin.DEFAULT_TIMEOUT, 300)
 
-    def test_code_lint_default_is_ruff(self):
-        script = self._cmd('fake_lint.sh')
-        out = self.run_tool_cfg('code_lint',
-                                _Cfg(**{'dev.lint_cmd': script}),
-                                cwd=str(self.root))
-        self.assertIn(f'$ {script}', out)
-
-    def test_code_format_default_is_ruff(self):
-        script = self._cmd('fake_format.sh')
-        out = self.run_tool_cfg('code_format',
-                                _Cfg(**{'dev.format_cmd': script}),
-                                cwd=str(self.root))
-        self.assertIn(f'$ {script}', out)
-
-    def test_code_lint_reports_failure(self):
-        script = self.root / 'fail_lint.sh'
-        script.write_text('#!/bin/sh\necho "E501 line too long"\nexit 1\n')
-        script.chmod(0o755)
-        out = self.run_tool_cfg('code_lint',
-                                _Cfg(**{'dev.lint_cmd': str(script)}),
-                                cwd=str(self.root))
-        self.assertIn('exit 1', out)
-        self.assertIn('E501 line too long', out)
-
     def test_code_test_unknown_command(self):
         out = self.run_tool_cfg('code_test',
                                 _Cfg(**{'dev.test_cmd': 'definitely-not-a-real-cmd-xyz'}),
@@ -166,15 +142,25 @@ class TestDevTools(unittest.TestCase):
                                 timeout=1, cwd=str(self.root))
         self.assertIn('timed out', out)
 
+    def test_code_check_valid(self):
+        self._write('ok.py', 'print("ok")\n')
+        out = self.run_tool('code_check', cwd=str(self.root))
+        self.assertIn('exit 0', out)
+
+    def test_code_check_syntax_error(self):
+        self._write('bad.py', 'def broken(:\n')
+        out = self.run_tool('code_check', cwd=str(self.root))
+        self.assertIn('exit 1', out)
+        self.assertIn('SyntaxError', out)
+
     def test_metadata_registered(self):
-        for name in ('code_test', 'code_lint', 'code_format'):
+        for name in ('code_test', 'code_check'):
             self.assertEqual(self.registry.permission_for(name), 'bash', name)
             self.assertEqual(self.registry.path_arg_for(name), 'cwd', name)
             self.assertEqual(self.registry.key_arg_for(name), 'target', name)
 
     def test_aliases_registered(self):
-        for alias in ('run_tests', 'test_suite', 'run_lint', 'lint_check',
-                      'run_format', 'format_code'):
+        for alias in ('run_tests', 'test_suite', 'compile_check', 'syntax_check'):
             self.assertTrue(self.registry.is_registered(alias), alias)
 
     def test_alias_param_alias(self):

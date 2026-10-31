@@ -87,7 +87,7 @@ Polyglav/
 └── plugins/                 # bundled plugins (shipped as polyglav.plugins.bundled), each is {src/, tests/}
     ├── polyglav-core-anthropic/   # AnthropicProvider
     ├── polyglav-core-bookkeeping/ # plan and todo tools and commands
-    ├── polyglav-core-dev/         # code_test, code_lint, code_format
+    ├── polyglav-core-dev/         # code_test, code_check
     ├── polyglav-core-edit/        # file_edit
     ├── polyglav-core-eval/        # eval fixtures and CLI
     ├── polyglav-core-exec/        # run_command
@@ -103,6 +103,7 @@ Polyglav/
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-providers/   # provider connections, model commands, models CLI
+    ├── polyglav-core-quality/     # code_lint, code_format (off by default)
     ├── polyglav-core-roles/       # role catalog and the call tool
     ├── polyglav-core-sessions/    # session catalog, export, and import
     ├── polyglav-core-serve/       # serve CLI

@@ -25,6 +25,7 @@ BUNDLED = {
     'polyglav-core-openai',
     'polyglav-core-opencode',
     'polyglav-core-providers',
+    'polyglav-core-quality',
     'polyglav-core-roles',
     'polyglav-core-sessions',
     'polyglav-core-serve',
@@ -51,7 +52,8 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertEqual(names, BUNDLED)
         for n in names:
             info = self.pm.get(n)
-            self.assertEqual(info.status, 'loaded', n)
+            expected = 'disabled' if n == 'polyglav-core-quality' else 'loaded'
+            self.assertEqual(info.status, expected, n)
             self.assertEqual(info.origin, 'bundled', n)
 
     def test_bundled_tools_registered(self):
@@ -65,7 +67,9 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertIn('file_edit', tools)
         self.assertIn('git', tools)
         self.assertIn('git_commit', tools)
-        self.assertTrue({'code_test', 'code_lint', 'code_format'} <= tools)
+        self.assertTrue({'code_test', 'code_check'} <= tools)
+        self.assertNotIn('code_lint', tools)
+        self.assertNotIn('code_format', tools)
 
     def test_search_service_registered(self):
         self.pm.load()
@@ -120,6 +124,9 @@ class TestBundledPlugins(unittest.TestCase):
     def test_bundled_in_default_config(self):
         from polyglav.config import DEFAULT_CONFIG
         for name in BUNDLED:
+            if name == 'polyglav-core-quality':
+                self.assertNotIn(name, DEFAULT_CONFIG['plugins'])
+                continue
             self.assertIn(name, DEFAULT_CONFIG['plugins'])
 
     def test_bundled_providers_registered(self):

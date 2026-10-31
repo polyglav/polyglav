@@ -13,8 +13,9 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `ask` | core | `ask` | `ask` | Ask the user for a decision, pausing until answered |
 | `call` | core | `call` | `call` | Call a named role or team (`target`, `kind`) |
 | `catalog` | core | `catalog` | `catalog` | Manage roles, teams, and skills: list/show/save/validate/remove, plus reload |
-| `code_format` | polyglav-core-dev | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
-| `code_lint` | polyglav-core-dev | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
+| `code_check` | polyglav-core-dev | `exec` | `bash` | Check Python syntax with stdlib `compileall` |
+| `code_format` | polyglav-core-quality | `exec` | `bash` | Run the project formatter (`dev.format_cmd`, default `ruff format .`) |
+| `code_lint` | polyglav-core-quality | `exec` | `bash` | Run the project linter (`dev.lint_cmd`, default `ruff check .`) |
 | `code_test` | polyglav-core-dev | `exec` | `bash` | Run the project test suite (`dev.test_cmd`, default `python -m unittest discover`, resolved to the current interpreter) |
 | `delegate` | core | `delegate` | `delegate` | Delegate a sub-task to an anonymous sibling that inherits the caller mode and cap |
 | `file_edit` | polyglav-core-edit | `write` | `edit` | Targeted search-and-replace in a file with a diff preview (`count` occurrences, `0` = all, alias `edit`) |

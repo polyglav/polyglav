@@ -66,7 +66,7 @@ A leader can set `grant_permission` to hand down a category it denies itself, so
 
 ## Consequences
 
-- Read mode cannot run tests or lint (`run_command` and `code_test` are `bash`), commit (`vcs`), or use MCP until the user switches to `write`.
+- Read mode cannot run tests or lint (`run_command`, `code_test`, and `code_check` are `bash`), commit (`vcs`), or use MCP until the user switches to `write`.
 - Read mode can still write the plan and the todo, because those tools write only `.polyglav/plans/` and `.polyglav/todos/`.
 - Existing configs and scripts that relied on the old `build` default now run read-only until they set `mode: "write"`.
 - A new plugin write key stays denied in read mode until it is added to `access.read_tools`.

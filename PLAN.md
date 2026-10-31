@@ -22,7 +22,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
-| Quality plugin | S | optional lint and format |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |
 | Plugin config registration | S-M | grouped config and validation |
 | Plugin docs and tests | S-M | maintained plugins |
@@ -71,7 +70,6 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 |------|--------|----------|
 | Add job supervisor routing | M | autonomous job decisions |
 | Move exec config into the exec plugin | S | plugin-owned shell policy |
-| Split code quality and add `code_check` | M | working defaults |
 | Catalog registry service and one `catalog` tool | M | one model-facing catalog |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Session tool log with line refs | M | bounded sessions and readable output |

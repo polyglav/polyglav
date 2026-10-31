@@ -11,8 +11,6 @@ DEFAULT_TIMEOUT = 300
 
 DEFAULTS = {
     'test': 'python -m unittest discover',
-    'lint': 'ruff check .',
-    'format': 'ruff format .',
 }
 
 
@@ -142,14 +140,14 @@ def register_tools(registry):
         return _run(argv, cwd, _config, timeout, target=target)
 
     @registry.register(
-        name='code_lint',
-        description='Run the project linter. Uses the dev.lint_cmd config key (default "ruff check ."); pass target to lint a specific path. Reports the exit code and findings. Use to check code style before finishing.',
+        name='code_check',
+        description='Check Python syntax across a path with the standard library compileall. Pass target to check a specific file or directory. Reports the exit code and any syntax errors.',
         parameters={
             'type': 'object',
             'properties': {
                 'target': {
                     'type': 'string',
-                    'description': 'Optional path to lint instead of the whole project',
+                    'description': 'Optional file or directory to check (default: the current directory)',
                 },
                 'cwd': {
                     'type': 'string',
@@ -166,57 +164,15 @@ def register_tools(registry):
         permission='bash',
         path_arg='cwd',
         key_arg='target',
-        short='Run the project linter',
+        short='Check Python syntax',
         echo=True,
         glyph='$',
-        verb='Lint',
+        verb='Check',
         error=_is_failure,
-        aliases=['run_lint', 'lint_check'],
+        aliases=['compile_check', 'syntax_check'],
         param_aliases={'path': 'target'},
     )
-    def code_lint(target: str = '', cwd: str | None = None,
-                  timeout: int = DEFAULT_TIMEOUT, _config=None) -> str:
-        argv = _cmd(_config, 'dev.lint_cmd', DEFAULTS['lint'])
-        if target:
-            argv = argv + [target]
-        return _run(argv, cwd, _config, timeout)
-
-    @registry.register(
-        name='code_format',
-        description='Run the project formatter. Uses the dev.format_cmd config key (default "ruff format ."); pass target to format a specific path. Reports the exit code and output. Use to format code before finishing.',
-        parameters={
-            'type': 'object',
-            'properties': {
-                'target': {
-                    'type': 'string',
-                    'description': 'Optional path to format instead of the whole project',
-                },
-                'cwd': {
-                    'type': 'string',
-                    'description': 'Working directory for the command (defaults to the current one)',
-                },
-                'timeout': {
-                    'type': 'integer',
-                    'description': 'Timeout in seconds before the command is killed (capped at 600)',
-                },
-            },
-            'required': [],
-        },
-        category='exec',
-        permission='bash',
-        path_arg='cwd',
-        key_arg='target',
-        short='Run the project formatter',
-        echo=True,
-        glyph='$',
-        verb='Format',
-        error=_is_failure,
-        aliases=['run_format', 'format_code'],
-        param_aliases={'path': 'target'},
-    )
-    def code_format(target: str = '', cwd: str | None = None,
-                    timeout: int = DEFAULT_TIMEOUT, _config=None) -> str:
-        argv = _cmd(_config, 'dev.format_cmd', DEFAULTS['format'])
-        if target:
-            argv = argv + [target]
+    def code_check(target: str = '', cwd: str | None = None,
+                   timeout: int = DEFAULT_TIMEOUT, _config=None) -> str:
+        argv = [sys.executable, '-m', 'compileall', '-q', target or '.']
         return _run(argv, cwd, _config, timeout)

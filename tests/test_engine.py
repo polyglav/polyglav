@@ -650,7 +650,7 @@ class TestEngineModes(unittest.TestCase):
         names = [s['function']['name'] for s in schema]
         for expected in ('delegate', 'ask', 'run_command', 'file_read', 'list_dir',
                          'file_write', 'glob', 'grep', 'file_edit', 'git',
-                         'git_commit', 'code_test', 'code_lint', 'code_format',
+                         'git_commit', 'code_test', 'code_check',
                          'mcp_connect', 'mcp_list', 'mcp_disconnect',
                          'web_search', 'web_fetch'):
             self.assertIn(expected, names)
