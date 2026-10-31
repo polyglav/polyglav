@@ -52,7 +52,7 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 | Config service, object view, `--json`, and validation | S-M | one behavior |
 | Model ref and generic `openai-compatible` entry | M | one model source of truth |
 | Move display keys to the REPL plugin | S | presentation outside the core |
-| Move exec and bookkeeping keys | S-M | capability ownership |
+| Move exec keys | S-M | capability ownership |
 | Onboarding provider presets | S | a guided first run |
 | Remove compatibility aliases | S | a clean schema |
 

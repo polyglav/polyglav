@@ -16,6 +16,12 @@
       "/plans",
       "/todo",
       "/todos"
-    ]
+    ],
+    "config": {
+      "plan.dir": {
+        "default": ".polyglav/plans",
+        "description": "Plan file directory, relative to the worktree or absolute"
+      }
+    }
   }
 }

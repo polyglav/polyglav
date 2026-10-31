@@ -64,6 +64,7 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertEqual(self.config.get('report.webhook'), '')
         self.assertEqual(self.config.get('mcp.servers'), [])
         self.assertTrue(self.config.get('mcp_server.allow_ask'))
+        self.assertEqual(self.config.get('plan.dir'), '.polyglav/plans')
 
     def test_web_config_registered(self):
         self.pm.load()

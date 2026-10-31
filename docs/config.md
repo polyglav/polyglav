@@ -154,7 +154,7 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
 }
 ```
 
-`plan.dir` is the plan file directory, relative to the worktree or absolute. The default is local and ignored by the `.polyglav/*` rule. Set it to a committed path, for example `docs/plans`, to keep plans in the repository. The todo state directory is fixed at `.polyglav/todos/`. `plan_write` and `todo` use the `read` permission key, so they are available in both modes and need no new permission. See [modes.md](modes.md).
+`plan.dir` is the plan file directory, relative to the worktree or absolute. It is declared by `polyglav-core-bookkeeping`. The default is local and ignored by the `.polyglav/*` rule. Set it to a committed path, for example `docs/plans`, to keep plans in the repository. The todo state directory is fixed at `.polyglav/todos/`. `plan_write` and `todo` use the `read` permission key, so they are available in both modes and need no new permission. See [modes.md](modes.md).
 
 ### `tool_permission`
 
