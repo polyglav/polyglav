@@ -4,7 +4,6 @@
 - Agent health monitoring - the assistant watches endpoints (e.g. the `/health` of agents running as web APIs) and warns when an agent stops responding
 - Per-agent todo lists - view a delegated agent's tasks, mark items done, jump into its session, and ask for the current state (OpenCode-style)
 - Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time
-- Auto-improving skills (autogen/autolearn) - a role refines its skills from experience and keeps them alongside its memory, so recurring work gets better without re-prompting
 - Runtime pluginization - make models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI replaceable plugins, and move the REPL to a plugin. Five replaceable layers: access, orchestration, capability, model, storage
 - One runtime, many agents - position Polyglav as an agent harness for fleets, not a single assistant
 - ACP inward and outward - speak the Agent Client Protocol so Polyglav can host and be hosted by other harnesses, alongside MCP
@@ -54,7 +53,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge memory tasks - memory references, conclusion stage, and auto-improving skills
 - [ ] Merge content ingestion - research cache, web scraper, and PDF-to-text
 - [ ] Merge session interchange - Markdown import and conversation sharing
 - [ ] Merge agent status - health monitoring, fleet awareness, and one-window status
@@ -154,8 +152,7 @@
 - [ ] `AGENTS.md` as the project description - keep it the single project description and update it when the structure, conventions, or extension points change
 - [ ] Leader PM posture - the leader holds the whole picture, pushes back on a request that breaks the project, and concretizes an ambiguous prompt until the requirement is synced instead of guessing
 - [ ] `memorize` as a tool - memory writes happen through a tool an agent calls, triggered by the operator's prompt, not only through the slash command
-- [ ] Memory with references - a bounded summary that points at full-length Markdown and session artifacts, with a guard against a misleading reference when the context is gone
-- [ ] Conclusion stage - a stage with a write-scoped role that distills a finished run into role files, skills, or memory, and never commits
+- [ ] Add memory references and self-improvement - bounded summaries point at full artifacts, and a write-scoped conclusion stage distills finished runs into role memory and skills
 - [ ] Saved-session catalog in `/load` - `/load` lists and loads saved sessions so an operator can reattach to a prior agent after a restart, while `/runs` stays a read-only history
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
@@ -211,6 +208,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Merged memory and skill tasks
 - [x] Merged control API tasks
 - [x] Merged job notification tasks
 - [x] Removed the swarm and command audit umbrellas

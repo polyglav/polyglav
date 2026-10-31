@@ -102,7 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Merge memory and skill tasks | S-M | one memory pipeline |
 | Merge content ingestion | S | one content plugin family |
 | Merge session interchange | S | one session exchange |
 | Merge agent status | S | one status view |
@@ -127,11 +126,9 @@ A delegated role remembers the user's instructions across runs, long role instru
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard | S-M | recall without replay |
-| Role memory for delegated roles - inject role memory in `_new_sub_engine` through a shared compose helper, with a refresh path | S | a role remembers across runs |
 | Shared codebase research - a role consults a shared research note (or memory) so roles do not re-read the same files | S-M | no duplicated reads |
 | `memorize` as a tool - memory writes through a tool an agent calls | S-M | memory the agent maintains |
-| Conclusion stage - a write-scoped stage that distills a finished run into role files, skills, or memory, and never commits | M | self-improvement loop |
+| Memory references and self-improvement - bounded summaries point at full artifacts, and a conclusion stage distills finished runs into role memory and skills | M | recall and self-improvement |
 
 The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.
 
