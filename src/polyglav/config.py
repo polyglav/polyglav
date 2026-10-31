@@ -87,6 +87,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-opencode',
         'polyglav-core-providers',
         'polyglav-core-roles',
+        'polyglav-core-teams',
         'polyglav-core-web',
         'polyglav-core-webhook',
     ],

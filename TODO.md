@@ -86,7 +86,7 @@
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
 - [ ] Add the sessions plugin - `/sessions`, export, import, and render
 - [ ] Move the role registry into the roles plugin and remove the core `roles.py` dependency
-- [ ] Add the teams plugin - team registry, `/teams`, `run_team`, and team memory hooks
+- [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Add the skills plugin - skill registry, `/skills`, and skill improvement
 - [ ] Add the bookkeeping plugin - plan and todo tools and commands
 - [ ] Add the memory plugin - memory files, injection, refresh, and `/memorize`
@@ -268,6 +268,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved team management to a plugin
 - [x] Moved role commands and call to a plugin
 - [x] Changed command aliases and added clear new and summary
 - [x] Moved provider management to a plugin

@@ -102,6 +102,7 @@ Polyglav/
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-providers/   # provider connections and model commands
     ├── polyglav-core-roles/       # role catalog and the call tool
+    ├── polyglav-core-teams/       # team catalog and team runs
     ├── polyglav-core-web/         # web_search, web_fetch + search service
     └── polyglav-core-webhook/     # report-back connector (job run reports)
 ```
