@@ -53,6 +53,25 @@
 
 ## Open
 
+- [ ] Add a plugin CLI subcommand hook - `register_cli(subparsers)` so plugins own their commands
+- [ ] Add a front-end registration hook - load the REPL and serve without core imports
+- [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
+- [ ] Move `polyglav fleet` into the fleet plugin
+- [ ] Move `polyglav serve` into the serve plugin
+- [ ] Move `polyglav eval` into the eval plugin
+- [ ] Move `polyglav export` and `polyglav import` into the sessions plugin
+- [ ] Add `polyglav providers` - list, connect, remove, and probe
+- [ ] Remove `--session-id`
+- [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
+- [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
+- [ ] Add `polyglav jobs add --team` for scheduled team runs
+- [ ] Remove `polyglav jobs add-supervisor`
+- [ ] Remove `polyglav jobs stop`
+- [ ] Move plugin CLI tests into each plugin suite
+- [ ] Change CLI help to group core commands and plugin commands
+- [ ] Add a config service shared by `/config` and `polyglav config`
+- [ ] Add a job service shared by `/jobs` and `polyglav jobs`
+
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
 - [ ] Remove the `/c`, `/h`, `/q`, and `/v` aliases and keep `/quit`
 - [ ] Add `/clear` - clear the screen and reprint the header without leaving or changing the session

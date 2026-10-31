@@ -27,6 +27,23 @@ The REPL exposes one canonical name per command, separates commands from tools, 
 | `/connect` as `/providers connect` | S | provider shorthand |
 | `/init` and onboarding hint | S | project setup |
 
+## CLI surface
+
+The CLI is a plugin-aware front-end over the same services as the REPL, so no subcommand reimplements command behavior.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Plugin CLI and front-end hooks | S-M | every later extraction |
+| Jobs plugin CLI and shared job service | M | one jobs surface |
+| Fleet plugin CLI | M | supervised agents outside the core |
+| Serve plugin CLI | S-M | a replaceable HTTP access layer |
+| Sessions plugin for export and import | S | storage formats outside the core |
+| Eval plugin CLI | S | a development harness outside the core |
+| Config service and validation | S-M | one config behavior |
+| Provider CLI - list, connect, remove, probe | S | provider management |
+| Signal and exit contract | S | predictable interruption |
+| Remove `--session-id`, `jobs stop`, and `jobs add-supervisor` | S | a smaller CLI |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
