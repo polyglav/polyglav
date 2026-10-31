@@ -137,7 +137,6 @@
 - [ ] Add `polyglav providers` - list, connect, remove, and probe
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
-- [ ] Add `polyglav jobs add --team` for scheduled team runs
 - [ ] Move plugin CLI tests into each plugin suite
 - [ ] Change CLI help to group core commands and plugin commands
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
@@ -244,6 +243,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added jobs add --team
 - [x] Removed tool_analysis and web_search config
 - [x] Changed session saves to dirty writes
 - [x] Added atomic session writes

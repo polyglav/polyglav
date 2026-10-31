@@ -465,6 +465,7 @@ def cmd_jobs(args) -> int:
             provider=getattr(args, 'provider', '') or '',
             model=getattr(args, 'model', '') or '',
             role=getattr(args, 'role', '') or '',
+            team=getattr(args, 'team', '') or '',
             system_prompt=getattr(args, 'system_prompt', '') or '',
             task_file=_store_task_file(config.local_path.parent.parent, file_arg),
             tool_permission=tool_permission,

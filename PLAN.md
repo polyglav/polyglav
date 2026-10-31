@@ -221,7 +221,6 @@ React to and see jobs from outside the box. Run teams on schedule.
 | Task | Effort | Provides |
 |------|--------|----------|
 | Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time | S-M | encoded recurring behavior |
-| `jobs add --team` - scheduled team runs, per-run team summary session, member sessions as team stages | M | recurring team pipelines |
 | Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve` | M | any client can see/act per agent |
 | Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`, channel-agnostic core | M | notification source |
 | Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API | M-L | operators react in time |

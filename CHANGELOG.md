@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added `jobs add --team` - a scheduled job can run a named team through `Engine.run_team`, with each stage keeping its own session. Tests: `test_jobs.py`
 - Removed the tool analysis and auto-search config - `tool_analysis` and `web_search` are gone, and asks always run through the tool loop. Tests: `test_session_log.py`, `test_engine.py`
 - Changed session saves to dirty writes - a session rewrites only when changed, the per-command save is gone, and the user prompt is written at turn end. Tests: `test_session_io.py`
 - Added atomic session writes - `SessionManager.save` writes compact JSON to a temp file and replaces the session. Tests: `test_session_io.py`

@@ -87,11 +87,32 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     return engine
 
 
-def _attempt(engine: Engine, prompt: str, timeout: int) -> TurnResult:
+def _attempt(engine: Engine, prompt: str, timeout: int,
+             team: str = '') -> TurnResult:
+    def run() -> TurnResult:
+        if not team:
+            return engine.chat(prompt, origin='job')
+        found = engine.teams.find(team)
+        if found is None:
+            return TurnResult(status='error',
+                              errors=[{'code': 0, 'message': f'Unknown team: {team}'}],
+                              session=engine.current_session.session_name)
+        result = engine.run_team(found, prompt)
+        duration = sum(float(getattr(stage, 'duration', 0) or 0)
+                       for stage in result.stages)
+        return TurnResult(
+            content=result.content,
+            errors=list(result.errors or []),
+            duration=round(duration, 1),
+            session=engine.current_session.session_name,
+            status='ok' if result.status == 'ok' else 'error',
+            run_id=engine.current_run.id,
+        )
+
     timeout = max(0, int(timeout or 0))
     if timeout <= 0:
         try:
-            return engine.chat(prompt, origin='job')
+            return run()
         except Exception as e:
             return TurnResult(status='error',
                               errors=[{'code': 0, 'message': str(e)}],
@@ -100,7 +121,7 @@ def _attempt(engine: Engine, prompt: str, timeout: int) -> TurnResult:
 
     def target():
         try:
-            bag['value'] = engine.chat(prompt, origin='job')
+            bag['value'] = run()
         except Exception as e:
             bag['error'] = e
 
@@ -208,7 +229,7 @@ class JobScheduler:
             else:
                 prompt = job.prompt
             self._out(f'run {job.name} (attempt {attempt})')
-            result = _attempt(engine, prompt, job.timeout)
+            result = _attempt(engine, prompt, job.timeout, job.team)
             finished = datetime.now(timezone.utc)
             ok = result.status in ('ok', 'truncated')
             reason = ''

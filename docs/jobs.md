@@ -110,6 +110,7 @@ polyglav jobs daemon [--tick 15] [--quiet]        # scheduler loop, Ctrl-C to st
 | `--mode` | Mode override (`plan`, `build`, or custom) |
 | `--provider` / `--model` | Provider / model overrides |
 | `--role` | Apply a role's system prompt, model, and tool permissions |
+| `--team` | Run a named team for each scheduled run |
 | `--system-prompt` | System prompt describing the job. Without it or a role, a generic recurring-job prompt is used |
 | `--tools-deny NAME` | Deny a tool (repeatable) |
 | `--tool-permission category=action` | Permission override, e.g. `bash=allow` (repeatable) |
@@ -141,7 +142,7 @@ A finished or failed run is surfaced in-band and, optionally, out-of-band, so an
 
 ## Scheduled teams
 
-A recurring team run is not available as a shorthand yet. Schedule a manager role with `polyglav jobs add --role manager --file .polyglav/jobs/<name>.md`, and the manager delegates through `call` when the roles plugin is loaded. `jobs add --team` is planned.
+A recurring team run uses `polyglav jobs add <name> --team <team> --schedule`. The scheduler runs the named team through `Engine.run_team`, and each stage keeps its own session while the job records the team result.
 
 ## Session files per run
 

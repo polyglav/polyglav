@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from polyglav.config import Config
 from polyglav.engine import TurnResult
@@ -15,7 +15,7 @@ from polyglav.jobs import (Job, JobRun, JobRegistry, compute_next_run, ensure_ta
                          next_run, parse_cron_field, parse_dt, read_memory,
                          render_list, render_show, render_status, describe_schedule,
                          system_prompt_for, validate_schedule, write_memory)
-from polyglav.scheduler import JobScheduler
+from polyglav.scheduler import JobScheduler, _attempt
 
 TZ = timezone.utc
 BASE = datetime(2026, 8, 26, 10, 0, tzinfo=TZ)
@@ -212,6 +212,10 @@ class TestJobModel(unittest.TestCase):
         job = Job('a', {'interval': 60}, task_file='tasks/a.md')
         self.assertEqual(Job.from_dict(job.to_dict()).task_file, 'tasks/a.md')
 
+    def test_round_trip_carries_team(self):
+        job = Job('a', {'interval': 60}, team='dev')
+        self.assertEqual(Job.from_dict(job.to_dict()).team, 'dev')
+
     def test_round_trip_carries_approve_model(self):
         job = Job('a', {'interval': 60}, approve_model=True)
         self.assertTrue(Job.from_dict(job.to_dict()).approve_model)
@@ -290,6 +294,33 @@ def _config(tmp) -> Config:
     (base / '.polyglav' / 'config.json').write_text(json.dumps({
         'provider': 'ollama', 'model': 'm', 'base_url': 'https://test.api.com'}))
     return Config(path=str(base))
+
+
+class TestTeamAttempt(unittest.TestCase):
+
+    def test_team_attempt_returns_turn_result(self):
+        from polyglav.engine import TeamRunResult
+        engine = MagicMock()
+        engine.current_session.session_name = 'job.a'
+        engine.current_run.id = 7
+        engine.teams.find.return_value = SimpleNamespace(name='dev')
+        engine.run_team.return_value = TeamRunResult(
+            name='dev', content='done', status='ok',
+            stages=[SimpleNamespace(duration=0.4)],
+            errors=[])
+        result = _attempt(engine, 'work', 0, 'dev')
+        self.assertEqual(result.status, 'ok')
+        self.assertEqual(result.content, 'done')
+        self.assertEqual(result.session, 'job.a')
+        self.assertEqual(result.duration, 0.4)
+
+    def test_unknown_team_is_an_error(self):
+        engine = MagicMock()
+        engine.current_session.session_name = 'job.a'
+        engine.teams.find.return_value = None
+        result = _attempt(engine, 'work', 0, 'missing')
+        self.assertEqual(result.status, 'error')
+        self.assertIn('Unknown team', result.errors[0]['message'])
 
 
 class TestScheduler(unittest.TestCase):

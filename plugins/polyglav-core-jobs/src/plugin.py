@@ -102,7 +102,7 @@ def register_commands(commands):
             while i < len(tokens):
                 tok = tokens[i]
                 if tok in ('--cron', '--interval', '--at', '--prompt', '--file',
-                           '--session', '--mode', '--provider', '--model', '--role'):
+                           '--session', '--mode', '--provider', '--model', '--role', '--team'):
                     opts[tok] = tokens[i + 1] if i + 1 < len(tokens) else ''
                     i += 2
                 elif tok == '--approval':
@@ -154,6 +154,7 @@ def register_commands(commands):
                 provider=opts.get('--provider', '') or '',
                 model=opts.get('--model', '') or '',
                 role=opts.get('--role', '') or '',
+                team=opts.get('--team', '') or '',
                 task_file=task_file,
                 enabled=auto,
                 status='approved' if auto else 'proposed',
@@ -216,6 +217,7 @@ def register_cli(cli):
     ga.add_argument('--provider', help='Provider override')
     ga.add_argument('--model', help='Model override')
     ga.add_argument('--role', help='Role whose prompt, model, and permissions apply')
+    ga.add_argument('--team', help='Team to run for each scheduled run')
     ga.add_argument('--system-prompt', help='System prompt override')
     ga.add_argument('--tools-deny', action='append', default=[],
                     help='Tool name to deny (repeatable)')
