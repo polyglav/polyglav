@@ -7,8 +7,8 @@
   "entry": "src/plugin.py",
   "provides": {
     "tools": [
-      "web_search",
-      "fetch_page"
+      "web_fetch",
+      "web_search"
     ],
     "providers": [],
     "commands": []

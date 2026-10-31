@@ -70,7 +70,6 @@
 - [ ] Remove `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes`
 - [ ] Add web result references - title, URL, and snippet in the session and in `/print`
 - [ ] Move tool config, permissions, and tests into the owning plugins
-- [ ] Fix the web plugin manifest tool names
 - [ ] Remove old tool log compatibility - a missing ref prints `[tool log missing]`
 - [ ] Add `tool_output_log` and remove age retention
 
@@ -188,6 +187,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Fixed the web plugin manifest tool names
 - [x] Changed role and team prompts for code_check
 - [x] Split code quality and added code_check
 - [x] Moved the fleet supervisor into the fleet plugin
