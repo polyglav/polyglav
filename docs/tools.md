@@ -166,7 +166,7 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 | `query_refine` | `false` | Auto-refine short `query` args via a lightweight model call |
 | `query_refine_context` | `4` | Recent-message context injected into refinement |
 | `query_refine_min_words` | `3` | Minimum query length before refinement applies |
-| `search_results` | `5` | Number of results `web_search` returns |
+| `search_results` | `10` | Number of results `web_search` returns |
 | `tool_analysis` | `false` | Model-generated one-line analysis of each tool result (log-only) |
 | `tool_calling` | `true` | Enable OpenAI-compatible function calling |
 | `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |

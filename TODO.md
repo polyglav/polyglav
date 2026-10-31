@@ -73,7 +73,6 @@
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
-- [ ] Move web config to the web plugin - `query_refine*` and `search_results` with a default of 10
 - [ ] Move the exec allowlist into the exec plugin
 - [ ] Move `list_dir_max_entries` to the filesystem plugin
 - [ ] Move MCP keys to the MCP plugin
@@ -176,6 +175,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved web config to the web plugin
 - [x] Added plugin config registration
 - [x] Added session load validation
 - [x] Removed session compatibility

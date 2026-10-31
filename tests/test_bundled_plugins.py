@@ -56,6 +56,13 @@ class TestBundledPlugins(unittest.TestCase):
             self.assertEqual(info.status, expected, n)
             self.assertEqual(info.origin, 'bundled', n)
 
+    def test_web_config_registered(self):
+        self.pm.load()
+        self.assertEqual(self.config.get('search_results'), 10)
+        self.assertFalse(self.config.get('query_refine'))
+        self.assertEqual(self.config.get('query_refine_context'), 4)
+        self.assertEqual(self.config.get('query_refine_min_words'), 3)
+
     def test_bundled_tools_registered(self):
         self.pm.load()
         reg = ToolRegistry()

@@ -11,6 +11,24 @@
       "web_search"
     ],
     "providers": [],
-    "commands": []
+    "commands": [],
+    "config": {
+      "query_refine": {
+        "default": false,
+        "description": "Auto-refine short web-search queries"
+      },
+      "query_refine_context": {
+        "default": 4,
+        "description": "Recent-message context for refinement"
+      },
+      "query_refine_min_words": {
+        "default": 3,
+        "description": "Minimum query length before refinement applies"
+      },
+      "search_results": {
+        "default": 10,
+        "description": "Number of search results to fetch"
+      }
+    }
   }
 }

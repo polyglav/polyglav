@@ -81,7 +81,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `query_refine_min_words`    | `3`                    | Minimum query length before refinement applies                         |
 | `reasoning`                 | `"auto"`               | Request reasoning and control its token budget: `false`/`"off"` = none, `true`/`"on"`/`"auto"` = provider default, `"low"`/`"medium"`/`"high"` = explicit budget hint. Mapping is provider-specific (OpenAI `reasoning_effort`, Claude `thinking.budget_tokens`, Qwen `enable_thinking`) |
 | `report.webhook`            | `""`                   | URL the bundled `polyglav-core-webhook` report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See [jobs.md](jobs.md#report-back) |
-| `search_results`            | `5`                    | Number of search results to fetch                                      |
+| `search_results`            | `10`                   | Number of search results to fetch (owned by `polyglav-core-web`)        |
 | `show_version`              | `true`                 | Show the version in the REPL banner                                    |
 | `stream_retries`            | `2`                    | Extra attempts (after the first) when a provider stream ends before a completion event without content |
 | `stream_retry_delay`        | `0.5`                  | Seconds to wait between stream retries                                  |
