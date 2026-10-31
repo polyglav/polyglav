@@ -97,8 +97,6 @@
 - [ ] Change CLI help to group core commands and plugin commands
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
-- [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Defer `/bookmark`, `/agent`, and `/spawn` until the plugin surface is ready
 
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
@@ -183,6 +181,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed command grammar
 - [x] Changed the connect shorthand
 - [x] Added JSON materialization
 - [x] Added paused turn persistence

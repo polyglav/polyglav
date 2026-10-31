@@ -32,9 +32,6 @@ The REPL exposes one canonical name per command, separates commands from tools, 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Command grammar - singular current, plural catalog, verbs for actions, and no aliases | S | a predictable command set |
-| `/continue parent` and `/continue <id>` | S-M | switch to a parent or prior session |
-| `/help` lists commands and tools | S | one help entry point |
 
 ## CLI surface
 

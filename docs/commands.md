@@ -2,6 +2,15 @@
 
 ## Slash commands
 
+## Command grammar
+
+- A singular noun names the current entity: `/mode`, `/model`, `/provider`, `/session`, `/role`, `/plan`, `/todo`.
+- A plural noun names the catalog: `/modes`, `/models`, `/providers`, `/sessions`, `/roles`, `/plans`, `/todos`.
+- A verb is a global action: `/clear`, `/compact`, `/help`, `/exit`, `/summary`, `/status`, `/continue`, `/cancel`.
+- An action on a catalog is `<plural> <verb>`: `/providers connect`, `/sessions load`, `/roles show`, `/jobs run`.
+- `/quit`, `/new`, and `/connect` are the only shorthand names. There are no one-letter aliases.
+- `/help` lists commands and tools. `/help <name>` shows detail for either.
+
 Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd>` for details.
 
 | Command                 | Aliases        | Description                                                    |
