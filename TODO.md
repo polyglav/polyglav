@@ -23,7 +23,7 @@
 - Immutable agent config - `polyglav serve` agents must never be able to change their own configuration, permissions, or tool list (control-plane rule from the use-case reference architecture)
 - Hash-chained / tamper-evident audit log - additive on session logs (enterprise.md recommendation), hash-chained append or WORM storage
 - Single-purpose agent fleet with "one agent per process, scoped to a folder" as the headline pattern. README + `docs/fleet.md` set the niche
-- Fleet and swarm orchestration as the two layers - fleet: supervisor running many scoped `polyglav serve` instances (port allocation, health checks, restart policy, per-agent config generation), swarm: `/agent` types, auditor agents, generate > check > correct
+- Fleet and swarm orchestration - fleet: supervisor running many scoped `polyglav serve` instances with port allocation, health checks, restart policy, and per-agent config generation. Swarm: `/agent` types, auditor agents, and generate > check > correct
 - Add ReadTheDocs documentation
 - Citations / source attribution - return URL + snippet with every answer
 - Bookmarks - `/bookmark add/remove/list` for session pinning
@@ -47,7 +47,6 @@
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
-- [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
@@ -197,6 +196,7 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Changed the fleet and swarm task
 - [x] Changed the plugin test harness task
 - [x] Retargeted inbound events
 - [x] Merged multiuser tasks
