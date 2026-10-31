@@ -24,7 +24,8 @@ ACTIVITY_DEFAULTS: dict[str, tuple[str, str]] = {
 
 
 class ToolRegistry:
-    def __init__(self):
+    def __init__(self, engine=None):
+        self.engine = engine
         self._tools: dict[str, dict] = {}
         self._schema: list[dict] = []
 
@@ -115,6 +116,8 @@ class ToolRegistry:
                 params = inspect.signature(fn).parameters
                 if '_config' in params:
                     args = {**args, '_config': config}
+                if '_engine' in params:
+                    args = {**args, '_engine': self.engine}
                 if '_echo' in params:
                     args = {**args, '_echo': echo}
             except (TypeError, ValueError):

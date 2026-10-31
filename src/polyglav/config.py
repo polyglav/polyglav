@@ -86,6 +86,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-openai',
         'polyglav-core-opencode',
         'polyglav-core-providers',
+        'polyglav-core-roles',
         'polyglav-core-web',
         'polyglav-core-webhook',
     ],

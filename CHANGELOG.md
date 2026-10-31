@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved role management to a plugin - `/role`, `/roles`, and the `call` tool live in `polyglav-core-roles`, so the core loop runs without them. Tests: `test_call.py`, `test_commands.py`, `test_plugins.py`
 - Changed command aliases and added clear, new, and summary - removed `/c`, `/h`, `/q`, and `/v`, kept `/quit`, added `/clear`, `/new`, and `/summary`, and stored summaries without changing the provider context. Tests: `test_commands.py`, `test_turns.py`
 - Moved provider management to a plugin - `/connect`, `/model`, `/models`, `/provider`, and `/providers` live in `polyglav-core-providers`, while the core keeps the OpenAI-compatible base and registry. Tests: `test_commands.py`, `test_plugins.py`
 - Added CLI and front-end plugin hooks - plugins register CLI subcommands and named front-end factories, the core REPL is the default front-end, and `--frontend` selects another. Tests: `test_plugins.py`

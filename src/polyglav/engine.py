@@ -1638,7 +1638,6 @@ class Engine:
             return None
         from .tools.registry import ToolRegistry
         from .tools.policy import ToolPolicy
-        from .tools.call import register_call_tool
         from .tools.delegate import register_delegate_tool
         from .tools.ask import register_ask_tool
         from .tools.catalog import register_catalog_tool
@@ -1646,8 +1645,7 @@ class Engine:
         from .tools.todo import register_todo_tool
         from .modes import merge_policy, mode_cap, read_keys
         mode = self._mode()
-        self._tool_registry = ToolRegistry()
-        register_call_tool(self._tool_registry, self)
+        self._tool_registry = ToolRegistry(engine=self)
         register_delegate_tool(self._tool_registry, self)
         register_ask_tool(self._tool_registry, self)
         register_catalog_tool(self._tool_registry, self)

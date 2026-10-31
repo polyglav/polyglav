@@ -17,7 +17,7 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 |------|--------|----------|
 | REPL plugin | M-L | a replaceable terminal front-end |
 | Sessions plugin | S | export and import outside the core |
-| Roles plugin with `call` | M | optional roles and delegation |
+| Move the role registry into the roles plugin | M | optional roles and delegation |
 | Teams plugin with `run_team` | M | optional teams on top of roles |
 | Skills plugin | S-M | optional skills |
 | Bookkeeping plugin | S-M | optional plan and todo |
