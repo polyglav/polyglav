@@ -102,8 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Job notifications and outbound connectors | M | one notification stream |
-| Merge control API and UI | S-M | one control surface |
 | Merge memory and skill tasks | S-M | one memory pipeline |
 | Merge content ingestion | S | one content plugin family |
 | Merge session interchange | S | one session exchange |
@@ -209,11 +207,9 @@ React to and see jobs from outside the box. Run teams on schedule.
 | Task | Effort | Provides |
 |------|--------|----------|
 | Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time | S-M | encoded recurring behavior |
-| Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve` | M | any client can see/act per agent |
 | Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`, channel-agnostic core | M | notification source |
-| Job connectors - bundled `polyglav-core-webhook` (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API | M-L | operators react in time |
-| Fleet jobs overview - `polyglav jobs list --root <dir>` combined agent/job table (agent, job, status, next run, task), then a web Control UI on top | M | one view of what runs next |
-| Mid-run blocking job approval - an `ask` inside a running job pauses in place (per-tool-call `waiting_approval`), notifies via a connector, and resumes the same session on reply. Needs resumable mid-run state, a wait loop inside the run, and the connectors above | L | decide during the task |
+| Job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API | M | one notification stream |
+| Jobs and fleet control API, then Control UI - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, a fleet-wide `--root` list, and a stdlib web Control UI | M | one control surface |
 
 ## Tool engineering for agents
 
@@ -231,7 +227,6 @@ Run many scoped agents under a supervisor with a control surface.
 | Task | Effort | Provides |
 |------|--------|----------|
 | Immutable agent config - `polyglav serve` agents cannot change their own configuration, permissions, or tool list | S-M | control-plane rule |
-| Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API | M | dashboard over the JSON API |
 | Multiuser API + queue / rate limits | M | many feeds without blocking the loop |
 | Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin | S-M | fast API without core deps |
 | Observability + telemetry decision - latency/cost/error metrics, Pi-style contracts | M | measured operations |

@@ -25,7 +25,6 @@
 - Model picker - `/models` autocomplete and a direct numeric selection of a model
 - Centralized static strings - move hardcoded prompts and static strings into one module
 - Code cleanup pass - a dedicated pass over the core for dead code, naming, and rough edges
-- Global jobs overview across agents - `polyglav jobs list --root <dir>` fleet scan, a `GET /jobs` + `POST /jobs/<name>/approve|reject|run|disable` operator API on `polyglav serve`, then a web Control UI, so one view shows which agents run next and with which task
 - Edge / offline store-and-forward buffering - offline-capable agents with local buffering for unreliable connectivity (enterprise use case)
 - Immutable agent config - `polyglav serve` agents must never be able to change their own configuration, permissions, or tool list (control-plane rule from the use-case reference architecture)
 - Hash-chained / tamper-evident audit log - additive on session logs (enterprise.md recommendation), hash-chained append or WORM storage
@@ -55,7 +54,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge control tasks - jobs operator API, fleet jobs overview, and the minimal web Control UI
 - [ ] Merge memory tasks - memory references, conclusion stage, and auto-improving skills
 - [ ] Merge content ingestion - research cache, web scraper, and PDF-to-text
 - [ ] Merge session interchange - Markdown import and conversation sharing
@@ -168,8 +166,7 @@
 - [ ] Tool spec polish - rename `grep.glob` -> `include` (alias `glob`), add examples and prefer-`web_fetch` guidance to tool descriptions
 - [ ] Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`. Channel-agnostic core, first consumers are the connectors and the operator API
 - [ ] Add job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API
-- [ ] Jobs operator API - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, so clients (web Control UI, connectors, fleet supervisor) can see and act per agent
-- [ ] Fleet jobs overview - `polyglav jobs list --root <dir>` scanning agent worktrees (agent, job, status, next run, task table), then the web Control UI on top
+- [ ] Add the jobs and fleet control surface - GET /jobs and POST /jobs/<name>/approve|reject|run|disable on polyglav serve, a fleet-wide list --root, and a stdlib web Control UI on the same API
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
 - [ ] Auto team selection - the assistant picks roles, teams, and skills from the registries for a task and delegates in sequence (team orchestration as a user-facing pattern, e.g. "compare with competitors" -> Researcher > Writer > Referencer > Editor)
 - [ ] `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
@@ -185,7 +182,6 @@
 - [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > polyglav-core-web, `open ../...` > polyglav-core-fs), with merged schemas and args-aware policy accessors
 - [ ] Grep text index - internal bundled plugin (stdlib) that indexes converted text files for local search, bridging toward the vector store
 - [ ] Agent folder watcher - internal bundled plugin (stdlib `threading` + `pathlib` polling) that detects new files in an agent's folder and triggers their processing (e.g. convert new PDFs on arrival), scoped capability, no deps
-- [ ] Minimal web Control UI - stdlib `http.server` page over the existing `polyglav serve` JSON API (OpenClaw Control UI analogue). Richer frameworks stay plugin-first
 - [ ] Externalize the bundled plugins (`polyglav-core-web`/`fs`/`exec`) into separate versioned repositories, while the bundled copies stay the shipped defaults. Global/local plugins of the same name already override them
 - [ ] PyPI plugin source - discover installed plugin packages via `importlib.metadata` entry points (`polyglav.plugins` group)
 - [ ] Shared plugin virtualenv - one venv for all plugin dependencies, injected at import
@@ -215,6 +211,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Merged control API tasks
 - [x] Merged job notification tasks
 - [x] Removed the swarm and command audit umbrellas
 - [x] Removed parking tasks
