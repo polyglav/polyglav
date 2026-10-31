@@ -40,7 +40,6 @@
 ## Open
 
 - [ ] Change runtime session JSON to compact serialization
-- [ ] Add a SQLite session store plugin, off by default
 
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
@@ -168,6 +167,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added the SQLite session store plugin
 - [x] Moved session render into the sessions plugin
 - [x] Moved bookkeeping config to the bookkeeping plugin
 - [x] Moved MCP config to the MCP plugin

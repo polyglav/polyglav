@@ -6,6 +6,10 @@ A paused turn is restored as open when the session loads, so `/continue` works a
 
 A JSONL session is materialized to `.json` on session switch and exit, so the JSON stays portable. JSONL remains the source when both files exist.
 
+## SQLite storage
+
+Set `session.storage = "sqlite"` and enable `polyglav-core-storage-sqlite` to keep sessions in `.polyglav/sessions/sessions.db`. The plugin is off by default and uses only the standard library. A materialized JSON snapshot is still written on session switch and exit.
+
 ## JSONL storage
 
 Set `session.storage = "jsonl"` to write append-only `.polyglav/sessions/<name>.jsonl` files beside the JSON store. Each line is a `meta` or `turn` event, the last event per turn wins on load, and JSON stays the export and import format. The default remains `json`.

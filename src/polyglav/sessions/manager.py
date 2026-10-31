@@ -317,9 +317,11 @@ def session_from_document(data: dict) -> Session:
 
 
 class SessionManager:
-    def __init__(self, sessions_dir: Path, storage: str = 'json'):
+    def __init__(self, sessions_dir: Path, storage: str = 'json',
+                 store=None):
         self.sessions_dir = sessions_dir
         self.storage = str(storage or 'json').strip().lower()
+        self.store = store
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
         self.current: Session | None = None
 
@@ -368,6 +370,8 @@ class SessionManager:
         return s
 
     def read(self, session_name: str) -> Session | None:
+        if self.store is not None:
+            return self.store.read(session_name)
         jsonl = self.sessions_dir / f'{session_name}.jsonl'
         if jsonl.exists():
             return self._read_jsonl(session_name, jsonl)
@@ -457,7 +461,11 @@ class SessionManager:
 
     def materialize(self, session: Session | None = None) -> Path | None:
         s = session or self.current
-        if s is None or self.storage != 'jsonl':
+        if s is None:
+            return None
+        if self.store is not None:
+            return self.store.materialize(s)
+        if self.storage != 'jsonl':
             return None
         path = self.sessions_dir / f'{s.session_name}.json'
         tmp = path.with_suffix('.json.tmp')
@@ -499,6 +507,11 @@ class SessionManager:
             return
         if not getattr(s, '_dirty', True):
             return
+        if self.store is not None:
+            self.store.save(s, max_chars=max_chars, drop_tools=drop_tools,
+                            spill=spill)
+            s._dirty = False
+            return
         if self.storage == 'jsonl':
             self._save_jsonl(s, max_chars=max_chars, drop_tools=drop_tools,
                              spill=spill)
@@ -521,6 +534,8 @@ class SessionManager:
             self._log_io('save', s.session_name, e)
 
     def list(self) -> list[str]:
+        if self.store is not None:
+            return self.store.list()
         names = {p.stem for p in self.sessions_dir.glob('*.json')}
         names.update(p.stem for p in self.sessions_dir.glob('*.jsonl'))
         return sorted(names)
@@ -578,7 +593,7 @@ class SessionManager:
 
     def delete(self, session_name: str,
                extra_dirs: list[Path] | None = None) -> bool:
-        found = False
+        found = bool(self.store.delete(session_name)) if self.store else False
         for suffix in ('.json', '.jsonl'):
             path = self.sessions_dir / f'{session_name}{suffix}'
             if path.exists():

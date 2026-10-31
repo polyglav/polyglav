@@ -30,6 +30,7 @@ BUNDLED = {
     'polyglav-core-sessions',
     'polyglav-core-serve',
     'polyglav-core-skills',
+    'polyglav-core-storage-sqlite',
     'polyglav-core-teams',
     'polyglav-core-web',
     'polyglav-core-webhook',
@@ -52,7 +53,7 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertEqual(names, BUNDLED)
         for n in names:
             info = self.pm.get(n)
-            expected = 'disabled' if n == 'polyglav-core-quality' else 'loaded'
+            expected = 'disabled' if n in ('polyglav-core-quality', 'polyglav-core-storage-sqlite') else 'loaded'
             self.assertEqual(info.status, expected, n)
             self.assertEqual(info.origin, 'bundled', n)
 
@@ -141,7 +142,7 @@ class TestBundledPlugins(unittest.TestCase):
     def test_bundled_in_default_config(self):
         from polyglav.config import DEFAULT_CONFIG
         for name in BUNDLED:
-            if name == 'polyglav-core-quality':
+            if name in ('polyglav-core-quality', 'polyglav-core-storage-sqlite'):
                 self.assertNotIn(name, DEFAULT_CONFIG['plugins'])
                 continue
             self.assertIn(name, DEFAULT_CONFIG['plugins'])

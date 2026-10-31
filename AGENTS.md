@@ -107,6 +107,7 @@ Polyglav/
     ├── polyglav-core-sessions/    # session catalog, render, export, and import
     ├── polyglav-core-serve/       # serve CLI
     ├── polyglav-core-skills/      # skill catalog
+    ├── polyglav-core-storage-sqlite/ # optional SQLite session store (off by default)
     ├── polyglav-core-teams/       # team catalog and team runs
     ├── polyglav-core-web/         # web_search, web_fetch + search service
     └── polyglav-core-webhook/     # report-back connector (job run reports)

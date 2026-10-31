@@ -218,7 +218,7 @@ CONFIG_DESCRIPTIONS = {
     'project_instructions': 'Per-worktree instructions file loaded into the system prompt',
     'provider': 'Provider name',
     'reasoning': 'Request reasoning and control its token budget',
-    'session.storage': 'Session storage format: json or jsonl',
+    'session.storage': 'Session storage format: json, jsonl, or sqlite',
     'show_version': 'Show the version in the REPL banner',
     'stream_retries': 'Extra attempts when a stream ends without content',
     'stream_retry_delay': 'Seconds between stream retries',
