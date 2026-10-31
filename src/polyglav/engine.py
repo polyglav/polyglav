@@ -1189,15 +1189,6 @@ class Engine:
             **self._turn_meta()
         )
 
-        if self.config.get('tool_calling'):
-            return self._agent_loop()
-        if self.config.get('web_search'):
-            context = self._perform_search(text, silent=True)
-            if context:
-                self.current_session.add_system(context)
-            else:
-                self.ui.info('(Skipping AI - no search results)')
-                return TurnResult(status='empty', session=self.current_session.session_name)
         return self._agent_loop()
 
     def paused_turn(self):
@@ -1587,9 +1578,6 @@ class Engine:
                     self.ui.tool_result(output)
             executed.append({'name': name, 'arguments': args})
             analysis = None
-            if (self.config.get('tool_analysis')
-                    and output and not output.startswith(('[cancelled]', 'Error'))):
-                analysis = self._analyze_tool_result(name, output)
             turn = self.current_session.open_turn()
             turn_index = turn.get('index', 0) if turn else 0
             part_index = max(0, len(turn.get('parts') or []) - 1) if turn else 0
@@ -1604,51 +1592,6 @@ class Engine:
         if ref and '... (truncated)' in output:
             return f'{output}\n[full output: {ref}]'
         return output
-
-    def _analyze_tool_result(self, name: str, output: str) -> str | None:
-        sys_prompt = (
-            "You write one-line insights for a session log. Given a tool name and its raw "
-            "result, state in a single sentence what useful information the result provided - "
-            "so a reader of the log can reconstruct the key insight without re-running the tool. "
-            "Return only that sentence, nothing else."
-        )
-        try:
-            result = self.provider.chat_nonstreaming(
-                [
-                    {'role': 'system', 'content': sys_prompt},
-                    {'role': 'user', 'content': f'Tool: {name}\n\nResult:\n{output[:2000]}'},
-                ],
-                tools=None,
-            )
-        except Exception:
-            return None
-        content = result.get('content')
-        if not isinstance(content, str):
-            return None
-        content = content.strip()
-        return content or None
-
-    def _perform_search(self, query: str, silent: bool = False) -> str | None:
-        pm = getattr(self, '_plugin_manager', None)
-        service = pm.service('search') if pm is not None else None
-        if service is None:
-            if not silent:
-                self.ui.info('(web search unavailable - polyglav-core-web plugin not loaded)')
-            return None
-
-        num = self.config.get('search_results', 5)
-        results = service.search(query, num)
-
-        if not results:
-            if not silent:
-                self.ui.info('(no search results)')
-            return None
-
-        if not silent:
-            self.ui.info('')
-            self.ui.info(service.display(query, results))
-
-        return service.context(query, results)
 
     def _init_tooling(self):
         if not self.config.get('tool_calling'):

@@ -135,9 +135,9 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `user` | `text`, `origin` | A user prompt. `origin` records who sent it: absent or `user` for the person, a role name for a delegated prompt |
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
-| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is the optional one-line model insight (`tool_analysis` config), `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
+| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
 | `command` | `text` | A slash command. `summary` and `compact_from` are set on a `/compact` record |
-| `system` | `text` | An injected note (e.g. the `web_search: true` auto-search context) |
+| `system` | `text` | An injected note |
 
 A tool call and its result never split into separate records: the `tool` part is created with `name`/`input`/`call_id`, the engine executes the call, and `output`/`is_error`/`analysis`/`duration` fill in on the same part. Thinking recorded before a tool round becomes a `thinking` part ahead of the `tool` parts.
 

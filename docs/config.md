@@ -89,7 +89,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `stream_retry_delay`        | `0.5`                  | Seconds to wait between stream retries                                  |
 | `system_prompt`             | `""`                   | The root instruction, injected for every front-end (REPL, `run`, `serve`) and composed with the active mode. Onboarding sets it later, and empty means no root persona |
 | `temperature`               | `0.7`                  | Sampling temperature                                                   |
-| `tool_analysis`             | `false`                | Model-generated one-line analysis of each tool result (log-only)      |
 | `tool_calling`              | `true`                 | Enable OpenAI-compatible function calling                              |
 | `tool_max_result_chars`     | `100000`               | Cap tool-result content returned to the model (`... (truncated)` appended). `0` = unlimited. With the default, the model sizes files via the `file_read` header and pages with `offset`/`limit` |
 | `tool_permission`           | *(see below)*          | Category permission actions                                            |
@@ -106,7 +105,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `verbosity.status`          | `"inherit"`            | Live status time and approximate tokens: `off`, `on`, or `inherit`      |
 | `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit`       |
 | `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
-| `web_search`                | `false`                | Auto-search mode: search the web before answering                       |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 
 The reasoning and output scopes are cumulative:

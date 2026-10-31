@@ -514,50 +514,6 @@ class TestSessionLogLoop(unittest.TestCase):
             dropped['ref'],
             f'.polyglav/tmp/{session.session_name}/1_0.txt')
 
-    def test_tool_analysis_off_by_default(self):
-        self.chat.provider.chat.side_effect = [
-            [{'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
-            [{'type': 'token', 'content': 'Final.'}, {'type': 'done', 'reason': 'stop'}],
-        ]
-        with patch.object(self._search_service(), 'search', return_value=[
-            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
-        ]):
-            self._run()
-        self.chat.provider.chat_nonstreaming.assert_not_called()
-        self.assertIsNone(self._parts('tool')[0]['analysis'])
-
-    def test_tool_analysis_generates_insight_when_enabled(self):
-        self.chat.config.set('tool_analysis', True)
-        self.chat.provider.chat_nonstreaming.return_value = {
-            'role': 'assistant',
-            'content': 'Found pages about Python.',
-            'tool_calls': None,
-            'finish_reason': 'stop',
-        }
-        self.chat.provider.chat.side_effect = [
-            [{'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
-            [{'type': 'token', 'content': 'Final.'}, {'type': 'done', 'reason': 'stop'}],
-        ]
-        with patch.object(self._search_service(), 'search', return_value=[
-            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
-        ]):
-            self._run()
-        self.chat.provider.chat_nonstreaming.assert_called_once()
-        self.assertEqual(self._parts('tool')[0]['analysis'],
-                         'Found pages about Python.')
-
-    def test_tool_analysis_skipped_for_cancelled(self):
-        self.chat.config.set('tool_analysis', True)
-        self.chat._run_tool = unittest.mock.MagicMock(
-            return_value='[cancelled] User declined the web_search call')
-        self.chat.provider.chat.side_effect = [
-            [{'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
-            [{'type': 'token', 'content': 'Final.'}, {'type': 'done', 'reason': 'stop'}],
-        ]
-        self._run()
-        self.chat.provider.chat_nonstreaming.assert_not_called()
-        self.assertIsNone(self._parts('tool')[0]['analysis'])
-
     def test_session_new_stamps_current_role(self):
         self.chat.role = 'assistant'
         with patch('sys.stdout', new=io.StringIO()):

@@ -39,7 +39,7 @@ The mode ([modes.md](modes.md)) is the outermost bound. `read` (default) allows 
 
 ## Config-driven surface
 
-The model only sees tools whose schema passes policy filtering (`tools.allow` / `tools.deny` / `tool_permission`), and plugin activation is an explicit `plugins` list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each `allow` / `ask` / `deny` resolution and its outcome) are recorded in the session `permissions` array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content can be redacted by `tools_output_drop` / `tools_output_max_chars`, and tool `analysis` is off by default (`tool_analysis`).
+The model only sees tools whose schema passes policy filtering (`tools.allow` / `tools.deny` / `tool_permission`), and plugin activation is an explicit `plugins` list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each `allow` / `ask` / `deny` resolution and its outcome) are recorded in the session `permissions` array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content can be redacted by `tools_output_drop` / `tools_output_max_chars`.
 
 ## Audit trail
 

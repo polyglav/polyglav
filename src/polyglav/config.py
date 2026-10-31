@@ -112,7 +112,6 @@ DEFAULT_CONFIG = {
     'stream_retry_delay': 0.5,
     'system_prompt': '',
     'temperature': 0.7,
-    'tool_analysis': False,
     'tool_calling': True,
     'tool_max_result_chars': 100000,
     'tool_permission': {
@@ -142,7 +141,6 @@ DEFAULT_CONFIG = {
     'verbosity.status': 'inherit',
     'verbosity.thinking': 'inherit',
     'verbosity.tools': 'inherit',
-    'web_search': False,
     'word_streaming': True,
 }
 
@@ -252,7 +250,6 @@ CONFIG_DESCRIPTIONS = {
     'stream_retry_delay': 'Seconds between stream retries',
     'system_prompt': 'The root instruction, composed with the active mode',
     'temperature': 'Sampling temperature',
-    'tool_analysis': 'Model-generated one-line analysis of each tool result',
     'tool_calling': 'Enable OpenAI-compatible function calling',
     'tool_max_result_chars': 'Cap tool-result content returned to the model',
     'tool_permission': 'Category permission actions',
@@ -269,7 +266,6 @@ CONFIG_DESCRIPTIONS = {
     'verbosity.status': 'Live status time and approximate tokens: off, on, or inherit',
     'verbosity.thinking': 'Reasoning scope: off, assistant, agent, all, or inherit',
     'verbosity.tools': 'Tool detail: off, summary, full, or inherit',
-    'web_search': 'Search the web before answering',
     'word_streaming': 'Buffer output to word boundaries',
 }
 

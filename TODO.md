@@ -112,7 +112,7 @@
 - [ ] Remove old tool log compatibility - a missing ref prints `[tool log missing]`
 - [ ] Add `tool_output_log` and remove age retention
 
-- [ ] Remove legacy config keys without migration - `api_key`, `session_tool_max_chars`, `noise_tools`, `tool_analysis`, `web_search`, `connect_check`, `auto_continue`, `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `unattended`, `provider`
+- [ ] Remove legacy config keys without migration - `api_key`, `session_tool_max_chars`, `noise_tools`, `connect_check`, `auto_continue`, `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
 - [ ] Add config ownership - core and plugin groups, with plugin manifests declaring `provides.config`
 - [ ] Change `/config` and `polyglav config` - grouped object view, `--json`, validation, and no unknown-key prompt
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
@@ -244,6 +244,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed tool_analysis and web_search config
 - [x] Changed session saves to dirty writes
 - [x] Added atomic session writes
 - [x] Removed the runs and tool commands
