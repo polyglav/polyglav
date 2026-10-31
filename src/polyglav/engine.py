@@ -1188,7 +1188,6 @@ class Engine:
             text, timestamp=now.isoformat(timespec='seconds'), origin=origin,
             **self._turn_meta()
         )
-        self.session_auto_save()
 
         if self.config.get('tool_calling'):
             return self._agent_loop()

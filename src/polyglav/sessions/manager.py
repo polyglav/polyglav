@@ -75,9 +75,11 @@ class Session:
         self.mode = mode or ''
         self.plan = plan or ''
         self._open: dict | None = None
+        self._dirty = True
 
     def _touch(self):
         self.updated_at = datetime.now(timezone.utc).isoformat(timespec='seconds')
+        self._dirty = True
 
     def open_turn(self) -> dict | None:
         return self._open
@@ -394,6 +396,8 @@ class SessionManager:
         if s is None:
             return
         path = self.sessions_dir / f'{s.session_name}.json'
+        if not getattr(s, '_dirty', True) and path.exists():
+            return
         tmp = path.with_suffix('.json.tmp')
         try:
             with open(tmp, 'w') as f:
@@ -402,6 +406,7 @@ class SessionManager:
                                     spill=spill), f,
                           separators=(',', ':'))
             tmp.replace(path)
+            s._dirty = False
         except OSError as e:
             try:
                 tmp.unlink()

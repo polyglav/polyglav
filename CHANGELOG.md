@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed session saves to dirty writes - a session rewrites only when changed, the per-command save is gone, and the user prompt is written at turn end. Tests: `test_session_io.py`
 - Added atomic session writes - `SessionManager.save` writes compact JSON to a temp file and replaces the session. Tests: `test_session_io.py`
 - Removed the runs and tool commands - `/runs` is gone and `/status` plus `/history --tree` cover the views, `/tool` is gone and `/help` lists tools and shows their detail. Tests: `test_commands.py`, `test_completion.py`
 - Removed ask parking and unattended mode - asks are inline only, `.polyglav/asks.json`, `/asks`, the ask API, scheduler reporting, and `/unattended` are gone, and headless asks return no-answer. Tests: `test_ask.py`, `test_jobs.py`, `test_server.py`

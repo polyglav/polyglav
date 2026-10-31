@@ -53,8 +53,6 @@
 
 ## Open
 
-- [ ] Change session save frequency - save at turn end, exit, compaction, sub-session append, and pause, and remove the per-command save
-- [ ] Add a dirty flag so unchanged sessions are not rewritten
 - [ ] Change runtime session JSON to compact serialization
 - [ ] Add an append-only JSONL session store with per-round appends
 - [ ] Add JSON materialization on exit, session switch, and manual export
@@ -246,6 +244,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Changed session saves to dirty writes
 - [x] Added atomic session writes
 - [x] Removed the runs and tool commands
 - [x] Removed ask parking and unattended

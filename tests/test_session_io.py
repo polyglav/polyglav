@@ -41,6 +41,19 @@ class TestSessionIoLog(unittest.TestCase):
         self.assertEqual(self.sm.read('atomic').turns[0]['parts'][0]['text'],
                          'hello')
 
+    def test_unchanged_session_is_not_rewritten(self):
+        from unittest.mock import patch
+        session = self.sm.create('clean')
+        session.add_user('hello')
+        self.sm.save(session)
+        with patch('polyglav.sessions.manager.json.dump') as dump:
+            self.sm.save(session)
+        dump.assert_not_called()
+        session.add_user('again')
+        with patch('polyglav.sessions.manager.json.dump') as dump:
+            self.sm.save(session)
+        dump.assert_called_once()
+
     def test_read_missing_file_not_logged(self):
         self.assertIsNone(self.sm.read('nope'))
         self.assertEqual(self._log_lines(), [])

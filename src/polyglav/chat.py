@@ -436,7 +436,6 @@ class ChatLoop(Engine):
                 if line.startswith('/'):
                     engine.current_session.add_command(line)
                     engine.registry.dispatch(line)
-                    engine.session_auto_save()
                     self._sync_output_log()
                 else:
                     if engine.paused_turn() is not None:
