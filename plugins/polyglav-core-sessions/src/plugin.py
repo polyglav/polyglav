@@ -108,3 +108,36 @@ def register_commands(commands):
         else:
             print('Usage: /sessions [list|preview|delete|export|import]')
 
+
+
+def _run_export(args):
+    from polyglav.cli import cmd_export
+    return cmd_export(args)
+
+
+def _run_import(args):
+    from polyglav.cli import cmd_import
+    return cmd_import(args)
+
+
+def register_cli(cli):
+    import argparse
+    p = cli.add_parser('export', help='Export a saved session to Markdown or JSON')
+    p.add_argument('name', help='Session name to export')
+    p.add_argument('--out', help='Output file (default: .polyglav/exports/<name>.md, - for stdout)')
+    p.add_argument('--json', action='store_true',
+                   help='Export as JSON (default: .polyglav/exports/<name>.json)')
+    p.add_argument('--tree', action='store_true',
+                   help='Include sub-runs in the export')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    p.set_defaults(func=_run_export)
+    p = cli.add_parser('import', help='Import a session from a JSON export')
+    p.add_argument('file', help='JSON export to import')
+    p.add_argument('--name',
+                   help="Session name to import as (default: the file's session name, or a fresh ses_ name)")
+    p.add_argument('--force', action='store_true',
+                   help='Overwrite an existing session with that name')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    p.set_defaults(func=_run_import)

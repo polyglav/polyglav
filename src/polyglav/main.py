@@ -31,29 +31,6 @@ def _add_run_parser(sub):
                    help='Project path (default: current directory)')
 
 
-def _add_export_parser(sub):
-    p = sub.add_parser('export', help='Export a saved session to Markdown or JSON')
-    p.add_argument('name', help='Session name to export')
-    p.add_argument('--out', help='Output file (default: .polyglav/exports/<name>.md, - for stdout)')
-    p.add_argument('--json', action='store_true',
-                   help='Export as JSON (default: .polyglav/exports/<name>.json)')
-    p.add_argument('--tree', action='store_true',
-                   help='Include sub-runs in the export')
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Project path (default: current directory)')
-
-
-def _add_import_parser(sub):
-    p = sub.add_parser('import', help='Import a session from a JSON export')
-    p.add_argument('file', help='JSON export to import')
-    p.add_argument('--name',
-                   help='Session name to import as (default: the file\'s session name, or a fresh ses_ name)')
-    p.add_argument('--force', action='store_true',
-                   help='Overwrite an existing session with that name')
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Project path (default: current directory)')
-
-
 def _add_mcp_parser(sub):
     p = sub.add_parser('mcp', help='Run polyglav as an MCP server over stdio')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -141,8 +118,6 @@ def _build_parser(config, pm):
                         help='Print version and exit', version=_version())
     sub = parser.add_subparsers(dest='command')
     _add_run_parser(sub)
-    _add_export_parser(sub)
-    _add_import_parser(sub)
     _add_mcp_parser(sub)
     _add_config_parser(sub)
     _add_plugins_parser(sub)
@@ -175,12 +150,6 @@ def main(argv=None):
     if args.command == 'run':
         from .cli import cmd_run
         return cmd_run(args)
-    if args.command == 'export':
-        from .cli import cmd_export
-        return cmd_export(args)
-    if args.command == 'import':
-        from .cli import cmd_import
-        return cmd_import(args)
     if args.command == 'mcp':
         from .cli import cmd_mcp
         return cmd_mcp(args)
