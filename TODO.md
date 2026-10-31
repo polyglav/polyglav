@@ -53,6 +53,22 @@
 
 ## Open
 
+- [ ] Remove ask parking and the ask store - delete `.polyglav/asks.json`, `/asks`, the `/asks` API, scheduler reporting, and `_park`, and keep asks inline
+- [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
+- [ ] Change the delegate contract - describe an anonymous sibling that inherits the caller's mode and cap, not a read-only helper
+- [ ] Rename `bash_allow` to `exec_allow` with no alias
+- [ ] Split code quality - keep `code_test`, move `code_lint` and `code_format` to an off-by-default plugin, and add a stdlib `code_check`
+- [ ] Change role and team prompts for `code_check` and an optional configured linter or formatter
+- [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
+- [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
+- [ ] Add a session tool log - one `<session>.tools.log` beside the session, with line-range refs and summaries
+- [ ] Remove `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes`
+- [ ] Add web result references - title, URL, and snippet in the session and in `/print`
+- [ ] Move tool config, permissions, and tests into the owning plugins
+- [ ] Fix the web plugin manifest tool names
+- [ ] Remove old tool log compatibility - a missing ref prints `[tool log missing]`
+- [ ] Add `tool_output_log` and remove age retention
+
 - [ ] Remove legacy config keys without migration - `api_key`, `session_tool_max_chars`, `noise_tools`, `tool_analysis`, `web_search`, `connect_check`, `auto_continue`, `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `unattended`, `provider`
 - [ ] Add config ownership - core and plugin groups, with plugin manifests declaring `provides.config`
 - [ ] Change `/config` and `polyglav config` - grouped object view, `--json`, validation, and no unknown-key prompt

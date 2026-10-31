@@ -61,6 +61,23 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 | Onboarding provider presets | S | a guided first run |
 | Remove compatibility aliases | S | a clean schema |
 
+## Tool ownership and agent interaction
+
+Tools that are not loop primitives live with their plugins, asks block inline, and the delegate contract matches what it actually does.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Remove ask parking and add supervisor routing | M | one inline ask path and autonomous jobs |
+| Fix the delegate contract | S | correct expectations |
+| Rename `exec_allow` and move exec config | S | plugin-owned shell policy |
+| Split code quality and add `code_check` | M | working defaults |
+| Catalog registry service and one `catalog` tool | M | one model-facing catalog |
+| Move bookkeeping to a plugin | S-M | optional plan and todo |
+| Session tool log with line refs | M | bounded sessions and readable output |
+| Remove tool output caps, drop, spill, and temp settings | S | one output model |
+| Add web result references | S | cited results |
+| Move tool config, permissions, and tests to plugins | M | capability ownership |
+
 ## Self-development team enablement
 
 The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.
