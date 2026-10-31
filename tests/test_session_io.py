@@ -29,6 +29,18 @@ class TestSessionIoLog(unittest.TestCase):
         self.assertIn('read', lines[0])
         self.assertIn('broken', lines[0])
 
+    def test_save_is_atomic_and_compact(self):
+        session = self.sm.create('atomic')
+        session.add_user('hello')
+        self.sm.save(session)
+        path = self.sm.sessions_dir / 'atomic.json'
+        self.assertTrue(path.exists())
+        self.assertFalse((self.sm.sessions_dir / 'atomic.json.tmp').exists())
+        raw = path.read_text()
+        self.assertNotIn('\n  ', raw)
+        self.assertEqual(self.sm.read('atomic').turns[0]['parts'][0]['text'],
+                         'hello')
+
     def test_read_missing_file_not_logged(self):
         self.assertIsNone(self.sm.read('nope'))
         self.assertEqual(self._log_lines(), [])

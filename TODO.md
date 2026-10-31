@@ -53,7 +53,6 @@
 
 ## Open
 
-- [ ] Add atomic session writes - serialize to a temp file and replace the target
 - [ ] Change session save frequency - save at turn end, exit, compaction, sub-session append, and pause, and remove the per-command save
 - [ ] Add a dirty flag so unchanged sessions are not rewritten
 - [ ] Change runtime session JSON to compact serialization
@@ -247,6 +246,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added atomic session writes
 - [x] Removed the runs and tool commands
 - [x] Removed ask parking and unattended
 - [x] Added Ctrl-C pause continue and cancel

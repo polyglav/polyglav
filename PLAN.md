@@ -91,7 +91,6 @@ The session log stays append-only in meaning, writes are atomic, and runtime cos
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Atomic JSON writes | S | no corrupt sessions |
 | Save frequency and dirty checks | S-M | less disk churn |
 | Compact runtime JSON | S | smaller files |
 | Append-only JSONL store | M | O(new data) writes |

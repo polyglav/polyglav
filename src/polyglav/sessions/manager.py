@@ -393,12 +393,20 @@ class SessionManager:
         s = session or self.current
         if s is None:
             return
+        path = self.sessions_dir / f'{s.session_name}.json'
+        tmp = path.with_suffix('.json.tmp')
         try:
-            with open(self.sessions_dir / f'{s.session_name}.json', 'w') as f:
+            with open(tmp, 'w') as f:
                 json.dump(s.to_dict(max_chars=max_chars,
                                     drop_tools=drop_tools,
-                                    spill=spill), f, indent=2)
+                                    spill=spill), f,
+                          separators=(',', ':'))
+            tmp.replace(path)
         except OSError as e:
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
             self._log_io('save', s.session_name, e)
 
     def list(self) -> list[str]:
