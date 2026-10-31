@@ -136,9 +136,7 @@
 - [ ] Remove all config compatibility aliases
 
 - [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
-- [ ] Move `polyglav fleet` into the fleet plugin
 - [ ] Move `polyglav serve` into the serve plugin
-- [ ] Move `polyglav eval` into the eval plugin
 - [ ] Move `polyglav export` and `polyglav import` into the sessions plugin
 - [ ] Add `polyglav providers` - list, connect, remove, and probe
 - [ ] Remove `--session-id`
@@ -267,6 +265,8 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the fleet CLI to a plugin
+- [x] Moved the eval CLI to a plugin
 - [x] Moved the serve CLI to a plugin
 - [x] Moved the jobs CLI to a plugin
 - [x] Moved the sessions command to a plugin

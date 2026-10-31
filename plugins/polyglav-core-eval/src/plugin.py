@@ -87,3 +87,29 @@ def register_fixtures(fixtures):
             },
         },
     })
+
+def _run(args):
+    from polyglav.cli import cmd_eval
+    return cmd_eval(args)
+
+
+def register_cli(cli):
+    import argparse
+    p = cli.add_parser('eval', help='Tool-use evaluation harness '
+                       '(run task fixtures headless and report metrics)')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    g = p.add_subparsers(dest='action', required=True)
+    g.add_parser('list', help='List discovered eval fixtures')
+    r = g.add_parser('run', help='Run the fixture suite and report metrics')
+    r.add_argument('--fixture', help='Fixture id or substring to run (default: all)')
+    r.add_argument('--provider', help='Provider override')
+    r.add_argument('--model', help='Model override')
+    r.add_argument('--base-url', help='Base URL override')
+    r.add_argument('--compare', help='Comma-separated providers to compare, '
+                   'e.g. ollama,openai')
+    r.add_argument('--output', choices=['table', 'json'], default='table',
+                   help='Output format (default: table)')
+    r.add_argument('--verbose', action='store_true',
+                   help='Print tool status and diagnostics to stderr')
+    p.set_defaults(func=_run)

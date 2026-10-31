@@ -2,6 +2,8 @@
 
 ## v0.50.0
 
+- Moved the fleet CLI to a plugin - `polyglav fleet` registers from `polyglav-core-fleet`. Tests: `test_fleet.py`, `test_plugins.py`
+- Moved the eval CLI to a plugin - `polyglav eval` registers from `polyglav-core-eval`, which already owns the fixtures. Tests: `test_eval.py`, `test_plugins.py`
 - Moved the serve CLI to a plugin - `polyglav serve` registers from `polyglav-core-serve`. Tests: `test_cli.py`, `test_plugins.py`
 - Moved the jobs CLI to a plugin - `polyglav jobs` registers from `polyglav-core-jobs`, and the core keeps the handler for now. Tests: `test_plugins.py`, `test_cli.py`
 - Moved the sessions command to a plugin - `/sessions` lives in `polyglav-core-sessions`. Tests: `test_session_import.py`, `test_commands.py`

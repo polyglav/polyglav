@@ -92,8 +92,9 @@ Polyglav/
     ├── polyglav-core-bookkeeping/ # plan and todo tools and commands
     ├── polyglav-core-dev/         # code_test, code_lint, code_format
     ├── polyglav-core-edit/        # file_edit
-    ├── polyglav-core-eval/        # eval fixture catalog for polyglav eval
+    ├── polyglav-core-eval/        # eval fixtures and CLI
     ├── polyglav-core-exec/        # run_command
+    ├── polyglav-core-fleet/       # fleet supervisor CLI
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider

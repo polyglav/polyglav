@@ -64,26 +64,6 @@ def _add_models_parser(sub):
                     help='Provider name (default: current)')
 
 
-def _add_eval_parser(sub):
-    p = sub.add_parser('eval', help='Tool-use evaluation harness '
-                       '(run task fixtures headless and report metrics)')
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Project path (default: current directory)')
-    g = p.add_subparsers(dest='action', required=True)
-    g.add_parser('list', help='List discovered eval fixtures')
-    r = g.add_parser('run', help='Run the fixture suite and report metrics')
-    r.add_argument('--fixture', help='Fixture id or substring to run (default: all)')
-    r.add_argument('--provider', help='Provider override')
-    r.add_argument('--model', help='Model override')
-    r.add_argument('--base-url', help='Base URL override')
-    r.add_argument('--compare', help='Comma-separated providers to compare, '
-                   'e.g. ollama,openai')
-    r.add_argument('--output', choices=['table', 'json'], default='table',
-                   help='Output format (default: table)')
-    r.add_argument('--verbose', action='store_true',
-                   help='Print tool status and diagnostics to stderr')
-
-
 def _add_mcp_parser(sub):
     p = sub.add_parser('mcp', help='Run polyglav as an MCP server over stdio')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -138,55 +118,6 @@ def _add_plugins_parser(sub):
     pt.add_argument('--verbose', action='store_true', help='Verbose unittest output')
 
 
-def _add_fleet_parser(sub):
-    p = sub.add_parser('fleet', help='Supervise a fleet of scoped polyglav serve agents '
-                       '(ports, health checks, restart policy, config generation)')
-    p.add_argument('--path', default=argparse.SUPPRESS,
-                   help='Fleet root (default: current directory)')
-    g = p.add_subparsers(dest='action', required=True)
-    g.add_parser('init', help='Scan subdirectories holding .polyglav/config.json '
-                 'into the fleet manifest')
-    ga = g.add_parser('add', help='Add an agent to the manifest')
-    ga.add_argument('name')
-    ga.add_argument('--dir', help='Agent directory (default: <root>/<name>)')
-    ga.add_argument('--port', type=int, default=0,
-                    help='Preferred port (0 = auto-allocate)')
-    ga.add_argument('--max-restarts', type=int, default=10,
-                    help='Restart budget before the supervisor pauses the agent '
-                         '(0 = unlimited)')
-    grm = g.add_parser('remove', help='Remove an agent from the manifest (stops it)')
-    grm.add_argument('name')
-    gu = g.add_parser('up', help='Start agents (Ctrl-C = graceful down)')
-    gu.add_argument('--detach', action='store_true',
-                    help='Run the supervisor as a background daemon')
-    gu.add_argument('--daemon', dest='daemon_', action='store_true',
-                    help=argparse.SUPPRESS)
-    g.add_parser('down', help='Stop the supervised agents and the daemon if running')
-    g.add_parser('status', help='Live status table of the fleet')
-    gr = g.add_parser('restart', help='Stop and relaunch agents, resetting backoff')
-    gr.add_argument('name', nargs='?', help='Agent name (default: all)')
-    gl = g.add_parser('logs', help='Show an agent log (tail)')
-    gl.add_argument('name')
-    gl.add_argument('n', nargs='?', type=int, default=50,
-                    help='Last N lines (default: 50)')
-    gl.add_argument('--follow', '-f', action='store_true',
-                    help='Keep watching appended output (Ctrl-C to stop)')
-    gc = g.add_parser('config', help='Write selected keys into <agent>/.polyglav/config.json')
-    gc.add_argument('name')
-    gc.add_argument('--provider', help='Provider override')
-    gc.add_argument('--model', help='Model override')
-    gc.add_argument('--role', help='Inline a role\'s prompt, model, and permissions')
-    gc.add_argument('--system-prompt', help='System prompt override')
-    gc.add_argument('--mode', help='Agent mode override (read or write)')
-    gc.add_argument('--tools-deny', action='append', default=[],
-                    help='Tool name to deny (repeatable)')
-    gc.add_argument('--tool-permission', action='append', default=[],
-                    help='category=action override (repeatable), e.g. bash=allow')
-    gc.add_argument('--approve-model', action='store_true',
-                    help='Approve the model referenced by --role or --model '
-                         'in the global models registry')
-
-
 def _version():
     return get_version()
 
@@ -223,11 +154,9 @@ def _build_parser(config, pm):
     _add_export_parser(sub)
     _add_import_parser(sub)
     _add_models_parser(sub)
-    _add_eval_parser(sub)
     _add_mcp_parser(sub)
     _add_config_parser(sub)
     _add_plugins_parser(sub)
-    _add_fleet_parser(sub)
     pm.register_cli(CLIRegistry(sub, config, pm))
     return parser
 
@@ -266,9 +195,6 @@ def main(argv=None):
     if args.command == 'models':
         from .cli import cmd_models
         return cmd_models(args)
-    if args.command == 'eval':
-        from .cli import cmd_eval
-        return cmd_eval(args)
     if args.command == 'mcp':
         from .cli import cmd_mcp
         return cmd_mcp(args)
@@ -278,9 +204,6 @@ def main(argv=None):
     if args.command == 'config':
         from .cli import cmd_config
         return cmd_config(args)
-    if args.command == 'fleet':
-        from .cli import cmd_fleet
-        return cmd_fleet(args)
 
     if getattr(args, 'unattended', False):
         config.apply('unattended', True)

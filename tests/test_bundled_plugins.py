@@ -13,6 +13,7 @@ BUNDLED = {
     'polyglav-core-edit',
     'polyglav-core-eval',
     'polyglav-core-exec',
+    'polyglav-core-fleet',
     'polyglav-core-fs',
     'polyglav-core-git',
     'polyglav-core-groq',
