@@ -84,7 +84,7 @@
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Add the sessions plugin - `/sessions`, export, import, and render
+- [ ] Move session export, import, and render into the sessions plugin, including the CLI
 - [ ] Move the role registry into the roles plugin and remove the core `roles.py` dependency
 - [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
@@ -267,6 +267,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Moved the sessions command to a plugin
 - [x] Moved the jobs command to a plugin
 - [x] Moved the memorize command to a plugin
 - [x] Moved bookkeeping to a plugin

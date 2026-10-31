@@ -16,7 +16,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Task | Effort | Provides |
 |------|--------|----------|
 | REPL plugin | M-L | a replaceable terminal front-end |
-| Sessions plugin | S | export and import outside the core |
 | Move the role registry into the roles plugin | M | optional roles and delegation |
 | Move the team registry and `run_team` into the teams plugin | M | optional teams on top of roles |
 | Move the skill registry and improvement into the skills plugin | S-M | optional skills |
@@ -56,7 +55,7 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 | Jobs plugin CLI and shared job service | M | one jobs surface |
 | Fleet plugin CLI | M | supervised agents outside the core |
 | Serve plugin CLI | S-M | a replaceable HTTP access layer |
-| Sessions plugin for export and import | S | storage formats outside the core |
+| Sessions CLI export and import | S | storage formats outside the core |
 | Eval plugin CLI | S | a development harness outside the core |
 | Config service and validation | S-M | one config behavior |
 | Provider CLI - list, connect, remove, probe | S | provider management |

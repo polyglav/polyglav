@@ -90,6 +90,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-opencode',
         'polyglav-core-providers',
         'polyglav-core-roles',
+        'polyglav-core-sessions',
         'polyglav-core-skills',
         'polyglav-core-teams',
         'polyglav-core-web',

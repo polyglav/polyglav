@@ -1,0 +1,15 @@
+{
+  "name": "polyglav-core-sessions",
+  "version": "0.1.0",
+  "description": "Session catalog, export, and import - bundled with polyglav",
+  "polyglav_version": ">=0.49.0,<1.0",
+  "python": ">=3.11",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [],
+    "providers": [],
+    "commands": [
+      "/sessions"
+    ]
+  }
+}
