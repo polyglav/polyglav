@@ -62,6 +62,8 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertTrue(self.config.get('memory'))
         self.assertEqual(self.config.get('memory_max_chars'), 2000)
         self.assertEqual(self.config.get('report.webhook'), '')
+        self.assertEqual(self.config.get('mcp.servers'), [])
+        self.assertTrue(self.config.get('mcp_server.allow_ask'))
 
     def test_web_config_registered(self):
         self.pm.load()

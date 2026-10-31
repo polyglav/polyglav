@@ -25,8 +25,6 @@ DEFAULT_CONFIG = {
     'markdown_streaming': False,
     'max_team_depth': 2,
     'max_tokens': 8192,
-    'mcp.servers': [],
-    'mcp_server.allow_ask': True,
     'mode': 'read',
     'model': 'llama3.2',
     'modes': {
@@ -209,8 +207,6 @@ CONFIG_DESCRIPTIONS = {
     'markdown_streaming': 'Basic markdown-aware streaming',
     'max_team_depth': 'Maximum nested team runs',
     'max_tokens': 'Output token cap sent to the provider',
-    'mcp.servers': 'MCP client server definitions',
-    'mcp_server.allow_ask': 'When serving MCP, run ask-policy tools vs refuse them',
     'mode': 'Active agent mode (read or write)',
     'model': 'Model name or provider/model ref',
     'modes': 'Mode instruction blocks and prompt colors',

@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved MCP config to the MCP plugin - `mcp.servers` and `mcp_server.allow_ask` are declared by `polyglav-core-mcp`
 - Moved fs, memory, and webhook config to plugins - `list_dir_max_entries`, `memory*`, and `report.webhook` are declared by their owning plugins
 - Moved web config to the web plugin - `query_refine*` and `search_results` are declared by `polyglav-core-web`, with the search default raised to 10
 - Added plugin config registration - `provides.config` declares plugin defaults and descriptions, and loaded plugins register them with the config service
