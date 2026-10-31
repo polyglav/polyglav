@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added a shared config service - `/config` and `polyglav config` validate keys through one service, and unknown keys fail instead of prompting. Tests: `test_config.py`, `test_commands.py`
 - Removed the jobs stop and add-supervisor commands - `disable` is the only stop path, and scheduled teams replace the broken supervisor scaffold. Tests: `test_jobs.py`, `test_commands.py`
 - Removed `--session-id` - `polyglav run` always creates an auto-named session. Tests: `test_cli.py`
 - Moved the export and import CLI to the sessions plugin - `polyglav export` and `polyglav import` register from `polyglav-core-sessions`. Tests: `test_session_import.py`, `test_plugins.py`

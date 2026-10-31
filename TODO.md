@@ -144,7 +144,6 @@
 - [ ] Add `polyglav jobs add --team` for scheduled team runs
 - [ ] Move plugin CLI tests into each plugin suite
 - [ ] Change CLI help to group core commands and plugin commands
-- [ ] Add a config service shared by `/config` and `polyglav config`
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
@@ -261,6 +260,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added a shared config service
 - [x] Removed the jobs stop and add-supervisor commands
 - [x] Removed --session-id
 - [x] Moved the export and import CLI to the sessions plugin

@@ -53,7 +53,6 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 | Task | Effort | Provides |
 |------|--------|----------|
 | Jobs scheduler and shared job service | M | one jobs surface |
-| Config service and validation | S-M | one config behavior |
 | Provider CLI - list, connect, remove, probe | S | provider management |
 | Signal and exit contract | S | predictable interruption |
 

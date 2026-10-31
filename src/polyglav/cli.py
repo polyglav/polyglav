@@ -241,6 +241,8 @@ _MISSING_VALUE = object()
 
 def cmd_config(args) -> int:
     config = Config(path=getattr(args, 'path', None))
+    from .config_service import ConfigError, ConfigService
+    service = ConfigService(config)
     scope = 'global' if getattr(args, 'global_', False) else 'local'
     action = getattr(args, 'action', None)
 
@@ -251,9 +253,14 @@ def cmd_config(args) -> int:
         elif isinstance(keys, str):
             keys = [keys]
         for key in keys:
-            line = f'{key} = {config.get(key)}'
+            try:
+                value = service.get(key)
+            except ConfigError as e:
+                print(f'Error: {e}', file=sys.stderr)
+                return 1
+            line = f'{key} = {value}'
             if getattr(args, 'show_origin', False):
-                line += f'  ({config.origin(key)})'
+                line += f'  ({service.origin(key)})'
             print(line)
         return 0
 
@@ -262,17 +269,25 @@ def cmd_config(args) -> int:
         if value is _MISSING_VALUE:
             print(f'Error: a value is required to set "{args.key}"', file=sys.stderr)
             return 1
-        config.set(args.key, value, scope=scope)
+        try:
+            service.set(args.key, value, scope=scope)
+        except ConfigError as e:
+            print(f'Error: {e}', file=sys.stderr)
+            return 1
         print(f'{args.key} = {value} (saved to {scope} config)')
         return 0
 
     if action == 'unset':
-        config.unset(args.key, scope=scope)
+        try:
+            service.unset(args.key, scope=scope)
+        except ConfigError as e:
+            print(f'Error: {e}', file=sys.stderr)
+            return 1
         print(f'Unset {args.key} ({scope} config)')
         return 0
 
     if action == 'reload':
-        config.reload()
+        service.reload()
         print('Config reloaded from disk')
         return 0
 

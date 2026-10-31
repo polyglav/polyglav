@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from polyglav.config import Config, DEFAULT_CONFIG
+from polyglav.config_service import ConfigError, ConfigService
 from polyglav.cli import cmd_config
 from polyglav.tools.policy import ToolPolicy
 
@@ -360,6 +361,30 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(fresh.get('tool_permission')['bash'], 'allow')
 
 
+class TestConfigService(_IsolatedConfigBase):
+
+    def test_unknown_key_is_an_error(self):
+        service = ConfigService(Config(path=self.project))
+        with self.assertRaises(ConfigError):
+            service.get('no_such_key')
+        with self.assertRaises(ConfigError):
+            service.set('no_such_key', 1)
+
+    def test_known_key_set_and_get(self):
+        service = ConfigService(Config(path=self.project))
+        service.set('max_tokens', 1024)
+        self.assertEqual(service.get('max_tokens'), 1024)
+
+    def test_cli_rejects_unknown_key(self):
+        args = SimpleNamespace(
+            path=str(self.project), global_=False, action='set',
+            key='no_such_key', value='1', show_origin=False)
+        with patch('sys.stderr', new=io.StringIO()) as err:
+            code = cmd_config(args)
+        self.assertEqual(code, 1)
+        self.assertIn('unknown config key', err.getvalue())
+
+
 class TestConfigCli(_IsolatedConfigBase):
 
     def _args(self, **kw):
@@ -412,13 +437,6 @@ class TestConfigCli(_IsolatedConfigBase):
         rc, _ = self._run(self._args(action='set', key='temperature'))
         self.assertEqual(rc, 1)
         self.assertFalse(self.local_path.exists())
-
-    def test_set_api_key_is_a_normal_key(self):
-        rc, _ = self._run(self._args(action='set', key='api_key',
-                                     value='cli-secret'))
-        self.assertEqual(rc, 0)
-        self.assertEqual(self.local()['api_key'], 'cli-secret')
-        self.assertNotIn('api_key', self.global_())
 
     def test_unset_local(self):
         Config(path=str(self.project)).set('max_tokens', 2048)

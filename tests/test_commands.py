@@ -258,15 +258,9 @@ class TestToolCommand(unittest.TestCase):
         self._dispatch('/config tools.deny -r run_command')
         self.assertNotIn('run_command', self.chat.config.get('tools.deny'))
 
-    def test_config_unknown_key_prompts(self):
-        with patch('builtins.input', return_value='y'):
-            self._dispatch('/config frobnicate 1')
-        self.assertEqual(self.chat.config.get('frobnicate'), 1)
-
-    def test_config_unknown_key_declined(self):
-        with patch('builtins.input', return_value='n'):
-            output = self._dispatch('/config frobnicate 1')
-        self.assertIn('Skipped', output)
+    def test_config_unknown_key_is_an_error(self):
+        output = self._dispatch('/config frobnicate 1')
+        self.assertIn('unknown config key', output)
         self.assertIsNone(self.chat.config.get('frobnicate'))
 
     def test_config_instances_do_not_share_lists(self):

@@ -10,6 +10,7 @@ from ..sessions.render import (
     render_session, render_session_tree, render_turn, session_to_json,
     session_tree_to_json, turn_summary,
 )
+from ..config_service import ConfigError, ConfigService
 from ..ui import DIM, RED, RESET
 
 SUB_INDENT = 4
@@ -231,96 +232,6 @@ def _parse_turn_ref(spec):
             return None, None, f'Invalid part: {spec}'
         m = int(m_str)
     return int(n_str), m, ''
-
-
-def _config_default(key):
-    from ..config import DEFAULT_CONFIG
-    if key not in DEFAULT_CONFIG:
-        return None
-    return str(DEFAULT_CONFIG[key])
-
-
-def _config_options(key):
-    from ..config import CONFIG_CHOICES
-    options = CONFIG_CHOICES.get(key)
-    return ' | '.join(options) if options else ''
-
-
-def _render_config_listing(chat, verbose=False):
-    from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
-    keys = sorted(chat.config.data)
-    key_width = max((len(k) for k in keys), default=0)
-    for key in keys:
-        value = str(chat.config.data[key])
-        origin = chat.config.origin(key)
-        desc = CONFIG_DESCRIPTIONS.get(key, '')
-        default = _config_default(key)
-        if len(value) <= CONFIG_VALUE_INLINE:
-            line = f'  {key:<{key_width}}  {value}  ({origin})'
-            if verbose and default is not None:
-                if len(default) <= CONFIG_VALUE_INLINE:
-                    line += f'  default: {default}'
-                else:
-                    print(line)
-                    print(f'    default: {default}')
-                    if desc:
-                        print(f'    {desc}')
-                    continue
-            print(line)
-            if verbose and desc:
-                print(f'    {desc}')
-            if verbose:
-                options = _config_options(key)
-                if options:
-                    print(f'    options: {options}')
-        else:
-            print(f'  {key}:')
-            print(f'    value: {value}')
-            print(f'    source: {origin}')
-            if verbose and default is not None:
-                print(f'    default: {default}')
-            if verbose and desc:
-                print(f'    description: {desc}')
-            if verbose:
-                options = _config_options(key)
-                if options:
-                    print(f'    options: {options}')
-
-
-def _render_config_detail(chat, key):
-    from ..config import CONFIG_DESCRIPTIONS, CONFIG_VALUE_INLINE
-    value = str(chat.config.get(key))
-    origin = chat.config.origin(key)
-    desc = CONFIG_DESCRIPTIONS.get(key, '')
-    default = _config_default(key)
-    if len(value) <= CONFIG_VALUE_INLINE:
-        line = f'  {key}: {value}  ({origin})'
-        if default is not None:
-            if len(default) <= CONFIG_VALUE_INLINE:
-                line += f'  default: {default}'
-            else:
-                print(line)
-                print(f'    default: {default}')
-                if desc:
-                    print(f'    {desc}')
-                return
-        print(line)
-        if desc:
-            print(f'    {desc}')
-        options = _config_options(key)
-        if options:
-            print(f'    options: {options}')
-        return
-    print(f'  {key}:')
-    print(f'    value: {value}')
-    print(f'    source: {origin}')
-    if default is not None:
-        print(f'    default: {default}')
-    if desc:
-        print(f'    description: {desc}')
-    options = _config_options(key)
-    if options:
-        print(f'    options: {options}')
 
 
 def _render_tool_detail(chat, name):
@@ -570,7 +481,7 @@ def register_builtins(registry):
                 break
         parts = text.split(maxsplit=1)
         if not text:
-            _render_config_listing(chat, verbose=verbose)
+            ConfigService(chat.config).render_listing(verbose=verbose)
             return
         key = parts[0]
         rest = parts[1].strip() if len(parts) > 1 else ''
@@ -586,12 +497,16 @@ def register_builtins(registry):
 
         if key == 'unset' and rest:
             k = rest.split(maxsplit=1)[0]
-            chat.config.unset(k, scope=scope)
+            try:
+                ConfigService(chat.config).unset(k, scope=scope)
+            except ConfigError as e:
+                print(f'{RED}✗ {e}{RESET}')
+                return
             print(f'Unset {k} ({scope} config)')
             return
 
         if not rest:
-            _render_config_detail(chat, key)
+            ConfigService(chat.config).render_detail(key)
             return
 
         if rest in ('-a', '-r') or rest.startswith('-a ') or rest.startswith('-r '):
@@ -610,29 +525,25 @@ def register_builtins(registry):
                     current.remove(it)
                     changed = True
             if changed:
-                chat.config.set(key, current, scope=scope)
+                try:
+                    ConfigService(chat.config).set(key, current, scope=scope)
+                except ConfigError as e:
+                    print(f'{RED}✗ {e}{RESET}')
+                    return
                 print(f'Config {key} = {current} ({scope})')
             else:
                 print(f'Config {key} unchanged ({current})')
             return
 
-        if key not in chat.config.data:
-            try:
-                answer = input(
-                    f'Unknown config key "{key}". Store anyway? [Y/n] '
-                ).strip().lower()
-            except (EOFError, KeyboardInterrupt):
-                print()
-                return
-            if answer in ('n', 'no'):
-                print('Skipped')
-                return
-
         try:
             value = json.loads(rest)
         except json.JSONDecodeError:
             value = rest
-        chat.config.set(key, value, scope=scope)
+        try:
+            ConfigService(chat.config).set(key, value, scope=scope)
+        except ConfigError as e:
+            print(f'{RED}✗ {e}{RESET}')
+            return
         print(f'Config {key} = {value} ({scope})')
 
     @registry.register('session', description='Show or switch the active session', subcommands=[
