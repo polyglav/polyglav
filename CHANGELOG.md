@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Removed `--session-id` - `polyglav run` always creates an auto-named session. Tests: `test_cli.py`
 - Moved the export and import CLI to the sessions plugin - `polyglav export` and `polyglav import` register from `polyglav-core-sessions`. Tests: `test_session_import.py`, `test_plugins.py`
 - Moved the models CLI to the providers plugin - `polyglav models` registers from `polyglav-core-providers`. Tests: `test_models.py`, `test_plugins.py`
 - Moved the fleet CLI to a plugin - `polyglav fleet` registers from `polyglav-core-fleet`. Tests: `test_fleet.py`, `test_plugins.py`

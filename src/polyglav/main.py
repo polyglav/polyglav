@@ -18,7 +18,6 @@ def _add_run_parser(sub):
                    help='Output format (default: json)')
     p.add_argument('--verbose', action='store_true',
                    help='Print tool status and diagnostics to stderr')
-    p.add_argument('--session-id', help='Persistent session name (load or create)')
     g = p.add_mutually_exclusive_group()
     g.add_argument('--yes', dest='approve', action='store_true',
                    help='Auto-approve tools that require confirmation')

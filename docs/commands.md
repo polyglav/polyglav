@@ -78,7 +78,6 @@ One-shot headless chat.
 | `--mode`             | Agent mode override (`read` or `write`)                      |
 | `--output`           | `json` (default) or `text`                                   |
 | `--verbose`          | Print tool status and diagnostics to stderr                   |
-| `--session-id`       | Persistent session name (load or create)                     |
 | `--yes`              | Auto-approve tools that require confirmation                 |
 | `--no`               | Auto-deny tools that require confirmation (default)          |
 | `--path`             | Project path                                                 |

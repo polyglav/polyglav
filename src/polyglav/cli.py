@@ -33,7 +33,7 @@ def _engine_from_args(args) -> Engine:
 
 def cmd_run(args) -> int:
     engine = _engine_from_args(args)
-    engine.load_or_create_session(getattr(args, 'session_id', None))
+    engine.load_or_create_session(None)
     result = engine.chat(args.prompt, origin='cli')
     if args.output == 'json':
         sys.stdout.write(json.dumps(result.to_dict(), indent=2) + '\n')

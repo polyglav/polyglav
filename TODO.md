@@ -139,7 +139,6 @@
 - [ ] Move `polyglav serve` into the serve plugin
 - [ ] Move `polyglav export` and `polyglav import` into the sessions plugin
 - [ ] Add `polyglav providers` - list, connect, remove, and probe
-- [ ] Remove `--session-id`
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Add `polyglav jobs add --team` for scheduled team runs
@@ -202,7 +201,6 @@
 - [ ] Fix the PyPI long-description screenshot - the image fails to load on the package page
 - [ ] Fix opencode permission rejection - the provider stops when a permission is rejected instead of continuing
 - [ ] Exact-args permission grants - approve the specific command (not just the tool), and let an `always` grant live beyond the current sub-agent run
-- [ ] Remove `--session-id` - explicit session naming is no longer needed now that auto sessions are named `ses_<ts>_<id>`
 - [ ] Relocate job run sessions under `.polyglav/jobs/<name>/` (kept in `sessions/` for now)
 - [ ] Role-name sync - adopt assistant, composer, manager, and specialist as the canonical roles across types, prompts, and docs
 - [ ] Assistant-roles track docs - record the assistant, composer, and manager architecture and the work packages in VISION, PLAN, and TODO
@@ -265,6 +263,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Removed --session-id
 - [x] Moved the export and import CLI to the sessions plugin
 - [x] Moved the models CLI to the providers plugin
 - [x] Moved the fleet CLI to a plugin

@@ -107,12 +107,6 @@ class TestCliRun(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn('plain answer', out)
 
-    def test_run_session_id_persists(self):
-        self._run([[{'type': 'token', 'content': 'answer'},
-                    {'type': 'done', 'reason': 'stop'}]], session_id='persist')
-        sess = Path(self.tmp.name) / '.polyglav' / 'sessions' / 'persist.json'
-        self.assertTrue(sess.exists())
-
     def test_run_error_exit_code(self):
         rc, _ = self._run([[{'type': 'error', 'code': 500, 'message': 'boom'}]])
         self.assertEqual(rc, 1)
