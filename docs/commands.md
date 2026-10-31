@@ -38,6 +38,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
 | `/summary`              |                | Summarize the current session into `.polyglav/summaries/<session>.md` without trimming the provider context |
+| `/status`               |                | Show the model, mode, current session, context, live runs, plugins, jobs, and fleet state |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
 | `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). Prints `@ Thinking: <scope>` |
 | `/verbosity`            | `/verbose`     | Show or set display scopes: `/verbosity`, `/verbosity <scope>`, `/verbosity <scope> <value>`, `/verbosity preset quiet\|normal\|verbose`, `/verbosity reset [scope]` |

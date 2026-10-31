@@ -283,6 +283,49 @@ def register_builtins(registry):
     def clear_cmd(_=None):
         chat.redraw()
 
+    @registry.register('status', description='Show the current session, runs, jobs, and plugins')
+    def status_cmd(_=None):
+        from ..modes import mode_name
+        polyglav_dir = chat.config.local_path.parent
+        n, chars = chat._context_size()
+        mode = mode_name(chat.config, chat.current_session.mode or None)
+        print(f'{DIM}@ Status{RESET}')
+        print(f'  model:    {chat.config.get("provider")}/{chat.config.get("model")}')
+        print(f'  mode:     {mode}')
+        print(f'  session:  {chat.current_session.session_name} '
+              f'({len(chat.current_session.turns)} turns, '
+              f'{chat._human_chars(chars)} context)')
+        runs = chat.runs.runs()
+        active = [r for r in runs if r.status == 'running']
+        print(f'  runs:     {len(runs)} total, {len(active)} active')
+        for run in runs[-5:]:
+            role = run.role or 'root'
+            duration = f' {run.duration:.1f}s' if run.duration else ''
+            print(f'    #{run.id} {role} [{run.status}]{duration} {run.session}')
+        plugins = chat._plugin_manager.status() if getattr(chat, '_plugin_manager', None) else []
+        if plugins:
+            loaded = sum(1 for p in plugins if p.status == 'loaded')
+            errors = sum(1 for p in plugins if p.status == 'error')
+            print(f'  plugins:  {loaded} loaded, {len(plugins) - loaded} inactive, '
+                  f'{errors} errors')
+        jobs_path = polyglav_dir / 'jobs.json'
+        if jobs_path.exists():
+            try:
+                jobs = json.loads(jobs_path.read_text()).get('jobs', [])
+                enabled = sum(1 for j in jobs if j.get('enabled'))
+                print(f'  jobs:     {len(jobs)} configured, {enabled} enabled')
+            except (OSError, json.JSONDecodeError):
+                print('  jobs:     unreadable jobs.json')
+        fleet_path = polyglav_dir / 'fleet.state.json'
+        if fleet_path.exists():
+            try:
+                state = json.loads(fleet_path.read_text()).get('agents', {})
+                running = sum(1 for a in state.values()
+                              if a.get('status') in ('running', 'ok'))
+                print(f'  fleet:    {len(state)} agents, {running} running')
+            except (OSError, json.JSONDecodeError):
+                print('  fleet:    unreadable fleet.state.json')
+
     @registry.register('new', description='Start a new session')
     def new_cmd(_=None):
         chat.new_session()

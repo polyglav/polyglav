@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added `/status` - a read-only view of the model, mode, session, runs, plugins, jobs, and fleet state. Tests: `test_commands.py`
 - Added a shared config service - `/config` and `polyglav config` validate keys through one service, and unknown keys fail instead of prompting. Tests: `test_config.py`, `test_commands.py`
 - Removed the jobs stop and add-supervisor commands - `disable` is the only stop path, and scheduled teams replace the broken supervisor scaffold. Tests: `test_jobs.py`, `test_commands.py`
 - Removed `--session-id` - `polyglav run` always creates an auto-named session. Tests: `test_cli.py`

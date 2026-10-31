@@ -147,7 +147,6 @@
 - [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
-- [ ] Add `/status` - show provider, model, mode, current session, live runs, jobs, fleet agents, and plugin state
 - [ ] Add Ctrl-C pause - pause the root turn, stop the active child run, and print a hint at idle
 - [ ] Add `/continue [parent|<id>]` - resume the last active paused session, the parent session, or any run or session ID
 - [ ] Add `/cancel` - close a paused root turn as cancelled
@@ -260,6 +259,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added the status command
 - [x] Added a shared config service
 - [x] Removed the jobs stop and add-supervisor commands
 - [x] Removed --session-id

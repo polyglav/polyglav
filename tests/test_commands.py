@@ -370,6 +370,15 @@ class TestCommandSurface(unittest.TestCase):
             self.chat.registry.dispatch('/clear')
         redraw.assert_called_once_with()
 
+    def test_status_shows_session_and_model(self):
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/status')
+        text = out.getvalue()
+        self.assertIn('Status', text)
+        self.assertIn('ollama/test-model', text)
+        self.assertIn('session:', text)
+        self.assertIn('runs:', text)
+
     def test_new_starts_a_session(self):
         before = self.chat.current_session.session_name
         self.chat.registry.dispatch('/new')
