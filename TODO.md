@@ -15,7 +15,6 @@
 - PlantUML plugin - an external plugin that draws configurations and workflows as node diagrams instead of ASCII
 - UI commands - `/clear`, `/new`, `/providers`, `/providers list`, `/thinking [hide|show]`, and persist error logs
 - Feedback - capture operator feedback on a run or answer and feed it back into memory and skills
-- Inbound webhooks - accept inbound events to start a run or answer a parked ask
 - Plugin management UI - list, enable, disable, install, and update plugins from a UI surface, not only slash commands
 - Model picker - `/models` autocomplete and a direct numeric selection of a model
 - Centralized static strings - move hardcoded prompts and static strings into one module
@@ -25,7 +24,6 @@
 - Hash-chained / tamper-evident audit log - additive on session logs (enterprise.md recommendation), hash-chained append or WORM storage
 - Single-purpose agent fleet with "one agent per process, scoped to a folder" as the headline pattern. README + `docs/fleet.md` set the niche
 - Fleet and swarm orchestration as the two layers - fleet: supervisor running many scoped `polyglav serve` instances (port allocation, health checks, restart policy, per-agent config generation), swarm: `/agent` types, auditor agents, generate > check > correct
-- Add multiuser capability or queue for API requests (request queue, per-token rate limits)
 - Add ReadTheDocs documentation
 - Citations / source attribution - return URL + snippet with every answer
 - Bookmarks - `/bookmark add/remove/list` for session pinning
@@ -48,8 +46,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
-- [ ] Retarget inbound webhooks - start a run or answer a job question, not a parked ask
 - [ ] Change the plugin test harness task - external plugins only, bundled suites already ship
 - [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
@@ -153,6 +149,7 @@
 - [ ] Full `file_*` namespace extension - if `file_glob`/`file_grep` prove better with most models, extend the prefix to `list_dir`/`glob`/`grep` (old names stay aliases)
 - [ ] Tool spec polish - rename `grep.glob` -> `include` (alias `glob`), add examples and prefer-`web_fetch` guidance to tool descriptions
 - [ ] Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`. Channel-agnostic core, first consumers are the connectors and the operator API
+- [ ] Add inbound run triggers - accept webhook events that start a run or answer a job question
 - [ ] Add job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API
 - [ ] Add the jobs and fleet control surface - GET /jobs and POST /jobs/<name>/approve|reject|run|disable on polyglav serve, a fleet-wide list --root, and a stdlib web Control UI on the same API
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
@@ -184,6 +181,7 @@
 - [ ] Workspace sessions - tools write into a scoped `--workspace` dir, optional `--git` sync
 - [ ] Sandboxed exec - namespace/container isolation for `run_command` (documented, planned for a later version)
 - [ ] `/agent` types - interactive type selection/run UX (type registry, sub-engine, and `call` landed. The `/agent` command itself remains)
+- [ ] Add multiuser API and queue - a fleet-level central model layer with request queues and per-token rate limits
 - [ ] Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin
 - [ ] Enterprise plugins (stdlib-first, third-party deps optional):
   - [ ] Data ingestion - `read_stream` / `write_stream` (MQTT, OPC-UA, Modbus)
@@ -200,6 +198,8 @@
 
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 ## Done
+- [x] Retargeted inbound events
+- [x] Merged multiuser tasks
 - [x] Merged agent status tasks
 - [x] Merged session interchange tasks
 - [x] Merged content ingestion tasks

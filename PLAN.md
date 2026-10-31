@@ -102,8 +102,6 @@ The backlog names each feature once, landed work leaves, and every remaining pac
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Merge multiuser and queue | S | one scaling story |
-| Retarget inbound events | S | a coherent event model |
 
 ## Self-development team enablement
 
@@ -202,6 +200,7 @@ React to and see jobs from outside the box. Run teams on schedule.
 | Recurring tasks carry their own role - each job carries its own role and skills, so behavior like "make doc changes per AGENTS.md" is encoded once instead of re-prompted every time | S-M | encoded recurring behavior |
 | Job event hooks - the scheduler emits typed transitions (`proposed`, `approved`, `will_run`, `executing`, `verified`, `failed`, `timeout`, `waiting_approval`) to registered `services`, channel-agnostic core | M | notification source |
 | Job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API | M | one notification stream |
+| Inbound run triggers - accept webhook events that start a run or answer a job question | M | external triggers |
 | Jobs and fleet control API, then Control UI - `GET /jobs` and `POST /jobs/<name>/approve|reject|run|disable` on `polyglav serve`, a fleet-wide `--root` list, and a stdlib web Control UI | M | one control surface |
 
 ## Tool engineering for agents
@@ -220,7 +219,7 @@ Run many scoped agents under a supervisor with a control surface.
 | Task | Effort | Provides |
 |------|--------|----------|
 | Immutable agent config - `polyglav serve` agents cannot change their own configuration, permissions, or tool list | S-M | control-plane rule |
-| Multiuser API + queue / rate limits | M | many feeds without blocking the loop |
+| Multiuser API and queue - a fleet-level central model layer with request queues and per-token rate limits | M | many feeds without blocking the loop |
 | Headless web API plugin-first - stdlib `http.server` fallback, richer framework (FastAPI) via the dependency plugin | S-M | fast API without core deps |
 | Observability + telemetry decision - latency/cost/error metrics, Pi-style contracts | M | measured operations |
 
