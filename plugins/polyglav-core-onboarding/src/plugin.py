@@ -1,6 +1,7 @@
 import getpass
 import re
 import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 WELCOME = ("Welcome to Polyglav.\n"
@@ -293,6 +294,8 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
     print()
     _say(f'Saved project setup to {config.local_path}')
     _say(HINT)
+    if not (config.local_path.parent.parent / 'AGENTS.md').exists():
+        _say('No AGENTS.md found - run /init to create one.')
     return True
 
 
@@ -307,3 +310,108 @@ def register_commands(registry) -> None:
     registry.register(
         'onboard', handler=onboard_cmd,
         description='Set up this project (provider, model, mode, assistant, output log)')
+
+    def init_cmd(arg: str = ''):
+        tokens = arg.split()
+        ok, message = write_agents_md(
+            registry.chat_loop.config,
+            force='--force' in tokens,
+            update='--update' in tokens)
+        print(message)
+        if not ok:
+            print('  /init --force rewrites, /init --update refreshes the generated block')
+
+    registry.register(
+        'init', handler=init_cmd,
+        description='Generate an AGENTS.md skeleton for this project')
+
+
+_START = '<!-- polyglav:init:start -->'
+_END = '<!-- polyglav:init:end -->'
+
+_STACK_FILES = (
+    ('pyproject.toml', 'Python'),
+    ('setup.py', 'Python'),
+    ('package.json', 'Node'),
+    ('Cargo.toml', 'Rust'),
+    ('go.mod', 'Go'),
+    ('composer.json', 'PHP'),
+    ('Gemfile', 'Ruby'),
+)
+
+_TEST_COMMANDS = {
+    'Python': 'python -m unittest discover',
+    'Node': 'npm test',
+    'Rust': 'cargo test',
+    'Go': 'go test ./...',
+    'PHP': 'vendor/bin/phpunit',
+    'Ruby': 'bundle exec rake test',
+}
+
+
+def project_scan(root: Path) -> dict:
+    stack = []
+    for filename, label in _STACK_FILES:
+        if (root / filename).exists() and label not in stack:
+            stack.append(label)
+    dirs = sorted(
+        p.name for p in root.iterdir()
+        if p.is_dir() and not p.name.startswith('.')
+        and p.name not in ('node_modules', 'vendor', '__pycache__')
+    ) if root.exists() else []
+    return {'stack': stack, 'dirs': dirs}
+
+
+def agents_md_template(config, root: Path | None = None) -> str:
+    root = root or config.local_path.parent.parent
+    scan = project_scan(root)
+    stack = scan['stack'] or ['Unknown']
+    commands = [_TEST_COMMANDS[s] for s in stack if s in _TEST_COMMANDS]
+    dirs = scan['dirs']
+    lines = [
+        _START,
+        '# AGENTS.md',
+        '',
+        '## Project',
+        'Describe what this project is for and who uses it.',
+        '',
+        '## Stack',
+    ]
+    lines.extend(f'- {item}' for item in stack)
+    lines.extend(['', '## Commands'])
+    if commands:
+        lines.extend(f'- Test: `{cmd}`' for cmd in commands)
+    else:
+        lines.append('- Test: TODO')
+    lines.extend(['', '## Structure'])
+    if dirs:
+        lines.extend(f'- `{name}/`' for name in dirs[:20])
+    else:
+        lines.append('- TODO')
+    lines.extend([
+        '',
+        '## Conventions',
+        '- TODO',
+        '',
+        '## Extension points',
+        '- TODO',
+        _END,
+        '',
+    ])
+    return '\n'.join(lines)
+
+
+def write_agents_md(config, force: bool = False, update: bool = False) -> tuple[bool, str]:
+    root = config.local_path.parent.parent
+    path = root / 'AGENTS.md'
+    content = agents_md_template(config, root)
+    if path.exists() and not force:
+        old = path.read_text(encoding='utf-8', errors='replace')
+        if update and _START in old and _END in old:
+            before, _, rest = old.partition(_START)
+            _, _, after = rest.partition(_END)
+            path.write_text(before + content + after, encoding='utf-8')
+            return True, f'Updated {path}'
+        return False, f'{path} already exists - use /init --force to rewrite'
+    path.write_text(content, encoding='utf-8')
+    return True, f'Wrote {path}'

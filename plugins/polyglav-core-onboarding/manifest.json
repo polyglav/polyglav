@@ -8,7 +8,7 @@
   "provides": {
     "tools": [],
     "providers": [],
-    "commands": ["onboard"],
+    "commands": ["init", "onboard"],
     "services": []
   }
 }

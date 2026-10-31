@@ -75,7 +75,6 @@
 - [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
 - [ ] Retarget inbound webhooks - start a run or answer a job question, not a parked ask
 - [ ] Update the status task - one `/status` surface for sessions, runs, jobs, and fleet
-- [ ] Update the AGENTS task - `/init` generates the skeleton and onboarding hints it
 - [ ] Change the plugin test harness task - external plugins only, bundled suites already ship
 - [ ] Change the fleet and swarm task - keep the layers, remove the umbrella wording
 - [ ] Change the UI commands task - keep only `/clear`, `/new`, and error-log persistence
@@ -143,7 +142,6 @@
 
 - [ ] Slash command grammar - singular means the current entity, plural means the catalog, verbs are global actions, and no one-letter aliases remain
 - [ ] Change `/connect` - keep it as a `/providers connect` shorthand
-- [ ] Add `/init` - generate an `AGENTS.md` skeleton and hint it from onboarding
 - [ ] Defer `/bookmark`, `/agent`, and `/spawn` until the plugin surface is ready
 
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
@@ -243,6 +241,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Added init and the onboarding hint
 - [x] Added jobs add --team
 - [x] Removed tool_analysis and web_search config
 - [x] Changed session saves to dirty writes

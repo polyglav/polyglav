@@ -40,7 +40,6 @@ The REPL exposes one canonical name per command, separates commands from tools, 
 | `/continue parent` and `/continue <id>` | S-M | switch to a parent or prior session |
 | `/help` lists commands and tools | S | one help entry point |
 | `/connect` as `/providers connect` | S | provider shorthand |
-| `/init` and onboarding hint | S | project setup |
 
 ## CLI surface
 

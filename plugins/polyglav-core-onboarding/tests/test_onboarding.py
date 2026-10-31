@@ -358,3 +358,49 @@ class TestOnboarding(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestInit(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.config = Config(path=self.tmp.name)
+        self.root = Path(self.tmp.name)
+        (self.root / 'pyproject.toml').write_text('[project]\nname="x"\n')
+        (self.root / 'src').mkdir()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_writes_agents_skeleton(self):
+        ok, message = plugin.write_agents_md(self.config)
+        self.assertTrue(ok)
+        text = (self.root / 'AGENTS.md').read_text()
+        self.assertIn('# AGENTS.md', text)
+        self.assertIn('Python', text)
+        self.assertIn('python -m unittest discover', text)
+        self.assertIn('`src/`', text)
+        self.assertIn('polyglav:init:start', message + text)
+
+    def test_does_not_overwrite_without_force(self):
+        (self.root / 'AGENTS.md').write_text('manual\n')
+        ok, _ = plugin.write_agents_md(self.config)
+        self.assertFalse(ok)
+        self.assertEqual((self.root / 'AGENTS.md').read_text(), 'manual\n')
+
+    def test_force_rewrites(self):
+        (self.root / 'AGENTS.md').write_text('manual\n')
+        ok, _ = plugin.write_agents_md(self.config, force=True)
+        self.assertTrue(ok)
+        self.assertIn('# AGENTS.md', (self.root / 'AGENTS.md').read_text())
+
+    def test_update_refreshes_generated_block(self):
+        (self.root / 'AGENTS.md').write_text('intro\n')
+        plugin.write_agents_md(self.config, force=True)
+        (self.root / 'AGENTS.md').write_text(
+            (self.root / 'AGENTS.md').read_text() + '\nmanual footer\n')
+        ok, _ = plugin.write_agents_md(self.config, update=True)
+        self.assertTrue(ok)
+        text = (self.root / 'AGENTS.md').read_text()
+        self.assertIn('manual footer', text)
+        self.assertIn('# AGENTS.md', text)
