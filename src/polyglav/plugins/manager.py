@@ -231,7 +231,7 @@ class PluginManager:
             if info.status != 'loaded':
                 continue
             self.config.register_plugin_defaults(
-                info.provides.get('config') or {})
+                info.provides.get('config') or {}, owner=info.name)
 
     def _load_order(self, enabled: set[str]) -> list[str]:
         order: list[str] = []

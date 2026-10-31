@@ -185,11 +185,17 @@ class TestToolCommand(unittest.TestCase):
 
     def test_config_listing_sorted(self):
         output = self._dispatch('/config')
-        keys = []
+        groups = {}
+        current = ''
         for line in output.splitlines():
-            if line.startswith('  ') and not line.startswith('    '):
-                keys.append(line.strip().split()[0].rstrip(':'))
-        self.assertEqual(keys, sorted(keys))
+            if line and not line.startswith(' ') and line.endswith(':'):
+                current = line[:-1]
+                groups.setdefault(current, [])
+            elif line.startswith('  ') and not line.startswith('    '):
+                groups.setdefault(current, []).append(
+                    line.strip().split()[0].rstrip(':'))
+        for keys in groups.values():
+            self.assertEqual(keys, sorted(keys))
 
     def test_config_listing_hides_descriptions(self):
         output = self._dispatch('/config')
@@ -214,6 +220,17 @@ class TestToolCommand(unittest.TestCase):
     def test_config_verbose_shows_defaults(self):
         output = self._dispatch('/config --verbose')
         self.assertIn('default: 0.7', output)
+
+    def test_config_listing_groups_by_owner(self):
+        output = self._dispatch('/config')
+        self.assertIn('core:', output)
+        self.assertIn('polyglav-core-web:', output)
+
+    def test_config_json_output(self):
+        output = self._dispatch('/config --json')
+        data = json.loads(output)
+        self.assertIn('core', data)
+        self.assertIn('model', data['core'])
 
     def test_config_listing_blocks_long_values(self):
         output = self._dispatch('/config')

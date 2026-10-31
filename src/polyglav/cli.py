@@ -117,6 +117,14 @@ def cmd_config(args) -> int:
 
     if action == 'get':
         keys = getattr(args, 'key', None)
+        if getattr(args, 'json_', False):
+            if not keys:
+                service.render_json()
+            else:
+                if isinstance(keys, str):
+                    keys = [keys]
+                service.render_json(keys, grouped=False)
+            return 0
         if not keys:
             keys = list(config.data)
         elif isinstance(keys, str):

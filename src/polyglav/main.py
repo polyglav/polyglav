@@ -46,6 +46,8 @@ def _add_config_parser(sub):
     gg.add_argument('key', nargs='*')
     gg.add_argument('--show-origin', action='store_true',
                     help='Also print where each value comes from (default/global/local)')
+    gg.add_argument('--json', dest='json_', action='store_true',
+                    help='Print JSON, grouped by owner when no keys are given')
     gs = g.add_parser('set', help='Set a config value')
     gs.add_argument('key')
     gs.add_argument('value', nargs='?')

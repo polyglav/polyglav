@@ -285,6 +285,7 @@ class Config:
         self._local_raw: dict = {}
         self._plugin_defaults: dict = {}
         self.plugin_descriptions: dict = {}
+        self.plugin_owners: dict = {}
         self._applied: dict = {}
         self._load()
 
@@ -304,7 +305,8 @@ class Config:
         merged.update(self._applied)
         return merged
 
-    def register_plugin_defaults(self, defaults: dict) -> None:
+    def register_plugin_defaults(self, defaults: dict,
+                                 owner: str = '') -> None:
         changed = False
         for key, entry in (defaults or {}).items():
             if not isinstance(entry, dict):
@@ -317,6 +319,8 @@ class Config:
             if description and key not in self.plugin_descriptions:
                 self.plugin_descriptions[key] = str(description)
                 changed = True
+            if owner and key not in self.plugin_owners:
+                self.plugin_owners[key] = str(owner)
         if changed:
             self.data = self._merged()
 

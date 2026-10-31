@@ -325,6 +325,7 @@ def register_builtins(registry):
     def config_cmd(arg=''):
         scope = 'local'
         verbose = False
+        as_json = False
         text = arg.strip()
         while text:
             if text.startswith('--global'):
@@ -342,11 +343,21 @@ def register_builtins(registry):
             elif text.startswith('-v '):
                 verbose = True
                 text = text[len('-v'):].lstrip()
+            elif text == '--json':
+                as_json = True
+                text = ''
+            elif text.startswith('--json '):
+                as_json = True
+                text = text[len('--json'):].lstrip()
             else:
                 break
         parts = text.split(maxsplit=1)
         if not text:
-            ConfigService(chat.config).render_listing(verbose=verbose)
+            service = ConfigService(chat.config)
+            if as_json:
+                service.render_json()
+            else:
+                service.render_listing(verbose=verbose)
             return
         key = parts[0]
         rest = parts[1].strip() if len(parts) > 1 else ''
@@ -371,7 +382,10 @@ def register_builtins(registry):
             return
 
         if not rest:
-            ConfigService(chat.config).render_detail(key)
+            if as_json:
+                print(json.dumps(chat.config.get(key), indent=2))
+            else:
+                ConfigService(chat.config).render_detail(key)
             return
 
         if rest in ('-a', '-r') or rest.startswith('-a ') or rest.startswith('-r '):

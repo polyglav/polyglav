@@ -63,8 +63,6 @@
 - [ ] Add `tool_output_log` and remove age retention
 
 - [ ] Remove legacy config keys without migration - `footer_tokens`, `print_max_chars`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
-- [ ] Add config ownership - core and plugin groups, with plugin manifests declaring `provides.config`
-- [ ] Change `/config` and `polyglav config` - grouped object view, `--json`, validation, and no unknown-key prompt
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
@@ -160,6 +158,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed the config command and CLI
 - [x] Added onboarding provider presets
 - [x] Added the SQLite session store plugin
 - [x] Moved session render into the sessions plugin
