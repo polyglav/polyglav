@@ -12,7 +12,6 @@
 - Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots
 - Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.polyglav/tmp/` referenced from the session log
 - Context UI polish - auto-compaction, context trim, highlighting, and context desaturation
-- Research cache - store web and PDF results under `.polyglav/files` for later reuse, with a PDF-to-text tool
 - Fleet awareness - the supervisor always knows which agents and teams run on a machine, with oversight across multiple machines
 - Open WebUI and OpenTUI connectors - drive Polyglav from external chat and terminal UIs
 - Tool-call quality enhancer - steer tool calling toward correct, cheaper calls (for example web-search parameters that find the right references) and better results
@@ -53,7 +52,6 @@
 - [ ] Add session load validation - warn when a role or team in the session no longer exists
 - [ ] Remove session compatibility - old sessions load as-is and missing tool logs print `[tool log missing]`
 
-- [ ] Merge content ingestion - research cache, web scraper, and PDF-to-text
 - [ ] Merge session interchange - Markdown import and conversation sharing
 - [ ] Merge agent status - health monitoring, fleet awareness, and one-window status
 - [ ] Merge multiuser - multiuser capability, API queue, and enterprise queue scaling
@@ -179,12 +177,11 @@
 - [ ] Context-aware cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler via `register_handler(name, match=...)` (e.g. `open https://...` > polyglav-core-web, `open ../...` > polyglav-core-fs), with merged schemas and args-aware policy accessors
 - [ ] Grep text index - internal bundled plugin (stdlib) that indexes converted text files for local search, bridging toward the vector store
 - [ ] Agent folder watcher - internal bundled plugin (stdlib `threading` + `pathlib` polling) that detects new files in an agent's folder and triggers their processing (e.g. convert new PDFs on arrival), scoped capability, no deps
+- [ ] Add content ingestion - cache web and PDF results under .polyglav/files, scrape full pages, and convert local or remote PDFs to text
 - [ ] Externalize the bundled plugins (`polyglav-core-web`/`fs`/`exec`) into separate versioned repositories, while the bundled copies stay the shipped defaults. Global/local plugins of the same name already override them
 - [ ] PyPI plugin source - discover installed plugin packages via `importlib.metadata` entry points (`polyglav.plugins` group)
 - [ ] Shared plugin virtualenv - one venv for all plugin dependencies, injected at import
 - [ ] Per-plugin virtualenv isolation - `~/.config/polyglav/plugins/<name>/.venv`. The loader injects its site-packages at import (strongest dependency separation)
-- [ ] Web scraper plugin - full page scraping beyond `fetch_page`'s text extraction (structured content, links), shipped as an external plugin repository
-- [ ] PDF-to-text converter plugin - extract text from local/remote PDFs, shipped as an external plugin repository
 - [ ] Auditor agents - sub-agents that review/check a produced output (tests, code review, fact-check)
 - [ ] Generate > check > correct orchestration - run a main agent, an auditor, and a fix pass in a loop until passing
 - [ ] Custom system prompts per session
@@ -208,6 +205,7 @@
 - [ ] Session import from Markdown
 
 ## Done
+- [x] Merged content ingestion tasks
 - [x] Merged memory and skill tasks
 - [x] Merged control API tasks
 - [x] Merged job notification tasks
