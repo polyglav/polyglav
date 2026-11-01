@@ -55,6 +55,18 @@ polyglav serve --path agents/docs --port 8781 &
 curl localhost:8781/chat -X POST -d '{"prompt": "What does spec-42.pdf say?", "session": "docs-pool"}'
 ```
 
+## Spawning from the REPL
+
+With `polyglav-core-fleet` enabled, `/spawn` starts and supervises one scoped agent without leaving the REPL. It writes the agent into the worktree fleet manifest, starts `polyglav serve` on a free port, and waits for `GET /health`.
+
+```text
+/spawn docs-agent ../docs
+/spawn ask docs-agent Summarize the current specification.
+/spawn stop docs-agent
+```
+
+The first form creates or updates the agent directory. The `ask` form posts to the running agent's `POST /chat` and prints its answer. `/spawn` without arguments lists agent state, port, and pid. The fleet plugin remains off by default, so enable it before using the command.
+
 ## Supervisor
 
 `polyglav fleet` supervises the agents from the terminal: port allocation, health checks, a restart policy, and per-agent config generation. It is the systemd/Compose-shaped layer for a single host, so Docker is not needed. A fleet root is a directory holding the agents, typically one folder each, with two files in its `.polyglav/`:

@@ -523,3 +523,13 @@ class TestDetachedSupervisor(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestSpawnCommand(unittest.TestCase):
+
+    def test_registers_spawn_command(self):
+        from polyglav.commands.registry import CommandRegistry
+        from unittest.mock import MagicMock
+        registry = CommandRegistry(MagicMock())
+        _fleet.register_commands(registry)
+        self.assertIn('spawn', registry.commands)

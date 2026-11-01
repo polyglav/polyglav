@@ -85,7 +85,7 @@ Polyglav/
     ├── polyglav-core-edit/        # file_edit
     ├── polyglav-core-eval/        # eval fixtures and CLI (off by default)
     ├── polyglav-core-exec/        # run_command
-    ├── polyglav-core-fleet/       # fleet supervisor CLI (off by default)
+    ├── polyglav-core-fleet/       # fleet supervisor CLI and /spawn (off by default)
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider

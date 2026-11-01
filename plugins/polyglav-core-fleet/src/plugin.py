@@ -590,6 +590,45 @@ class FleetController:
         self.state.save()
         return [a.name for a in targets]
 
+    def start_agent(self, agent: AgentDef, wait: float = 5.0) -> AgentState:
+        st = self.state.agents.setdefault(agent.name, AgentState())
+        if st.pid and self._alive(st.pid):
+            return st
+        self._launch(agent, st)
+        self.state.save()
+        deadline = time.monotonic() + max(0.0, wait)
+        while time.monotonic() < deadline and st.pid:
+            ok, _, _ = probe_health('127.0.0.1', st.port,
+                                    self.health_timeout)
+            if ok:
+                st.status = HEALTHY
+                self.state.save()
+                return st
+            if not self._alive(st.pid):
+                break
+            time.sleep(0.1)
+        self.state.save()
+        return st
+
+    def ask_agent(self, name: str, prompt: str) -> str:
+        agent = self.manifest.find(name)
+        if agent is None:
+            return f'Agent not found: {name}'
+        st = self.state.agents.get(name)
+        if st is None or not st.port:
+            return f'Agent is not running: {name}'
+        url = f'http://127.0.0.1:{st.port}/chat'
+        payload = json.dumps({'prompt': prompt}).encode('utf-8')
+        request = urllib.request.Request(
+            url, data=payload,
+            headers={'Content-Type': 'application/json'})
+        try:
+            with urllib.request.urlopen(request, timeout=300) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            return f'Agent request failed: {e}'
+        return str(data.get('content') or data.get('status') or '')
+
     def status_rows(self) -> list[dict]:
         self.manifest.reload()
         self.state.reload()
@@ -876,6 +915,68 @@ def _fleet_config(controller, args) -> int:
 
 def _run(args):
     return cmd_fleet(args)
+
+
+def register_commands(commands):
+    import shlex
+    chat = commands.chat_loop
+
+    @commands.register(
+        'spawn',
+        description='Launch, list, stop, or ask a scoped serve agent',
+        subcommands=[
+            ('', 'List supervised agents'),
+            ('<name> <path>', 'Launch an agent for a project path'),
+            ('ask <name> <prompt>', 'Ask a running agent'),
+            ('stop <name>', 'Stop an agent'),
+        ])
+    def spawn_cmd(arg=''):
+        root = chat.config.local_path.parent.parent
+        controller = FleetController(root)
+        text = arg.strip()
+        if not text or text in ('list', 'status'):
+            rows = controller.status_rows()
+            if not rows:
+                print('  (no agents)')
+                return
+            for row in rows:
+                print(f"  {row['name']}  {row['state']}  "
+                      f"port={row['port'] or '-'}  pid={row['pid'] or '-'}")
+            return
+        tokens = shlex.split(text)
+        action = tokens[0]
+        if action == 'stop':
+            name = tokens[1] if len(tokens) > 1 else ''
+            if not name:
+                print('Usage: /spawn stop <name>')
+                return
+            if controller.stop_agent(name):
+                print(f'Stopped agent: {name}')
+            else:
+                print(f'Agent not found: {name}')
+            return
+        if action == 'ask':
+            name = tokens[1] if len(tokens) > 1 else ''
+            prompt = ' '.join(tokens[2:]).strip()
+            if not name or not prompt:
+                print('Usage: /spawn ask <name> <prompt>')
+                return
+            print(controller.ask_agent(name, prompt))
+            return
+        path_text = tokens[1] if len(tokens) > 1 else tokens[0]
+        name = tokens[0] if len(tokens) > 1 else Path(path_text).name
+        path = Path(path_text).expanduser()
+        if not path.is_absolute():
+            path = (root / path).resolve()
+        agent = controller.manifest.find(name)
+        if agent is None:
+            agent = AgentDef(name=name, dir=str(path), added_at=_now())
+            controller.manifest.add(agent)
+        else:
+            agent.dir = str(path)
+            controller.manifest.add(agent)
+        state = controller.start_agent(agent)
+        print(f"Spawned {name}: {state.status} on port {state.port or '-'}")
 
 
 def register_cli(cli):

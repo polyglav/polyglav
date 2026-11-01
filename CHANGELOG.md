@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added the spawn command - `/spawn <name> <path>` launches a scoped serve agent, `/spawn ask` delegates to it, `/spawn stop` stops it, and `/spawn` lists agent state in the REPL
 - Changed CLI signals - idle Ctrl-C needs a second press within two seconds, the root pauses for `/continue` or `/cancel`, child runs cancel and return, `polyglav run` and `polyglav jobs run` exit `130`, and serve and fleet keep their graceful stop paths
 - Moved bookkeeping to the bookkeeping plugin - `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` now live in `polyglav-core-bookkeeping`, and the engine injects plan and todo context through the plugin service
 - Removed legacy config keys - the `provider` key and the old tool-output settings are gone, with no migration

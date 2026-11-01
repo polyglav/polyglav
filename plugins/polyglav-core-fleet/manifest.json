@@ -8,6 +8,8 @@
   "provides": {
     "tools": [],
     "providers": [],
-    "commands": []
+    "commands": [
+      "/spawn"
+    ]
   }
 }

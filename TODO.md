@@ -41,7 +41,6 @@
 
 
 
-- [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 
 
 
@@ -89,7 +88,6 @@
 - [ ] Role directory scan for export/import - read `.polyglav/roles/*.md` (front-matter roles) to import and export roles to Markdown, paralleling the sessions Markdown export/import
 - [ ] Auto team selection - the assistant picks roles, teams, and skills from the registries for a task and delegates in sequence (team orchestration as a user-facing pattern, e.g. "compare with competitors" -> Researcher > Writer > Referencer > Editor)
 - [ ] Add agent status - one /status surface for sessions, runs, jobs, fleet health, and configured agents across machines
-- [ ] `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it (`docs/fleet.md`)
 - [ ] Remote channels - command agents from messaging apps (OpenClaw channels parity):
   - [ ] Channel gateway - one adapter surface over the engine/serve API
   - [ ] Telegram adapter - long-polling bot, send + receive
@@ -131,6 +129,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added the spawn command
 - [x] Changed CLI signals
 - [x] Moved bookkeeping to the bookkeeping plugin
 - [x] Removed legacy config keys

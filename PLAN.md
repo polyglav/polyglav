@@ -126,7 +126,6 @@ The assistant is the operator's single window to the machine: served agents are 
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| `/spawn` command - launch a scoped `polyglav serve` agent from the REPL (home -> project path), supervise (health/list/stop) and delegate to it | S-M | fleet agents from the terminal |
 | Agent status - one `/status` surface for sessions, runs, jobs, fleet health, and configured agents across machines | M | one status view |
 
 ## Delegation & swarm
