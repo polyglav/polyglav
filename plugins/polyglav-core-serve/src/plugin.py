@@ -107,8 +107,7 @@ def _run(args):
         config.apply('mode', args.mode)
     ui = HeadlessUI(auto='deny', verbose=False, stream=False,
                     thinking_level=verbosity_level(config, 'thinking'),
-                    footer_level=verbosity_level(config, 'footer'),
-                    footer_tokens=config.get('footer_tokens', ['context']))
+                    footer_level=verbosity_level(config, 'footer'))
     engine = Engine(config, ui=ui)
     pm = getattr(engine, '_plugin_manager', None)
     mcp_service = pm.service('mcp_server') if pm is not None else None

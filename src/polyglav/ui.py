@@ -631,16 +631,8 @@ class ReplUI:
         self._emit(f'  Refine query to: {new}', DIM)
 
     def _footer_tokens(self, counts):
-        parts = []
-        for key in self._loop.config.get('footer_tokens', ['context']):
-            n = counts.get(key)
-            if n is None:
-                continue
-            if key == 'context':
-                parts.append(f'{n:,} tokens')
-            else:
-                parts.append(f'{n}t')
-        return '/'.join(parts)
+        n = counts.get('context')
+        return f'{n:,} tokens' if n is not None else ''
 
     def footer(self, duration, counts, note=''):
         level = verbosity_level(self._loop.config, 'footer')
@@ -656,14 +648,12 @@ class ReplUI:
             body = f'{mark} Done {duration:.1f}s'
             own = counts.get('total')
             tree = counts.get('tree')
-            parts = self._loop.config.get('footer_tokens', ['context'])
-            if parts:
-                if own and tree and tree != own:
-                    body += f' ({own:,}/{tree:,} tokens)'
-                elif own:
-                    body += f' ({own:,} tokens)'
-                elif counts.get('context') is not None:
-                    body += f' ({counts["context"]:,} tokens)'
+            if own and tree and tree != own:
+                body += f' ({own:,}/{tree:,} tokens)'
+            elif own:
+                body += f' ({own:,} tokens)'
+            elif counts.get('context') is not None:
+                body += f' ({counts["context"]:,} tokens)'
         if note:
             body += f'  {note}'
         self._emit(body, DIM)
@@ -995,7 +985,6 @@ class HeadlessUI:
     def __init__(self, auto: str = 'deny', verbose: bool = False, stream: bool = True,
                  show_thinking: bool | None = None,
                  show_thought_duration: bool | None = None,
-                 footer_tokens: list | None = None,
                  thinking_level: str | None = None,
                  footer_level: str | None = None):
         self.auto = auto
@@ -1012,7 +1001,6 @@ class HeadlessUI:
         self.footer_level = footer_level or 'summary'
         self.show_thinking = thinking_level != 'off'
         self.show_thought_duration = thinking_level != 'off'
-        self.footer_tokens = footer_tokens or ['context']
 
     def token(self, text):
         if self.stream:
@@ -1107,13 +1095,8 @@ class HeadlessUI:
             return
         tail = f'  {note}' if note else ''
         if self.footer_level == 'full':
-            parts = []
-            for key in self.footer_tokens:
-                n = counts.get(key)
-                if n is None:
-                    continue
-                parts.append(f'{n:,} tokens' if key == 'context' else f'{n}t')
-            seg = '/'.join(parts)
+            n = counts.get('context')
+            seg = f'{n:,} tokens' if n is not None else ''
             if seg:
                 sys.stderr.write(f'✓ Done {duration:.1f}s ({seg}){tail}\n')
             else:

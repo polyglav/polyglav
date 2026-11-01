@@ -153,10 +153,9 @@ class TestVerbosityRendering(unittest.TestCase):
         value = self._capture(lambda: self.ui.footer(1.0, {'context': 42}))
         self.assertIn('✓ Done 1.0s (42 tokens)', value)
         self.chat.config.set('verbosity.footer', 'full')
-        self.chat.config.set('footer_tokens', ['in', 'out'])
         value = self._capture(
-            lambda: self.ui.footer(1.0, {'in': 3, 'out': 4}))
-        self.assertIn('✓ Done 1.0s (3t/4t)', value)
+            lambda: self.ui.footer(1.0, {'context': 42}))
+        self.assertIn('✓ Done 1.0s (42 tokens)', value)
 
 
 class TestVerbosityMigration(unittest.TestCase):

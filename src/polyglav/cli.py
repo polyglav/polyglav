@@ -24,8 +24,7 @@ def _engine_from_args(args) -> Engine:
     ui = HeadlessUI(auto=auto, verbose=getattr(args, 'verbose', False),
                     stream=getattr(args, 'output', 'json') == 'text',
                     thinking_level=verbosity_level(config, 'thinking'),
-                    footer_level=verbosity_level(config, 'footer'),
-                    footer_tokens=config.get('footer_tokens', ['context']))
+                    footer_level=verbosity_level(config, 'footer'))
     approve_models = bool(getattr(args, 'model', None)) or bool(
         getattr(args, 'approve_model', False))
     return Engine(config, ui=ui, approve_models=approve_models)
@@ -83,8 +82,7 @@ def cmd_mcp(args) -> int:
     config = Config(path=args.path)
     ui = HeadlessUI(auto='deny', verbose=False, stream=False,
                     thinking_level=verbosity_level(config, 'thinking'),
-                    footer_level=verbosity_level(config, 'footer'),
-                    footer_tokens=config.get('footer_tokens', ['context']))
+                    footer_level=verbosity_level(config, 'footer'))
     engine = Engine(config, ui=ui)
     pm = getattr(engine, '_plugin_manager', None)
     service = pm.service('mcp_server') if pm is not None else None

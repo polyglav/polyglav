@@ -62,7 +62,7 @@
 - [ ] Move tool config, permissions, and tests into the owning plugins
 - [ ] Add `tool_output_log` and remove age retention
 
-- [ ] Remove legacy config keys without migration - `footer_tokens`, `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
+- [ ] Remove legacy config keys without migration - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
@@ -158,6 +158,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Removed footer tokens config
 - [x] Removed print max chars config
 - [x] Changed the config command and CLI
 - [x] Added onboarding provider presets

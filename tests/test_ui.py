@@ -401,34 +401,8 @@ class TestWordStreaming(unittest.TestCase):
         self.assertIn('hard\n', value)
         self.assertLess(value.index('hard'), value.index('Done 3.0s'))
 
-    def test_footer_token_parts_selected(self):
-        self.chat.config.set('verbosity.footer', 'full')
-        self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
-        def run():
-            self.ui.footer(3.0, {'in': 12, 'thinking': 5, 'out': 8})
-        value = self._capture(run)
-        self.assertIn('✓ Done 3.0s (12t/5t/8t)', value)
-
-    def test_footer_token_parts_skip_unavailable(self):
-        self.chat.config.set('verbosity.footer', 'full')
-        self.chat.config.set('footer_tokens', ['in', 'thinking', 'out'])
-        def run():
-            self.ui.footer(3.0, {'in': 12})
-        value = self._capture(run)
-        self.assertIn('✓ Done 3.0s (12t)', value)
-        self.assertNotIn('thinking', value)
-
-    def test_footer_token_parts_empty_hides_tokens(self):
-        self.chat.config.set('footer_tokens', [])
-        def run():
-            self.ui.footer(3.0, {'context': 10})
-        value = self._capture(run)
-        self.assertIn('✓ Done 3.0s', value)
-        self.assertNotIn('tokens', value)
-
     def test_footer_off_hides_footer(self):
         self.chat.config.set('verbosity.footer', 'off')
-        self.chat.config.set('footer_tokens', ['in', 'out'])
         def run():
             self.ui.footer(3.0, {'in': 12, 'out': 8})
         value = self._capture(run)

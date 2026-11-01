@@ -245,11 +245,9 @@ class TestConfigMerge(_IsolatedConfigBase):
 
     def test_lists_and_scalars_replace(self):
         self.write_local({'tools_output_drop': ['web_fetch'],
-                          'footer_tokens': ['tokens'],
                           'temperature': 0.1})
         c = Config(path=str(self.project))
         self.assertEqual(c.get('tools_output_drop'), ['web_fetch'])
-        self.assertEqual(c.get('footer_tokens'), ['tokens'])
         self.assertEqual(c.get('temperature'), 0.1)
 
     def test_legacy_output_key_aliases_are_gone(self):
