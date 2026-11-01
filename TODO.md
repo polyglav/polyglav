@@ -138,6 +138,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Fixed the session render tool summary
 - [x] Moved tool config and permissions into the owning plugins
 - [x] Changed the catalog to a registry service
 - [x] Added job supervisor routing

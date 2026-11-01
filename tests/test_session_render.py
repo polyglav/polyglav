@@ -153,16 +153,17 @@ class TestRenderSession(unittest.TestCase):
         md = render_session(s)
         self.assertIn('``````text\nhas ``` code\nand ````` five\n``````', md)
 
-    def test_renders_persisted_noise_transform(self):
+    def test_renders_persisted_tool_summary(self):
         s = self._session()
         s.add_user('q')
         part = s.add_tool('fetch_page', {'url': 'x'})
         turns.finish_tool(part, 'page body')
+        part['ref'] = '.polyglav/sessions/s.tools.log#L1-L4'
+        part['summary'] = 'page body'
         s.end_turn('ok')
-        data = s.to_dict(drop_tools=['fetch_page'])
-        restored = Session.from_dict(data)
+        restored = Session.from_dict(s.to_dict())
         md = render_session(restored)
-        self.assertIn('excluded from log', md)
+        self.assertIn('page body', md)
 
 
 class TestTurnSummary(unittest.TestCase):
