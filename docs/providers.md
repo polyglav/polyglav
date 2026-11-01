@@ -21,13 +21,11 @@ The vendor providers ship as bundled plugins. The core keeps the base classes (`
 
 ## Configuration
 
-`provider`, `base_url`, `model`, `temperature`, and `max_tokens` are configured in the global or local config (see [config.md](config.md)). The API key is **not** a config value. It lives in the global provider registry (`~/.config/polyglav/providers.json`, one key per provider) and is managed through `/connect`:
+`model`, `base_url`, `temperature`, and `max_tokens` are configured in the global or local config (see [config.md](config.md)). The API key is **not** a config value. It lives in the global provider registry (`~/.config/polyglav/providers.json`, one key per provider) and is managed through `/connect`:
 
 ```json
 {
-  "provider": "openai",
-  "base_url": "https://api.openai.com/v1",
-  "model": "gpt-4o-mini",
+  "model": "openai/gpt-4o-mini",
   "temperature": 0.7
 }
 ```

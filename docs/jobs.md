@@ -14,7 +14,7 @@ Jobs live in `.polyglav/jobs.json` next to the sessions, one register per worktr
       "schedule": { "cron": "0 2 * * *" },
       "prompt": "Summarize today's operations logs into a short report.",
       "session": "",
-      "mode": "plan",
+      "mode": "read",
       "type": "researcher",
       "system_prompt": "",
       "retries": 3,
@@ -107,7 +107,7 @@ polyglav jobs daemon [--tick 15] [--quiet]        # scheduler loop, Ctrl-C to st
 | `--file` | Markdown task file describing the job (default `.polyglav/jobs/<name>.md`, template-created if missing). Linked, so edits apply on the next run |
 | `--cron` / `--interval` / `--at` | Exactly one schedule (required) |
 | `--session` | Stable session name. Default is a fresh per-run `job_<ts>_<id>` file |
-| `--mode` | Mode override (`plan`, `build`, or custom) |
+| `--mode` | Mode override (`read`, `write`, or custom) |
 | `--provider` / `--model` | Provider / model overrides |
 | `--role` | Apply a role's system prompt, model, and tool permissions |
 | `--team` | Run a named team for each scheduled run |

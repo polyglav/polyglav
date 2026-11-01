@@ -182,10 +182,10 @@ Routes the `ask` tool by kind:
 }
 ```
 
-`permission` is `auto` (ask the user) or `deny` (disable permission asks). `direction` always asks the user; `caller` and `auto` are accepted as `user` for one version. A sub-agent inherits the root `ReplUI` as `_ask_ui`, so its asks reach the terminal.
+`permission` is `auto` (ask the user) or `deny` (disable permission asks). `direction` always asks the user. A sub-agent inherits the root `ReplUI` as `_ask_ui`, so its asks reach the terminal.
 
 - `permission` - a sub-agent's request for a tool or write category it is not allowed to use (`ask(kind="permission", permission="bash")`). The user answers at the terminal. In `read` mode a request for a write key or for a category with declared write actions (for example `catalog save`) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use `ask(kind="direction")`). In `write` mode `auto` prompts the user, `deny` disables grants. A request above the mode-derived ceiling is always denied. The user may grant `always` (reusable for the rest of that sub-agent's run) or `once`. A user-routed ask offers `Approve once` / `Approve always` / `Deny`.
-- `direction` - a decision or scope change. It always asks the user; `caller` and `auto` are accepted as `user` for one version. An explicit `target` is no longer part of the schema.
+- `direction` - a decision or scope change. It always asks the user. An explicit `target` is no longer part of the schema.
 
 ### Permission authority
 
@@ -206,7 +206,7 @@ An approved permission request creates a one-shot grant on the asking sub-agent 
 
 `exec_allow` (list, default `[]`, declared by `polyglav-core-exec`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
 
-- Commands split into chained segments over `&&`, `||`, `;`, `|`, and `&`. Every segment must start with an allowed prefix (e.g. `pytest -q && ruff check .` needs both `pytest` and `ruff`).
+- Commands split into chained segments over the shell chaining operators. Every segment must start with an allowed prefix (e.g. `pytest -q && ruff check .` needs both `pytest` and `ruff`).
 - Shell-script forms are rejected outright: multi-line commands and heredocs (`<<`) always return `deny`.
 - A matching command falls through to the normal `bash` action (`ask` by default, `allow`/`deny` per config). A non-matching command is `deny`.
 

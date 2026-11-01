@@ -102,7 +102,7 @@ The brief handed to each member is built per run from:
 
 After the run, the whole team run is summarized (seeded with the previous team memory) and written to **`.polyglav/memory/teams/<name>.md`** (atomic write, human-editable). The next run reads the same file back into its briefs, so facts from earlier runs carry without the session files growing. If the summarizer fails, a fallback of one line per stage (role, status, first part of the output or error) is stored instead.
 
-A hierarchical team runs its manager once through the same `run_subagent` path, with a brief that lists the original task, the member roster, each member's `task_hint` and `skills`, the shared team memory, and the instruction to allocate, validate, and return the final answer. The manager calls members with `call`; the members are ordinary role runs with their own permission carves. The team result is the manager's final answer.
+A hierarchical team runs its manager once through the same `run_subagent` path, with a brief that lists the original task, the member roster, each member's `task_hint` and `skills`, the shared team memory, and the instruction to allocate, validate, and return the final answer. The manager calls members with `call`. The members are ordinary role runs with their own permission carves. The team result is the manager's final answer.
 
 `/teams run <name> <task>` executes a team from the REPL and prints one line per stage (`<n>. <role> <status> <duration>s`), the final member's result, and the memory file path. A hierarchical team prints its manager line and result.
 
@@ -141,6 +141,6 @@ Each loop iteration starts a fresh producer run seeded by the findings, rather t
 - **Ceiling**: each stage's carve is still capped by the caller's `grant_permission` (see [config.md](config.md#permission-authority)). When a stage's requested permissions get clamped, the result carries a `(reduced permissions for: <role>)` note, so a silently degraded run is visible. A stage whose carve requests a category the caller cannot delegate is told which categories are auto-denied, and the run stops after repeated denials instead of looping. When a stage fails without its own error detail, the team result names the stage status and its sub-session id (and, for a clamped stage, points at the caller ceiling) instead of an opaque `unknown error`.
 - **Depth and cycles**: `run_team` refuses a team already on the current stack (`team_cycle`) and stops at `max_team_depth` nested team runs (default 2, `team_depth`), so a supervisor stage that itself runs teams cannot recurse forever. Both values propagate into sub-engines. A stage cannot run its own team: the per-invocation resolver returns `deny` (`disabled by tool policy`) when the requested name is already on the stack, and each stage brief instructs the stage to do its own work directly instead of calling the team tool for its own team.
 
-The REPL `/tool call {"target": ..., "kind": "team", "task": ...}` runs the same handler through a persisted agent-loop turn (the tool is registered `loop=True`).
+The caller model runs the same handler through the `call` tool with `kind: "team"`, and the tool is registered `loop=True` so the plan, result, and answer land in the session.
 
 Scheduled team runs (`jobs add --team`) and job-style recurring member sessions are later milestones.

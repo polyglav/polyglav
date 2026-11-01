@@ -39,8 +39,7 @@ A minimal agent config (`.polyglav/config.json` in its own directory):
 
 ```json
 {
-  "provider": "ollama",
-  "model": "llama3.2",
+  "model": "ollama/llama3.2",
   "system_prompt": "You are the documentation agent. Convert PDFs to text, keep the index current, and answer questions from the stored docs.",
   "tools.allow": ["glob", "file_read", "file_write", "run_command", "pdf2text", "watch_folder", "search_index"],
   "tool_permission": { "read": "allow", "list": "allow", "edit": "allow", "bash": "allow", "web": "allow" },

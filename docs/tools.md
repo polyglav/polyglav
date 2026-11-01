@@ -65,7 +65,7 @@ Ctrl-C pauses the root turn: streaming stops, partial output is persisted, `(pau
 
 ## Inspecting a tool
 
-`/help <tool>` shows a tool's description, parameters, category, and permission. There is no direct REPL tool runner; tools run through the model loop or a command that wraps them.
+`/help <tool>` shows a tool's description, parameters, category, and permission. There is no direct REPL tool runner. Tools run through the model loop or a command that wraps them.
 
 ## Registration metadata
 
@@ -189,4 +189,4 @@ At `verbosity.tools = full`, the parameters the model passed (excluding the one 
 
 When a tool call fails, the first line of its `Error:` result is echoed as a red `✗ ...` line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop and policy-denied calls alike.
 
-Soft tool results (short one-line informational notes a tool returns instead of content, like `(empty file)`, `(empty directory)`, `(no matches for "x")`, `(end of content)`, or `No search results found.`) surface as a dimmed info line under the activity line at `summary`/`full`; `verbosity.tools = off` hides them. A tool opts in by declaring a `note` predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.
+Soft tool results (short one-line informational notes a tool returns instead of content, like `(empty file)`, `(empty directory)`, `(no matches for "x")`, `(end of content)`, or `No search results found.`) surface as a dimmed info line under the activity line at `summary`/`full`. `verbosity.tools = off` hides them. A tool opts in by declaring a `note` predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.

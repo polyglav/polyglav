@@ -18,7 +18,7 @@ Set `session.storage = "jsonl"` to write append-only `.polyglav/sessions/<name>.
 
 Each session is one JSON file: `.polyglav/sessions/<name>.json`, next to the local `.polyglav/config.json`.
 
-Names are explicit (`/session new <name>`, `/session load <name>`, `polyglav run --session-id <name>`) or auto-generated as `ses_<timestamp>_<id>`, e.g. `ses_20260817_120000_ab12cd`. The `<id>` is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).
+Names are explicit (`/session new <name>`, `/session load <name>`) or auto-generated as `ses_<timestamp>_<id>`, e.g. `ses_20260817_120000_ab12cd`. The `<id>` is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).
 
 Session files carry a kind prefix so the kinds stay distinguishable at a glance:
 
@@ -28,9 +28,9 @@ Session files carry a kind prefix so the kinds stay distinguishable at a glance:
 | `ses_` | Interactive/auto sessions | `ses_20260817_120000_ab12cd.json` |
 | `sub_` | Delegation sub-agents | `sub_20260817_120100_cd34ef.json` |
 
-The trailing `<id>` is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The `session_id` is the stable run handle: each run mirrors it as `Run.session_id`, `/runs` and `/history` show it, and commands accept it as `#<id>` (`/history --run #ab12cd`, `/print --run #ab12cd`). Resolution is a direct filename glob for `*_<id>.json`, so an id is found without reading every session. The `ses_`, `job_`, and `sub_` kinds carry an id. Explicit names carry no id and are referenced by `session:<name>`. Files written before the `session_name`/`session_id` fields were introduced no longer load (the file is left on disk and stays listed).
+The trailing `<id>` is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The `session_id` is the stable run handle: each run mirrors it as `Run.session_id`, `/status` shows it, and the session name carries it. The `ses_`, `job_`, and `sub_` kinds carry an id. Explicit names carry no id and are referenced by `session:<name>`. Files written before the `session_name`/`session_id` fields were introduced no longer load (the file is left on disk and stays listed).
 
-Delegation writes each sub-agent's log as its own session: `sub_<ts>_<id>` (`sub_20260817_120100_cd34ef`), with the calling session recorded as `parent_id` rather than in the filename. Job runs use `job_<ts>_<id>`, with the job name still recorded in the job registry and each run's `JobRun.session`. A caller may resume a run or session explicitly with `call`/`team` `resume=...` and `context=continue|compact|new`, which appends to that run's own log instead of minting a new one. These live in the same `.polyglav/sessions/` directory and are regular sessions, hidden from `/sessions list` and reachable through `/runs`, `/history --tree`, `/print --tree`, and `--tree` exports, so caller and sub-agent logs stay separate and complete.
+Delegation writes each sub-agent's log as its own session: `sub_<ts>_<id>` (`sub_20260817_120100_cd34ef`), with the calling session recorded as `parent_id` rather than in the filename. Job runs use `job_<ts>_<id>`, with the job name still recorded in the job registry and each run's `JobRun.session`. A caller may resume a run or session explicitly with `call`/`team` `resume=...` and `context=continue|compact|new`, which appends to that run's own log instead of minting a new one. These live in the same `.polyglav/sessions/` directory and are regular sessions, hidden from `/sessions list` and reachable through `/history --tree`, `/print --tree`, and `--tree` exports, so caller and sub-agent logs stay separate and complete.
 
 Each session also records the agent `role` that owns it (the bound root role, the delegated role, the team-stage role, or the job role), stamped at creation. That makes a run reconstructable from its log even after the process exits. A plain root or a headless run with no `--role` leaves `role` empty.
 
@@ -46,8 +46,8 @@ The active session is handled by `/session` (like `/model` for the model). The c
 
 | Command | Purpose |
 |---------|---------|
-| `/history [n\|all] [--thoughts [all]] [--run <target>] [--tree]` | Numbered turn index of the active session (default last 10), with an optional dim thinking excerpt, a target selector, and a whole-tree view |
-| `/print <n>[.<m>] [--full] [--run <target>] [--tree]` | Reprint a turn in full, or only its m-th part, capped per part at 4000 characters; `--tree` renders the whole run tree |
+| `/history [N\|N-O\|-O\|N-\|all] [session:<name> ...] [--thoughts [all]] [--tree]` | Numbered turn index of the active session (default last 10), with an optional dim thinking excerpt and a whole-tree view |
+| `/print [N\|N-O\|-O\|N-\|N.M] [session:<name> ...] [--full] [--tree]` | Reprint a turn in full, or only its m-th part, capped per part at 4000 characters. `--tree` renders the whole run tree |
 | `/session` | Show the active session (name, provider-context message count, context size) |
 | `/session new <name>` | Create and switch to a new session |
 | `/session load <name>` | Load a session (with compaction offer if it has a summary) |
@@ -57,13 +57,12 @@ The active session is handled by `/session` (like `/model` for the model). The c
 | `/sessions delete <name>` | Delete a session |
 | `/sessions export <name> [out] [--json] [--tree]` | Export a session (or its run tree) to Markdown (or JSON) |
 | `/sessions import <file> [name] [--force]` | Import a session from a JSON export |
-| `polyglav run --session-id <name>` | Load or create a session from headless mode |
 
 The current session auto-saves after every turn and command, so nothing is lost on exit.
 
-`/history` lists the active session's turns as a numbered index, one line per turn: `#<index>  [<status>]  <duration>  <tool count>  <prompt>`. The index is the turn's absolute `index`, so a turn can be named later regardless of the listing limit. `/history 3` shows the last three turns, `/history all` every turn, and `--thoughts` adds a dim first-line excerpt of the turn's thinking (`--thoughts all` prints the full thinking text). `/history --run <#id|#run|role|session:name|name>` reads another run's session without changing the current session: a session id (`#ab12cd`) resolves to a live run first, otherwise the saved `ses_` session, a numeric run id (`#3`) resolves to the saved session, a role resolves to the live run with that role or the saved session, and a name resolves to the saved session (files without the current turn format read as not found). `--tree` lists the root and every sub-run with its depth.
+`/history` lists the active session's turns as a numbered index, one line per turn: `#<index>  [<status>]  <duration>  <tool count>  <prompt>`. The index is the turn's absolute `index`, so a turn can be named later regardless of the listing limit. `/history 3` shows the last three turns, `/history all` every turn, and `--thoughts` adds a dim first-line excerpt of the turn's thinking (`--thoughts all` prints the full thinking text). `/history session:<name>` reads another saved session without changing the current session. `--tree` lists the root and every sub-run with its depth.
 
-`/print <n>` reprints the turn with that absolute index: the full turn metadata block (`#index`, status, duration, tool count, `started`/`ended`, model, provider, mode, reasoning, with empty values shown as `-`, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with `input` JSON, `output`, `is_error`, and `analysis`, the answer, command records (a compaction summary included), and system notes. `/print <n>.<m>` prints only the m-th part of turn n. Each part's text is capped at 4000 characters with `... (N more chars, use --full)` appended, and `--full` removes the cap. `/print` takes the same `--run <#id|#run|role|session:name|name>` selector as `/history`, resolving through the same rules without changing the current session. `--tree` renders the whole run tree.
+`/print <n>` reprints the turn with that absolute index: the full turn metadata block (`#index`, status, duration, tool count, `started`/`ended`, model, provider, mode, reasoning, with empty values shown as `-`, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with `input` JSON, `output`, `is_error`, and `analysis`, the answer, command records (a compaction summary included), and system notes. `/print <n>.<m>` prints only the m-th part of turn n. Each part's text is capped at 4000 characters with `... (N more chars, use --full)` appended, and `--full` removes the cap. `/print` takes the same `session:<name>` selector as `/history`, so it can read another saved session without changing the current session. `--tree` renders the whole run tree.
 
 ## Exporting to Markdown
 
@@ -119,7 +118,7 @@ The headless CLI `polyglav export <name> [--out <file>] [--json] [--tree]` reuse
 | `updated_at` | string | ISO 8601 UTC timestamp, bumped on every appended part |
 | `version` | string | Polyglav version that created the session, stamped at creation (empty for files written before the field) |
 
-`/sessions preview` prints the `parent` and `sub-sessions` links. `/sessions list` shows root sessions only; `/runs`, `/history --tree`, and `/print --tree` reach the sub-runs.
+`/sessions preview` prints the `parent` and `sub-sessions` links. `/sessions list` shows root sessions only. `/history --tree` and `/print --tree` reach the sub-runs.
 
 A session's `title`, `outcome`, and `idle_at` are derived on read rather than stored, so the log stays the single source of truth and no index file is needed. `title` is the first `user` prompt collapsed to one line and clipped to 60 characters, `outcome` is `error` when any turn failed and `ok` otherwise, and `idle_at` is the last turn's `ended_at` (falling back to `updated_at`). `/sessions preview` shows all three.
 

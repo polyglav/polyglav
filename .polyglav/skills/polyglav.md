@@ -1,6 +1,6 @@
 # Polyglav development skill
 
-How to work on the Polyglav codebase itself. The project description lives in `AGENTS.md`; this skill adds the working conventions and the team flow.
+How to work on the Polyglav codebase itself. The project description lives in `AGENTS.md`. This skill adds the working conventions and the team flow.
 
 ## Conventions
 
@@ -10,7 +10,7 @@ How to work on the Polyglav codebase itself. The project description lives in `A
 - ASCII punctuation only in docs: plain hyphens and three dots, never em/en dashes, curly quotes, or the single-character ellipsis. Split clauses with periods or commas, never semicolons.
 - Keep the four planning files in sync: VISION.md (why, stable), PLAN.md (what, Task | Effort | Provides tables, finished tasks removed), TODO.md (backlog, ## Open and ## Done sorted newest-first, ## Done one-liners of at most 100 chars separated by ---), CHANGELOG.md (history, version sections newest at top, single flat bullet list newest first).
 - After completing a planned task: mark it [x] in TODO.md, add an entry under the current version section in CHANGELOG.md (start a new version section first if none exists), and remove the task from PLAN.md.
-- Documentation-only changes get no CHANGELOG entry; they are visible in git history.
+- Documentation-only changes get no CHANGELOG entry. They are visible in git history.
 - Keep the version in pyproject.toml in sync with the current version in CHANGELOG.md.
 
 ## Roles are specialists, ask the right one
@@ -38,21 +38,21 @@ How to work on the Polyglav codebase itself. The project description lives in `A
 ## Tool usage
 
 - `file_read` to inspect, `glob`/`grep` to locate code, `list_dir` to explore.
-- `file_edit` for surgical search-and-replace; `file_write` for create/overwrite/append.
+- `file_edit` for surgical search-and-replace. `file_write` for create/overwrite/append.
 - `code_test`/`code_lint`/`code_format` run the project commands above.
-- `git` (read-only) to inspect state; `git_commit` (gated by the `vcs` carve) to stage and commit.
+- `git` (read-only) to inspect state. `git_commit` (gated by the `vcs` carve) to stage and commit.
 - `run_command` is allowlisted to the dev command set (tests, ruff, git, python -m polyglav).
 
 ## Permissions
 
-- Roles carry only the permissions a task truly needs. Web is denied for the dev roles; a task that needs web research uses the `researcher` role, which has web allow.
+- Roles carry only the permissions a task truly needs. Web is denied for the dev roles. A task that needs web research uses the `researcher` role, which has web allow.
 - Only a role carved to commit sets `vcs: allow` (`committer`, and the leader). Builder roles set `vcs: ask`, so no stage can commit mid-run.
 - If a stage hits a denied or ask-gated tool, stop and report it as a "needs permission <x>" open question rather than bypassing policy or guessing.
 - When you cannot answer a question yourself, list it as an open question for the human. Human decisions happen in the interactive REPL between runs.
 
 ## The workflow
 
-- The assistant gathers and concretizes the operator's requirements, holds the whole picture, and coordinates. It does not read source code, search the web, or implement; it asks the right specialist.
+- The assistant gathers and concretizes the operator's requirements, holds the whole picture, and coordinates. It does not read source code, search the web, or implement. It asks the right specialist.
 - A task that touches code runs the `dev` team: developer (investigate and propose) > programmer (implement) > tester > code-reviewer (review loop) > committer.
 - A task that changes docs runs the `docs` team: assistant (scope) > docs (write) > committer.
 - The assistant works through `.polyglav/TODO.md` for its own work tracking, and reports a short summary after each run.
@@ -60,5 +60,5 @@ How to work on the Polyglav codebase itself. The project description lives in `A
 ## Guardrails
 
 - Never push, merge, checkout, or rewrite history.
-- Keep changes minimal and scoped to the task; one commit per task.
+- Keep changes minimal and scoped to the task. One commit per task.
 - Report changed files, the commands run, their results, and a short code map.

@@ -53,7 +53,7 @@ The end-to-end shape of a bigger task:
 2. **Compose** - for work beyond one task, the assistant engages the `composer` role, which designs a team: the specialists, the skills each needs, the stage order, and an optional review loop. The team is saved to the catalog, so it can be reused and extended.
 3. **Run** - the assistant starts the team. Stages run in order, each with its own role, skills, and permission carve, and each writing its own session log. A review loop lets a producer revise against the reviewer's feedback until it passes.
 4. **Continue** - as phases change, the next call continues from the previous result. The assistant calls the composer, then a planning agent, then a developer, and back again with a new task. Each run keeps its own session, so a developer resumes with what it just did.
-5. **Watch or stay out** - the user can follow progress with `/runs`, read a run's saved output with `/print --run`, or let it run silently. A status line shows what the active agent is doing.
+5. **Watch or stay out** - the user can follow live state with `/status`, inspect the durable tree with `/history --tree` and `/print --tree`, or let it run silently. A status line shows what the active agent is doing.
 6. **Remember** - after the run, the team and its members update bounded memory. The next run continues from the change, not from a replayed transcript.
 7. **Report** - finished and failed runs surface a summary, and recurring work reports out of band.
 
@@ -74,9 +74,9 @@ This is the user-facing half of the runtime, and it is what the phases turn on.
 - **Assistant is the single point of contact** - the main agent is the user's entry point. Delegation and team composition are its job, using the roles, teams, and skills registries (bundled, global, local, and plugin layers).
 - **Modes are the posture** - the root agent is `config.system_prompt` plus the active mode, not a bound role. `read` is the default (read, search, and the read-class `delegate` sibling, no writes, no named-role calls, and no grants), and `write` is opt-in (filesystem writes, named-role and team `call`, and permission grants, still bounded and confirmed for destructive actions). A single session-scoped mode switch replaces per-tool permission grants and the root delegation ceiling. No root/assistant role or bundled persona: the system prompt is set from config (or onboarding).
 - **Run-owned sessions** - a session belongs to a run. Whoever starts a run creates its session: the root at startup, `delegate`/`team` at delegation, the scheduler per job run. A role is an identity a run borrows, never a session owner, so there is no `agent_<role>` and no `sub_<key>`.
-- **Runs are history, pause and resume hold the next turn** - `/runs` shows the run tree and a run's buffer, and never switches control. `/pause` holds the next turn and `/resume` clears it, so the operator controls a long run without a live focus or a handoff.
+- **Runs are history, Ctrl-C pauses the active turn** - `/status`, `/history --tree`, and `/print --tree` expose live and durable run state without switching control. Ctrl-C pauses the root turn, `/continue` resumes it, and `/cancel` closes it. A child run is cancelled and the parent continues.
 - **Memory, not replay** - continuity has two scales. Within a run, the run's own session is the context, so a planner giving a developer another task sees its recent work. Across runs, continuity is bounded memory: a compacted Markdown summary per role, team, and job, injected into briefs and refreshed after runs, so recurring work does not replay an ever-growing session.
-- **Sequential-only** - team stages and sub-agents run one at a time via `run_subagent`. The REPL runs one process and one context at a time; there is no live focus, handoff, or concurrent run. Pause and resume hold the next turn, and `/runs` shows the history tree read-only.
+- **Sequential-only** - team stages and sub-agents run one at a time via `run_subagent`. The REPL runs one process and one context at a time. There is no live focus, handoff, or concurrent run. Ctrl-C pauses the root turn, and `/history --tree` shows the durable tree read-only.
 - **No pre-saved run prompts** - briefs, stage notes, and memory are generated per run. Stored artifacts are roles, teams, and skills in the registries.
 - **Core stays thin and publishable** - registries plus the sequential runner plus plugin hooks. Everything customer-specific lives in local `roles.json`, `teams.json`, `skills/`, or plugins, and moves toward plugins entirely.
 
@@ -84,7 +84,7 @@ This is the user-facing half of the runtime, and it is what the phases turn on.
 
 - Sub-engines are separate `Engine`s, with no in-memory context sharing. The persistence channels are session logs and memory files.
 - Cold starts cost: file re-reads by multiple members and brief duplication. Mitigations are facts-in-briefs (not just paths), research stages summarizing into team memory (`.polyglav/memory/teams/<name>.md`), and bounded role/team/job memory, so recurring work never replays a whole session.
-- Honest limit: per-run redundancy will not go to zero. Sequential wall-clock is accepted; there are no concurrent runs.
+- Honest limit: per-run redundancy will not go to zero. Sequential wall-clock is accepted. There are no concurrent runs.
 
 ## Phases
 

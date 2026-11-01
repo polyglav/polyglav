@@ -128,6 +128,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Updated the plugin boundary docs
 - [x] Moved plugin CLI tests into plugin suites
 - [x] Added the spawn command
 - [x] Changed CLI signals

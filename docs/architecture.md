@@ -33,7 +33,7 @@ Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/p
 
 ## Focus
 
-`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack or handoff. `SubRunUI` forwards a visible sub-run into the caller under `verbosity.output`, while hidden sub-runs stay in their own sessions. `/status` shows live runs, `/print session:<name>` reads a run's output, and Ctrl-C pauses the root turn for `/continue` or `/cancel`, a child run is cancelled and the parent continues, and idle Ctrl-C requires a second press within two seconds to exit. The `prompt_role` and `focus_on_delegate` config keys are gone; the live prompt is a mode-colored `> `, and the submitted line reprints in the same color.
+`ChatLoop.active()` returns the root engine. The REPL runs one process and one context at a time: there is no focus stack or handoff. `SubRunUI` forwards a visible sub-run into the caller under `verbosity.output`, while hidden sub-runs stay in their own sessions. `/status` shows live runs, `/print session:<name>` reads a run's output, and Ctrl-C pauses the root turn for `/continue` or `/cancel`, a child run is cancelled and the parent continues, and idle Ctrl-C requires a second press within two seconds to exit. The `prompt_role` and `focus_on_delegate` config keys are gone. The live prompt is a mode-colored `> `, and the submitted line reprints in the same color.
 
 ## Memory
 

@@ -55,7 +55,7 @@ Fields:
 - `callable` - optional, whether another run may call this role: `allow` (default), `ask`, or `deny`. This is separate from `tool_permission.call`, which controls whether this role may call others. A worker can set `call: "deny"` so it never delegates while remaining callable itself.
 - `tool_permission` - optional per-agent overrides by permission key. The keys are `ask`, `bash`, `call`, `catalog`, `delegate`, `edit`, `list`, `mcp`, `read`, `vcs`, `web` (not tool categories). A category name is normalized on save (`write` -> `edit`, `exec`/`shell`/`cmd` -> `bash`, `search` -> `web`), an unknown key is rejected with the valid list, and the actions are `allow`/`ask`/`deny` (`true`/`false` are accepted as `allow`/`deny`). The per-agent permission profile.
 - `grant_permission` - optional narrowing of the categories this role may hand down to sub-agents. The mode sets the ceiling (write keys are grantable in `write`, denied in `read`), and this only narrows it. It uses the same keys and normalization. See [Delegation and permissions](#delegation-and-permissions).
-- `ask_policy` - optional per-role override of the `ask` routing by kind (`permission`/`direction`), merged over the config `ask_policy`. Both kinds ask the user; `direction: caller` and `auto` are accepted as `user` for one version. See [config.md](config.md#ask_policy).
+- `ask_policy` - optional per-role override of the `ask` routing by kind (`permission`/`direction`), merged over the config `ask_policy`. Both kinds ask the user. `direction: caller` and `auto` are accepted as `user` for one version. See [config.md](config.md#ask_policy).
 - `description` - optional short summary, shown by `/roles show` and the `catalog` tool.
 - `instructions` - optional Markdown file name under `.polyglav/roles/` (or `~/.config/polyglav/roles/`) that holds the role's long system prompt. It defaults to `<name>.md` when that file exists. The file body becomes `system_prompt`, and its YAML-like frontmatter can fill any field the JSON entry leaves unset. Frontmatter values are JSON (`tags: ["writing"]`, `tool_permission: {"bash": "deny"}`). The JSON entry stays authoritative: a `system_prompt` or field set there wins over the file.
 
@@ -85,6 +85,6 @@ Sub-agent permissions are bounded by the caller: the effective carve is the call
 
 ## Relationship to /agent, skills, and fleets
 
-- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `call` tool (the caller model proposes it, or `/tool call {"target": ..., "task": ...}`), which builds the in-process sub-engine from this catalog.
+- `/agent` is the planned interactive way to pick a role and run with it. Today a role runs directly through the `call` tool, which the caller model proposes and which builds the in-process sub-engine from this catalog.
 - Skills (a dedicated registry) are a separate capability layer attached to a role, distinct from tools and plugins.
 - A role runs either in-process as a sub-engine (the default for delegation) or as a scoped `polyglav serve` process in a fleet. In-process variants share the caller's privileges, cross-process variants are confined by the target agent's worktree and `tool_permission` (see [fleet.md](fleet.md)).
