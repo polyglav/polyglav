@@ -361,72 +361,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#plugin-boundary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Plugin boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#slash-command-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Slash command surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cli-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#config-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tool-ownership-and-agent-interaction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tool ownership and agent interaction
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#session-storage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session storage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1483,72 +1417,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#plugin-boundary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Plugin boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#slash-command-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Slash command surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cli-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#config-surface" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Config surface
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tool-ownership-and-agent-interaction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tool ownership and agent interaction
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#session-storage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session storage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1798,120 +1666,12 @@
 
 <h1 id="execution-plan">Execution Plan<a class="headerlink" href="#execution-plan" title="Permanent link">&para;</a></h1>
 <p>Groups the next tasks from <code>TODO.md</code> (<code>## Open</code>) into work packages, each providing a distinct next-level capability. Packages are ordered top-to-bottom by urgency and importance, vision-first. Re-rank the packages against the backlog before starting each next step (docs-first for the roadmap phases).</p>
-<p>Finished tasks are removed from this file and live as one-liners in <code>TODO.md</code> <code>## Done</code> and in detail under the matching version in <code>CHANGELOG.md</code>.</p>
+<p>Finished tasks are removed from this file and live in detail under the matching version in <code>CHANGELOG.md</code>.</p>
 <h2 id="method">Method<a class="headerlink" href="#method" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
-<h2 id="plugin-boundary">Plugin boundary<a class="headerlink" href="#plugin-boundary" title="Permanent link">&para;</a></h2>
-<p>The core keeps the loop, registry, policy, providers base, config, sessions, and runs. Access, orchestration, capability, and storage extras load as plugins with declared dependencies.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="slash-command-surface">Slash command surface<a class="headerlink" href="#slash-command-surface" title="Permanent link">&para;</a></h2>
-<p>The REPL exposes one canonical name per command, separates commands from tools, and keeps current-state singular commands apart from catalog plural commands.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="cli-surface">CLI surface<a class="headerlink" href="#cli-surface" title="Permanent link">&para;</a></h2>
-<p>The CLI is a plugin-aware front-end over the same services as the REPL, so no subcommand reimplements command behavior.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="config-surface">Config surface<a class="headerlink" href="#config-surface" title="Permanent link">&para;</a></h2>
-<p>The config schema loses legacy keys, gains an owner per key, and renders grouped objects in both the REPL and the CLI.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="tool-ownership-and-agent-interaction">Tool ownership and agent interaction<a class="headerlink" href="#tool-ownership-and-agent-interaction" title="Permanent link">&para;</a></h2>
-<p>Tools that are not loop primitives live with their plugins, asks block inline, and the delegate contract matches what it actually does.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="session-storage">Session storage<a class="headerlink" href="#session-storage" title="Permanent link">&para;</a></h2>
-<p>The session log stays append-only in meaning, writes are atomic, and runtime cost is proportional to new data rather than total history.</p>
-<table>
-<thead>
-<tr>
-<th>Task</th>
-<th>Effort</th>
-<th>Provides</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <h2 id="self-development-team-enablement">Self-development team enablement<a class="headerlink" href="#self-development-team-enablement" title="Permanent link">&para;</a></h2>
 <p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.</p>
 <table>
