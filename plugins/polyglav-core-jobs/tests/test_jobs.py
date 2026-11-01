@@ -11,34 +11,66 @@ from unittest.mock import MagicMock, patch
 from polyglav.config import Config
 from polyglav.engine import TurnResult
 from polyglav.sessions import turns as session_turns
-from polyglav.jobs import (Job, JobRun, JobRegistry, compute_next_run, ensure_task_file,
-                         next_run, parse_cron_field, parse_dt,
-                         render_list, render_status, describe_schedule,
-                         validate_schedule)
-from polyglav.jobs import read_memory as _read_memory
-from polyglav.jobs import render_show as _render_show
-from polyglav.jobs import system_prompt_for as _system_prompt_for
-from polyglav.jobs import write_memory as _write_memory
-from polyglav.scheduler import JobScheduler, _attempt
 from tests.helpers import memory_module
+
+import importlib.util
+import sys
+
+SRC = Path(__file__).resolve().parents[1] / 'src'
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+import jobs as _jobs_module
+
+_scheduler_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_jobs_scheduler', SRC / 'scheduler.py')
+_scheduler_module = importlib.util.module_from_spec(_scheduler_spec)
+sys.modules['polyglav_core_jobs_scheduler'] = _scheduler_module
+sys.modules['scheduler'] = _scheduler_module
+_scheduler_spec.loader.exec_module(_scheduler_module)
+
+_cli_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_jobs_cli', SRC / 'cli.py')
+_cli_module = importlib.util.module_from_spec(_cli_spec)
+sys.modules['polyglav_core_jobs_cli'] = _cli_module
+_cli_spec.loader.exec_module(_cli_module)
+
+Job = _jobs_module.Job
+JobRun = _jobs_module.JobRun
+JobRegistry = _jobs_module.JobRegistry
+compute_next_run = _jobs_module.compute_next_run
+ensure_task_file = _jobs_module.ensure_task_file
+next_run = _jobs_module.next_run
+parse_cron_field = _jobs_module.parse_cron_field
+parse_dt = _jobs_module.parse_dt
+render_list = _jobs_module.render_list
+render_status = _jobs_module.render_status
+describe_schedule = _jobs_module.describe_schedule
+validate_schedule = _jobs_module.validate_schedule
+JobScheduler = _scheduler_module.JobScheduler
+_attempt = _scheduler_module._attempt
+cmd_jobs = _cli_module.cmd_jobs
 
 _MEMORY = memory_module()
 
 
 def read_memory(worktree, job):
-    return _read_memory(worktree, job, memory_store=_MEMORY)
+    return _jobs_module.read_memory(worktree, job, memory_store=_MEMORY)
 
 
 def write_memory(worktree, job, text):
-    return _write_memory(worktree, job, text, memory_store=_MEMORY)
+    return _jobs_module.write_memory(worktree, job, text, memory_store=_MEMORY)
 
 
 def system_prompt_for(job, worktree, agent_role=None):
-    return _system_prompt_for(job, worktree, agent_role, memory_store=_MEMORY)
+    return _jobs_module.system_prompt_for(
+        job, worktree, agent_role, memory_store=_MEMORY)
 
 
 def render_show(registry, name, print=print):
-    return _render_show(registry, name, print, memory_store=_MEMORY)
+    return _jobs_module.render_show(
+        registry, name, print, memory_store=_MEMORY)
+
 
 TZ = timezone.utc
 BASE = datetime(2026, 8, 26, 10, 0, tzinfo=TZ)
@@ -359,7 +391,7 @@ class TestScheduler(unittest.TestCase):
         self.tmp.cleanup()
 
     def _patch_engine(self, outcomes):
-        patcher = patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine(outcomes))
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine', return_value=ScriptedEngine(outcomes))
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -389,7 +421,7 @@ class TestScheduler(unittest.TestCase):
                        session='job.a'),
             TurnResult(status='ok', content='recovered', duration=1.0, session='job.a'),
         ])]
-        patcher = patch('polyglav.scheduler._build_engine',
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine',
                         side_effect=lambda *a, **k: engine[0])
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -406,7 +438,7 @@ class TestScheduler(unittest.TestCase):
                        session='job.a'),
         ] + [TurnResult(status='error', errors=[{'message': 'x'}], duration=0.5,
                         session='job.a')] * 10)
-        patcher = patch('polyglav.scheduler._build_engine',
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine',
                         return_value=engine)
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -430,7 +462,7 @@ class TestScheduler(unittest.TestCase):
 
     def test_build_engine_injects_type_skills(self):
         from pathlib import Path as _Path
-        from polyglav.scheduler import _build_engine
+        _build_engine = _scheduler_module._build_engine
         base = _Path(self.tmp.name)
         types = {
             'researcher': {'name': 'researcher',
@@ -450,7 +482,7 @@ class TestScheduler(unittest.TestCase):
 
     def test_build_engine_skips_missing_type_skills(self):
         from pathlib import Path as _Path
-        from polyglav.scheduler import _build_engine
+        _build_engine = _scheduler_module._build_engine
         base = _Path(self.tmp.name)
         types = {'x': {'name': 'x', 'system_prompt': 'prompt',
                           'skills': ['nosuch']}}
@@ -473,7 +505,7 @@ class TestScheduler(unittest.TestCase):
                 return TurnResult(status='ok', content='late', session='job.t')
 
         hung = HungEngine()
-        with patch('polyglav.scheduler._build_engine', return_value=hung):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=hung):
             job = Job('t', {'interval': 60}, prompt='work', status='approved',
                       retries=0, backoff=0, timeout=1)
             run = self.scheduler.run_job(job)
@@ -494,7 +526,7 @@ class TestScheduler(unittest.TestCase):
     def test_tick_runs_due_approved_only(self):
         ok_engine = ScriptedEngine([TurnResult(status='ok', content='r', duration=0.1,
                                                session='job.ok')])
-        patcher = patch('polyglav.scheduler._build_engine', return_value=ok_engine)
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine', return_value=ok_engine)
         patcher.start()
         self.addCleanup(patcher.stop)
         due = Job('due', {'interval': 60}, prompt='p', status='approved')
@@ -512,7 +544,7 @@ class TestScheduler(unittest.TestCase):
     def test_tick_skips_future_jobs(self):
         engine = ScriptedEngine([TurnResult(status='ok', content='r', duration=0.1,
                                             session='job.f')])
-        with patch('polyglav.scheduler._build_engine', return_value=engine):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=engine):
             future = Job('f', {'interval': 3600}, prompt='p', status='approved')
             future.next_run_at = _iso(BASE + timedelta(hours=2))
             self.registry.put(future)
@@ -547,7 +579,7 @@ class TestScheduler(unittest.TestCase):
     def test_require_approval_parks_until_next_approve(self):
         engine = ScriptedEngine([
             TurnResult(status='ok', content='a', duration=0.1, session='job.a')])
-        with patch('polyglav.scheduler._build_engine', return_value=engine):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=engine):
             job = Job('a', {'interval': 60}, prompt='p', status='approved',
                       require_approval=True, approval_pending=True)
             job.next_run_at = _iso(BASE - timedelta(minutes=1))
@@ -633,7 +665,7 @@ class TestScheduler(unittest.TestCase):
             eng.seen = msgs
             return 'compiled memory summary'
         eng._summarize = _summarize
-        with patch('polyglav.scheduler._build_engine', return_value=eng):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=eng):
             job = Job('sd', {'interval': 60}, prompt='p', status='approved')
             self.scheduler.run_job(job)
         memory = read_memory(Path(self.tmp.name), job)
@@ -652,7 +684,7 @@ class TestScheduler(unittest.TestCase):
         eng._summarize = _summarize
         worktree = Path(self.tmp.name)
         write_memory(worktree, Job('seed', {'interval': 60}), 'first summary')
-        with patch('polyglav.scheduler._build_engine', return_value=eng):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=eng):
             job = Job('seed', {'interval': 60}, prompt='p', status='approved')
             self.scheduler.run_job(job)
         self.assertTrue(any(
@@ -687,7 +719,7 @@ class TestScheduler(unittest.TestCase):
             (session_dir / f'{session_name}.json').write_text('{}')
             return ScriptedEngine([TurnResult(status='ok', content='x',
                                               duration=0.1, session=session_name)])
-        with patch('polyglav.scheduler._build_engine', side_effect=fake_build):
+        with patch('polyglav_core_jobs_scheduler._build_engine', side_effect=fake_build):
             job = Job('nightly', {'interval': 60}, prompt='p', status='approved')
             self.registry.put(job)
             self.scheduler.run_job(job)
@@ -704,7 +736,7 @@ class TestScheduler(unittest.TestCase):
             calls.append(session_name)
             return ScriptedEngine([TurnResult(status='ok', content='x',
                                               duration=0.1, session=session_name)])
-        with patch('polyglav.scheduler._build_engine', side_effect=fake_build):
+        with patch('polyglav_core_jobs_scheduler._build_engine', side_effect=fake_build):
             job = Job('stable', {'interval': 60}, prompt='p', status='approved',
                       session='myjobby')
             self.registry.put(job)
@@ -713,19 +745,19 @@ class TestScheduler(unittest.TestCase):
         self.assertEqual(calls, ['myjobby', 'myjobby'])
 
     def test_fresh_job_session_dedupes_collision(self):
-        from polyglav import scheduler
+        scheduler = _scheduler_module
         from datetime import datetime
         sessions_dir = self.config.local_path.parent / 'sessions'
         sessions_dir.mkdir(parents=True, exist_ok=True)
         when = datetime(2026, 8, 26, 10, 30, 5)
         (sessions_dir / 'job_fixed.json').write_text('{}')
-        with patch('polyglav.scheduler.job_session_name',
+        with patch('polyglav_core_jobs_scheduler.job_session_name',
                    side_effect=['job_fixed', 'job_free']):
             name = scheduler._fresh_job_session(sessions_dir, 'nightly', when)
         self.assertEqual(name, 'job_free')
 
     def test_job_session_name_format(self):
-        from polyglav.jobs import job_session_name
+        job_session_name = _jobs_module.job_session_name
         from datetime import datetime
         when = datetime(2026, 8, 26, 10, 30, 5)
         name = job_session_name('nightly report', when)
@@ -767,7 +799,7 @@ class TestSchedulerReport(unittest.TestCase):
         self.tmp.cleanup()
 
     def _patch_engine(self, outcomes):
-        patcher = patch('polyglav.scheduler._build_engine',
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine',
                         return_value=ScriptedEngine(outcomes))
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -806,7 +838,7 @@ class TestSchedulerReport(unittest.TestCase):
         self.assertIn('boom', self.reporter.payloads[0]['reason'])
 
     def test_report_on_build_failure(self):
-        patcher = patch('polyglav.scheduler._build_engine',
+        patcher = patch('polyglav_core_jobs_scheduler._build_engine',
                         side_effect=ValueError('unknown type'))
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -910,7 +942,7 @@ class TestJobsCli(unittest.TestCase):
         return namespace
 
     def test_add_list_approve_cycle(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stdout', new=io.StringIO()) as buf:
             code = cmd_jobs(self._args(action='add', name='nightly', prompt='report',
                                        cron='0 2 * * *'))
@@ -930,14 +962,14 @@ class TestJobsCli(unittest.TestCase):
             self.assertIn('nightly', buf.getvalue())
 
     def test_add_auto_approved(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         cmd_jobs(self._args(action='add', name='auto', prompt='p', cron='* * * * *',
                             approval='auto'))
         registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertTrue(registry.find('auto').runnable())
 
     def test_add_defaults_to_write_mode(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stdout', new=io.StringIO()):
             cmd_jobs(self._args(action='add', name='wnightly', prompt='work',
                                 cron='0 3 * * *'))
@@ -945,7 +977,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertEqual(registry.find('wnightly').mode, 'write')
 
     def test_add_keeps_explicit_read_mode(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stdout', new=io.StringIO()):
             cmd_jobs(self._args(action='add', name='probe', prompt='look',
                                 cron='0 4 * * *', mode='read'))
@@ -953,13 +985,13 @@ class TestJobsCli(unittest.TestCase):
         self.assertEqual(registry.find('probe').mode, 'read')
 
     def test_build_engine_defaults_to_write_mode(self):
-        from polyglav.scheduler import _build_engine
+        _build_engine = _scheduler_module._build_engine
         job = Job('m', {'interval': 3600}, prompt='p', status='approved')
         engine = _build_engine(self.config, job, verbose=False)
         self.assertEqual(engine.config.get('mode'), 'write')
 
     def test_add_rejects_bad_cron(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='bad', prompt='p',
                                        cron='not cron'))
@@ -968,7 +1000,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertIsNone(JobRegistry(self.base / '.polyglav' / 'jobs.json').find('bad'))
 
     def test_add_rejects_duplicate(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         cmd_jobs(self._args(action='add', name='dup', prompt='p', interval=3600))
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='dup', prompt='p',
@@ -977,13 +1009,13 @@ class TestJobsCli(unittest.TestCase):
             self.assertIn('already exists', err.getvalue())
 
     def test_run_exit_code_ok(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
         registry.put(Job('nightly', {'interval': 60}, prompt='report',
                          status='approved'))
-        with patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine([
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=ScriptedEngine([
             TurnResult(status='ok', content='fine', duration=0.5, session='job.nightly'),
         ])):
             with patch('sys.stdout', new=io.StringIO()) as buf:
@@ -994,7 +1026,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertEqual(registry.find('nightly').status, 'verified')
 
     def test_run_exit_code_failure(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
@@ -1003,14 +1035,14 @@ class TestJobsCli(unittest.TestCase):
         engine = ScriptedEngine([TurnResult(status='error',
                                             errors=[{'message': 'boom'}],
                                             duration=0.2, session='job.bad')])
-        with patch('polyglav.scheduler._build_engine', return_value=engine):
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=engine):
             with patch('sys.stdout', new=io.StringIO()) as buf:
                 code = cmd_jobs(self._args(action='run', name='bad', no_retry=True))
         self.assertEqual(code, 1)
         self.assertIn('failed', buf.getvalue())
 
     def test_add_require_approval_parks_until_approve(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         cmd_jobs(self._args(action='add', name='gated', prompt='p', interval=3600,
                             approval='auto', require_approval=True))
         fresh = JobRegistry(self.base / '.polyglav' / 'jobs.json')
@@ -1024,13 +1056,13 @@ class TestJobsCli(unittest.TestCase):
         self.assertTrue(job.ready_to_run())
 
     def test_run_prints_content_headless(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         config_dir = Path(self.base) / '.polyglav'
         config_dir.mkdir(exist_ok=True)
         registry = JobRegistry(config_dir / 'jobs.json')
         registry.put(Job('c', {'interval': 60}, prompt='p', status='approved',
                          retries=0, backoff=0))
-        with patch('polyglav.scheduler._build_engine', return_value=ScriptedEngine([
+        with patch('polyglav_core_jobs_scheduler._build_engine', return_value=ScriptedEngine([
             TurnResult(status='ok', content='hello from the job', duration=0.2,
                        session='job.c')])):
             with patch('sys.stdout', new=io.StringIO()) as buf:
@@ -1039,7 +1071,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertIn('hello from the job', buf.getvalue())
 
     def test_add_with_task_file_only(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stdout', new=io.StringIO()) as buf:
             code = cmd_jobs(self._args(action='add', name='doc',
                                        file='tasks/doc.md', cron='0 2 * * *'))
@@ -1052,7 +1084,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertTrue((self.base / 'tasks' / 'doc.md').exists())
 
     def test_add_requires_prompt_or_file(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         with patch('sys.stderr', new=io.StringIO()) as err:
             code = cmd_jobs(self._args(action='add', name='bare', cron='* * * * *'))
             self.assertEqual(code, 1)
@@ -1060,7 +1092,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertIsNone(JobRegistry(self.base / '.polyglav' / 'jobs.json').find('bare'))
 
     def test_add_creates_template_when_file_missing(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         cmd_jobs(self._args(action='add', name='archiver', interval=3600,
                             file='jobs/archiver.md'))
         path = self.base / 'jobs' / 'archiver.md'
@@ -1068,7 +1100,7 @@ class TestJobsCli(unittest.TestCase):
         self.assertIn('# archiver', path.read_text())
 
     def test_edit_creates_template_and_opens(self):
-        from polyglav.cli import cmd_jobs
+        cmd_jobs = _cli_module.cmd_jobs
         cmd_jobs(self._args(action='add', name='writer', interval=3600,
                             prompt='write'))
         task_path = self.base / '.polyglav' / 'jobs' / 'writer.md'

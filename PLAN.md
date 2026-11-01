@@ -17,7 +17,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 |------|--------|----------|
 | REPL plugin | M-L | a replaceable terminal front-end |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
-| Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |
 | Plugin docs and tests | S-M | maintained plugins |
 
@@ -34,7 +33,6 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Jobs scheduler and shared job service | M | one jobs surface |
 | Signal and exit contract | S | predictable interruption |
 
 ## Config surface

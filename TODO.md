@@ -43,7 +43,6 @@
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
@@ -64,11 +63,9 @@
 - [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
 - [ ] Remove all config compatibility aliases
 
-- [ ] Move `polyglav jobs` into the jobs plugin and share one handler with `/jobs`
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
-- [ ] Add a job service shared by `/jobs` and `polyglav jobs`
 
 
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
@@ -154,6 +151,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved the jobs scheduler and job service into the jobs plugin
 - [x] Moved memory files and injection into the memory plugin
 - [x] Moved the skill registry into the skills plugin
 - [x] Moved the team registry and run_team into the teams plugin

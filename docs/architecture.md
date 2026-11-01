@@ -84,7 +84,6 @@ src/polyglav/
 ├── commands/            # command registry + builtins
 ├── config.py            # JSON config (global + local merge)
 ├── engine.py            # headless agent core - Engine, TurnResult, chat_tool, run_subagent, run_team
-├── jobs.py              # Job/JobRun model + registry
 ├── main.py              # CLI arg parsing + bootstrap (REPL, run, serve, ...)
 ├── modes.py             # read/write caps and descriptions merged into tool policy
 ├── models.py            # global approved-model registry (models.json)
@@ -93,7 +92,6 @@ src/polyglav/
 │   ├── __init__.py      # PROVIDERS registry + detect_provider (host patterns)
 │   ├── base.py          # BaseProvider + OpenAICompatibleProvider
 │   └── registry.py      # ProviderRegistry (providers.json - keys + base URLs)
-├── scheduler.py         # JobScheduler - durable job daemon
 ├── sessions/            # session CRUD
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
 ├── role_model.py        # role model and permission helpers

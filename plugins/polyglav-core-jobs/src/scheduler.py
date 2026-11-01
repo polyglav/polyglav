@@ -4,13 +4,13 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import Config, verbosity_level
-from .engine import Engine, TurnResult
-from .sessions import turns
-from .jobs import (Job, JobRun, JobRegistry, compute_next_run, job_session_name,
+from polyglav.config import Config, verbosity_level
+from polyglav.engine import Engine, TurnResult
+from polyglav.sessions import turns
+from jobs import (Job, JobRun, JobRegistry, compute_next_run, job_session_name,
                    parse_dt, read_memory,
                    system_prompt_for, write_memory)
-from .ui import HeadlessUI
+from polyglav.ui import HeadlessUI
 
 
 def _fresh_job_session(sessions_dir: Path, name: str, when: datetime) -> str:
@@ -26,12 +26,12 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     agent_role = None
     skill_names = []
     grant_ceiling = None
-    from .plugins.manager import PluginManager
+    from polyglav.plugins.manager import PluginManager
     pm = PluginManager(config)
     pm.load()
     if job.role:
-        from .modes import merge_policy
-        from .role_model import resolve_permissions, resolve_grant_ceiling
+        from polyglav.modes import merge_policy
+        from polyglav.role_model import resolve_permissions, resolve_grant_ceiling
         factory = pm.service('role_registry')
         roles = (factory(local_path=config.local_path.parent / 'roles.json')
                  if factory is not None else None)
@@ -160,7 +160,7 @@ class JobScheduler:
 
     def _plugin_manager(self):
         if getattr(self, '_pm', None) is None:
-            from .plugins.manager import PluginManager
+            from polyglav.plugins.manager import PluginManager
             self._pm = PluginManager(self.config)
             self._pm.load()
         return self._pm

@@ -10,6 +10,11 @@
     "providers": [],
     "commands": [
       "/jobs"
+    ],
+    "services": [
+      "job_registry",
+      "job_scheduler",
+      "job_service"
     ]
   }
 }

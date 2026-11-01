@@ -1,193 +1,128 @@
-import os
+import importlib.util
 import shlex
-import subprocess
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+SRC = Path(__file__).resolve().parent
+_added = False
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    _added = True
+try:
+    import cli as _cli
+    import jobs as _jobs
+    import scheduler as _scheduler
+finally:
+    if _added:
+        sys.path.remove(str(SRC))
+
+
+def register_services(services):
+    services['job_registry'] = _jobs.JobRegistry
+    services['job_scheduler'] = _scheduler.JobScheduler
+    services['job_service'] = _cli
+
+
+def _defaults(action: str, name: str = '') -> SimpleNamespace:
+    return SimpleNamespace(
+        action=action, name=name, prompt='', file=None, cron=None,
+        interval=None, at=None, session='', mode='', provider='', model='',
+        role='', team='', system_prompt='', tools_deny=[],
+        tool_permission=[], retries=3, backoff=60.0, timeout=0,
+        require_approval=False, approve_model=False, approval='manual',
+        no_retry=False, verbose=False, quiet=False, tick=15.0)
+
+
+def _parse_add(tokens: list[str]) -> SimpleNamespace:
+    args = _defaults('add', tokens[0] if tokens else '')
+    i = 1
+    while i < len(tokens):
+        token = tokens[i]
+        value = tokens[i + 1] if i + 1 < len(tokens) else ''
+        if token in ('--cron', '--interval', '--at', '--prompt', '--file',
+                     '--session', '--mode', '--provider', '--model', '--role',
+                     '--team', '--system-prompt', '--retries', '--backoff',
+                     '--timeout', '--approval'):
+            setattr(args, token[2:].replace('-', '_'), value)
+            i += 2
+        elif token in ('--tools-deny', '--tool-permission'):
+            getattr(args, token[2:].replace('-', '_')).append(value)
+            i += 2
+        elif token == '--require-approval':
+            args.require_approval = True
+            i += 1
+        elif token == '--approve-model':
+            args.approve_model = True
+            i += 1
+        else:
+            i += 1
+    if args.interval not in (None, ''):
+        try:
+            args.interval = int(args.interval)
+        except (TypeError, ValueError):
+            args.interval = None
+    if args.retries not in (None, ''):
+        try:
+            args.retries = int(args.retries)
+        except (TypeError, ValueError):
+            args.retries = 3
+    if args.backoff not in (None, ''):
+        try:
+            args.backoff = float(args.backoff)
+        except (TypeError, ValueError):
+            args.backoff = 60.0
+    if args.timeout not in (None, ''):
+        try:
+            args.timeout = int(args.timeout)
+        except (TypeError, ValueError):
+            args.timeout = 0
+    return args
 
 
 def register_commands(commands):
-    registry = commands
     chat = commands.chat_loop
 
-    @registry.register('jobs', description='Manage scheduled and durable jobs', subcommands=[
-        ('list', 'List configured jobs'),
-        ('status', 'Runtime summary per job (fired count, last error, uptime)'),
-        ('show', 'Show a job and its run history'),
-        ('add', 'Add a job (starts proposed, approve to activate)'),
-        ('approve', 'Approve a job so it runs on schedule'),
-        ('reject', 'Reject a proposed job'),
-        ('enable', 'Enable a disabled job'),
-        ('disable', 'Disable a job'),
-        ('edit', 'Open the job task file in $EDITOR (creates the template first)'),
-        ('remove', 'Remove a job definition'),
-        ('run', 'Run a job now'),
-    ])
+    @commands.register(
+        'jobs', description='Manage scheduled and durable jobs', subcommands=[
+            ('list', 'List configured jobs'),
+            ('status', 'Runtime summary per job (fired count, last error, uptime)'),
+            ('show', 'Show a job and its run history'),
+            ('add', 'Add a job (starts proposed, approve to activate)'),
+            ('approve', 'Approve a job so it runs on schedule'),
+            ('reject', 'Reject a proposed job'),
+            ('enable', 'Enable a disabled job'),
+            ('disable', 'Disable a job'),
+            ('edit', 'Open the job task file in $EDITOR (creates the template first)'),
+            ('remove', 'Remove a job definition'),
+            ('run', 'Run a job now'),
+        ])
     def jobs_cmd(arg=''):
-        from polyglav.jobs import (Job, JobRegistry, publish, read_memory,
-                            render_list, render_show, render_status,
-                            validate_schedule)
-        memory_store = chat._plugin_manager.service('memory')
-        import shlex
-        registry = JobRegistry(chat.config.local_path.parent / 'jobs.json')
         tokens = shlex.split(arg)
         action = tokens[0] if tokens else 'list'
-        if action in ('list', 'status'):
-            (render_status if action == 'status' else render_list)(registry)
-            return
-        if action == 'show':
-            name = tokens[1] if len(tokens) > 1 else ''
-            if not name:
-                print('Usage: /jobs show <name>')
-                return
-            render_show(registry, name, memory_store=memory_store)
-            return
-        if action == 'remove':
-            name = tokens[1] if len(tokens) > 1 else ''
-            if not name:
-                print('Usage: /jobs remove <name>')
-                return
-            if registry.remove(name):
-                print(f'Removed job: {name}')
-            else:
-                print(f'Job not found: {name}')
-            return
-        if action in ('approve', 'reject', 'enable', 'disable'):
-            name = tokens[1] if len(tokens) > 1 else ''
-            job = registry.find(name) if name else None
-            if job is None:
-                print(f'Usage: /jobs {action} <name>')
-                return
-            if action == 'approve':
-                job.status = 'approved'
-                job.enabled = True
-                if job.require_approval:
-                    job.approval_pending = True
-            elif action == 'reject':
-                job.status = 'proposed'
-                job.enabled = False
-                job.approval_pending = False
-            elif action == 'enable':
-                job.enabled = True
-            else:
-                job.enabled = False
-            registry.save()
-            print(f'Job {name}: status={job.status}, '
-                  f'{"enabled" if job.enabled else "disabled"}')
-            return
-        if action == 'run':
-            from polyglav.scheduler import JobScheduler
-            name = tokens[1] if len(tokens) > 1 else ''
-            job = registry.find(name) if name else None
-            if job is None:
-                print('Usage: /jobs run <name>')
-                return
-            run = JobScheduler(chat.config, verbose=False).run_job(job)
-            print(f'Run {job.name}: {run.status} ({run.duration}s)')
-            if run.content:
-                print(run.content)
-            if run.reason:
-                print(f'  reason: {run.reason}')
-            if run.session:
-                print(f'  session: {run.session}')
-            memory = read_memory(chat.config.local_path.parent.parent, job,
-                                 memory_store)
-            if memory:
-                print(f'  summary: {" ".join(memory.split())[:200]}')
-            return
         if action == 'add':
             if len(tokens) < 2:
                 print('Usage: /jobs add <name> --cron "0 2 * * *" '
                       '[--prompt "text"|--file path] '
                       '[--interval N|--at ISO] [--approval auto]')
                 return
-            name = tokens[1]
-            opts, after = {}, []
-            i = 2
-            while i < len(tokens):
-                tok = tokens[i]
-                if tok in ('--cron', '--interval', '--at', '--prompt', '--file',
-                           '--session', '--mode', '--provider', '--model', '--role', '--team'):
-                    opts[tok] = tokens[i + 1] if i + 1 < len(tokens) else ''
-                    i += 2
-                elif tok == '--approval':
-                    opts[tok] = tokens[i + 1].lower() if i + 1 < len(tokens) else 'manual'
-                    i += 2
-                else:
-                    after.append(tok)
-                    i += 1
-            prompt = opts.get('--prompt', '') or ''
-            file_arg = opts.get('--file', '') or ''
-            if not prompt and not file_arg:
-                print('Usage: /jobs add <name> --prompt "text" --file path '
-                      '(one of them required)')
-                return
-            schedule: dict = {}
-            if opts.get('--cron'):
-                schedule['cron'] = opts['--cron']
-            elif opts.get('--interval'):
-                try:
-                    schedule['interval'] = int(opts['--interval'])
-                except ValueError:
-                    print('Invalid --interval value')
-                    return
-            elif opts.get('--at'):
-                schedule['at'] = opts['--at']
-            else:
-                print('One of --cron, --interval, or --at is required')
-                return
-            try:
-                validate_schedule(schedule)
-            except ValueError as e:
-                print(f'Error: {e}')
-                return
-            existing = registry.find(name)
-            if existing is not None:
-                print(f'Job already exists: {name}')
-                return
-            from ..cli import _store_task_file
-            from polyglav.jobs import ensure_task_file
-            worktree = chat.config.local_path.parent.parent
-            task_file = _store_task_file(worktree, file_arg)
-            auto = opts.get('--approval') == 'auto'
-            job = Job(
-                name=name,
-                schedule=schedule,
-                prompt=prompt,
-                session=opts.get('--session', '') or '',
-                mode=opts.get('--mode', '') or '',
-                provider=opts.get('--provider', '') or '',
-                model=opts.get('--model', '') or '',
-                role=opts.get('--role', '') or '',
-                team=opts.get('--team', '') or '',
-                task_file=task_file,
-                enabled=auto,
-                status='approved' if auto else 'proposed',
-            )
-            if job.task_file:
-                ensure_task_file(worktree, job)
-            publish(registry, job)
+            _cli.cmd_jobs(_parse_add(tokens[1:]), config=chat.config)
             return
-        if action == 'edit':
-            name = tokens[1] if len(tokens) > 1 else ''
-            job = registry.find(name) if name else None
-            if job is None:
-                print('Usage: /jobs edit <name>')
-                return
-            from polyglav.jobs import ensure_task_file
-            path = ensure_task_file(chat.config.local_path.parent.parent, job)
-            editor = os.environ.get('EDITOR') or os.environ.get('VISUAL') or 'vi'
-            import shlex
-            import subprocess
-            subprocess.call(shlex.split(editor) + [str(path)])
+        if action not in ('list', 'status', 'show', 'remove', 'approve',
+                          'reject', 'enable', 'disable', 'edit', 'run'):
+            print('Usage: /jobs [list|status|show <name>|add <name> ...|'
+                  'approve <name>|reject <name>|enable <name>|disable <name>|'
+                  'edit <name>|remove <name>|run <name>]')
             return
-        print('Usage: /jobs [list|status|show <name>|add <name> ...|approve <name>|'
-              'reject <name>|enable <name>|disable <name>|'
-              'edit <name>|remove <name>|run <name>]')
-
-
+        name = tokens[1] if len(tokens) > 1 else ''
+        if action not in ('list', 'status') and not name:
+            print(f'Usage: /jobs {action} <name>')
+            return
+        _cli.cmd_jobs(_defaults(action, name), config=chat.config)
 
 
 def _run(args):
-    from polyglav.cli import cmd_jobs
-    return cmd_jobs(args)
+    return _cli.cmd_jobs(args)
 
 
 def register_cli(cli):

@@ -53,8 +53,6 @@ Polyglav/
 │   ├── role_model.py        # Role model, frontmatter, and permission helpers
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
-│   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser
-│   ├── scheduler.py         # JobScheduler - durable job daemon (retries, approvals, auto-compact)
 │   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers
@@ -92,7 +90,7 @@ Polyglav/
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
-    ├── polyglav-core-jobs/        # scheduled and durable jobs
+    ├── polyglav-core-jobs/        # job model, registry, scheduler, CLI, and job memory
     ├── polyglav-core-mcp/         # MCP client and server
     ├── polyglav-core-memory/      # memory commands and summaries
     ├── polyglav-core-ollama/      # OllamaProvider

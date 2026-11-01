@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from .sessions.manager import session_id_hash
+from polyglav.sessions.manager import session_id_hash
 
 MIN_INTERVAL = 60
 CRON_HORIZON_DAYS = 4 * 366 + 1

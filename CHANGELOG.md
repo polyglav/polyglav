@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the jobs scheduler and job service into the jobs plugin - `polyglav-core-jobs` owns the job model, registry, scheduler, memory hooks, and one `cmd_jobs` handler shared by `/jobs` and `polyglav jobs`
 - Moved memory files and injection into the memory plugin - `polyglav-core-memory` owns memory storage, role and team injection, and `/memorize`, while callers use the `memory` service and skip memory when it is absent
 - Moved the skill registry into the skills plugin - `polyglav-core-skills` owns skill loading, saves, and prompt sections, while the engine resolves them through plugin services
 - Moved the team registry and run_team into the teams plugin - `polyglav-core-teams` owns team loading, stage runs, loops, hierarchical managers, and team memory hooks, while the core keeps a thin `run_team` delegate
