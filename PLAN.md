@@ -15,7 +15,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Move UI rendering into the REPL plugin | M | presentation outside the core |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 
 ## Slash command surface
@@ -41,7 +40,6 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 |------|--------|----------|
 | Remove legacy keys without migration | S | a smaller schema |
 | Model ref and generic `openai-compatible` entry | M | one model source of truth |
-| Move display keys to the REPL plugin | S | presentation outside the core |
 | Move exec keys | S-M | capability ownership |
 | Remove compatibility aliases | S | a clean schema |
 

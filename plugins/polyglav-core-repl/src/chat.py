@@ -7,7 +7,8 @@ from pathlib import Path
 
 from polyglav.config import Config, config_bool
 from polyglav.engine import Engine
-from polyglav.ui import DIM, MAGENTA, RESET, ReplUI
+from polyglav.ui import DIM, MAGENTA, RESET
+from repl_ui import ReplUI
 from polyglav.modes import mode_color, resolve_mode, unknown_mode
 from polyglav import get_version
 

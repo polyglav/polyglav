@@ -26,8 +26,7 @@ class TestGlyphActivityLines(unittest.TestCase):
         return out.getvalue()
 
     def test_verbosity_default_normal(self):
-        from polyglav.config import DEFAULT_CONFIG
-        self.assertEqual(DEFAULT_CONFIG['verbosity'], 'normal')
+        self.assertEqual(self.chat.config.get('verbosity'), 'normal')
 
     def test_repl_activity_renders_glyph_line(self):
         out = io.StringIO()
@@ -260,7 +259,7 @@ class TestThinkingSpinner(unittest.TestCase):
             seen.append(self.chat._ui._prompting.is_set())
             return 'y'
 
-        with patch('polyglav.ui._timed_input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._timed_input', side_effect=fake_input):
             with patch('sys.stdout', new=io.StringIO()):
                 self.assertTrue(self.chat._ui.confirm('x', 'probe'))
         self.assertEqual(seen, [True])
@@ -273,7 +272,7 @@ class TestThinkingSpinner(unittest.TestCase):
             seen.append(self.chat._ui._prompting.is_set())
             return 'answer'
 
-        with patch('polyglav.ui._timed_input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._timed_input', side_effect=fake_input):
             with patch('sys.stdout', new=io.StringIO()):
                 answer = self.chat._ui.ask('q')
         self.assertEqual(answer, 'answer')
@@ -351,7 +350,7 @@ class TestWordStreaming(unittest.TestCase):
 
     def test_word_streaming_default_true(self):
         from polyglav.config import DEFAULT_CONFIG
-        self.assertTrue(DEFAULT_CONFIG['word_streaming'])
+        self.assertTrue(self.chat.config.get('word_streaming'))
 
     def test_partial_word_held_until_boundary(self):
         def run():

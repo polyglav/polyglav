@@ -13,6 +13,72 @@
     ],
     "frontends": [
       "repl"
-    ]
+    ],
+    "config": {
+      "clear_screen": {
+        "default": true,
+        "description": "Clear the screen and reprint the header on startup"
+      },
+      "confirm_timeout": {
+        "default": 0,
+        "description": "Seconds a confirm or ask prompt waits before auto-denying"
+      },
+      "glyphs": {
+        "default": {},
+        "description": "Glyph overrides, or \"ascii\" for the ASCII preset"
+      },
+      "hide_confirm_input": {
+        "default": true,
+        "description": "Hide typed input for the tool confirm prompt"
+      },
+      "markdown_streaming": {
+        "default": false,
+        "description": "Basic markdown-aware streaming"
+      },
+      "output_log": {
+        "default": false,
+        "description": "Write everything the REPL prints to a file"
+      },
+      "output_log_ansi": {
+        "default": false,
+        "description": "Keep ANSI colors in the output log"
+      },
+      "output_log_dir": {
+        "default": ".polyglav/output",
+        "description": "Directory for the output log"
+      },
+      "show_version": {
+        "default": true,
+        "description": "Show the version in the startup header"
+      },
+      "verbosity": {
+        "default": "normal",
+        "description": "Display volume: quiet, normal, or verbose"
+      },
+      "verbosity.footer": {
+        "default": "inherit",
+        "description": "Footer detail: off, summary, full, or inherit"
+      },
+      "verbosity.output": {
+        "default": "inherit",
+        "description": "Sub-run output scope: off, assistant, agent, all, or inherit"
+      },
+      "verbosity.status": {
+        "default": "inherit",
+        "description": "Live status time and approximate tokens: off, on, or inherit"
+      },
+      "verbosity.thinking": {
+        "default": "inherit",
+        "description": "Reasoning scope: off, assistant, agent, all, or inherit"
+      },
+      "verbosity.tools": {
+        "default": "inherit",
+        "description": "Tool detail: off, summary, full, or inherit"
+      },
+      "word_streaming": {
+        "default": true,
+        "description": "Buffer output to word boundaries"
+      }
+    }
   }
 }

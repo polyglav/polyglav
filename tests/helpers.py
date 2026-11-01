@@ -9,10 +9,28 @@ from polyglav.runs import RunRegistry
 from polyglav.commands.registry import CommandRegistry
 from polyglav.commands.builtins import register_builtins
 from polyglav.plugins.manager import PluginManager
-from polyglav.ui import ReplUI
 
 
+_REPL_UI_MODULE = None
 _CHAT_MODULE = None
+
+
+def repl_ui_module():
+    global _REPL_UI_MODULE
+    if _REPL_UI_MODULE is not None:
+        return _REPL_UI_MODULE
+    import importlib.util
+    import sys
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-repl' / 'src' / 'repl_ui.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_repl_ui', path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['polyglav_core_repl_ui'] = module
+    sys.modules['repl_ui'] = module
+    spec.loader.exec_module(module)
+    _REPL_UI_MODULE = module
+    return module
 
 
 def chat_module():
@@ -21,6 +39,7 @@ def chat_module():
         return _CHAT_MODULE
     import importlib.util
     import sys
+    repl_ui_module()
     path = (Path(__file__).resolve().parents[1] / 'plugins'
             / 'polyglav-core-repl' / 'src' / 'chat.py')
     spec = importlib.util.spec_from_file_location(
@@ -71,7 +90,7 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     chat.sessions = SessionManager(sessions_dir)
     chat.current_session = chat.sessions.create()
     chat._tool_registry = None
-    chat._ui = ReplUI(chat)
+    chat._ui = repl_ui_module().ReplUI(chat)
     chat._ask_ui = chat._ui
     chat._caller = None
     chat.role = ''

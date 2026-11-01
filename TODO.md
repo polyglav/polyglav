@@ -41,7 +41,6 @@
 
 
 
-- [ ] Move UI rendering into the REPL plugin - `ReplUI`, `SubRunUI`, spinner, confirm, and ask
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
 - [ ] Add plugin docs for ownership, defaults, and dependencies
@@ -58,7 +57,6 @@
 - [ ] Remove legacy config keys without migration - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
 - [ ] Add the generic `openai-compatible` provider entry to `providers.json`
-- [ ] Move display config to the REPL plugin - verbosity, glyphs, output log, thinking, and print limits
 - [ ] Remove all config compatibility aliases
 
 - [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
@@ -149,6 +147,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved UI rendering and display config into the REPL plugin
 - [x] Added the external plugin test contract
 - [x] Changed plugin defaults
 - [x] Added the REPL plugin

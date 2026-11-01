@@ -7,6 +7,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
     _added = True
 try:
+    import repl_ui as _repl_ui
     import chat as _chat
 finally:
     if _added:

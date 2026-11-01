@@ -12,7 +12,7 @@ from .sessions import turns
 from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
-from .ui import NullUI, ReplUI, StatusMetrics, SubRunUI, glyph, glyph_map
+from .ui import NullUI, StatusMetrics, glyph, glyph_map
 from . import spill as spill_store
 
 
@@ -101,7 +101,7 @@ class Engine:
         self._ui = ui
         self._sub_run = False
         self._denied_streak = 0
-        self._ask_ui = ui if isinstance(ui, ReplUI) else None
+        self._ask_ui = ui if getattr(ui, 'interactive', False) else None
         self._owns_provider = provider is None
         if plugin_manager is None:
             self._plugin_manager = PluginManager(config)
@@ -255,7 +255,7 @@ class Engine:
         if getattr(self, 'approve_models', False):
             self.models.put(provider, model)
             return True
-        if isinstance(self.ui, ReplUI):
+        if getattr(self.ui, 'interactive', False):
             try:
                 ok = self.ui.confirm('model', f'Approve model "{provider}/{model}"')
             except KeyboardInterrupt:
@@ -687,11 +687,12 @@ class Engine:
             sub.compact_session()
         label = getattr(self, '_stage_label', '') or (role_name or 'sibling')
         name = getattr(self, '_stage_name', '') or (role_name or 'sibling')
-        parent_ui = self.ui.parent if isinstance(self.ui, SubRunUI) else self.ui
-        depth = self.ui.depth + 1 if isinstance(self.ui, SubRunUI) else 0
-        if isinstance(parent_ui, ReplUI):
-            sub._ui = SubRunUI(parent_ui, sub, role=role_name, label=name,
-                               depth=depth)
+        is_sub = getattr(self.ui, 'is_sub_run', False)
+        parent_ui = self.ui.parent if is_sub else self.ui
+        depth = self.ui.depth + 1 if is_sub else 0
+        if getattr(parent_ui, 'interactive', False):
+            sub._ui = parent_ui.sub_ui(
+                sub, role=role_name, label=name, depth=depth)
         metrics = StatusMetrics()
         sub._stream_metrics = metrics
         self.ui.status_begin(f'Call {label}', name=name, metrics=metrics)

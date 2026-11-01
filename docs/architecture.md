@@ -54,7 +54,7 @@ The loop renders through a `UISink`, an interface of methods the loop calls as e
 | `SubRunUI` | Forwards a visible sub-run into the caller under `verbosity.output` and `verbosity.thinking`, with indentation and role context |
 | `NullUI` | Silent, for tests and hidden sub-engines, whose output goes to their own session |
 
-`ReplUI`'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in `src/polyglav/ui.py`, gated by the `markdown_streaming` config.
+`ReplUI`'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in `polyglav-core-repl`, gated by the `markdown_streaming` config.
 
 ## Front-ends
 
@@ -94,7 +94,7 @@ src/polyglav/
 ├── sessions/            # session CRUD
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
 ├── role_model.py        # role model and permission helpers
-├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI
+├── ui.py                # HeadlessUI, NullUI, glyphs, markdown, and prompt primitives
 └── utils/               # urllib-based SSE streaming
 ```
 

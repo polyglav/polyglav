@@ -52,7 +52,7 @@ Polyglav/
 │   ├── models.py            # global model registry - models.json (connections + keys)
 │   ├── role_model.py        # Role model, frontmatter, and permission helpers
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
-│   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
+│   ├── ui.py                # HeadlessUI, NullUI, glyphs, markdown, and prompt primitives
 │   ├── providers/
 │   │   ├── __init__.py      # PROVIDERS registry + detect_provider (host-pattern) + merged_providers
 │   │   ├── base.py          # BaseProvider + OpenAICompatibleProvider (HOST_PATTERNS)
@@ -97,7 +97,7 @@ Polyglav/
     ├── polyglav-core-openai/      # OpenAIProvider
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-providers/   # provider connections, model commands, models CLI
-    ├── polyglav-core-repl/        # terminal front-end and /clear
+    ├── polyglav-core-repl/        # terminal front-end, ReplUI, display config, and /clear
     ├── polyglav-core-quality/     # code_lint, code_format (off by default)
     ├── polyglav-core-roles/       # role registry, catalog, and the call tool
     ├── polyglav-core-sessions/    # session catalog, render, export, and import

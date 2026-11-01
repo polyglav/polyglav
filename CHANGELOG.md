@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved UI rendering and display config into the REPL plugin - `ReplUI`, `SubRunUI`, prompt and spinner behavior, and the display config keys now live in `polyglav-core-repl`, while the core keeps headless, null, glyph, markdown, and prompt primitives
 - Added the external plugin test contract - `polyglav plugins test` runs bundled and external plugin suites, and an unimportable test module now fails instead of being skipped
 - Changed plugin defaults - jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled, while serve remains available
 - Added the REPL plugin - `polyglav-core-repl` owns `ChatLoop`, the `repl` front-end, and `/clear`, while the core keeps the UI primitives
