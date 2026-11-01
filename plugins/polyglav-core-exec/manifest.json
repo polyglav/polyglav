@@ -10,6 +10,12 @@
       "run_command"
     ],
     "providers": [],
-    "commands": []
+    "commands": [],
+    "config": {
+      "exec_allow": {
+        "default": [],
+        "description": "Commands allowed for run_command, matched by prefix"
+      }
+    }
   }
 }

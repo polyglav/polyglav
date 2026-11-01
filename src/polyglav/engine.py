@@ -65,12 +65,12 @@ _SUB_PERMISSION_NOTE = (
     'final answer with what you have.')
 
 
-def _resolver_takes_policy(fn: Callable) -> bool:
+def _resolver_params(fn: Callable) -> set[str]:
     try:
         import inspect
-        return '_permissions' in inspect.signature(fn).parameters
+        return set(inspect.signature(fn).parameters)
     except (TypeError, ValueError):
-        return False
+        return set()
 
 
 def _sanitize_session(name: str, limit: int = 64) -> str:
@@ -1191,8 +1191,14 @@ class Engine:
             fn = self._tool_registry.resolver_for(n)
             if fn is None:
                 continue
-            if _resolver_takes_policy(fn):
-                fn = (lambda f: lambda args, f=f: f(args, _permissions=permissions))(fn)
+            params = _resolver_params(fn)
+            kwargs = {}
+            if '_permissions' in params:
+                kwargs['_permissions'] = permissions
+            if '_config' in params:
+                kwargs['_config'] = self.config
+            if kwargs:
+                fn = (lambda f, kw=kwargs: lambda args: f(args, **kw))(fn)
             resolvers[n] = fn
         self._tool_policy = ToolPolicy(
             permissions=permissions,

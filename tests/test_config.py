@@ -164,7 +164,6 @@ class TestConfigMerge(_IsolatedConfigBase):
     def test_local_tool_permission_keeps_default_categories(self):
         self.write_local({'tool_permission': {
             'bash': 'allow',
-            'exec_allow': ['git'],
             'delegate': 'allow',
             'edit': 'allow',
             'list': 'allow',
@@ -179,7 +178,6 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(permissions['call'], 'allow')
         self.assertEqual(permissions['mcp'], 'ask')
         self.assertEqual(permissions['bash'], 'allow')
-        self.assertEqual(permissions['exec_allow'], ['git'])
 
     def test_local_tool_permission_does_not_gate_default_categories(self):
         self.write_local({'tool_permission': {'bash': 'allow'}})

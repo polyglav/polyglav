@@ -28,7 +28,7 @@ def _defaults(action: str, name: str = '') -> SimpleNamespace:
     return SimpleNamespace(
         action=action, name=name, prompt='', file=None, cron=None,
         interval=None, at=None, session='', mode='', provider='', model='',
-        role='', team='', system_prompt='', tools_deny=[],
+        role='', team='', supervisor='', system_prompt='', tools_deny=[],
         tool_permission=[], retries=3, backoff=60.0, timeout=0,
         require_approval=False, approve_model=False, approval='manual',
         no_retry=False, verbose=False, quiet=False, tick=15.0)
@@ -42,7 +42,8 @@ def _parse_add(tokens: list[str]) -> SimpleNamespace:
         value = tokens[i + 1] if i + 1 < len(tokens) else ''
         if token in ('--cron', '--interval', '--at', '--prompt', '--file',
                      '--session', '--mode', '--provider', '--model', '--role',
-                     '--team', '--system-prompt', '--retries', '--backoff',
+                     '--team', '--supervisor', '--system-prompt', '--retries',
+                     '--backoff',
                      '--timeout', '--approval'):
             setattr(args, token[2:].replace('-', '_'), value)
             i += 2
@@ -155,6 +156,7 @@ def register_cli(cli):
     ga.add_argument('--model', help='Model override')
     ga.add_argument('--role', help='Role whose prompt, model, and permissions apply')
     ga.add_argument('--team', help='Team to run for each scheduled run')
+    ga.add_argument('--supervisor', help='Role that answers job escalations (default: assistant)')
     ga.add_argument('--system-prompt', help='System prompt override')
     ga.add_argument('--tools-deny', action='append', default=[],
                     help='Tool name to deny (repeatable)')

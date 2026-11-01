@@ -256,8 +256,8 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(self.engine._confirm_tool('run_command', {'command': 'echo hi'}), True)
 
     def test_exec_allow_denies_unlisted_command(self):
-        self.engine.config.set('tool_permission', {
-            'bash': 'allow', 'exec_allow': ['pytest', 'ruff']})
+        self.engine.config.set('tool_permission', {'bash': 'allow'})
+        self.engine.config.set('exec_allow', ['pytest', 'ruff'])
         self.engine._init_tooling()
         self.engine._ui = HeadlessUI(auto='allow')
         out = self.engine._run_tool('run_command', {'command': 'rm -rf /'})
@@ -267,8 +267,8 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(perms[-1]['decision'], 'denied')
 
     def test_exec_allow_allows_listed_command(self):
-        self.engine.config.set('tool_permission', {
-            'bash': 'allow', 'exec_allow': ['pytest', 'ruff']})
+        self.engine.config.set('tool_permission', {'bash': 'allow'})
+        self.engine.config.set('exec_allow', ['pytest', 'ruff'])
         self.engine._init_tooling()
         out = self.engine._run_tool('run_command', {'command': 'pytest -q'})
         self.assertIn('exit', out)

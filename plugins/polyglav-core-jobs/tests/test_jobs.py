@@ -1115,3 +1115,42 @@ class TestJobsCli(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TestJobSupervisor(unittest.TestCase):
+
+    def test_default_supervisor_uses_role_less_subagent(self):
+        engine = MagicMock()
+        engine.roles.find.return_value = None
+        seen = []
+
+        def run(role, prompt):
+            seen.append(engine._ask_ui)
+            return SimpleNamespace(content='approve')
+
+        engine.run_subagent.side_effect = run
+        ui = _scheduler_module.JobSupervisorUI(
+            engine, Job('nightly', {'interval': 60}, prompt='report'),
+            'assistant')
+        answer = ui.ask('Allow write?', options=['Approve', 'Deny'])
+        self.assertEqual(answer, 'approve')
+        engine.run_subagent.assert_called_once()
+        self.assertEqual(engine.run_subagent.call_args.args[0], '')
+        self.assertIsNone(seen[0])
+
+    def test_unknown_supervisor_is_a_clear_error(self):
+        engine = MagicMock()
+        engine.roles.find.return_value = None
+        ui = _scheduler_module.JobSupervisorUI(
+            engine, Job('nightly', {'interval': 60}), 'missing')
+        answer = ui.ask('Allow write?')
+        self.assertIn('not in the catalog', answer)
+        engine.run_subagent.assert_not_called()
+
+    def test_named_supervisor_runs_as_role(self):
+        engine = MagicMock()
+        engine.roles.find.return_value = SimpleNamespace(name='lead')
+        engine.run_subagent.return_value = SimpleNamespace(content='deny')
+        ui = _scheduler_module.JobSupervisorUI(
+            engine, Job('nightly', {'interval': 60}), 'lead')
+        self.assertEqual(ui.ask('Allow write?'), 'deny')
+        self.assertEqual(engine.run_subagent.call_args.args[0], 'lead')

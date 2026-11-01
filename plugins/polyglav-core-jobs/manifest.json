@@ -15,6 +15,12 @@
       "job_registry",
       "job_scheduler",
       "job_service"
-    ]
+    ],
+    "config": {
+      "jobs.supervisor": {
+        "default": "assistant",
+        "description": "Role that answers job escalations"
+      }
+    }
   }
 }

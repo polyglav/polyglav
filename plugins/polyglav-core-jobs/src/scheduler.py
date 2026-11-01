@@ -13,6 +13,44 @@ from jobs import (Job, JobRun, JobRegistry, compute_next_run, job_session_name,
 from polyglav.ui import HeadlessUI
 
 
+
+class JobSupervisorUI:
+    interactive = False
+
+    def __init__(self, engine: Engine, job: Job, supervisor: str):
+        self.engine = engine
+        self.job = job
+        self.supervisor = str(supervisor or 'assistant')
+
+    def ask(self, question, context='', options=None, origin=''):
+        roles = getattr(self.engine, 'roles', None)
+        role = roles.find(self.supervisor) if roles is not None else None
+        if self.supervisor not in ('', 'assistant') and role is None:
+            return (f'[cancelled] Job supervisor role "{self.supervisor}" '
+                    'is not in the catalog')
+        options_text = ', '.join(str(o) for o in (options or []))
+        prompt = (
+            f'You are the supervisor for job "{self.job.name}". Answer the '
+            'question below within the job permission ceiling. Approve only '
+            'what the job needs, deny anything broader, and return only the '
+            'answer.\n\n'
+            f'Job task:\n{self.job.prompt or self.job.system_prompt or "(none)"}\n\n'
+            f'Question:\n{question}\n\n'
+            f'Context:\n{context or "(none)"}\n\n'
+            f'Options:\n{options_text or "(none)"}')
+        previous = getattr(self.engine, '_ask_ui', None)
+        self.engine._ask_ui = None
+        try:
+            result = self.engine.run_subagent(
+                self.supervisor if role is not None else '', prompt)
+        except Exception as e:
+            return f'[cancelled] Job supervisor failed: {e}'
+        finally:
+            self.engine._ask_ui = previous
+        answer = (result.content or '').strip()
+        return answer or None
+
+
 def _fresh_job_session(sessions_dir: Path, name: str, when: datetime) -> str:
     while True:
         candidate = job_session_name(name, when)
@@ -85,6 +123,9 @@ def _build_engine(config: Config, job: Job, verbose: bool,
                     footer_level=verbosity_level(sub_config, 'footer'))
     engine = Engine(sub_config, ui=ui, plugin_manager=pm,
                     approve_models=job.approve_model or bool(job.model))
+    supervisor = (job.supervisor
+                  or str(config.get('jobs.supervisor', 'assistant') or 'assistant'))
+    engine._ask_ui = JobSupervisorUI(engine, job, supervisor)
     engine.role = job.role or ''
     engine.current_run.role = engine.role
     if grant_ceiling is not None:

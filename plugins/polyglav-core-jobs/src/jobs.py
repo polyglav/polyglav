@@ -175,6 +175,7 @@ class Job:
     model: str = ''
     role: str = ''
     team: str = ''
+    supervisor: str = ''
     system_prompt: str = ''
     task_file: str = ''
     tool_permission: dict = field(default_factory=dict)
@@ -213,6 +214,7 @@ class Job:
             'model': self.model,
             'role': self.role,
             'team': self.team,
+            'supervisor': self.supervisor,
             'system_prompt': self.system_prompt,
             'task_file': self.task_file,
             'tool_permission': dict(self.tool_permission),
@@ -243,6 +245,7 @@ class Job:
             model=d.get('model', ''),
             role=d.get('role', ''),
             team=d.get('team', ''),
+            supervisor=d.get('supervisor', ''),
             system_prompt=d.get('system_prompt', ''),
             task_file=d.get('task_file', ''),
             tool_permission=dict(d.get('tool_permission') or {}),
