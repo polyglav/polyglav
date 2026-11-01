@@ -44,7 +44,6 @@
 
 
 
-- [ ] Move plugin CLI tests into each plugin suite
 
 
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
@@ -129,6 +128,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved plugin CLI tests into plugin suites
 - [x] Added the spawn command
 - [x] Changed CLI signals
 - [x] Moved bookkeeping to the bookkeeping plugin

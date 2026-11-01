@@ -36,7 +36,6 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Move exec keys | S-M | capability ownership |
 
 ## Tool ownership and agent interaction
 
@@ -44,8 +43,6 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Move exec config into the exec plugin | S | plugin-owned shell policy |
-| Remove tool output caps, drop, spill, and temp settings | S | one output model |
 
 ## Session storage
 
