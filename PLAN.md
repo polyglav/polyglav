@@ -2,54 +2,12 @@
 
 Groups the next tasks from `TODO.md` (`## Open`) into work packages, each providing a distinct next-level capability. Packages are ordered top-to-bottom by urgency and importance, vision-first. Re-rank the packages against the backlog before starting each next step (docs-first for the roadmap phases).
 
-Finished tasks are removed from this file and live as one-liners in `TODO.md` `## Done` and in detail under the matching version in `CHANGELOG.md`.
+Finished tasks are removed from this file and live in detail under the matching version in `CHANGELOG.md`.
 
 ## Method
 
 - Effort: S < M < L
 - Provides: the capability the task delivers
-
-## Plugin boundary
-
-The core keeps the loop, registry, policy, providers base, config, sessions, and runs. Access, orchestration, capability, and storage extras load as plugins with declared dependencies.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-
-## Slash command surface
-
-The REPL exposes one canonical name per command, separates commands from tools, and keeps current-state singular commands apart from catalog plural commands.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-
-## CLI surface
-
-The CLI is a plugin-aware front-end over the same services as the REPL, so no subcommand reimplements command behavior.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-
-## Config surface
-
-The config schema loses legacy keys, gains an owner per key, and renders grouped objects in both the REPL and the CLI.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-
-## Tool ownership and agent interaction
-
-Tools that are not loop primitives live with their plugins, asks block inline, and the delegate contract matches what it actually does.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-
-## Session storage
-
-The session log stays append-only in meaning, writes are atomic, and runtime cost is proportional to new data rather than total history.
-
-| Task | Effort | Provides |
-|------|--------|----------|
 
 ## Self-development team enablement
 

@@ -35,7 +35,7 @@ polyglav
 
 On first run, Polyglav welcomes you and asks for the provider, model, mode, project purpose, assistant persona, and whether to keep an output log. Press Enter to accept a default. You can rerun it later with `/onboard`, and change the connection with `/connect` or `/model`.
 
-Tab-complete `/` commands and session names, and navigate history with arrow keys. Open a `"""` or `'''` block to type a multi-line prompt, close it with a matching delimiter on its own line or a blank line, or end a line with `\` to continue on the next line. The framing is stripped and the whole message is sent as one turn. Ctrl-C exits the REPL from anywhere, even inside an open block.
+Tab-complete `/` commands and session names, and navigate history with arrow keys. Open a `"""` or `'''` block to type a multi-line prompt, close it with a matching delimiter on its own line or a blank line, or end a line with `\` to continue on the next line. The framing is stripped and the whole message is sent as one turn. Ctrl-C pauses the active root turn, even inside an open block. An idle Ctrl-C prints a hint and a second press within two seconds exits.
 
 ```
 Welcome to Polyglav. Let's set up this project together.
@@ -57,7 +57,7 @@ Run `polyglav` with no arguments. Setup and interaction are described in [First 
 
 ### CLI
 
-Stream plain text with `--output text` or return JSON. Log tool status and diagnostics to stderr with `--verbose`. Address a persistent session by name with `--session-id <name>`. Tools that require confirmation auto-deny by default. Pass `--yes` to approve them.
+Stream plain text with `--output text` or return JSON. Log tool status and diagnostics to stderr with `--verbose`. Each `polyglav run` call uses its own session. Tools that require confirmation auto-deny by default. Pass `--yes` to approve them.
 
 ```bash
 polyglav run --prompt "Hi"
@@ -68,10 +68,10 @@ polyglav run --prompt "Hi"
   "model": "gpt-oss:20b-cloud",
   "provider": "ollama",
   "session": "ses_20260814_192251_ab12cd",
-  "status": "ok"
+  "status": "ok",
   "thinking": null,
   "tool_calls": [],
-  "usage": null,
+  "usage": null
 }
 ```
 
@@ -91,10 +91,10 @@ A caller agent (or you) hands a task to a specialized role, or runs a named team
 
 ```
 >>> /roles list
->>> /tool call {"target": "researcher", "task": "Summarize docs/ and cite sources"}
-[call researcher] <final answer of the research sub-agent, sources cited>
->>> /tool call {"target": "writing", "kind": "team", "task": "Draft the release notes"}
-[call writing] <final stage answer>
+>>> Call the researcher to summarize docs/ and cite sources.
+[↳ Call researcher] <final answer of the research sub-agent, sources cited>
+>>> Run the writing team to draft the release notes.
+[↳ Call writing] <final stage answer>
 ```
 
 See [docs/swarm.md](docs/swarm.md), [docs/teams.md](docs/teams.md), and [docs/roles.md](docs/roles.md).
@@ -118,7 +118,8 @@ One agent per folder, each a `polyglav serve` process with its own config, permi
 
 ```bash
 polyglav fleet init                                              # scan existing agent folders
-polyglav fleet config docs-agent --role researcher --port 8781
+polyglav fleet add docs-agent --port 8781
+polyglav fleet config docs-agent --role researcher
 polyglav fleet up                                                # Ctrl-C = graceful down, or --detach
 polyglav fleet status
 polyglav fleet logs docs-agent -f

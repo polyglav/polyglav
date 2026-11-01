@@ -41,7 +41,7 @@ Polyglav is an AI agent that lives in your terminal. You describe an outcome onc
 2. **Compose** - for bigger work it designs a small team: the specialists and the order they run in.
 3. **Run** - stages run one after another, each with its own tools and permissions.
 4. **Continue** - the next agent continues from the previous result with its own session, so context moves forward without switching windows.
-5. **Report** - read the run tree with `/runs`, pause or resume at the next turn boundary, then come back to the summary.
+5. **Report** - read live state with `/status`, inspect the durable tree with `/history --tree` and `/print --tree`, and pause a long turn with Ctrl-C. `/continue` resumes it and `/cancel` closes it.
 
 ## Install
 
