@@ -135,7 +135,8 @@ class TestTeamRun(unittest.TestCase):
         self.assertEqual(modes, ['read', 'read'])
 
     def test_run_team_stage_and_task_skills(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.skills.put(Skill(name='stage-skill', content='Stage skill body.'))
         self.chat.skills.put(Skill(name='task-skill', content='Task skill body.'))
         self.chat.skills.put(Skill(name='base-skill', content='Base skill body.'))

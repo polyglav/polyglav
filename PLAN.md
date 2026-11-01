@@ -16,7 +16,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 | Task | Effort | Provides |
 |------|--------|----------|
 | REPL plugin | M-L | a replaceable terminal front-end |
-| Move the skill registry and improvement into the skills plugin | S-M | optional skills |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Move memory files, injection, and refresh into the memory plugin | M | optional memory |
 | Move the jobs scheduler, CLI, and memory into the jobs plugin | M | optional scheduling |

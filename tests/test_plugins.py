@@ -528,7 +528,8 @@ class TestRegistration(PluginTestBase):
     def test_register_skills_hook(self):
         write_plugin(self.plugins_dir, 'skill', SKILL_PLUGIN, {'name': 'skill'})
         self.pm.load()
-        from polyglav.skills import SkillRegistry
+        from tests.helpers import skills_module
+        SkillRegistry = skills_module().SkillRegistry
         reg = SkillRegistry(global_dir=self.root,
                             local_dir=self.root / '.polyglav' / 'skills')
         self.pm.register_skills(reg)

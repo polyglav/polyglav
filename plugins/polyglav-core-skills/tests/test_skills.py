@@ -4,7 +4,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from polyglav.skills import Skill, SkillRegistry
+from tests.helpers import skills_module
+
+_skills = skills_module()
+Skill = _skills.Skill
+SkillRegistry = _skills.SkillRegistry
 from polyglav.config import Config
 
 from tests.helpers import make_chat
@@ -175,7 +179,7 @@ class TestSkillRegistry(unittest.TestCase):
 class TestSkillsSection(unittest.TestCase):
 
     def test_empty_when_no_names(self):
-        from polyglav.skills import skills_section
+        skills_section = _skills.skills_section
         tmp = Path(tempfile.mkdtemp())
         reg = SkillRegistry(global_dir=tmp, local_dir=tmp / 'skills')
         self.assertEqual(skills_section(reg, []), '')
@@ -183,11 +187,11 @@ class TestSkillsSection(unittest.TestCase):
     def test_returns_empty_for_missing_skills(self):
         reg = SkillRegistry(global_dir=Path(tempfile.mkdtemp()),
                             local_dir=Path(tempfile.mkdtemp()))
-        from polyglav.skills import skills_section
+        skills_section = _skills.skills_section
         self.assertEqual(skills_section(reg, ['nope']), '')
 
     def test_composes_section(self):
-        from polyglav.skills import skills_section
+        skills_section = _skills.skills_section
         tmp = Path(tempfile.mkdtemp())
         reg = SkillRegistry(global_dir=tmp, local_dir=tmp / 'skills')
         reg.put(Skill(name='writers', content='Produce clean prose.'))

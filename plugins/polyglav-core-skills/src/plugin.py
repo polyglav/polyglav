@@ -1,4 +1,24 @@
-from polyglav.skills import Skill
+import importlib.util
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parent
+_added = False
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    _added = True
+try:
+    import skills as _skills
+finally:
+    if _added:
+        sys.path.remove(str(SRC))
+
+Skill = _skills.Skill
+
+
+def register_services(services):
+    services['skill_registry'] = _skills.SkillRegistry
+    services['skills_section'] = _skills.skills_section
 
 
 def register_commands(commands):

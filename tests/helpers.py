@@ -113,3 +113,14 @@ def team_runner_module():
     finally:
         if added:
             sys.path.remove(str(src))
+
+
+def skills_module():
+    import importlib.util
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-skills' / 'src' / 'skills.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_skills_models_test', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

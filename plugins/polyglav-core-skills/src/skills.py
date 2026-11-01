@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .config import Config
+from polyglav.config import Config
 
 
 @dataclass
@@ -92,6 +92,12 @@ class SkillRegistry:
             entry['name'] = name
             merged[name] = entry
         return merged
+
+    def make(self, name: str, values: dict) -> Skill:
+        return Skill(name=name,
+                     content=str(values.get('content') or ''),
+                     description=str(values.get('description') or ''),
+                     tags=list(values.get('tags') or []))
 
     def all(self) -> list[Skill]:
         return sorted(

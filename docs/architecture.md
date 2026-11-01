@@ -95,7 +95,6 @@ src/polyglav/
 │   └── registry.py      # ProviderRegistry (providers.json - keys + base URLs)
 ├── scheduler.py         # JobScheduler - durable job daemon
 ├── sessions/            # session CRUD
-├── skills.py            # SkillRegistry (per-role instructions)
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
 ├── role_model.py        # role model and permission helpers
 ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI

@@ -1,7 +1,6 @@
 import json
 from typing import Callable
 
-from ..skills import Skill
 from ..role_model import Role
 
 _ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
@@ -185,6 +184,8 @@ def _show_team(engine, name: str) -> str:
 
 
 def _show_skill(engine, name: str) -> str:
+    if engine.skills is None:
+        return "Error: skills plugin is not loaded"
     skill = engine.skills.find(name)
     if skill is None:
         return f'Error: unknown skill "{name}"'
@@ -219,11 +220,9 @@ def _save_team(engine, name: str, values: dict) -> str:
 
 
 def _save_skill(engine, name: str, values: dict) -> str:
-    skill = Skill(name=name,
-                  content=str(values.get('content') or ''),
-                  description=str(values.get('description') or ''),
-                  tags=list(values.get('tags') or []))
-    engine.skills.put(skill, scope='local')
+    if engine.skills is None:
+        return "Error: skills plugin is not loaded"
+    engine.skills.put(engine.skills.make(name, values), scope='local')
     return f'Saved skill: {name} (local)'
 
 
@@ -480,6 +479,8 @@ def register_catalog_tool(registry, engine) -> Callable:
                 if engine.teams is None:
                     return 'Error: teams plugin is not loaded'
                 return '\n'.join(_team_line(engine, t) for t in engine.teams.all())
+            if engine.skills is None:
+                return 'Error: skills plugin is not loaded'
             return '\n'.join(_skill_line(engine, s) for s in engine.skills.all())
         if not name:
             return f'Error: name is required to {action} a {kind}'
@@ -497,6 +498,8 @@ def register_catalog_tool(registry, engine) -> Callable:
                     return 'Error: teams plugin is not loaded'
                 registry = engine.teams
             else:
+                if engine.skills is None:
+                    return 'Error: skills plugin is not loaded'
                 registry = engine.skills
             if registry.remove(name):
                 engine.touch_catalogs()

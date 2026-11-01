@@ -183,8 +183,10 @@ class Engine:
     @property
     def skills(self):
         if getattr(self, '_skills', None) is None:
-            from .skills import SkillRegistry
-            self._skills = SkillRegistry(
+            factory = self._plugin_manager.service('skill_registry')
+            if factory is None:
+                return None
+            self._skills = factory(
                 local_dir=self.config.local_path.parent / 'skills')
             self._plugin_manager.register_skills(self._skills)
         return self._skills
@@ -526,7 +528,6 @@ class Engine:
         if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         sub_config = Config(path=str(self.config.local_path.parent.parent))
-        from .skills import skills_section
         system_prompt = (agent_role.system_prompt if agent_role
                          else str(self.config.get('system_prompt') or ''))
         names = list(agent_role.skills or []) if agent_role else []
@@ -536,8 +537,9 @@ class Engine:
         for name in (skills or []):
             if name and name not in names:
                 names.append(name)
-        if names:
-            section = skills_section(self.skills, names)
+        if names and self.skills is not None:
+            section_fn = self._plugin_manager.service('skills_section')
+            section = section_fn(self.skills, names) if section_fn else ''
             if section:
                 if system_prompt.strip():
                     system_prompt = system_prompt.rstrip() + '\n\n' + section

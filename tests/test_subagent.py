@@ -86,7 +86,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(sub.current_session.mode, 'write')
 
     def test_subagent_injects_type_skills(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='researcher', system_prompt='You are the researcher.',
                     skills=['finders', 'filters']),
@@ -104,7 +105,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertIn('### filters', prompt)
 
     def test_subagent_skips_missing_skills(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='x', system_prompt='prompt',
                     skills=['present', 'deleted']),
@@ -124,7 +126,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(sub.config.get('system_prompt'), 'plain prompt')
 
     def test_subagent_skills_only_prompt(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='solo', system_prompt='', skills=['one']),
             scope='local')
@@ -134,7 +137,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(prompt, '## Skills\n\n### one\n\nSkill only body.')
 
     def test_subagent_merges_invocation_skills(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='You are a developer.',
                       skills=['base']),
@@ -150,7 +154,8 @@ class TestSubAgentEngine(unittest.TestCase):
                         prompt.index('Use Django.'))
 
     def test_subagent_invocation_skills_dedupe(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='p', skills=['base']),
             scope='local')
@@ -160,7 +165,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertEqual(prompt.count('### base'), 1)
 
     def test_subagent_invocation_skills_ignores_empty_names(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='dev', system_prompt='p'), scope='local')
         self.chat.skills.put(Skill(name='extra', content='Extra skill body.'))
@@ -168,7 +174,8 @@ class TestSubAgentEngine(unittest.TestCase):
         self.assertIn('Extra skill body.', sub.config.get('system_prompt'))
 
     def test_run_subagent_passes_invocation_skills(self):
-        from polyglav.skills import Skill
+        from tests.helpers import skills_module
+        Skill = skills_module().Skill
         self.chat.roles.put(
             Role(name='plain2', system_prompt='plain prompt'),
             scope='local')

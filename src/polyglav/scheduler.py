@@ -61,12 +61,13 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     except FileNotFoundError as e:
         raise ValueError(str(e)) from e
     if skill_names:
-        from .skills import SkillRegistry, skills_section
-        skills = SkillRegistry(
-            local_dir=config.local_path.parent / 'skills')
-        section = skills_section(skills, skill_names)
-        if section:
-            system_text = system_text.rstrip() + '\n\n' + section
+        factory = pm.service('skill_registry') if pm is not None else None
+        section_fn = pm.service('skills_section') if pm is not None else None
+        if factory is not None and section_fn is not None:
+            skills = factory(local_dir=config.local_path.parent / 'skills')
+            section = section_fn(skills, skill_names)
+            if section:
+                system_text = system_text.rstrip() + '\n\n' + section
     sub_config.apply('system_prompt', system_text)
     sub_config.apply('mode', job.mode or 'write')
     if job.provider:
