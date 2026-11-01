@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 from polyglav.cli import cmd_run, cmd_models, cmd_plugins
 from polyglav.main import main
 from polyglav import get_version
-from polyglav.config import Config
+from polyglav.config import Config, DEFAULT_CONFIG
 from polyglav.sessions.manager import Session
 
 import importlib.util
@@ -76,14 +76,14 @@ class TestCliRun(unittest.TestCase):
         self.assertEqual(data['status'], 'ok')
 
     def _global_dir(self):
-        from polyglav.config import Config
+        from polyglav.config import Config, DEFAULT_CONFIG
         prev = Config.GLOBAL_DIR
         Config.GLOBAL_DIR = Path(self.tmp.name) / 'global-home'
         return prev
 
     def test_run_explicit_model_auto_approves(self):
         from polyglav.cli import _engine_from_args
-        from polyglav.config import Config
+        from polyglav.config import Config, DEFAULT_CONFIG
         prev = self._global_dir()
         try:
             args = self._args(model='opencode-go/deepseek-v4-flash')
@@ -99,7 +99,7 @@ class TestCliRun(unittest.TestCase):
 
     def test_run_approve_model_flag_grants(self):
         from polyglav.cli import _engine_from_args
-        from polyglav.config import Config
+        from polyglav.config import Config, DEFAULT_CONFIG
         prev = self._global_dir()
         try:
             engine = _engine_from_args(self._args(approve_model=True))
@@ -109,7 +109,7 @@ class TestCliRun(unittest.TestCase):
 
     def test_run_default_does_not_auto_approve(self):
         from polyglav.cli import _engine_from_args
-        from polyglav.config import Config
+        from polyglav.config import Config, DEFAULT_CONFIG
         prev = self._global_dir()
         try:
             engine = _engine_from_args(self._args())
@@ -518,9 +518,14 @@ class TestCliEval(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.path = self.tmp.name
         self._prev = None
-        from polyglav.config import Config
+        from polyglav.config import Config, DEFAULT_CONFIG
         self._prev = Config.GLOBAL_DIR
         Config.GLOBAL_DIR = Path(self.path) / 'home'
+        config_dir = Path(self.path) / '.polyglav'
+        config_dir.mkdir(parents=True, exist_ok=True)
+        (config_dir / 'config.json').write_text(json.dumps({
+            'plugins': list(DEFAULT_CONFIG['plugins']) + [
+                'polyglav-core-eval']}))
 
     def tearDown(self):
         from polyglav.config import Config

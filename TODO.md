@@ -38,13 +38,12 @@
 - Plugin registry / marketplace - discoverable plugin sharing (OpenClaw ClawHub analogue). PyPI entry-point source is a prerequisite
 
 ## Open
-
-
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
+
+
 
 - [ ] Move UI rendering into the REPL plugin - `ReplUI`, `SubRunUI`, spinner, confirm, and ask
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
-- [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
 - [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
 - [ ] Add plugin docs for ownership, defaults, and dependencies
 - [ ] Add plugin tests for every extracted command and tool
@@ -151,6 +150,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed plugin defaults
 - [x] Added the REPL plugin
 - [x] Moved the jobs scheduler and job service into the jobs plugin
 - [x] Moved memory files and injection into the memory plugin

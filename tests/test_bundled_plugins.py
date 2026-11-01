@@ -54,7 +54,11 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertEqual(names, BUNDLED)
         for n in names:
             info = self.pm.get(n)
-            expected = 'disabled' if n in ('polyglav-core-quality', 'polyglav-core-storage-sqlite') else 'loaded'
+            expected = 'disabled' if n in (
+                'polyglav-core-eval', 'polyglav-core-fleet',
+                'polyglav-core-jobs', 'polyglav-core-mcp',
+                'polyglav-core-quality', 'polyglav-core-storage-sqlite',
+                'polyglav-core-webhook') else 'loaded'
             self.assertEqual(info.status, expected, n)
             self.assertEqual(info.origin, 'bundled', n)
 
@@ -63,9 +67,6 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertEqual(self.config.get('list_dir_max_entries'), 200)
         self.assertTrue(self.config.get('memory'))
         self.assertEqual(self.config.get('memory_max_chars'), 2000)
-        self.assertEqual(self.config.get('report.webhook'), '')
-        self.assertEqual(self.config.get('mcp.servers'), [])
-        self.assertTrue(self.config.get('mcp_server.allow_ask'))
         self.assertEqual(self.config.get('plan.dir'), '.polyglav/plans')
 
     def test_web_config_registered(self):
@@ -99,6 +100,9 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertTrue(callable(service.context))
 
     def test_mcp_server_service_registered(self):
+        from polyglav.config import DEFAULT_CONFIG
+        self.config.set('plugins', list(DEFAULT_CONFIG['plugins']) + [
+            'polyglav-core-mcp'])
         self.pm.load()
         service = self.pm.service('mcp_server')
         self.assertIsNotNone(service)
@@ -106,6 +110,9 @@ class TestBundledPlugins(unittest.TestCase):
         self.assertTrue(callable(service.handle_http))
 
     def test_report_service_registered(self):
+        from polyglav.config import DEFAULT_CONFIG
+        self.config.set('plugins', list(DEFAULT_CONFIG['plugins']) + [
+            'polyglav-core-webhook'])
         self.pm.load()
         service = self.pm.service('report')
         self.assertIsNotNone(service)
@@ -143,7 +150,11 @@ class TestBundledPlugins(unittest.TestCase):
     def test_bundled_in_default_config(self):
         from polyglav.config import DEFAULT_CONFIG
         for name in BUNDLED:
-            if name in ('polyglav-core-quality', 'polyglav-core-storage-sqlite'):
+            if name in ('polyglav-core-eval', 'polyglav-core-fleet',
+                        'polyglav-core-jobs', 'polyglav-core-mcp',
+                        'polyglav-core-quality',
+                        'polyglav-core-storage-sqlite',
+                        'polyglav-core-webhook'):
                 self.assertNotIn(name, DEFAULT_CONFIG['plugins'])
                 continue
             self.assertIn(name, DEFAULT_CONFIG['plugins'])

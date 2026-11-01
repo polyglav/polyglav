@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 import importlib.util
 
-from polyglav.config import Config
+from polyglav.config import Config, DEFAULT_CONFIG
 
 _plugin_path = Path(__file__).resolve().parents[1] / 'src' / 'plugin.py'
 _spec = importlib.util.spec_from_file_location('polyglav_core_fleet', _plugin_path)
@@ -470,6 +470,10 @@ class TestDetachedSupervisor(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
+        config_dir = self.root / '.polyglav'
+        config_dir.mkdir(parents=True, exist_ok=True)
+        (config_dir / 'config.json').write_text(json.dumps({
+            'plugins': list(DEFAULT_CONFIG['plugins']) + ['polyglav-core-fleet']}))
         ctrl = FleetController(self.root)
         ctrl.manifest.add(AgentDef(name='beta', dir=str(self.root / 'beta'), command=[sys.executable, '-c', MOCK_HEALTHY]))
 

@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Changed plugin defaults - jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled, while serve remains available
 - Added the REPL plugin - `polyglav-core-repl` owns `ChatLoop`, the `repl` front-end, and `/clear`, while the core keeps the UI primitives
 - Moved the jobs scheduler and job service into the jobs plugin - `polyglav-core-jobs` owns the job model, registry, scheduler, memory hooks, and one `cmd_jobs` handler shared by `/jobs` and `polyglav jobs`
 - Moved memory files and injection into the memory plugin - `polyglav-core-memory` owns memory storage, role and team injection, and `/memorize`, while callers use the `memory` service and skip memory when it is absent

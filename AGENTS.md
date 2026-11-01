@@ -83,14 +83,14 @@ Polyglav/
     ├── polyglav-core-bookkeeping/ # plan and todo tools and commands
     ├── polyglav-core-dev/         # code_test, code_check
     ├── polyglav-core-edit/        # file_edit
-    ├── polyglav-core-eval/        # eval fixtures and CLI
+    ├── polyglav-core-eval/        # eval fixtures and CLI (off by default)
     ├── polyglav-core-exec/        # run_command
-    ├── polyglav-core-fleet/       # fleet supervisor CLI
+    ├── polyglav-core-fleet/       # fleet supervisor CLI (off by default)
     ├── polyglav-core-fs/          # file_read, list_dir, file_write, glob, grep
     ├── polyglav-core-git/         # git, git_commit
     ├── polyglav-core-groq/        # GroqProvider
-    ├── polyglav-core-jobs/        # job model, registry, scheduler, CLI, and job memory
-    ├── polyglav-core-mcp/         # MCP client and server
+    ├── polyglav-core-jobs/        # job model, registry, scheduler, CLI, and job memory (off by default)
+    ├── polyglav-core-mcp/         # MCP client and server (off by default)
     ├── polyglav-core-memory/      # memory commands and summaries
     ├── polyglav-core-ollama/      # OllamaProvider
     ├── polyglav-core-onboarding/  # first-run project setup (/onboard)

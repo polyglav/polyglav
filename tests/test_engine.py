@@ -659,7 +659,6 @@ class TestEngineModes(unittest.TestCase):
         for expected in ('delegate', 'ask', 'run_command', 'file_read', 'list_dir',
                          'file_write', 'glob', 'grep', 'file_edit', 'git',
                          'git_commit', 'code_test', 'code_check',
-                         'mcp_connect', 'mcp_list', 'mcp_disconnect',
                          'web_search', 'web_fetch'):
             self.assertIn(expected, names)
         for alias in ('bash', 'exec', 'read', 'view', 'ls', 'find', 'search',
