@@ -363,22 +363,29 @@ def read_task_file(worktree: Path, job: 'Job') -> str | None:
     return None
 
 
-def memory_file_path(worktree: Path, job: 'Job') -> Path:
-    from .memory import memory_path
-    return memory_path(worktree, 'job', job.name)
+def memory_file_path(worktree: Path, job: 'Job', memory_store=None) -> Path:
+    if memory_store is not None:
+        return memory_store.memory_path(worktree, 'job', job.name)
+    return (Path(worktree) / '.polyglav' / 'memory' / 'jobs'
+            / f'{job.name}.md').resolve()
 
 
-def read_memory(worktree: Path, job: 'Job') -> str:
-    from .memory import read_memory as _read
-    return _read(worktree, 'job', job.name)
+def read_memory(worktree: Path, job: 'Job', memory_store=None) -> str:
+    if memory_store is None:
+        return ''
+    return memory_store.read_memory(worktree, 'job', job.name)
 
 
-def write_memory(worktree: Path, job: 'Job', text: str) -> Path:
-    from .memory import write_memory as _write
-    return _write(worktree, 'job', job.name, text)
+def write_memory(worktree: Path, job: 'Job', text: str,
+                 memory_store=None) -> Path:
+    path = memory_file_path(worktree, job, memory_store)
+    if memory_store is None:
+        return path
+    return memory_store.write_memory(worktree, 'job', job.name, text)
 
 
-def system_prompt_for(job: 'Job', worktree: Path, agent_role=None) -> str:
+def system_prompt_for(job: 'Job', worktree: Path, agent_role=None,
+                      memory_store=None) -> str:
     parts = []
     if agent_role is not None and getattr(agent_role, 'system_prompt', ''):
         parts.append(agent_role.system_prompt)
@@ -392,7 +399,7 @@ def system_prompt_for(job: 'Job', worktree: Path, agent_role=None) -> str:
             parts.append(f'## Job task\n\n{body}')
     if job.system_prompt:
         parts.append(job.system_prompt)
-    memory = read_memory(worktree, job)
+    memory = read_memory(worktree, job, memory_store)
     if memory:
         parts.append(f'## Run memory\n\n{memory}')
     if not parts:
@@ -503,7 +510,8 @@ def render_status(registry: JobRegistry, print=print):
                   f'{"approved - will fire" if pending else "WAITING for approve"}')
 
 
-def render_show(registry: JobRegistry, name: str, print=print) -> bool:
+def render_show(registry: JobRegistry, name: str, print=print,
+                memory_store=None) -> bool:
     job = registry.find(name)
     if job is None:
         print(f'  Job not found: {name}')
@@ -517,8 +525,8 @@ def render_show(registry: JobRegistry, name: str, print=print) -> bool:
         print(f'  task file:  {job.task_file} '
               '(edit it - changes apply on the next run)')
     worktree = registry.path.parent.parent
-    memory_text = read_memory(worktree, job)
-    memory_rel = str(memory_file_path(worktree, job).relative_to(Path(worktree)))
+    memory_text = read_memory(worktree, job, memory_store)
+    memory_rel = str(memory_file_path(worktree, job, memory_store).relative_to(Path(worktree)))
     if memory_text:
         print(f'  memory:     {memory_rel}')
         print(f'    last run memory: {" ".join(memory_text.split())[:120]}')

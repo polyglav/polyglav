@@ -167,18 +167,3 @@ class TeamRegistry:
             self._save_scope(scope)
             return True
         return False
-
-
-def team_memory_path(worktree: Path, name: str) -> Path:
-    from polyglav.memory import memory_path
-    return memory_path(worktree, 'team', name)
-
-
-def read_team_memory(worktree: Path, name: str) -> str:
-    from polyglav.memory import read_memory
-    return read_memory(worktree, 'team', name)
-
-
-def write_team_memory(worktree: Path, name: str, text: str) -> Path:
-    from polyglav.memory import write_memory
-    return write_memory(worktree, 'team', name, text)

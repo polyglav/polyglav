@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from polyglav.sessions import turns
+
 SCOPES = ('role', 'team', 'job')
 
 _DIRS = {'role': 'roles', 'team': 'teams', 'job': 'jobs'}
@@ -84,3 +86,59 @@ def _legacy_path(worktree, scope: str, name: str) -> Path | None:
     if scope == 'team':
         return base / 'teams' / str(name) / 'memory.md'
     return None
+
+
+def update_role_memory(engine, role: str, session_name: str) -> None:
+    if not role or not session_name:
+        return
+    worktree = engine.config.local_path.parent.parent
+    if not memory_enabled(engine.config, 'role'):
+        return
+    session = engine.sessions.read(session_name)
+    if session is None or not session.turns:
+        return
+    prior = read_memory(worktree, 'role', role)
+    messages = []
+    if prior:
+        messages.append({'role': 'system',
+                         'content': f'Previous role memory:\n{prior}'})
+    messages += turns.provider_messages(session.turns)
+    if not messages:
+        return
+    try:
+        summary = engine._summarize(messages)
+    except Exception:
+        summary = None
+    if not isinstance(summary, str) or not summary:
+        return
+    write_memory(worktree, 'role', role, summary)
+
+
+def memorize(engine, scope: str = 'role', name: str = '',
+             session=None) -> str:
+    scope = str(scope or 'role').strip().lower()
+    if scope not in SCOPES:
+        return f'Error: scope must be one of {", ".join(SCOPES)}'
+    name = str(name or '').strip()
+    if not name:
+        if scope == 'role':
+            name = engine.role or engine.current_session.role or \
+                engine.current_session.session_name
+        else:
+            return f'Error: /memorize {scope} needs a name'
+    if not memory_enabled(engine.config, scope):
+        return f'Memory for scope "{scope}" is disabled'
+    worktree = engine.config.local_path.parent.parent
+    prior = read_memory(worktree, scope, name)
+    messages = []
+    if prior:
+        messages.append({'role': 'system',
+                         'content': f'Previous {scope} memory:\n{prior}'})
+    messages += turns.provider_messages((session or engine.current_session).turns)
+    if not messages:
+        return 'Nothing to memorize'
+    summary = engine._summarize(messages)
+    if not isinstance(summary, str) or not summary:
+        return 'Memory not updated'
+    path = write_memory(worktree, scope, name, summary)
+    return f'Wrote {scope} memory: {path}'

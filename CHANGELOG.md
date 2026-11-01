@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved memory files and injection into the memory plugin - `polyglav-core-memory` owns memory storage, role and team injection, and `/memorize`, while callers use the `memory` service and skip memory when it is absent
 - Moved the skill registry into the skills plugin - `polyglav-core-skills` owns skill loading, saves, and prompt sections, while the engine resolves them through plugin services
 - Moved the team registry and run_team into the teams plugin - `polyglav-core-teams` owns team loading, stage runs, loops, hierarchical managers, and team memory hooks, while the core keeps a thin `run_team` delegate
 - Fixed the SQLite store connections - the session store closes every connection so test output is not polluted by resource warnings

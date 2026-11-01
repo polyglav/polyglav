@@ -24,6 +24,7 @@ def register_commands(commands):
         from polyglav.jobs import (Job, JobRegistry, publish, read_memory,
                             render_list, render_show, render_status,
                             validate_schedule)
+        memory_store = chat._plugin_manager.service('memory')
         import shlex
         registry = JobRegistry(chat.config.local_path.parent / 'jobs.json')
         tokens = shlex.split(arg)
@@ -36,7 +37,7 @@ def register_commands(commands):
             if not name:
                 print('Usage: /jobs show <name>')
                 return
-            render_show(registry, name)
+            render_show(registry, name, memory_store=memory_store)
             return
         if action == 'remove':
             name = tokens[1] if len(tokens) > 1 else ''
@@ -86,7 +87,8 @@ def register_commands(commands):
                 print(f'  reason: {run.reason}')
             if run.session:
                 print(f'  session: {run.session}')
-            memory = read_memory(chat.config.local_path.parent.parent, job)
+            memory = read_memory(chat.config.local_path.parent.parent, job,
+                                 memory_store)
             if memory:
                 print(f'  summary: {" ".join(memory.split())[:200]}')
             return

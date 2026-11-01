@@ -11,6 +11,9 @@
     "commands": [
       "/memorize"
     ],
+    "services": [
+      "memory"
+    ],
     "config": {
       "memory": {
         "default": true,

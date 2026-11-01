@@ -12,10 +12,33 @@ from polyglav.config import Config
 from polyglav.engine import TurnResult
 from polyglav.sessions import turns as session_turns
 from polyglav.jobs import (Job, JobRun, JobRegistry, compute_next_run, ensure_task_file,
-                         next_run, parse_cron_field, parse_dt, read_memory,
-                         render_list, render_show, render_status, describe_schedule,
-                         system_prompt_for, validate_schedule, write_memory)
+                         next_run, parse_cron_field, parse_dt,
+                         render_list, render_status, describe_schedule,
+                         validate_schedule)
+from polyglav.jobs import read_memory as _read_memory
+from polyglav.jobs import render_show as _render_show
+from polyglav.jobs import system_prompt_for as _system_prompt_for
+from polyglav.jobs import write_memory as _write_memory
 from polyglav.scheduler import JobScheduler, _attempt
+from tests.helpers import memory_module
+
+_MEMORY = memory_module()
+
+
+def read_memory(worktree, job):
+    return _read_memory(worktree, job, memory_store=_MEMORY)
+
+
+def write_memory(worktree, job, text):
+    return _write_memory(worktree, job, text, memory_store=_MEMORY)
+
+
+def system_prompt_for(job, worktree, agent_role=None):
+    return _system_prompt_for(job, worktree, agent_role, memory_store=_MEMORY)
+
+
+def render_show(registry, name, print=print):
+    return _render_show(registry, name, print, memory_store=_MEMORY)
 
 TZ = timezone.utc
 BASE = datetime(2026, 8, 26, 10, 0, tzinfo=TZ)

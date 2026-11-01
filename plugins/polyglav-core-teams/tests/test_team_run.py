@@ -7,14 +7,16 @@ from unittest.mock import MagicMock, patch
 
 from polyglav.role_model import Role
 
-from tests.helpers import make_chat, seed_roles, team_module, team_runner_module
+from tests.helpers import (make_chat, memory_module, seed_roles,
+                           team_module, team_runner_module)
 
 _teams = team_module()
 _runner = team_runner_module()
+_memory = memory_module()
 Team = _teams.Team
 TeamRegistry = _teams.TeamRegistry
 TeamStage = _teams.TeamStage
-team_memory_path = _teams.team_memory_path
+team_memory_path = _memory.memory_path
 
 
 class TestTeamRun(unittest.TestCase):
@@ -193,13 +195,13 @@ class TestTeamRun(unittest.TestCase):
                           return_value='team memory summary'):
             result = self.chat.run_team(self._team(TeamStage(role='writer')), 'task')
         self.assertTrue(result.memory)
-        memory_path = team_memory_path(self.worktree, 'doc')
+        memory_path = team_memory_path(self.worktree, 'team', 'doc')
         self.assertEqual(Path(result.memory), memory_path)
         self.assertEqual(memory_path.read_text().strip(), 'team memory summary')
 
     def test_memory_seeded_from_prior(self):
-        write_team_memory = _teams.write_team_memory
-        write_team_memory(self.worktree, 'doc', 'prior notes')
+        write_team_memory = _memory.write_memory
+        write_team_memory(self.worktree, 'team', 'doc', 'prior notes')
         seen = []
         self.chat.provider.chat.side_effect = [self._result('again done')]
 
@@ -208,7 +210,7 @@ class TestTeamRun(unittest.TestCase):
             return 'new summary'
         with patch.object(self.chat, '_summarize', side_effect=_summarize):
             self.chat.run_team(self._team(TeamStage(role='writer')), 'task')
-        text = team_memory_path(self.worktree, 'doc').read_text()
+        text = team_memory_path(self.worktree, 'team', 'doc').read_text()
         self.assertEqual(text, 'new summary')
         self.assertTrue(any('prior notes' in (m.get('content') or '')
                             for m in seen[0]))
@@ -218,7 +220,7 @@ class TestTeamRun(unittest.TestCase):
         with patch.object(self.chat, '_summarize', return_value=None):
             result = self.chat.run_team(self._team(TeamStage(role='writer')), 'task')
         self.assertTrue(result.memory)
-        text = team_memory_path(self.worktree, 'doc').read_text()
+        text = team_memory_path(self.worktree, 'team', 'doc').read_text()
         self.assertIn('Team doc run:', text)
         self.assertIn('fallback done', text)
 

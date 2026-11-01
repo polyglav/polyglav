@@ -1,3 +1,23 @@
+import importlib.util
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parent
+_added = False
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    _added = True
+try:
+    import memory as _memory
+finally:
+    if _added:
+        sys.path.remove(str(SRC))
+
+
+def register_services(services):
+    services['memory'] = _memory
+
+
 def register_commands(commands):
     chat = commands.chat_loop
 

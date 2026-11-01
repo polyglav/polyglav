@@ -26,13 +26,12 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     agent_role = None
     skill_names = []
     grant_ceiling = None
-    pm = None
+    from .plugins.manager import PluginManager
+    pm = PluginManager(config)
+    pm.load()
     if job.role:
         from .modes import merge_policy
         from .role_model import resolve_permissions, resolve_grant_ceiling
-        from .plugins.manager import PluginManager
-        pm = PluginManager(config)
-        pm.load()
         factory = pm.service('role_registry')
         roles = (factory(local_path=config.local_path.parent / 'roles.json')
                  if factory is not None else None)
@@ -56,8 +55,9 @@ def _build_engine(config: Config, job: Job, verbose: bool,
             sub_config.apply('ask_policy', ask_policy)
         skill_names = list(agent_role.skills or [])
     try:
-        system_text = system_prompt_for(job, config.local_path.parent.parent,
-                                        agent_role)
+        system_text = system_prompt_for(
+            job, config.local_path.parent.parent, agent_role,
+            memory_store=pm.service('memory'))
     except FileNotFoundError as e:
         raise ValueError(str(e)) from e
     if skill_names:
@@ -180,7 +180,8 @@ class JobScheduler:
             if not callable(reporter):
                 return
             worktree = self.config.local_path.parent.parent
-            memory = read_memory(worktree, job)
+            memory = read_memory(
+                worktree, job, self._plugin_manager().service('memory'))
             payload = {
                 'event': 'job.run.completed',
                 'job': job.name,
@@ -270,10 +271,11 @@ class JobScheduler:
     def _update_memory(self, engine, job: Job, run: JobRun):
         worktree = self.config.local_path.parent.parent
         summary = None
+        memory_store = self._plugin_manager().service('memory')
         if engine is not None:
             try:
                 messages = []
-                prior = read_memory(worktree, job)
+                prior = read_memory(worktree, job, memory_store)
                 if prior:
                     messages.append(
                         {'role': 'system',
@@ -291,8 +293,9 @@ class JobScheduler:
             elif run.reason:
                 summary += f'\nError: {run.reason}'
             summary = summary[:1500]
-        write_memory(worktree, job, summary)
-        self._out(f'{job.name}: run memory updated')
+        if memory_store is not None:
+            write_memory(worktree, job, summary, memory_store)
+            self._out(f'{job.name}: run memory updated')
 
     def _finish(self, job: Job, run: JobRun, finished: datetime) -> JobRun:
         job.last_run_at = run.started_at

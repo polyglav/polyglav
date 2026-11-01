@@ -37,7 +37,7 @@ Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/p
 
 ## Memory
 
-A run's own session is the context within a run. Across runs, continuity is bounded memory owned by `src/polyglav/memory.py`, one compacted Markdown summary per scope under `.polyglav/memory/` (`roles/<role>.md`, `teams/<name>.md`, `jobs/<name>.md`). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. `memory`, `memory_scopes`, and `memory_max_chars` gate and cap it, and `/memorize` writes a scope on demand. See [memory.md](memory.md).
+A run's own session is the context within a run. Across runs, continuity is bounded memory owned by `polyglav-core-memory`, one compacted Markdown summary per scope under `.polyglav/memory/` (`roles/<role>.md`, `teams/<name>.md`, `jobs/<name>.md`). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. `memory`, `memory_scopes`, and `memory_max_chars` gate and cap it, and `/memorize` writes a scope on demand. See [memory.md](memory.md).
 
 ## One stream, one round trip
 

@@ -262,6 +262,10 @@ def cmd_jobs(args) -> int:
                        render_status, validate_schedule)
     config = Config(path=getattr(args, 'path', None))
     registry = JobRegistry(config.local_path.parent / 'jobs.json')
+    from .plugins.manager import PluginManager
+    pm = PluginManager(config)
+    pm.load()
+    memory_store = pm.service('memory')
     action = getattr(args, 'action', None)
 
     if action == 'list':
@@ -271,7 +275,8 @@ def cmd_jobs(args) -> int:
         render_status(registry)
         return 0
     if action == 'show':
-        return 0 if render_show(registry, args.name) else 1
+        return 0 if render_show(registry, args.name,
+                                memory_store=memory_store) else 1
     if action == 'remove':
         if registry.remove(args.name):
             print(f'Removed job: {args.name}')
@@ -425,7 +430,11 @@ def _jobs_run(config, registry, args) -> int:
     if run.session:
         print(f'  session: {run.session}')
     from .jobs import read_memory
-    memory = read_memory(config.local_path.parent.parent, job)
+    from .plugins.manager import PluginManager
+    pm = PluginManager(config)
+    pm.load()
+    memory = read_memory(config.local_path.parent.parent, job,
+                         pm.service('memory'))
     if memory:
         print(f'  summary: {" ".join(memory.split())[:200]}')
     return 0 if run.status == 'verified' else 1

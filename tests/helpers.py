@@ -124,3 +124,14 @@ def skills_module():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def memory_module():
+    import importlib.util
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-memory' / 'src' / 'memory.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_memory_test', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

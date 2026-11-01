@@ -5,7 +5,7 @@ from polyglav.engine import TurnResult
 from polyglav.sessions import turns
 from polyglav.ui import glyph
 
-from teams import Team, read_team_memory, write_team_memory
+from teams import Team
 
 
 @dataclass
@@ -373,7 +373,9 @@ class TeamRunner:
                         f'Stage "{agent_role.name}" uses unapproved model "{model}" - '
                         'approve it first (/model, --approve-model, or /connect)'}])
         worktree = self.config.local_path.parent.parent
-        memory = read_team_memory(worktree, team.name)
+        memory_store = self.memory
+        memory = (memory_store.read_memory(worktree, 'team', team.name)
+                  if memory_store is not None else '')
         stages: list[TurnResult] = []
         errors: list = []
         status = 'ok'
@@ -414,8 +416,9 @@ class TeamRunner:
             errors.append({'code': '', 'message': str(e)})
         summary = self._team_memory_summary(team, stages, memory)
         memory_path = ''
-        if summary:
-            memory_path = str(write_team_memory(worktree, team.name, summary))
+        if summary and memory_store is not None:
+            memory_path = str(
+                memory_store.write_memory(worktree, 'team', team.name, summary))
         content = None
         if stages:
             last = stages[-1]

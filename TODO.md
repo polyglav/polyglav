@@ -43,7 +43,6 @@
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 - [ ] Change plugin defaults - jobs, fleet, MCP, webhook, eval, and quality are off
@@ -155,6 +154,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved memory files and injection into the memory plugin
 - [x] Moved the skill registry into the skills plugin
 - [x] Moved the team registry and run_team into the teams plugin
 - [x] Fixed the SQLite store connections

@@ -54,7 +54,6 @@ Polyglav/
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 │   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser
-│   ├── memory.py            # Bounded role/team/job memory under .polyglav/memory/
 │   ├── scheduler.py         # JobScheduler - durable job daemon (retries, approvals, auto-compact)
 │   ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI renderers
 │   ├── providers/
