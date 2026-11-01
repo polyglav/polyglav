@@ -157,6 +157,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Fixed the SQLite store connections
 - [x] Moved the role registry into the roles plugin
 - [x] Removed footer tokens config
 - [x] Removed print max chars config
