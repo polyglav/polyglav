@@ -355,7 +355,7 @@ def register_commands(commands):
             if session is None:
                 print(error)
                 return
-        cap = chat.config.get('print_max_chars', 4000)
+        cap = 4000
         resolve = getattr(chat, 'resolve_tool_ref', None)
         if tree:
             for depth, item in chat.sessions.tree(session.session_name):

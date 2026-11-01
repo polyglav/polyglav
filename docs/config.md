@@ -73,7 +73,6 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
 | `plan`                      | `{"dir": ".polyglav/plans"}` | Plan file directory, relative to the worktree or absolute. Plans are local by default and ignored by the `.polyglav/*` rule. See [modes.md](modes.md) |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
-| `print_max_chars`           | `4000`                 | Cap characters `/print` shows per part (`... (N more chars, use --full)` appended). `0` = unlimited, `--full` overrides for one call |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
 | `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
 | `query_refine`              | `false`                | Auto-refine short web-search queries via a lightweight model call      |

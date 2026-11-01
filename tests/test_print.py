@@ -103,19 +103,13 @@ class TestPrintCommand(unittest.TestCase):
         self.assertIn('two', out)
         self.assertIn('three', out)
 
-    def test_cap_uses_config(self):
-        self.chat.config.set('print_max_chars', 5)
-        add_turn(self.chat.current_session, user='prompt',
-                 tools=[('web_search', {'query': 'x'}, 'y' * 40)])
-        out = self._dispatch('/print 1')
-        self.assertIn('(35 more chars, use --full)', out)
-
     def test_full_disables_cap(self):
-        self.chat.config.set('print_max_chars', 5)
         add_turn(self.chat.current_session, user='prompt',
-                 tools=[('web_search', {'query': 'x'}, 'y' * 40)])
+                 tools=[('web_search', {'query': 'x'}, 'y' * 5000)])
+        capped = self._dispatch('/print 1')
+        self.assertIn('1000 more chars, use --full', capped)
         out = self._dispatch('/print 1 --full')
-        self.assertIn('y' * 40, out)
+        self.assertIn('y' * 5000, out)
         self.assertNotIn('more chars', out)
 
     def test_run_session_target(self):

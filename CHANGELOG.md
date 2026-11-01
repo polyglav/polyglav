@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Removed `print_max_chars` - `/print` uses a fixed 4000-character cap and `--full` still overrides it
 - Changed the config command and CLI - `/config` groups keys by owner and supports `--json`, and `polyglav config get --json` prints the same shape
 - Added onboarding provider presets - LM Studio and a custom URL join the built-in providers, with the local LM Studio endpoint prefilled
 - Added the SQLite session store plugin - `polyglav-core-storage-sqlite` is off by default and keeps sessions in `.polyglav/sessions/sessions.db` with stdlib `sqlite3`
