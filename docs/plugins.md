@@ -108,6 +108,10 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 The bundled `polyglav-core-web` registers `services['search']` with `search(query, num)`, `display(query, results)`, and `context(query, results)` methods (without it, that mode reports the service is unavailable instead of erroring). The bundled `polyglav-core-webhook` registers `services['report']` with a `report(payload, config)` method: the scheduler calls it once per completed job run with a `job.run.completed` payload and its `Config`, so the connector reads its own keys (e.g. `report.webhook`) and posts the report. Any plugin can register a `report` service the same way to deliver run summaries elsewhere (email, chat, a local log). See [jobs.md](jobs.md#report-back).
 
+### Catalog adapters
+
+`register_catalog(catalog)` registers a catalog adapter under a kind such as `role`, `team`, or `skill`. The core `catalog` tool delegates `list`, `show`, `save`, `remove`, and `validate` to that adapter, so the core never imports a role, team, or skill model. The roles, teams, and skills plugins own their adapters.
+
 ### Roles, teams, and skills
 
 `register_roles(registry)` contributes roles to the `RoleRegistry` via `registry.add_plugin(entry)` (same entry shape as `roles.json`). Plugin roles form an in-memory layer below global and local, so precedence is `plugin < global < local`, and a `roles.json` entry can always override or replace a plugin-provided role. `register_teams(teams)` and `register_skills(skills)` register into the team and skills registries the same way (`teams.add_plugin(...)` / `skills.add_plugin(...)`, entry shapes in [teams.md](teams.md) and [skills.md](skills.md)). The `/roles` list marks plugin roles `(plugin)`. After `/plugins install`/`update`/`uninstall` the running REPL re-applies all three hooks immediately. Tools and commands still activate on the next start.
