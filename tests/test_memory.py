@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from polyglav import memory
-from polyglav.roles import Role
+from polyglav.role_model import Role
 
 from tests.helpers import make_chat
 

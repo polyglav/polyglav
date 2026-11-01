@@ -4,7 +4,7 @@ import tempfile
 
 from polyglav.engine import _review_passed
 from polyglav.teams import Team, TeamRegistry, TeamStage
-from polyglav.roles import Role
+from polyglav.role_model import Role
 
 from tests.helpers import make_chat
 

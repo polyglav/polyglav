@@ -3,7 +3,7 @@ from typing import Callable
 
 from ..skills import Skill
 from ..teams import Team
-from ..roles import Role
+from ..role_model import Role
 
 _ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
                 'tool_permission', 'grant_permission', 'ask_policy',

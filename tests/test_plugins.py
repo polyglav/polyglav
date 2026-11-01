@@ -486,8 +486,8 @@ class TestRegistration(PluginTestBase):
         self.assertIn('frobnicate', reg.commands)
 
     def _type_registry(self):
-        from polyglav.roles import RoleRegistry
-        return RoleRegistry(
+        from tests.helpers import role_registry_class
+        return role_registry_class()(
             global_dir=self.root,
             local_path=self.root / '.polyglav' / 'roles.json')
 

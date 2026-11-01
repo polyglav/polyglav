@@ -3,7 +3,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from polyglav.roles import Role, RoleRegistry, parse_frontmatter
+from polyglav.role_model import Role, parse_frontmatter
+from tests.helpers import role_registry_class
+
+RoleRegistry = role_registry_class()
 
 
 class TestRoleFiles(unittest.TestCase):

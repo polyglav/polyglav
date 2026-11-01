@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from polyglav.teams import Team, TeamRegistry, TeamStage, team_memory_path
-from polyglav.roles import Role
+from polyglav.role_model import Role
 
 from tests.helpers import make_chat, seed_roles
 
@@ -69,7 +69,7 @@ class TestTeamRun(unittest.TestCase):
         self.assertLessEqual(len(brief), 1500)
 
     def test_hierarchical_runs_manager_only(self):
-        from polyglav.roles import Role
+        from polyglav.role_model import Role
         for name in ('site-manager', 'researcher', 'writer'):
             self.chat.roles.put(
                 Role(name=name, system_prompt=f'You are {name}.'), scope='local')

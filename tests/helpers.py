@@ -14,7 +14,7 @@ from polyglav.ui import ReplUI
 
 
 def seed_roles(chat: ChatLoop, *names: str) -> None:
-    from polyglav.roles import Role
+    from polyglav.role_model import Role
     for name in names:
         chat.roles.put(Role(name=name, system_prompt=f'You are the {name}.'))
 
@@ -69,3 +69,14 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     register_builtins(chat.registry)
     chat._plugin_manager.register_commands(chat.registry)
     return chat
+
+
+def role_registry_class():
+    import importlib.util
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-roles' / 'src' / 'registry.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_roles_registry_test', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.RoleRegistry

@@ -26,11 +26,18 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     agent_role = None
     skill_names = []
     grant_ceiling = None
+    pm = None
     if job.role:
         from .modes import merge_policy
-        from .roles import (RoleRegistry, resolve_permissions,
-                            resolve_grant_ceiling)
-        roles = RoleRegistry(local_path=config.local_path.parent / 'roles.json')
+        from .role_model import resolve_permissions, resolve_grant_ceiling
+        from .plugins.manager import PluginManager
+        pm = PluginManager(config)
+        pm.load()
+        factory = pm.service('role_registry')
+        roles = (factory(local_path=config.local_path.parent / 'roles.json')
+                 if factory is not None else None)
+        if roles is None:
+            raise ValueError('Role registry plugin is not loaded')
         agent_role = roles.find(job.role)
         if agent_role is None:
             raise ValueError(f'Unknown role: {job.role}')
@@ -75,7 +82,7 @@ def _build_engine(config: Config, job: Job, verbose: bool,
     ui = HeadlessUI(auto='deny', verbose=verbose, stream=stream,
                     thinking_level=verbosity_level(sub_config, 'thinking'),
                     footer_level=verbosity_level(sub_config, 'footer'))
-    engine = Engine(sub_config, ui=ui,
+    engine = Engine(sub_config, ui=ui, plugin_manager=pm,
                     approve_models=job.approve_model or bool(job.model))
     engine.role = job.role or ''
     engine.current_run.role = engine.role

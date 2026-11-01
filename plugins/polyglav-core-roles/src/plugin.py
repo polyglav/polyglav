@@ -1,7 +1,19 @@
+import importlib.util
 import json
+from pathlib import Path
 
-from polyglav.roles import Role
+from polyglav.role_model import Role
+
+_spec = importlib.util.spec_from_file_location(
+    'polyglav_core_roles_registry', Path(__file__).with_name('registry.py'))
+_registry = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_registry)
+RoleRegistry = _registry.RoleRegistry
 from polyglav.tools.call import register_call_tool
+
+
+def register_services(services):
+    services['role_registry'] = RoleRegistry
 
 
 def register_tools(registry):

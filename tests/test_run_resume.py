@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from polyglav.engine import Engine, TeamRunResult
 from polyglav.teams import Team, TeamStage
-from polyglav.roles import Role
+from polyglav.role_model import Role
 
 from tests.helpers import make_chat
 

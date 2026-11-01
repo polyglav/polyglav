@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import Config
-from .roles import _load_scope
+from .role_model import _load_scope
 
 
 @dataclass

@@ -4,7 +4,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from polyglav.roles import Role, RoleRegistry
+from polyglav.role_model import Role
+from tests.helpers import role_registry_class
+
+RoleRegistry = role_registry_class()
 from polyglav.config import Config
 
 from tests.helpers import make_chat

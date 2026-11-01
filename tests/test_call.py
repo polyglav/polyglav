@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from polyglav.roles import Role
+from polyglav.role_model import Role
 from polyglav.sessions import turns as session_turns
 
 from tests.helpers import make_chat, seed_roles

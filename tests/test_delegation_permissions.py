@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from polyglav.modes import merge_policy
 from polyglav.tools.policy import ToolPolicy
-from polyglav.roles import (Role, clamp_action, resolve_grant_ceiling,
+from polyglav.role_model import (Role, clamp_action, resolve_grant_ceiling,
                           resolve_permissions)
 from polyglav.tools.ask import _permission_scope
 

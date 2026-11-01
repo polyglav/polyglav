@@ -786,7 +786,8 @@ def _fleet_logs(controller, args) -> int:
 
 def _fleet_config(controller, args) -> int:
     import json
-    from polyglav.roles import RoleRegistry
+    from polyglav.config import Config
+    from polyglav.plugins.manager import PluginManager
     agent = controller.manifest.find(args.name)
     if agent is None:
         print(f'Agent not found: {args.name}', file=sys.stderr)
@@ -815,7 +816,14 @@ def _fleet_config(controller, args) -> int:
     role_name = getattr(args, 'role', '') or ''
     agent_role = None
     if role_name:
-        registry = RoleRegistry(local_path=agent_dir / '.polyglav' / 'roles.json')
+        pm = PluginManager(Config(path=str(agent_dir)))
+        pm.load()
+        factory = pm.service('role_registry')
+        registry = (factory(local_path=agent_dir / '.polyglav' / 'roles.json')
+                    if factory is not None else None)
+        if registry is None:
+            print('Role registry plugin is not loaded', file=sys.stderr)
+            return 1
         agent_role = registry.find(role_name)
         if agent_role is None:
             print(f'Unknown role: {role_name}', file=sys.stderr)

@@ -140,7 +140,7 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(result.usage['requests'], 2)
 
     def test_run_usage_is_stored_on_the_run(self):
-        from polyglav.roles import Role
+        from polyglav.role_model import Role
         self.engine.roles.put(Role(name='writer', system_prompt='w'),
                               scope='local')
         self.engine.provider.chat.side_effect = [[

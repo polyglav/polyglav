@@ -13,6 +13,9 @@
     "commands": [
       "/role",
       "/roles"
+    ],
+    "services": [
+      "role_registry"
     ]
   }
 }

@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the role registry into the roles plugin - `polyglav-core-roles` owns registry loading and saves, while the core keeps the role model and permission helpers for the loop and policy
 - Removed `footer_tokens` - the footer shows the context count, and `/history` and `/print` own detailed usage
 - Removed `print_max_chars` - `/print` uses a fixed 4000-character cap and `--full` still overrides it
 - Changed the config command and CLI - `/config` groups keys by owner and supports `--json`, and `polyglav config get --json` prints the same shape

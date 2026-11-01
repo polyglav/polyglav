@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from polyglav.roles import Role
+from polyglav.role_model import Role
 from tests.helpers import make_chat
 
 

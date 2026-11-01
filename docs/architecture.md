@@ -98,7 +98,7 @@ src/polyglav/
 ├── skills.py            # SkillRegistry (per-role instructions)
 ├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
-├── roles.py             # RoleRegistry (roles, plugin/global/local)
+├── role_model.py        # role model and permission helpers
 ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI
 └── utils/               # urllib-based SSE streaming
 ```

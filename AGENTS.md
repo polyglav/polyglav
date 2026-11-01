@@ -50,7 +50,7 @@ Polyglav/
 │   ├── cli.py               # `polyglav run` / `polyglav serve` / `polyglav eval` headless entry points
 │   ├── config.py            # JSON config (global + local merge)
 │   ├── models.py            # global model registry - models.json (connections + keys)
-│   ├── roles.py             # RoleRegistry - plugin/global/local roles.json merge + tags
+│   ├── role_model.py        # Role model, frontmatter, and permission helpers
 │   ├── teams.py             # TeamRegistry - plugin/global/local teams.json merge + memory
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
@@ -103,7 +103,7 @@ Polyglav/
     ├── polyglav-core-opencode/    # OpenCodeProvider + OpenCodeGoProvider (session-id base)
     ├── polyglav-core-providers/   # provider connections, model commands, models CLI
     ├── polyglav-core-quality/     # code_lint, code_format (off by default)
-    ├── polyglav-core-roles/       # role catalog and the call tool
+    ├── polyglav-core-roles/       # role registry, catalog, and the call tool
     ├── polyglav-core-sessions/    # session catalog, render, export, and import
     ├── polyglav-core-serve/       # serve CLI
     ├── polyglav-core-skills/      # skill catalog

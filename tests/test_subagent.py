@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from polyglav.roles import Role
+from polyglav.role_model import Role
 from polyglav.ui import NullUI
 
 from tests.helpers import make_chat

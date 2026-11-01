@@ -1,6 +1,6 @@
 import unittest
 
-from polyglav.roles import Role
+from polyglav.role_model import Role
 from polyglav.teams import Team, TeamStage
 
 from tests.helpers import make_chat, seed_roles

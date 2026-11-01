@@ -220,7 +220,7 @@ class TestThinkingSpinner(unittest.TestCase):
         NullUI().status_end()
 
     def test_run_subagent_wraps_status(self):
-        from polyglav.roles import Role
+        from polyglav.role_model import Role
         self.chat.roles.put(
             Role(name='writer', system_prompt='You are the writer.'),
             scope='local')

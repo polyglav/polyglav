@@ -203,8 +203,10 @@ class Engine:
     @property
     def roles(self):
         if getattr(self, '_roles', None) is None:
-            from .roles import RoleRegistry
-            self._roles = RoleRegistry(
+            factory = self._plugin_manager.service('role_registry')
+            if factory is None:
+                return None
+            self._roles = factory(
                 local_path=self.config.local_path.parent / 'roles.json')
             self._plugin_manager.register_roles(self._roles)
         return self._roles
@@ -485,7 +487,8 @@ class Engine:
 
     def catalog_warnings(self, session) -> list[str]:
         warnings: list[str] = []
-        if session.role and self.roles.find(session.role) is None:
+        if session.role and (self.roles is None
+                             or self.roles.find(session.role) is None):
             warnings.append(
                 f'Warning: role "{session.role}" no longer exists')
         if session.team and self.teams.find(session.team) is None:
@@ -557,7 +560,8 @@ class Engine:
                         session_name: str | None = None, ui=None,
                         link_parent: bool = True,
                         run: Run | None = None) -> 'Engine':
-        agent_role = self.roles.find(role_name) if role_name else None
+        agent_role = (self.roles.find(role_name)
+                      if role_name and self.roles is not None else None)
         if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         sub_config = Config(path=str(self.config.local_path.parent.parent))
@@ -599,7 +603,7 @@ class Engine:
                 sub_config.apply('model', t_model)
             else:
                 sub_config.apply('model', agent_role.model)
-        from .roles import resolve_permissions, resolve_grant_ceiling
+        from .role_model import resolve_permissions, resolve_grant_ceiling
         parent_self = self._self_permissions()
         parent_grant = self._grant()
         role_carve = agent_role.tool_permission if agent_role else {}
@@ -681,7 +685,8 @@ class Engine:
     def run_subagent(self, role_name: str, task: str, mode: str = '',
                      skills: list | None = None,
                      resume: str = '', context: str = 'continue') -> TurnResult:
-        agent_role = self.roles.find(role_name) if role_name else None
+        agent_role = (self.roles.find(role_name)
+                      if role_name and self.roles is not None else None)
         if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         if not role_name:
