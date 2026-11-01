@@ -27,12 +27,12 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
 | `plan_write` | core | `read` | `read` | Write or revise the internal plan under `plan.dir`, and attach it to the session |
-| `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `tool_permission.exec_allow` |
+| `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `exec_allow` |
 | `todo` | core | `todo` | `read` | Track the current work in `.polyglav/todos/<session>.json` (`add`, `start`, `done`, `block`, `remove`, `list`, `show`) |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
 
-Plugins register additional tools the same way and automatically inherit tool policy, `/help`, query refinement, `tools_output_drop`, and session logging. See [plugins.md](plugins.md).
+Plugins register additional tools the same way and automatically inherit tool policy, `/help`, query refinement, the session tool log. See [plugins.md](plugins.md).
 
 ## Asking the user
 
@@ -171,11 +171,10 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 | `tool_calling` | `true` | Enable OpenAI-compatible function calling |
 | `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |
 | `tool_permission` | *(see config.md)* | Category actions - `read`/`list`/`edit`/`bash`/`web`/`mcp` -> `allow`/`ask`/`deny` |
-| `tool_permission.exec_allow` | `[]` | `run_command` allowlist - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see [config.md](config.md)) |
+| `exec_allow` | `[]` | `run_command` allowlist owned by `polyglav-core-exec` - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see [config.md](config.md)) |
 | `tools.allow` | `[]` | Name-level allowlist. When non-empty, only these tools are callable |
 | `tools.deny` | `[]` | Name-level deny list (takes precedence over allow) |
-| `tools_output_drop` | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker in persisted sessions |
-| `tools_output_max_chars` | `0` | Cap persisted tool-result content in session files (`0` = unlimited) |
+| `tool_output_log` | `true` | Append tool results to the session sidecar with line-range refs |
 | `verbosity.tools` | `"inherit"` | `off` hides tool lines, `summary` shows the one-line summary, `full` shows params and the result body |
 
 Handlers read config at runtime via the `_config` keyword argument, passed only when declared.

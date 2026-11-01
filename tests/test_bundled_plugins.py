@@ -65,6 +65,7 @@ class TestBundledPlugins(unittest.TestCase):
     def test_plugin_config_registered(self):
         self.pm.load()
         self.assertEqual(self.config.get('list_dir_max_entries'), 200)
+        self.assertEqual(self.config.get('exec_allow'), [])
         self.assertTrue(self.config.get('memory'))
         self.assertEqual(self.config.get('memory_max_chars'), 2000)
         self.assertEqual(self.config.get('plan.dir'), '.polyglav/plans')

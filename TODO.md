@@ -44,7 +44,6 @@
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
-- [ ] Move tool config, permissions, and tests into the owning plugins
 
 - [ ] Remove legacy config keys without migration - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
@@ -139,6 +138,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved tool config and permissions into the owning plugins
 - [x] Changed the catalog to a registry service
 - [x] Added job supervisor routing
 - [x] Added the session tool log

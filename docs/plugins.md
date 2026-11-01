@@ -96,7 +96,7 @@ def register_frontends(frontends) -> None: ...   # frontends.register(name, fact
 
 `register_frontends(frontends)` registers a named front-end factory `factory(config, plugin_manager)`. The core REPL is the default `repl` front-end and a plugin may override it. `--frontend <name>` selects another registered front-end when no subcommand is given. Unknown names fail with a clear error.
 
-Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement, `tools_output_drop`, and session logging. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
+Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`, query refinement and the session tool log. The loop never special-cases plugin names. A tool handler may declare a `_config` keyword argument to receive the engine's `Config` (e.g. to read a config key like `tool_max_result_chars`). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See [tools.md](tools.md).
 
 ### Providers
 

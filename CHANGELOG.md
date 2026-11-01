@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved tool config and permissions into the owning plugins - `exec_allow` is declared by `polyglav-core-exec` and resolved through a `_config` permission argument, while core keeps the model cap and the category permission map
 - Changed the catalog to a registry service - the core keeps one `catalog` tool over registered adapters, and the roles, teams, and skills plugins own their own list, show, save, remove, and validate behavior
 - Added job supervisor routing - a job asks its supervisor role, `assistant` by default, and a missing custom supervisor fails the run instead of reaching a human
 - Added the session tool log - every tool result appends to `<session>.tools.log` with a line-range ref, byte and line counts, and a summary, and the session keeps the summary instead of the full text

@@ -71,7 +71,7 @@ The current session auto-saves after every turn and command, so nothing is lost 
 
 Default output is `.polyglav/exports/<name>.md`, next to the `sessions/` directory. A second argument overrides the path (`/sessions export <name> out.md`). `-` prints the transcript to stdout instead of a file. The command tab-completes session names.
 
-The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional `analysis`), plain assistant answers, `command` records, compaction summaries (with the trimmed-context boundary), system notes, and a final `## Errors` section. Since it renders the persisted form, serialization-time transforms (`tools_output_drop` markers, `tools_output_max_chars` truncation) carry through as they appear in the file.
+The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional `analysis`), plain assistant answers, `command` records, compaction summaries (with the trimmed-context boundary), system notes, and a final `## Errors` section. Since it renders the persisted form, line-range tool refs resolve to their log sections as they appear in the file.
 
 The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived `outcome` (empty fields render as `-`).
 
@@ -234,16 +234,9 @@ Turns and errors are only ever appended. Compaction stores the summary in a `com
 
 ## Serialization-time transforms
 
-Every tool result is written to disk when the tool returns, and the `tool` part records a `ref`. By default the file lives under the system temp directory at `<tmp>/polyglav/<session>/<turn>_<part>.txt`. With `tools_output_spill` on, files live under `tools_output_dir`, which defaults to `.polyglav/tmp/`, so persistence needs no manually defined path.
+Every tool result appends to one log beside the session, `.polyglav/sessions/<session>.tools.log`, when `tool_output_log` is true (the default). The `tool` part records a relative line-range `ref` such as `.polyglav/sessions/<session>.tools.log#L120-L180`, plus `bytes`, `lines`, and `summary`. The session keeps the summary as its inline `output`, while `/print` and Markdown export resolve the line range to the full section. Small results are logged too.
 
-Two config keys reshape the inline `tool` output when the session is written to disk, without touching the stored parts:
-
-- **`tools_output_drop`** (default `["web_fetch", "open", "fetch_page"]`) - output of the listed tools is replaced with `[<tool> result excluded from log, full output: <ref>]`, keeping noisy results out of session files while `input` and the ref stay on the part.
-- **`tools_output_max_chars`** (default `0` = unlimited) - caps persisted tool `output` to N characters, appending `… (truncated from <len> chars)`.
-
-Both transforms add a `dropped` marker on the part so the log records what was removed and why: `{"reason": "drop" | "max_chars", "original_chars": <len>, "ref": "<path>"}`. The `ref` stays on the part even without a transform, so `/print` reads the stored text when the inline copy was dropped or capped. The in-memory part keeps its full `output`, so the marker is written to disk only.
-
-The spill roots are pruned to `tools_output_tmp_max_bytes` (oldest files first) after each save, and a session's directories are removed when the session is deleted.
+Disabling `tool_output_log` keeps the full inline output and accepts a larger session file. The log is deleted with its session, is never pruned partially, and a missing ref renders `[tool log missing]`. Old sessions with inline output load as-is.
 
 ## Preparing the provider context
 

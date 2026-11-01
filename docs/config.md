@@ -87,14 +87,10 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `temperature`               | `0.7`                  | Sampling temperature                                                   |
 | `tool_calling`              | `true`                 | Enable OpenAI-compatible function calling                              |
 | `tool_max_result_chars`     | `100000`               | Cap tool-result content returned to the model (`... (truncated)` appended). `0` = unlimited. With the default, the model sizes files via the `file_read` header and pages with `offset`/`limit` |
+| `tool_output_log`           | `true`                 | Append every tool result to `<session>.tools.log` and keep a summary and line-range ref on the part. `false` keeps inline output |
 | `tool_permission`           | *(see below)*          | Category permission actions                                            |
 | `tools.allow`               | `[]`                   | Name-level allowlist. Empty means no restriction                       |
 | `tools.deny`                | `[]`                   | Name-level deny list (takes precedence over allow)                     |
-| `tools_output_drop`         | `["web_fetch", "open", "fetch_page"]` | Tool results replaced by a marker with the ref in persisted sessions |
-| `tools_output_dir`          | `".polyglav/tmp/"`     | Persistent tool output folder used when `tools_output_spill` is on, relative to the worktree or absolute |
-| `tools_output_max_chars`    | `0`                    | `0` = unlimited. Caps the inline persisted tool-result content, while the full text stays at the ref |
-| `tools_output_spill`        | `false`                | Persist every tool result under `tools_output_dir` instead of the system temp directory. Every part records a `ref` |
-| `tools_output_tmp_max_bytes` | `50000000`            | Cap on the total size of the spill roots. Oldest files are removed past the cap. `0` = unlimited |
 | `verbosity`                 | `"normal"`             | Display preset: `quiet`, `normal`, or `verbose`                         |
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
 | `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
@@ -160,7 +156,6 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
 {
   "ask": "allow",
   "bash": "ask",
-  "exec_allow": ["pytest", "python -m unittest", "ruff", "git"],
   "call": "allow",
   "catalog": "allow",
   "delegate": "allow",
@@ -210,13 +205,13 @@ An approved permission request creates a one-shot grant on the asking sub-agent 
 
 ### `exec_allow` - command allowlist for `run_command`
 
-`tool_permission.exec_allow` (list, default `[]`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
+`exec_allow` (list, default `[]`, declared by `polyglav-core-exec`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
 
 - Commands split into chained segments over `&&`, `||`, `;`, `|`, and `&`. Every segment must start with an allowed prefix (e.g. `pytest -q && ruff check .` needs both `pytest` and `ruff`).
 - Shell-script forms are rejected outright: multi-line commands and heredocs (`<<`) always return `deny`.
 - A matching command falls through to the normal `bash` action (`ask` by default, `allow`/`deny` per config). A non-matching command is `deny`.
 
-The check runs through the per-invocation policy resolver, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `exec_allow` gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.
+The check runs through the per-invocation policy resolver and a `_config` resolver argument, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `exec_allow` gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.
 
 ## Model registry (not config)
 
