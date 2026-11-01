@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Moved the team registry and run_team into the teams plugin - `polyglav-core-teams` owns team loading, stage runs, loops, hierarchical managers, and team memory hooks, while the core keeps a thin `run_team` delegate
 - Fixed the SQLite store connections - the session store closes every connection so test output is not polluted by resource warnings
 - Moved the role registry into the roles plugin - `polyglav-core-roles` owns registry loading and saves, while the core keeps the role model and permission helpers for the loop and policy
 - Removed `footer_tokens` - the footer shows the context count, and `/history` and `/print` own detailed usage

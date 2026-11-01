@@ -43,7 +43,6 @@
 - [ ] Add the external plugin test contract - external plugins ship a test suite and polyglav plugins test runs it
 
 - [ ] Add the REPL plugin - `chat.py`, `ui.py`, thinking, verbosity, glyphs, output log, and `/clear`
-- [ ] Move the team registry and `run_team` into the teams plugin
 - [ ] Move the skill registry and skill improvement into the skills plugin
 - [ ] Move memory files, injection, and refresh into the memory plugin
 - [ ] Move the jobs scheduler, job service, and job memory into the jobs plugin
@@ -157,6 +156,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Moved the team registry and run_team into the teams plugin
 - [x] Fixed the SQLite store connections
 - [x] Moved the role registry into the roles plugin
 - [x] Removed footer tokens config

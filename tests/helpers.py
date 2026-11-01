@@ -80,3 +80,36 @@ def role_registry_class():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.RoleRegistry
+
+
+def team_module():
+    import importlib.util
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-teams' / 'src' / 'teams.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_teams_models_test', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def team_runner_module():
+    import importlib.util
+    import sys
+    src = (Path(__file__).resolve().parents[1] / 'plugins'
+           / 'polyglav-core-teams' / 'src')
+    added = False
+    if str(src) not in sys.path:
+        sys.path.insert(0, str(src))
+        added = True
+    try:
+        import teams as models
+        path = src / 'runner.py'
+        spec = importlib.util.spec_from_file_location(
+            'polyglav_core_teams_runner_test', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        if added:
+            sys.path.remove(str(src))

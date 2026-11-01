@@ -2,7 +2,6 @@ import json
 from typing import Callable
 
 from ..skills import Skill
-from ..teams import Team
 from ..role_model import Role
 
 _ROLE_FIELDS = ('system_prompt', 'description', 'model', 'skills', 'tags',
@@ -144,6 +143,8 @@ def _show_role(engine, name: str) -> str:
 
 
 def _show_team(engine, name: str) -> str:
+    if engine.teams is None:
+        return "Error: teams plugin is not loaded"
     team = engine.teams.find(name)
     if team is None:
         return f'Error: unknown team "{name}"'
@@ -206,12 +207,14 @@ def _save_role(engine, name: str, values: dict) -> str:
 
 
 def _save_team(engine, name: str, values: dict) -> str:
+    if engine.teams is None:
+        return "Error: teams plugin is not loaded"
     data = {'name': name, 'type': values.get('type') or 'sequential'}
     for field in ('description', 'tags', 'stages', 'loop', 'manager',
                   'members'):
         if values.get(field) is not None:
             data[field] = values[field]
-    engine.teams.put(Team.from_dict(data), scope='local')
+    engine.teams.put(engine.teams.make(data), scope='local')
     return f'Saved team: {name} (local)'
 
 
@@ -474,6 +477,8 @@ def register_catalog_tool(registry, engine) -> Callable:
             if kind == 'role':
                 return '\n'.join(_role_line(engine, t) for t in engine.roles.all())
             if kind == 'team':
+                if engine.teams is None:
+                    return 'Error: teams plugin is not loaded'
                 return '\n'.join(_team_line(engine, t) for t in engine.teams.all())
             return '\n'.join(_skill_line(engine, s) for s in engine.skills.all())
         if not name:
@@ -488,6 +493,8 @@ def register_catalog_tool(registry, engine) -> Callable:
             if kind == 'role':
                 registry = engine.roles
             elif kind == 'team':
+                if engine.teams is None:
+                    return 'Error: teams plugin is not loaded'
                 registry = engine.teams
             else:
                 registry = engine.skills

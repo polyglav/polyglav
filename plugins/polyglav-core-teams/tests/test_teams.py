@@ -5,10 +5,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from polyglav.teams import Team, TeamRegistry, TeamStage
 from polyglav.config import Config
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, team_module
+
+_teams = team_module()
+Team = _teams.Team
+TeamRegistry = _teams.TeamRegistry
+TeamStage = _teams.TeamStage
 
 
 class StubPluginManager:

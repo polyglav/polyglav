@@ -96,7 +96,6 @@ src/polyglav/
 ├── scheduler.py         # JobScheduler - durable job daemon
 ├── sessions/            # session CRUD
 ├── skills.py            # SkillRegistry (per-role instructions)
-├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
 ├── role_model.py        # role model and permission helpers
 ├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI

@@ -4,8 +4,8 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-from .config import Config
-from .role_model import _load_scope
+from polyglav.config import Config
+from polyglav.role_model import _load_scope
 
 
 @dataclass
@@ -124,6 +124,9 @@ class TeamRegistry:
             merged[name] = entry
         return merged
 
+    def make(self, data: dict) -> Team:
+        return Team.from_dict(data)
+
     def all(self) -> list[Team]:
         return sorted(
             (Team.from_dict(e) for e in self._merged_entries().values()),
@@ -167,15 +170,15 @@ class TeamRegistry:
 
 
 def team_memory_path(worktree: Path, name: str) -> Path:
-    from .memory import memory_path
+    from polyglav.memory import memory_path
     return memory_path(worktree, 'team', name)
 
 
 def read_team_memory(worktree: Path, name: str) -> str:
-    from .memory import read_memory
+    from polyglav.memory import read_memory
     return read_memory(worktree, 'team', name)
 
 
 def write_team_memory(worktree: Path, name: str, text: str) -> Path:
-    from .memory import write_memory
+    from polyglav.memory import write_memory
     return write_memory(worktree, 'team', name, text)

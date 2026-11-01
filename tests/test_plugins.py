@@ -513,7 +513,8 @@ class TestRegistration(PluginTestBase):
     def test_register_teams_hook(self):
         write_plugin(self.plugins_dir, 'team', TEAM_PLUGIN, {'name': 'team'})
         self.pm.load()
-        from polyglav.teams import TeamRegistry
+        from tests.helpers import team_module
+        TeamRegistry = team_module().TeamRegistry
         reg = TeamRegistry(global_dir=self.root,
                            local_path=self.root / '.polyglav' / 'teams.json')
         self.pm.register_teams(reg)

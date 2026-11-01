@@ -3,8 +3,13 @@ import json
 import unittest
 from unittest.mock import MagicMock, patch
 
-from polyglav.engine import Engine, TeamRunResult
-from polyglav.teams import Team, TeamStage
+from polyglav.engine import Engine
+from tests.helpers import team_module, team_runner_module
+
+_teams = team_module()
+TeamRunResult = team_runner_module().TeamRunResult
+Team = _teams.Team
+TeamStage = _teams.TeamStage
 from polyglav.role_model import Role
 
 from tests.helpers import make_chat
@@ -150,7 +155,7 @@ class TestRunResume(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs.get('context'), 'new')
 
     def test_team_fields_roundtrip(self):
-        from polyglav.teams import TeamRegistry
+        TeamRegistry = _teams.TeamRegistry
         import tempfile
         from pathlib import Path
         tmp = tempfile.TemporaryDirectory()

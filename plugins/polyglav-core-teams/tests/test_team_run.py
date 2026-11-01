@@ -5,10 +5,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from polyglav.teams import Team, TeamRegistry, TeamStage, team_memory_path
 from polyglav.role_model import Role
 
-from tests.helpers import make_chat, seed_roles
+from tests.helpers import make_chat, seed_roles, team_module, team_runner_module
+
+_teams = team_module()
+_runner = team_runner_module()
+Team = _teams.Team
+TeamRegistry = _teams.TeamRegistry
+TeamStage = _teams.TeamStage
+team_memory_path = _teams.team_memory_path
 
 
 class TestTeamRun(unittest.TestCase):
@@ -17,6 +23,7 @@ class TestTeamRun(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.chat = make_chat()
         self.worktree = self.chat.config.local_path.parent.parent
+        self.runner = _runner.TeamRunner(self.chat)
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
         for name in ('researcher', 'writer'):
             self.chat.roles.put(
@@ -36,7 +43,7 @@ class TestTeamRun(unittest.TestCase):
     def test_brief_builds_task_and_hints(self):
         team = self._team(
             TeamStage(role='researcher', task_hint='gather sources'))
-        brief = self.chat._build_stage_brief(team, 'write about X', [], 0, '')
+        brief = self.runner._build_stage_brief(team, 'write about X', [], 0, '')
         self.assertIn('Team: doc', brief)
         self.assertIn('Original task:\nwrite about X', brief)
         self.assertIn('gather sources', brief)
@@ -48,7 +55,7 @@ class TestTeamRun(unittest.TestCase):
                       handoff_note='pass the findings to the writer'),
             TeamStage(role='writer', task_hint='write it up'))
         prior = [MagicMock(content='Findings: a, b', session='sub_one')]
-        brief = self.chat._build_stage_brief(team, 'task', prior, 1, '')
+        brief = self.runner._build_stage_brief(team, 'task', prior, 1, '')
         self.assertIn('## Stage 1 result (sub_one):\nFindings: a, b', brief)
         self.assertIn('Stage 2 handoff from researcher: pass the findings '
                       'to the writer', brief)
@@ -56,14 +63,14 @@ class TestTeamRun(unittest.TestCase):
 
     def test_brief_includes_team_memory(self):
         team = self._team(TeamStage(role='writer'))
-        brief = self.chat._build_stage_brief(team, 'task', [], 0,
+        brief = self.runner._build_stage_brief(team, 'task', [], 0,
                                              'earlier notes')
         self.assertIn('## Team memory\nearlier notes', brief)
 
     def test_brief_truncates_long_prior_results(self):
         team = self._team(TeamStage(role='researcher'), TeamStage(role='writer'))
         prior = [MagicMock(content='word ' * 2000, session='sub_one')]
-        brief = self.chat._build_stage_brief(team, 'task', prior, 1, '',
+        brief = self.runner._build_stage_brief(team, 'task', prior, 1, '',
                                              prior_cap=500)
         self.assertIn('... (truncated)', brief)
         self.assertLessEqual(len(brief), 1500)
@@ -108,7 +115,7 @@ class TestTeamRun(unittest.TestCase):
         for i, res in enumerate(result.stages):
             data = json.loads((self.sessions_dir / f'{res.session}.json').read_text())
             self.assertEqual(data['parent_id'], self.chat.current_session.session_name)
-            expected = self.chat._build_stage_brief(
+            expected = self.runner._build_stage_brief(
                 self._team(TeamStage(role='researcher'), TeamStage(role='writer')),
                 'write a report', result.stages[:i], i, '')
             self.assertEqual(data['turns'][0]['parts'][0]['text'], expected)
@@ -190,7 +197,7 @@ class TestTeamRun(unittest.TestCase):
         self.assertEqual(memory_path.read_text().strip(), 'team memory summary')
 
     def test_memory_seeded_from_prior(self):
-        from polyglav.teams import write_team_memory
+        write_team_memory = _teams.write_team_memory
         write_team_memory(self.worktree, 'doc', 'prior notes')
         seen = []
         self.chat.provider.chat.side_effect = [self._result('again done')]

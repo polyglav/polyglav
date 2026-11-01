@@ -1,4 +1,28 @@
-from polyglav.teams import Team
+import importlib.util
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parent
+_added = False
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    _added = True
+try:
+    import teams as _teams
+    _spec = importlib.util.spec_from_file_location(
+        'polyglav_core_teams_runner', SRC / 'runner.py')
+    _runner = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_runner)
+finally:
+    if _added:
+        sys.path.remove(str(SRC))
+
+Team = _teams.Team
+
+
+def register_services(services):
+    services['team_registry'] = _teams.TeamRegistry
+    services['team_runner'] = _runner
 
 
 def register_commands(commands):

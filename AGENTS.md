@@ -51,7 +51,6 @@ Polyglav/
 │   ├── config.py            # JSON config (global + local merge)
 │   ├── models.py            # global model registry - models.json (connections + keys)
 │   ├── role_model.py        # Role model, frontmatter, and permission helpers
-│   ├── teams.py             # TeamRegistry - plugin/global/local teams.json merge + memory
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent
 │   ├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 │   ├── jobs.py              # Scheduled jobs - Job/JobRun model, registry, cron parser
@@ -108,7 +107,7 @@ Polyglav/
     ├── polyglav-core-serve/       # serve CLI
     ├── polyglav-core-skills/      # skill catalog
     ├── polyglav-core-storage-sqlite/ # optional SQLite session store (off by default)
-    ├── polyglav-core-teams/       # team catalog and team runs
+    ├── polyglav-core-teams/       # team registry, runner, and team memory hooks
     ├── polyglav-core-web/         # web_search, web_fetch + search service
     └── polyglav-core-webhook/     # report-back connector (job run reports)
 ```

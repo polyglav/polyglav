@@ -2,11 +2,15 @@ import unittest
 from pathlib import Path
 import tempfile
 
-from polyglav.engine import _review_passed
-from polyglav.teams import Team, TeamRegistry, TeamStage
 from polyglav.role_model import Role
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, team_module, team_runner_module
+
+_teams = team_module()
+_review_passed = team_runner_module()._review_passed
+Team = _teams.Team
+TeamRegistry = _teams.TeamRegistry
+TeamStage = _teams.TeamStage
 
 
 class TestReviewPassed(unittest.TestCase):
@@ -33,6 +37,7 @@ class TestTeamLoop(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
+        self.runner = team_runner_module().TeamRunner(self.chat)
         self.sessions_dir = self.chat.config.local_path.parent / 'sessions'
         for name in ('researcher', 'writer', 'reviewer', 'referencer'):
             self.chat.roles.put(
@@ -52,18 +57,18 @@ class TestTeamLoop(unittest.TestCase):
     def test_plan_resolves_names_and_indices(self):
         team = self._team(TeamStage(role='writer'), TeamStage(role='reviewer'),
                           loop={'from': 'writer', 'until': 'reviewer'})
-        self.assertEqual(self.chat._team_loop_plan(team), (0, 1, 3, 'VERDICT:'))
+        self.assertEqual(self.runner._team_loop_plan(team), (0, 1, 3, 'VERDICT:'))
         team.loop = {'from': 0, 'until': 1, 'max_iterations': 5,
                      'verdict': 'REVIEW:'}
-        self.assertEqual(self.chat._team_loop_plan(team), (0, 1, 5, 'REVIEW:'))
+        self.assertEqual(self.runner._team_loop_plan(team), (0, 1, 5, 'REVIEW:'))
 
     def test_plan_invalid_returns_none(self):
         team = self._team(TeamStage(role='writer'), loop={'from': 'ghost',
                                                           'until': 'writer'})
-        self.assertIsNone(self.chat._team_loop_plan(team))
-        self.assertIsNone(self.chat._team_loop_plan(
+        self.assertIsNone(self.runner._team_loop_plan(team))
+        self.assertIsNone(self.runner._team_loop_plan(
             self._team(TeamStage(role='writer'))))
-        self.assertIsNone(self.chat._team_loop_plan(
+        self.assertIsNone(self.runner._team_loop_plan(
             self._team(TeamStage(role='writer'), TeamStage(role='reviewer'),
                        loop={'from': 'reviewer', 'until': 'writer'})))
 

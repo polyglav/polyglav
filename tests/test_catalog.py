@@ -1,7 +1,11 @@
 import unittest
 
 from polyglav.role_model import Role
-from polyglav.teams import Team, TeamStage
+from tests.helpers import team_module
+
+_teams = team_module()
+Team = _teams.Team
+TeamStage = _teams.TeamStage
 
 from tests.helpers import make_chat
 

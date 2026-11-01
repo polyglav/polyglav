@@ -829,7 +829,9 @@ class TestModelRefUnfold(unittest.TestCase):
         self.assertEqual(sub.config.get('model'), 'deepseek-v4-flash')
 
     def test_run_team_precheck_denies_unapproved_model(self):
-        from polyglav.teams import Team, TeamStage
+        from tests.helpers import team_module
+        _teams = team_module()
+        Team, TeamStage = _teams.Team, _teams.TeamStage
         self._write_type('coder', 'opencode-go/deepseek-v4-flash')
         self.engine.models.remove('opencode-go', 'deepseek-v4-flash')
         team = Team(name='t', stages=[TeamStage(role='coder')])

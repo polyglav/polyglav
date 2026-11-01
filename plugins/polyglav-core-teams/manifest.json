@@ -11,6 +11,10 @@
     "providers": [],
     "commands": [
       "/teams"
+    ],
+    "services": [
+      "team_registry",
+      "team_runner"
     ]
   }
 }

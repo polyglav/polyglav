@@ -299,7 +299,8 @@ def _config(tmp) -> Config:
 class TestTeamAttempt(unittest.TestCase):
 
     def test_team_attempt_returns_turn_result(self):
-        from polyglav.engine import TeamRunResult
+        from tests.helpers import team_runner_module
+        TeamRunResult = team_runner_module().TeamRunResult
         engine = MagicMock()
         engine.current_session.session_name = 'job.a'
         engine.current_run.id = 7

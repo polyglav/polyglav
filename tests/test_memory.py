@@ -123,7 +123,10 @@ class TestRoleMemory(unittest.TestCase):
         self.assertIn('Wrote role memory', out.getvalue())
 
     def test_team_memory_uses_shared_dir(self):
-        from polyglav.teams import team_memory_path, write_team_memory
+        from tests.helpers import team_module
+        _teams = team_module()
+        team_memory_path = _teams.team_memory_path
+        write_team_memory = _teams.write_team_memory
         write_team_memory(self.worktree, 'doc', 'shared team note')
         path = team_memory_path(self.worktree, 'doc')
         self.assertEqual(path, (self.worktree / '.polyglav' / 'memory' / 'teams'
