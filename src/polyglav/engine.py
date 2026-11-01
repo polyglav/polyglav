@@ -248,6 +248,39 @@ class Engine:
         from .providers.registry import resolve_model_ref
         return resolve_model_ref(ref, self._merged_providers())
 
+    def model_target(self, ref: str | None = None,
+                     base_url: str | None = None) -> tuple[str, str, str]:
+        from .providers import detect_provider
+        raw = str(self.config.get('model') if ref is None else ref or '').strip()
+        base = str(self.config.get('base_url')
+                   if base_url is None else base_url or '').strip()
+        merged = self._merged_providers()
+        entry = None
+        name = ''
+        model = raw
+        if raw and '/' in raw:
+            name, _, model = raw.partition('/')
+            entry = self.providers.find(name)
+            factory = merged.get(name)
+            if (factory is not None
+                    and getattr(factory, 'DEFAULT_BASE_URL', '')):
+                default = factory.DEFAULT_BASE_URL
+                chosen = base or (entry.base_url if entry else '') or default
+                if base and any(
+                        other is not factory
+                        and getattr(other, 'DEFAULT_BASE_URL', '') == base
+                        for other in merged.values()):
+                    chosen = default
+                return name, chosen, model
+            if entry is not None:
+                return name, base or entry.base_url, model
+            return name, base, model
+        entry = self.providers.find('openai-compatible')
+        if entry is not None and entry.base_url:
+            base = base or entry.base_url
+        provider = detect_provider(base, merged) if base else 'openai-compatible'
+        return provider, base, model
+
     def _merged_providers(self) -> dict:
         from .providers import PROVIDERS
         merged = dict(PROVIDERS)
@@ -275,10 +308,9 @@ class Engine:
         return False
 
     def _record_model_outcome(self, status: str):
-        model = self.config.get('model')
+        provider, _, model = self.model_target()
         if not model:
             return
-        provider = self.config.get('provider')
         if status in ('ok', 'truncated'):
             self.models.touch(provider, model)
         elif status == 'error':
@@ -287,63 +319,32 @@ class Engine:
             self.models.record_failure(provider, model, message)
 
     def _reinit_provider(self):
-        provider_name = self.config.get('provider', 'ollama')
+        provider_name, base_url, model = self.model_target()
         factory, resolved, merged = self._resolve_provider_factory(
-            provider_name, self.config.get('base_url'))
+            provider_name, base_url)
         if factory is None:
+            self._provider_error = f'No provider registered for "{provider_name}"'
+            self.ui.info(f'[Error] {self._provider_error}')
             return
         if resolved != provider_name:
-            self.config.apply('provider', resolved)
             provider_name = resolved
-
-        base_url = self.config.get('base_url')
         if not base_url:
-            base_url = self.providers.base_url_for(provider_name)
-        model = self.config.get('model')
-
-        from .providers.registry import resolve_model_ref
-        unfolded = resolve_model_ref(model, self._merged_providers()) if model else None
-        if unfolded is not None:
-            provider_name, base_url, model = unfolded
-            if not self.providers.api_key_for(provider_name):
-                self.ui.info(f'Provider "{provider_name}" has no API key - '
-                             f'run /connect {provider_name}')
-            if not self._ensure_model_approved(provider_name, model):
-                self._provider_error = (
-                    f'Model "{provider_name}/{model}" is not approved. Approve it '
-                    f'with /model {provider_name}/{model}, --model, or --approve-model.')
-                self.ui.info(f'[Error] {self._provider_error}')
-                self.config.apply('provider', provider_name)
-                self.config.apply('base_url', base_url)
-                self.config.apply('model', model)
-                return
-            self.config.apply('provider', provider_name)
-            self.config.apply('base_url', base_url)
-            self.config.apply('model', model)
-            factory, _, merged = self._resolve_provider_factory(provider_name, base_url)
-            if factory is None:
-                return
-        elif getattr(self, 'approve_models', False) and model:
+            base_url = self.providers.base_url_for(provider_name) or \
+                getattr(factory, 'DEFAULT_BASE_URL', '')
+        ref = str(self.config.get('model') or '')
+        if ref and '/' in ref and not self._ensure_model_approved(
+                provider_name, model):
+            self._provider_error = (
+                f'Model "{provider_name}/{model}" is not approved. Approve it '
+                f'with /model {provider_name}/{model}, --model, or --approve-model.')
+            self.ui.info(f'[Error] {self._provider_error}')
+            return
+        if getattr(self, 'approve_models', False) and model:
             self.models.put(provider_name, model)
         self._provider_error = None
-
-        if factory.DEFAULT_BASE_URL and base_url:
-            for other in merged.values():
-                if other is not factory and other.DEFAULT_BASE_URL and base_url == other.DEFAULT_BASE_URL:
-                    base_url = factory.DEFAULT_BASE_URL
-                    break
-        if factory.DEFAULT_MODEL and model:
-            for other in merged.values():
-                if other is not factory and other.DEFAULT_MODEL and model == other.DEFAULT_MODEL:
-                    model = factory.DEFAULT_MODEL
-                    break
         if base_url != self.config.get('base_url'):
             self.config.apply('base_url', base_url)
-        if model != self.config.get('model'):
-            self.config.apply('model', model)
-
         api_key = self.providers.api_key_for(provider_name)
-
         self.provider = factory(
             base_url=base_url,
             api_key=api_key,
@@ -369,11 +370,12 @@ class Engine:
                          model: str | None = None,
                          provider: str | None = None) -> tuple[bool, str, list[str]]:
         from .providers.base import _connection_message
-        provider = provider or self.config.get('provider')
-        base_url = self.config.get('base_url') if base_url is None else base_url
+        target_provider, target_url, target_model = self.model_target()
+        provider = provider or target_provider
+        base_url = target_url if base_url is None else base_url
         if not base_url:
             base_url = self.providers.base_url_for(provider)
-        model = model or self.config.get('model')
+        model = model or target_model
         if api_key is None:
             api_key = self.providers.api_key_for(provider)
         factory, _, _ = self._resolve_provider_factory(provider, base_url)
@@ -389,11 +391,12 @@ class Engine:
                     base_url: str | None = None,
                     api_key: str | None = None,
                     model: str | None = None) -> tuple[list[str], str | None]:
-        provider = provider or self.config.get('provider')
-        base_url = self.config.get('base_url') if base_url is None else base_url
+        target_provider, target_url, target_model = self.model_target()
+        provider = provider or target_provider
+        base_url = target_url if base_url is None else base_url
         if not base_url:
             base_url = self.providers.base_url_for(provider)
-        model = self.config.get('model') if model is None else model
+        model = target_model if model is None else model
         if api_key is None:
             api_key = self.providers.api_key_for(provider)
         factory, _, _ = self._resolve_provider_factory(provider, base_url)
@@ -525,6 +528,7 @@ class Engine:
         if role_name and agent_role is None:
             raise ValueError(f'Unknown role: {role_name}')
         sub_config = Config(path=str(self.config.local_path.parent.parent))
+        sub_config.apply('base_url', self.config.get('base_url') or '')
         system_prompt = (agent_role.system_prompt if agent_role
                          else str(self.config.get('system_prompt') or ''))
         names = list(agent_role.skills or []) if agent_role else []
@@ -555,14 +559,7 @@ class Engine:
                     system_prompt = section
         sub_config.apply('system_prompt', system_prompt)
         if agent_role is not None and agent_role.model:
-            ref = self.unfold_ref(agent_role.model)
-            if ref is not None:
-                t_provider, t_base_url, t_model = ref
-                sub_config.apply('provider', t_provider)
-                sub_config.apply('base_url', t_base_url)
-                sub_config.apply('model', t_model)
-            else:
-                sub_config.apply('model', agent_role.model)
+            sub_config.apply('model', agent_role.model)
         from .role_model import resolve_permissions, resolve_grant_ceiling
         parent_self = self._self_permissions()
         parent_grant = self._grant()
@@ -656,9 +653,7 @@ class Engine:
                     'delegate depth limit reached - ask the user before '
                     'spawning another sibling')
         if agent_role is not None and agent_role.model:
-            ref = self.unfold_ref(agent_role.model)
-            provider, _, model = ref if ref else (
-                self.config.get('provider'), None, agent_role.model)
+            provider, _, model = self.model_target(agent_role.model)
             if not self._ensure_model_approved(provider, model):
                 raise ValueError(
                     f'Type "{role_name}" uses unapproved model "{model}" - '
@@ -750,9 +745,10 @@ class Engine:
                           context=context)
 
     def _turn_meta(self) -> dict:
+        provider, _, model = self.model_target()
         return {
-            'model': self.config.get('model'),
-            'provider': self.config.get('provider'),
+            'model': model,
+            'provider': provider,
             'mode': self._mode(),
             'reasoning': self.config.get('reasoning'),
         }
@@ -1106,6 +1102,7 @@ class Engine:
 
         usage = usage_total
         duration = round((datetime.now(timezone.utc) - turn_start).total_seconds(), 1)
+        model_target = self.model_target()
         return TurnResult(
             content=content or None,
             thinking=thinking or None,
@@ -1115,8 +1112,8 @@ class Engine:
             usage=usage,
             context_tokens=self._context_tokens(usage),
             finish_reason=reason,
-            model=self.config.get('model'),
-            provider=self.config.get('provider'),
+            model=model_target[2],
+            provider=model_target[0],
             session=self.current_session.session_name,
             status=status,
             run_id=self.current_run.id,

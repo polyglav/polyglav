@@ -108,10 +108,11 @@ def _build_engine(config: Config, job: Job, verbose: bool,
                 system_text = system_text.rstrip() + '\n\n' + section
     sub_config.apply('system_prompt', system_text)
     sub_config.apply('mode', job.mode or 'write')
-    if job.provider:
-        sub_config.apply('provider', job.provider)
     if job.model:
-        sub_config.apply('model', job.model)
+        sub_config.apply(
+            'model',
+            f'{job.provider}/{job.model}'
+            if job.provider and '/' not in job.model else job.model)
     if job.tool_permission:
         permissions = dict(sub_config.get('tool_permission') or {})
         permissions.update(job.tool_permission)

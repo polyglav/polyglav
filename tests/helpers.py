@@ -65,8 +65,7 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     Config.GLOBAL_DIR = Path(temp_dir.name) / 'global-home'
     data = {
         'tool_calling': True,
-        'provider': 'ollama',
-        'model': 'test-model',
+        'model': 'ollama/test-model',
         'base_url': 'https://test.api.com',
         'api_key': '',
         'temperature': 0.7,
@@ -94,6 +93,9 @@ def make_chat(config_data: dict | None = None) -> ChatLoop:
     chat._ask_ui = chat._ui
     chat._caller = None
     chat.role = ''
+    from polyglav.models import ModelRegistry
+    chat._models = ModelRegistry()
+    chat.approve_models = True
     chat.runs = RunRegistry()
     chat.current_run = chat.runs.start(
         role='', session=chat.current_session.session_name,

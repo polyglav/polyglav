@@ -10,10 +10,16 @@ from .ui import HeadlessUI
 
 def _engine_from_args(args) -> Engine:
     config = Config(path=getattr(args, 'path', None))
-    if getattr(args, 'provider', None):
-        config.apply('provider', args.provider)
-    if getattr(args, 'model', None):
-        config.apply('model', args.model)
+    provider = (getattr(args, 'provider', None) or '').strip()
+    model = (getattr(args, 'model', None) or '').strip()
+    if model:
+        config.apply('model', f'{provider}/{model}' if provider and '/' not in model
+                     else model)
+    elif provider:
+        current = str(config.get('model') or '')
+        bare = current.split('/', 1)[-1] if current else ''
+        if bare:
+            config.apply('model', f'{provider}/{bare}')
     if getattr(args, 'base_url', None):
         config.apply('base_url', args.base_url)
     if getattr(args, 'mode', None):
@@ -46,8 +52,7 @@ def cmd_models(args) -> int:
         if not entries:
             print('No models configured yet - run /connect to add one')
             return 0
-        provider = config.get('provider')
-        model = config.get('model')
+        provider, _, model = engine.model_target()
         for group, items in engine.models.grouped():
             print(group + ':')
             for e in items:
@@ -55,13 +60,13 @@ def cmd_models(args) -> int:
                 key = ' (key)' if engine.providers.api_key_for(e.provider) else ''
                 print(f'  {active} {e.model}{key}')
         return 0
-    provider = (getattr(args, 'provider', '') or '').strip() or config.get('provider') or ''
+    target_provider, target_url, target_model = engine.model_target()
+    provider = (getattr(args, 'provider', '') or '').strip() or target_provider
     entry = engine.providers.find(provider)
-    base_url = (entry.base_url if entry and entry.base_url else '') or \
-        config.get('base_url') or ''
+    base_url = (entry.base_url if entry and entry.base_url else '') or target_url
     api_key = engine.providers.api_key_for(provider)
     model = next((e.model for e in engine.models.all() if e.provider == provider),
-                 None) or config.get('model')
+                 None) or target_model
     models, error = engine.list_models(provider=provider, base_url=base_url,
                                        api_key=api_key, model=model)
     if error:

@@ -427,9 +427,8 @@ class TestConnectCommand(unittest.TestCase):
         entry = self.chat.providers.find('ollama')
         self.assertEqual(entry.api_key, 'sk-123')
         self.assertEqual(entry.base_url, 'https://api.ollama.com')
-        self.assertEqual(self.chat.config.get('provider'), 'ollama')
         self.assertEqual(self.chat.config.get('base_url'), 'https://api.ollama.com')
-        self.assertEqual(self.chat.config.get('model'), 'test-model')
+        self.assertEqual(self.chat.config.get('model'), 'ollama/test-model')
 
     def test_connect_named_reenters_stored_key(self):
         self.chat.providers.put('ollama', 'https://api.ollama.com', 'old-key')
@@ -463,7 +462,6 @@ class TestConnectCommand(unittest.TestCase):
         probe.assert_called_once_with(
             base_url='https://api.openai.com/v1', api_key='sk-openai', provider='openai')
         self.assertIn('Detected provider "openai"', output)
-        self.assertEqual(self.chat.config.get('provider'), 'openai')
         self.assertEqual(self.chat.config.get('base_url'), 'https://api.openai.com/v1')
 
     def test_connect_url_known_host_keeps_url(self):
@@ -487,7 +485,6 @@ class TestConnectCommand(unittest.TestCase):
             self._dispatch('/connect https://llm.acme.example/v1', ['sk'])
         probe.assert_called_once_with(
             base_url='https://llm.acme.example/v1', api_key='sk', provider='acme')
-        self.assertEqual(self.chat.config.get('provider'), 'acme')
 
     def test_connect_url_custom_derives_name(self):
         with patch.object(self.chat, 'check_connection',
@@ -496,7 +493,6 @@ class TestConnectCommand(unittest.TestCase):
         self.assertIn('New provider name: acme-example', output)
         probe.assert_called_once_with(
             base_url='https://llm.acme.example/v1', api_key='sk', provider='acme-example')
-        self.assertEqual(self.chat.config.get('provider'), 'acme-example')
         self.assertEqual(self.chat.config.get('base_url'), 'https://llm.acme.example/v1')
         self.assertEqual(self.chat.providers.api_key_for('acme-example'), 'sk')
 
@@ -506,7 +502,6 @@ class TestConnectCommand(unittest.TestCase):
             self._dispatch('/connect https://llm.acme.example/v1 mymodels', ['sk'])
         probe.assert_called_once_with(
             base_url='https://llm.acme.example/v1', api_key='sk', provider='mymodels')
-        self.assertEqual(self.chat.config.get('provider'), 'mymodels')
 
     def test_connect_url_bare_hostname(self):
         with patch.object(self.chat, 'check_connection',
@@ -561,7 +556,7 @@ class TestConnectCommand(unittest.TestCase):
 
     def test_connect_pick_stored_custom_provider(self):
         self.chat.providers.put('acme-example', 'https://llm.acme.example/v1', 'sk')
-        self.chat.config.set('provider', 'acme-example')
+        self.chat.config.set('model', 'acme-example/test-model')
         with patch.object(self.chat, 'check_connection',
                           return_value=(True, 'ok', [])) as probe:
             self._dispatch('/connect', ['', 'new-sk'])
@@ -593,13 +588,15 @@ class TestModelCommand(unittest.TestCase):
         self.assertIsNotNone(entry)
 
     def test_model_ref_unfolds(self):
+        self.chat.config.set('base_url', '')
         self.chat.models.put('opencode-go', 'deepseek-v4-flash')
         self.chat.providers.put('opencode-go',
                                 'https://opencode.ai/zen/go/v1', 'k')
         output = self._dispatch('/model opencode-go/deepseek-v4-flash')
         self.assertIn('@ Model: opencode-go/deepseek-v4-flash', output)
-        self.assertEqual(self.chat.config.get('provider'), 'opencode-go')
-        self.assertEqual(self.chat.config.get('model'), 'deepseek-v4-flash')
+        self.assertEqual(self.chat.config.get('model'),
+                         'opencode-go/deepseek-v4-flash')
+        self.assertEqual(self.chat.model_target()[0], 'opencode-go')
         self.assertEqual(self.chat.config.get('base_url'),
                          'https://opencode.ai/zen/go/v1')
 
@@ -615,6 +612,7 @@ class TestModelCommand(unittest.TestCase):
         self.assertEqual(after.get('base_url'), before.get('base_url'))
 
     def test_model_ref_unapproved_prompts_and_approves(self):
+        self.chat.approve_models = False
         self.chat.providers.put('opencode-go',
                                 'https://opencode.ai/zen/go/v1', 'k')
         with patch('builtins.input', return_value='y'):
@@ -624,6 +622,7 @@ class TestModelCommand(unittest.TestCase):
             self.chat.models.find('opencode-go', 'deepseek-v4-flash'))
 
     def test_model_ref_declined_prompt(self):
+        self.chat.approve_models = False
         with patch('builtins.input', return_value='n'):
             output = self._dispatch('/model opencode-go/deepseek-v4-flash')
         self.assertIn('Model not approved', output)

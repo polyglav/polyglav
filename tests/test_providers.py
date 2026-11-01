@@ -142,6 +142,7 @@ class TestProviderSwitching(unittest.TestCase):
         chat = ChatLoop.__new__(ChatLoop)
         chat.config = Config(path=tmp.name)
         chat.provider = None
+        chat.approve_models = True
         chat._tmp = tmp
         pm = PluginManager(chat.config)
         pm.load()
@@ -150,15 +151,14 @@ class TestProviderSwitching(unittest.TestCase):
 
     def test_switch_resets_default_base_url_and_model(self):
         chat = self._make_chat({
-            'provider': 'ollama',
             'base_url': 'https://api.ollama.com',
-            'model': 'llama3.2',
+            'model': 'ollama/llama3.2',
         })
         chat._reinit_provider()
         from polyglav.providers.base import OpenAICompatibleProvider
         factory = chat._plugin_manager.provider_classes()['ollama']
         self.assertEqual(type(chat.provider), factory)
-        chat.config.set('provider', 'openai')
+        chat.config.set('model', 'openai/gpt-4o-mini')
         chat._reinit_provider()
         openai_factory = chat._plugin_manager.provider_classes()['openai']
         self.assertEqual(type(chat.provider), openai_factory)
@@ -169,12 +169,9 @@ class TestProviderSwitching(unittest.TestCase):
 
     def test_switch_keeps_custom_base_url_and_model(self):
         chat = self._make_chat({
-            'provider': 'ollama',
             'base_url': 'https://proxy.example.com',
-            'model': 'llama3.3',
+            'model': 'anthropic/llama3.3',
         })
-        chat._reinit_provider()
-        chat.config.set('provider', 'anthropic')
         chat._reinit_provider()
         factory = chat._plugin_manager.provider_classes()['anthropic']
         self.assertEqual(type(chat.provider), factory)
@@ -184,14 +181,13 @@ class TestProviderSwitching(unittest.TestCase):
 
     def test_unknown_provider_auto_detected(self):
         chat = self._make_chat({
-            'provider': 'nope',
             'base_url': 'https://api.groq.com/openai/v1',
             'model': 'test',
         })
         chat._reinit_provider()
         factory = chat._plugin_manager.provider_classes()['groq']
         self.assertEqual(type(chat.provider), factory)
-        self.assertEqual(chat.config.get('provider'), 'groq')
+        self.assertEqual(chat.model_target()[0], 'groq')
         chat._tmp.cleanup()
 
 

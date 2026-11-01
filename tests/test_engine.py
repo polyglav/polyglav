@@ -17,8 +17,7 @@ def make_engine(config_data: dict | None = None) -> Engine:
     Config.GLOBAL_DIR = Path(temp_dir.name) / 'global-home'
     data = {
         'tool_calling': True,
-        'provider': 'ollama',
-        'model': 'test-model',
+        'model': 'ollama/test-model',
         'base_url': 'https://test.api.com',
         'temperature': 0.7,
         'max_tokens': 2048,
@@ -45,6 +44,9 @@ def make_engine(config_data: dict | None = None) -> Engine:
     engine.current_run = engine.runs.start(role='', session=engine.current_session.session_name)
     engine._plugin_manager = PluginManager(config)
     engine._plugin_manager.load()
+    from polyglav.models import ModelRegistry
+    engine._models = ModelRegistry()
+    engine.models.put('ollama', 'test-model')
     engine._tmp = temp_dir
     return engine
 
@@ -764,11 +766,13 @@ class TestModelRefUnfold(unittest.TestCase):
 
     def test_reinit_provider_unfolds_ref(self):
         self.engine.config.apply('model', 'opencode-go/deepseek-v4-flash')
+        self.engine.config.apply('base_url', '')
         self.engine._reinit_provider()
-        self.assertEqual(self.engine.config.get('provider'), 'opencode-go')
+        self.assertEqual(self.engine.model_target()[0], 'opencode-go')
         self.assertEqual(self.engine.config.get('base_url'),
                          'https://opencode.ai/zen/go/v1')
-        self.assertEqual(self.engine.config.get('model'), 'deepseek-v4-flash')
+        self.assertEqual(self.engine.config.get('model'),
+                         'opencode-go/deepseek-v4-flash')
         self.assertEqual(self.engine.provider.base_url,
                          'https://opencode.ai/zen/go/v1')
         self.assertEqual(self.engine.provider.model, 'deepseek-v4-flash')
@@ -776,6 +780,7 @@ class TestModelRefUnfold(unittest.TestCase):
     def test_unapproved_ref_denied_headless(self):
         self.engine.models.remove('opencode-go', 'deepseek-v4-flash')
         self.engine.config.apply('model', 'opencode-go/deepseek-v4-flash')
+        self.engine.config.apply('base_url', '')
         self.engine._reinit_provider()
         self.assertIsNotNone(self.engine._provider_error)
         self.assertIn('not approved', self.engine._provider_error)
@@ -784,6 +789,7 @@ class TestModelRefUnfold(unittest.TestCase):
         self.engine.models.remove('opencode-go', 'deepseek-v4-flash')
         self.engine.approve_models = True
         self.engine.config.apply('model', 'opencode-go/deepseek-v4-flash')
+        self.engine.config.apply('base_url', '')
         self.engine._reinit_provider()
         self.assertIsNone(self.engine._provider_error)
         self.assertIsNotNone(
@@ -792,6 +798,7 @@ class TestModelRefUnfold(unittest.TestCase):
     def test_chat_short_circuits_on_provider_error(self):
         self.engine.models.remove('opencode-go', 'deepseek-v4-flash')
         self.engine.config.apply('model', 'opencode-go/deepseek-v4-flash')
+        self.engine.config.apply('base_url', '')
         self.engine._reinit_provider()
         result = self.engine.chat('hi')
         self.assertEqual(result.status, 'error')
@@ -799,8 +806,9 @@ class TestModelRefUnfold(unittest.TestCase):
 
     def test_bare_model_unaffected(self):
         self.engine.config.apply('model', 'test-model')
+        self.engine.config.apply('base_url', 'https://api.ollama.com')
         self.engine._reinit_provider()
-        self.assertEqual(self.engine.config.get('provider'), 'ollama')
+        self.assertEqual(self.engine.model_target()[0], 'ollama')
         self.assertEqual(self.engine.provider.model, 'test-model')
 
     def test_run_subagent_unapproved_type_model_raises(self):
@@ -821,11 +829,13 @@ class TestModelRefUnfold(unittest.TestCase):
 
     def test_new_sub_engine_unfolds_type_model(self):
         self._write_type('coder', 'opencode-go/deepseek-v4-flash')
+        self.engine.config.apply('base_url', '')
         sub = self.engine._new_sub_engine('coder')
-        self.assertEqual(sub.config.get('provider'), 'opencode-go')
+        self.assertEqual(sub.model_target()[0], 'opencode-go')
         self.assertEqual(sub.config.get('base_url'),
                          'https://opencode.ai/zen/go/v1')
-        self.assertEqual(sub.config.get('model'), 'deepseek-v4-flash')
+        self.assertEqual(sub.config.get('model'),
+                         'opencode-go/deepseek-v4-flash')
 
     def test_run_team_precheck_denies_unapproved_model(self):
         from tests.helpers import team_module

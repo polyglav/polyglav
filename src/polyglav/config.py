@@ -78,7 +78,6 @@ DEFAULT_CONFIG = {
         'polyglav-core-web',
     ],
     'project_instructions': 'AGENTS.md',
-    'provider': 'ollama',
     'reasoning': 'auto',
     'session.storage': 'json',
     'stream_retries': 2,
@@ -122,13 +121,6 @@ VERBOSITY_PRESETS = {
     'verbose': {'thinking': 'all', 'output': 'all', 'status': 'on',
                 'tools': 'full', 'footer': 'full'},
 }
-VERBOSITY_OLD_KEYS = (
-    'delegate_echo', 'glyph_lines', 'glyph_params', 'show_context_size',
-    'show_errors', 'show_notes', 'show_tool_output', 'show_thinking',
-    'show_thought_duration', 'status_spinner', 'subrun_verbosity',
-    'tool_status_visible',
-)
-
 
 def verbosity_level(config, scope: str) -> str:
     name = str(scope or '').strip().lower()
@@ -180,7 +172,6 @@ CONFIG_DESCRIPTIONS = {
     'modes': 'Mode instruction blocks and prompt colors',
     'plugins': 'Plugins to load (empty loads all)',
     'project_instructions': 'Per-worktree instructions file loaded into the system prompt',
-    'provider': 'Provider name',
     'reasoning': 'Request reasoning and control its token budget',
     'session.storage': 'Session storage format: json, jsonl, or sqlite',
     'show_version': 'Show the version in the REPL banner',
@@ -250,7 +241,6 @@ class Config:
             with open(self.local_path) as f:
                 self._local_raw = json.load(f)
         self.data = self._merged()
-        self._migrate_verbosity()
 
     def _merged(self) -> dict:
         base = _merge(DEFAULT_CONFIG, self._plugin_defaults)
@@ -276,73 +266,6 @@ class Config:
                 self.plugin_owners[key] = str(owner)
         if changed:
             self.data = self._merged()
-
-    def _migrate_verbosity(self):
-        local = self._migrate_verbosity_raw(self._local_raw)
-        global_ = self._migrate_verbosity_raw(self._global_raw)
-        if local or global_:
-            self.data = self._merged()
-        if local:
-            self._save_local()
-        if global_:
-            self._write_global({})
-
-    @staticmethod
-    def _migrate_verbosity_raw(raw: dict) -> bool:
-        before = dict(raw)
-        old = [key for key in VERBOSITY_OLD_KEYS if key in raw]
-        changed = bool(old)
-        if 'verbosity.thinking' in raw:
-            value = str(raw.get('verbosity.thinking') or '').lower()
-            if value == 'summary':
-                raw['verbosity.thinking'] = 'off'
-                changed = True
-            elif value == 'full':
-                raw['verbosity.thinking'] = 'all'
-                changed = True
-        if ('verbosity.thinking' not in raw
-                and any(key in raw for key in
-                        ('show_thinking', 'show_thought_duration'))):
-            if raw.get('show_thinking') is True:
-                raw['verbosity.thinking'] = 'all'
-            else:
-                raw['verbosity.thinking'] = 'off'
-        if ('verbosity.tools' not in raw
-                and any(key in raw for key in
-                        ('show_tool_output', 'show_notes',
-                         'glyph_lines', 'glyph_params'))):
-            if raw.get('show_tool_output') is True:
-                raw['verbosity.tools'] = 'full'
-            elif raw.get('glyph_lines') is False or raw.get('show_notes') is False:
-                raw['verbosity.tools'] = 'off'
-            else:
-                raw['verbosity.tools'] = 'summary'
-        if ('verbosity.tools' not in raw and 'tool_status_visible' in raw):
-            raw['verbosity.tools'] = (
-                'summary' if raw.get('tool_status_visible') else 'off')
-        if ('verbosity.output' not in raw
-                and any(key in raw for key in
-                        ('subrun_verbosity', 'delegate_echo', 'status_spinner'))):
-            if str(raw.get('subrun_verbosity', '')).lower() == 'full':
-                raw['verbosity.output'] = 'all'
-            elif (raw.get('delegate_echo') is False
-                  or raw.get('status_spinner') is False):
-                raw['verbosity.output'] = 'off'
-            else:
-                raw['verbosity.output'] = 'assistant'
-        if 'verbosity.output' not in raw and 'verbosity.subruns' in raw:
-            value = str(raw.pop('verbosity.subruns') or '').lower()
-            raw['verbosity.output'] = {
-                'off': 'off', 'summary': 'assistant', 'full': 'all',
-            }.get(value, 'agent')
-        elif 'verbosity.subruns' in raw:
-            raw.pop('verbosity.subruns', None)
-        if 'verbosity.footer' not in raw and 'show_context_size' in raw:
-            raw['verbosity.footer'] = (
-                'full' if raw.get('show_context_size') is not False else 'summary')
-        for key in old:
-            raw.pop(key, None)
-        return changed or raw != before
 
     def reload(self):
         self.data = copy.deepcopy(DEFAULT_CONFIG)

@@ -147,7 +147,8 @@ def register_builtins(registry):
         n, chars = chat._context_size()
         mode = mode_name(chat.config, chat.current_session.mode or None)
         print(f'{DIM}@ Status{RESET}')
-        print(f'  model:    {chat.config.get("provider")}/{chat.config.get("model")}')
+        provider, _, model = chat.model_target()
+        print(f'  model:    {provider}/{model}')
         print(f'  mode:     {mode}')
         print(f'  session:  {chat.current_session.session_name} '
               f'({len(chat.current_session.turns)} turns, '
@@ -359,10 +360,10 @@ def register_builtins(registry):
         rest = parts[1].strip() if len(parts) > 1 else ''
 
         if key == 'reload' and not rest:
-            old = {k: chat.config.get(k) for k in ('provider', 'base_url', 'model')}
+            old = {k: chat.config.get(k) for k in ('base_url', 'model')}
             chat.config.reload()
             print('Config reloaded from disk')
-            for k in ('provider', 'base_url', 'model'):
+            for k in ('base_url', 'model'):
                 if chat.config.get(k) != old[k]:
                     print(f'  {k}: {old[k]} → {chat.config.get(k)} - run /provider or /connect to apply')
             return

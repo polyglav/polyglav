@@ -121,6 +121,22 @@ def _derive_name(url: str) -> str:
 PRESETS = {'lmstudio': 'http://localhost:1234/v1'}
 
 
+def _current_provider(chat) -> str:
+    try:
+        provider, _, _ = chat.model_target()
+        return str(provider or '')
+    except Exception:
+        return ''
+
+
+def _current_model(chat) -> str:
+    try:
+        _, _, model = chat.model_target()
+        return str(model or '')
+    except Exception:
+        return str(chat.config.get('model') or '').split('/', 1)[-1]
+
+
 def _provider_names(chat):
     merged = chat._merged_providers()
     names = [n for n in sorted(merged) if n != 'openai-compatible']
@@ -138,7 +154,7 @@ def _provider_names(chat):
 
 
 def _pick_provider(chat, ask, names):
-    current = chat.config.get('provider') or names[0]
+    current = _current_provider(chat) or names[0]
     print()
     _say('Choose a provider')
     _say('This is where the model runs. A stored key is marked (key).')
@@ -210,14 +226,13 @@ def _provider_setup(chat, ask, secret):
             return None
 
     chat.providers.put(provider, base_url, api_key)
-    chat.config.set('provider', provider, scope='local')
     chat.config.set('base_url', base_url, scope='local')
     _say(f'Connected to {provider} ({base_url}).')
     return provider, base_url, api_key, models
 
 
 def _pick_model(chat, provider, base_url, api_key, models, ask):
-    current = chat.config.get('model') or ''
+    current = _current_model(chat)
     if current.startswith(provider + '/'):
         current = current.split('/', 1)[1]
     elif '/' in current:
@@ -259,7 +274,7 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
         model = _pick_model(chat, provider, base_url, api_key, models, ask)
         if model:
             chat.models.put(provider, model)
-            chat.config.set('model', model, scope='local')
+            chat.config.set('model', f'{provider}/{model}', scope='local')
         else:
             _say('No model selected; set one later with /model.')
 

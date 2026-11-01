@@ -383,8 +383,7 @@ class ChatLoop(Engine):
             self._close_output_log()
 
     def print_header(self):
-        model_str = self.config.get('model', '?')
-        provider_str = self.config.get('provider', '?')
+        provider_str, _, model_str = self.model_target()
         session_mode = self.current_session.mode or None
         unknown = unknown_mode(self.config, session_mode)
         if unknown:

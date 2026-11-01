@@ -363,9 +363,7 @@ class TeamRunner:
         for agent_role in self._team_roles(team):
             if agent_role is None or not agent_role.model:
                 continue
-            ref = self.unfold_ref(agent_role.model)
-            provider, _, model = ref if ref else (
-                self.config.get('provider'), None, agent_role.model)
+            provider, _, model = self.model_target(agent_role.model)
             if not self._ensure_model_approved(provider, model):
                 return TeamRunResult(
                     name=team.name, status='error',

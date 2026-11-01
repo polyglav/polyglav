@@ -2,6 +2,11 @@
 
 ## v0.50.0
 
+- Removed legacy config keys - the `provider` key and the old tool-output settings are gone, with no migration
+- Changed model config to one ref - `model` now carries the provider prefix, `base_url` is an optional override, and a generic `openai-compatible` connection is the manual fallback
+- Added the generic openai-compatible provider entry - a `providers.json` entry resolves a bare or generic model through the OpenAI-compatible base
+- Removed config compatibility aliases - old verbosity flags and aliases are ignored instead of migrated
+- Changed the config command - the REPL and CLI share the config service with grouped output, `--json`, and validation
 - Fixed the session render tool summary - a persisted tool part with a log ref now rehydrates its summary instead of requiring the removed drop transforms
 - Moved tool config and permissions into the owning plugins - `exec_allow` is declared by `polyglav-core-exec` and resolved through a `_config` permission argument, while core keeps the model cap and the category permission map
 - Changed the catalog to a registry service - the core keeps one `catalog` tool over registered adapters, and the roles, teams, and skills plugins own their own list, show, save, remove, and validate behavior

@@ -38,7 +38,7 @@ polyglav config set max_tokens 0 --global        # global file
 polyglav config unset max_tokens                 # remove from project-local
 ```
 
-Deleting a project's `.polyglav/config.json` reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with `--global` (accepted by both the REPL `/config` and the CLI), e.g. `/config --global provider ollama`, `/config --global model <model>`.
+Deleting a project's `.polyglav/config.json` reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with `--global` (accepted by both the REPL `/config` and the CLI), e.g. `/config --global model <provider>/<model>`.
 
 ## Schema
 
@@ -66,14 +66,13 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `memory_max_chars`          | `2000`                 | Cap characters of a memory summary injected into a prompt or brief (`... (truncated)` appended). `0` = unlimited |
 | `memory_scopes`             | `{"role": true, "team": true, "job": true}` | Per-scope memory toggles, applied on top of `memory` |
 | `mode`                      | `"read"`               | Active agent mode: `read` (default, plan) or `write` (work). `read` adds the bookkeeping tools `plan_write` and `todo`. Any unknown value falls back to `read` with a warning. Switch the session with `/mode <name>` or persist with `/config mode <value>`. See [modes.md](modes.md) |
-| `model`                     | `"llama3.2"`           | Model name. A `provider/model` ref (e.g. `opencode-go/deepseek-v4-flash`) unfolds to that provider and model. `/model <ref>` persists only the ref, so a project config can be just `{"model": "provider/model"}`, while `provider`/`base_url` remain explicit overrides for `openai-compatible` and custom URL providers. An unfolded model must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
+| `model`                     | `"llama3.2"`           | Model name or `provider/model` ref. The ref is the single source of truth: its prefix picks the provider, and a bare model uses `base_url` detection. `/model <ref>` stores the ref. A known ref must be approved (see [Model refs and approval](providers.md#model-refs-and-approval)) |
 | `output_log`                | `false`                | Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off) |
 | `output_log_ansi`           | `false`                | Write the raw stream to the output log (ANSI colors and control characters kept) instead of plain text, for manual inspection |
 | `output_log_dir`            | `".polyglav/output"`     | Directory for the output log, relative to the worktree (or absolute). One file per session, named after it |
 | `plan`                      | `{"dir": ".polyglav/plans"}` | Plan file directory, relative to the worktree or absolute. Plans are local by default and ignored by the `.polyglav/*` rule. See [modes.md](modes.md) |
 | `plugins`                   | *(bundled)*            | Plugins to load. Empty = all discovered plugins load                   |
 | `project_instructions`     | `"AGENTS.md"`          | Per-worktree instructions file auto-loaded into the system prompt (e.g. `AGENTS.md`, `CLAUDE.md`). `""` disables. Absent files skipped, content capped at 20000 chars |
-| `provider`                  | `"ollama"`             | Provider name. Bundled provider plugins (`polyglav-core-ollama`, `-openai`, `-groq`, `-anthropic`, `-opencode`) register `ollama`, `openai`, `groq`, `anthropic`, `opencode`, `opencode-go`. `openai-compatible` is the generic fallback. External plugins can register more |
 | `query_refine`              | `false`                | Auto-refine short web-search queries via a lightweight model call      |
 | `query_refine_context`      | `4`                    | Recent-message context to inject into refinement                       |
 | `query_refine_min_words`    | `3`                    | Minimum query length before refinement applies                         |
@@ -235,7 +234,7 @@ Two global files live separately from config in `~/.config/polyglav/`. Neither i
 - `api_key` lives here, one per provider, and is the only place API keys live.
 - `base_url` is the effective base URL of the connection: the preset provider default (e.g. `/connect ollama`) or a custom URL (`/connect <url>`). The engine falls back to it when the config leaves `base_url` empty.
 - Managed through `/connect` (writes the key and any custom base URL). Re-running it re-enters a missing or stale key.
-- The engine resolves the active provider's API key from this file (matching entry or `""`), falling back to a stored custom `base_url` when the config has none. There is no `api_key` config key anymore, and `polyglav config set api_key` would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.
+- The engine resolves the active provider from the model ref and the provider entry. A manual `openai-compatible` entry in `providers.json` is the generic endpoint for a bare model or a custom OpenAI-compatible gateway. There is no `api_key` config key anymore, and `polyglav config set api_key` would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.
 
 ### Model registry (`models.json`)
 

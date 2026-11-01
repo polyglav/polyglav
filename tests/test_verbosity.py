@@ -175,63 +175,11 @@ class TestVerbosityMigration(unittest.TestCase):
         (local / 'config.json').write_text(json.dumps(data))
         return Config(path=str(self.root))
 
-    def test_old_keys_map_to_scopes(self):
-        config = self._config({
-            'show_thinking': True,
-            'show_tool_output': True,
-            'subrun_verbosity': 'full',
-            'delegate_echo': True,
-            'show_context_size': False,
-            'show_errors': True,
-        })
-        self.assertEqual(config.get('verbosity.thinking'), 'all')
-        self.assertEqual(config.get('verbosity.tools'), 'full')
-        self.assertEqual(config.get('verbosity.output'), 'all')
-        self.assertEqual(config.get('verbosity.footer'), 'summary')
-        for key in ('show_thinking', 'show_tool_output', 'subrun_verbosity',
-                    'delegate_echo', 'show_context_size', 'show_errors'):
-            self.assertNotIn(key, config._local_raw)
-
-    def test_old_thinking_values_map_to_scopes(self):
-        summary = self._config({'verbosity.thinking': 'summary'})
-        self.assertEqual(summary.get('verbosity.thinking'), 'off')
-        full = self._config({'verbosity.thinking': 'full'})
-        self.assertEqual(full.get('verbosity.thinking'), 'all')
-
-    def test_old_subruns_map_to_output(self):
-        summary = self._config({'verbosity.subruns': 'summary'})
-        self.assertEqual(summary.get('verbosity.output'), 'assistant')
-        full = self._config({'verbosity.subruns': 'full'})
-        self.assertEqual(full.get('verbosity.output'), 'all')
-        off = self._config({'verbosity.subruns': 'off'})
-        self.assertEqual(off.get('verbosity.output'), 'off')
-        self.assertNotIn('verbosity.subruns', summary._local_raw)
-
-    def test_tool_status_visible_maps_to_tools_level(self):
-        hidden = self._config({'tool_status_visible': False})
-        self.assertEqual(hidden.get('verbosity.tools'), 'off')
-        self.assertNotIn('tool_status_visible', hidden._local_raw)
-        shown = self._config({'tool_status_visible': True})
-        self.assertEqual(shown.get('verbosity.tools'), 'summary')
-
-    def test_quiet_old_flags_map_to_off(self):
-        config = self._config({
-            'show_thinking': False,
-            'show_notes': False,
-            'delegate_echo': False,
-            'status_spinner': False,
-        })
-        self.assertEqual(config.get('verbosity.thinking'), 'off')
-        self.assertEqual(config.get('verbosity.tools'), 'off')
-        self.assertEqual(config.get('verbosity.output'), 'off')
-
-    def test_new_key_wins_over_old_key(self):
-        config = self._config({
-            'verbosity.thinking': 'agent',
-            'show_thinking': True,
-        })
-        self.assertEqual(config.get('verbosity.thinking'), 'agent')
-        self.assertNotIn('show_thinking', config._local_raw)
+    def test_old_keys_are_ignored(self):
+        config = self._config({'show_thinking': True,
+                               'show_tool_output': True})
+        self.assertIsNone(config.get('verbosity.thinking'))
+        self.assertIsNone(config.get('verbosity.tools'))
 
 
 if __name__ == '__main__':

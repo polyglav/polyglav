@@ -45,12 +45,7 @@
 
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
 
-- [ ] Remove legacy config keys without migration - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
-- [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
-- [ ] Add the generic `openai-compatible` provider entry to `providers.json`
-- [ ] Remove all config compatibility aliases
 
-- [ ] Change `polyglav config` - shared service, grouped output, `--json`, and validation
 - [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
 
@@ -138,6 +133,11 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Removed legacy config keys
+- [x] Changed model config to one ref
+- [x] Added the generic openai-compatible provider entry
+- [x] Removed config compatibility aliases
+- [x] Changed the config command
 - [x] Fixed the session render tool summary
 - [x] Moved tool config and permissions into the owning plugins
 - [x] Changed the catalog to a registry service

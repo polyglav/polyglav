@@ -45,6 +45,7 @@ class _Base(unittest.TestCase):
             return p
         factory.DEFAULT_BASE_URL = 'https://fake.api.com'
         factory.DEFAULT_MODEL = 'fake-model'
+        factory.HOST_PATTERNS = ('ollama.com', 'fake.api.com')
         return patch('polyglav.providers.PROVIDERS', {'ollama': factory})
 
 

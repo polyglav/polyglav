@@ -38,10 +38,7 @@ The config schema loses legacy keys, gains an owner per key, and renders grouped
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Remove legacy keys without migration | S | a smaller schema |
-| Model ref and generic `openai-compatible` entry | M | one model source of truth |
 | Move exec keys | S-M | capability ownership |
-| Remove compatibility aliases | S | a clean schema |
 
 ## Tool ownership and agent interaction
 

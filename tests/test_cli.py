@@ -30,6 +30,7 @@ def _factory(rounds):
         return p
     _f.DEFAULT_BASE_URL = 'https://fake.api.com'
     _f.DEFAULT_MODEL = 'fake-model'
+    _f.HOST_PATTERNS = ('ollama.com', 'fake.api.com')
     return _f
 
 
@@ -89,8 +90,9 @@ class TestCliRun(unittest.TestCase):
             args = self._args(model='opencode-go/deepseek-v4-flash')
             engine = _engine_from_args(args)
             self.assertTrue(engine.approve_models)
-            self.assertEqual(engine.config.get('model'), 'deepseek-v4-flash')
-            self.assertEqual(engine.config.get('provider'), 'opencode-go')
+            self.assertEqual(engine.config.get('model'),
+                             'opencode-go/deepseek-v4-flash')
+            self.assertEqual(engine.model_target()[0], 'opencode-go')
             from polyglav.models import ModelRegistry
             reg = ModelRegistry()
             self.assertIsNotNone(reg.find('opencode-go', 'deepseek-v4-flash'))
@@ -196,6 +198,7 @@ class TestCliRun(unittest.TestCase):
                 return p
             _f.DEFAULT_BASE_URL = 'https://fake.api.com'
             _f.DEFAULT_MODEL = 'fake-model'
+            _f.HOST_PATTERNS = ('ollama.com', 'fake.api.com')
             return _f
         rounds = [[{'type': 'token', 'content': 'plan answer'},
                    {'type': 'done', 'reason': 'stop'}]]
@@ -225,6 +228,7 @@ class TestCliRun(unittest.TestCase):
                 return p
             _f.DEFAULT_BASE_URL = 'https://fake.api.com'
             _f.DEFAULT_MODEL = 'fake-model'
+            _f.HOST_PATTERNS = ('ollama.com', 'fake.api.com')
             return _f
         rounds = [[{'type': 'token', 'content': 'x'},
                    {'type': 'done', 'reason': 'stop'}]]
@@ -425,6 +429,11 @@ class TestCliModels(unittest.TestCase):
         engine.providers.api_key_for.side_effect = keys or (lambda p: '')
         if list_result is not None:
             engine.list_models.return_value = list_result
+        if models:
+            engine.model_target.return_value = (
+                models[0].provider, '', models[0].model)
+        else:
+            engine.model_target.return_value = ('ollama', 'https://api.ollama.com', 'llama3.2')
         return engine
 
     def _capture(self, args, engine):

@@ -150,9 +150,8 @@ class TestOnboarding(unittest.TestCase):
         self.assertEqual(self.config.get('verbosity.status'), 'on')
         self.assertIn('widget assistant', self.config.get('system_prompt'))
         self.assertTrue(self.config.local_path.exists())
-        self.assertEqual(self.config.get('provider'), 'ollama')
         self.assertEqual(self.config.get('base_url'), 'https://api.ollama.com')
-        self.assertEqual(self.config.get('model'), 'model-a')
+        self.assertEqual(self.config.get('model'), 'ollama/model-a')
         self.assertEqual(self.config.get('mode'), 'write')
         self.assertIn(('ollama', 'model-a'), chat.models.entries)
         self.assertTrue(chat.reinitialized)
@@ -206,7 +205,7 @@ class TestOnboarding(unittest.TestCase):
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: 'key-123'))
         self.assertEqual(chat.providers.keys['ollama'], 'key-123')
-        self.assertEqual(self.config.get('model'), 'model-b')
+        self.assertEqual(self.config.get('model'), 'ollama/model-b')
 
     def test_provider_presets_include_lmstudio_and_custom(self):
         names, _ = plugin._provider_names(self._chat())
@@ -225,9 +224,8 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_OUTPUT: '',
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
-        self.assertEqual(self.config.get('provider'), 'llm-example')
         self.assertEqual(self.config.get('base_url'), 'https://llm.example/v1')
-        self.assertEqual(self.config.get('model'), 'model-a')
+        self.assertEqual(self.config.get('model'), 'llm-example/model-a')
 
     def test_run_openai_compatible_asks_base_url(self):
         chat = self._chat()
@@ -242,8 +240,8 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_OUTPUT: '',
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
-        self.assertEqual(self.config.get('provider'), 'openai-compatible')
         self.assertEqual(self.config.get('base_url'), 'https://gateway.example/v1')
+        self.assertEqual(self.config.get('model'), 'openai-compatible/model-a')
 
     def test_run_manual_model_when_probe_fails(self):
         chat = self._chat(connected=False)
@@ -259,7 +257,7 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_OUTPUT: '',
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
-        self.assertEqual(self.config.get('model'), 'manual-model')
+        self.assertEqual(self.config.get('model'), 'ollama/manual-model')
 
     def test_run_unknown_mode_keeps_current(self):
         chat = self._chat()

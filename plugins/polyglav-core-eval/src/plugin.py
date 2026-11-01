@@ -125,9 +125,12 @@ def _eval_config(source: Config, overrides: dict,
     permission.update(fixture.tool_permission)
     deny = list(source.get('tools.deny') or [])
     deny.extend(fixture.tools_deny)
+    provider = overrides.get('provider') or ''
+    model = overrides.get('model') or source.get('model') or ''
+    if provider and model and '/' not in model:
+        model = f'{provider}/{model}'
     return {
-        'provider': overrides.get('provider') or source.get('provider', 'ollama'),
-        'model': overrides.get('model') or source.get('model', ''),
+        'model': model,
         'base_url': overrides.get('base_url') or source.get('base_url', ''),
         'temperature': source.get('temperature', 0.7),
         'max_tokens': source.get('max_tokens', 0),

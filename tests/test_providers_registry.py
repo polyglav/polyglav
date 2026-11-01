@@ -162,3 +162,19 @@ class TestProviderRegistry(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TestGenericProviderEntry(unittest.TestCase):
+
+    def test_openai_compatible_entry_resolves(self):
+        from tests.helpers import make_chat
+        chat = make_chat({'model': 'openai-compatible/custom-model',
+                          'base_url': ''})
+        try:
+            chat.providers.put('openai-compatible',
+                               'https://gateway.example/v1', 'key')
+            provider, base_url, model = chat.model_target()
+            self.assertEqual(provider, 'openai-compatible')
+            self.assertEqual(base_url, 'https://gateway.example/v1')
+            self.assertEqual(model, 'custom-model')
+        finally:
+            chat._tmp.cleanup()

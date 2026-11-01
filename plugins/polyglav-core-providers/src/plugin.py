@@ -9,9 +9,13 @@ def _render_models(models, provider, base_url):
         print(f'  - {m}')
 
 
+def _target(chat):
+    return chat.model_target()
+
+
 def _active_model(chat, entry):
-    return (entry.provider == chat.config.get('provider')
-            and entry.model == chat.config.get('model'))
+    provider, _, model = _target(chat)
+    return entry.provider == provider and entry.model == model
 
 
 def _remove_model(chat, ref):
@@ -63,13 +67,13 @@ def _render_known_models(chat):
 
 
 def _render_online_models(chat, provider_arg):
-    provider = (provider_arg.strip() or chat.config.get('provider')).strip()
+    target_provider, target_url, target_model = _target(chat)
+    provider = (provider_arg.strip() or target_provider).strip()
     entry = chat.providers.find(provider)
-    base_url = (entry.base_url if entry and entry.base_url else '') or \
-        chat.config.get('base_url') or ''
+    base_url = (entry.base_url if entry and entry.base_url else '') or target_url
     api_key = chat.providers.api_key_for(provider)
     model = next((e.model for e in chat.models.all() if e.provider == provider),
-                 None) or chat.config.get('model')
+                 None) or target_model
     try:
         models, error = chat.list_models(provider=provider, base_url=base_url,
                                          api_key=api_key, model=model)
@@ -84,7 +88,7 @@ def _render_online_models(chat, provider_arg):
         return
     _cache_models(chat, provider, models)
     _render_models(models, provider, base_url)
-    model = chat.config.get('model')
+    model = target_model
     if model and model not in models:
         print(f'  (configured model "{model}" not in the model list)')
 
@@ -133,7 +137,7 @@ def _render_provider_status(chat, providers):
     if not names:
         print('  (no providers)')
         return
-    active = chat.config.get('provider')
+    active, _, _ = _target(chat)
     print(f'{len(names)} providers:')
     for name in names:
         mark = '>' if name == active else ' '
@@ -185,7 +189,9 @@ def _connect_save(chat, providers, provider, base_url, api_key):
             print('  Connection not saved - run /connect again with corrected values')
             return
     chat.providers.put(provider, base_url, api_key)
-    chat.config.set('provider', provider)
+    _, _, current_model = _target(chat)
+    if current_model:
+        chat.config.set('model', f'{provider}/{current_model}')
     if base_url:
         chat.config.set('base_url', base_url)
     _cache_models(chat, provider, models)
@@ -239,7 +245,7 @@ def _connect_pick(chat, providers):
     extras = {e.provider: e for e in chat.providers.all()
               if e.provider not in providers}
     names = _ordered_provider_names(providers) + sorted(extras)
-    current = chat.config.get('provider')
+    current, _, _ = _target(chat)
     for i, name in enumerate(names, 1):
         key = ' (key)' if chat.providers.api_key_for(name) else ''
         print(f'  {i}. {name}{key}')
@@ -261,7 +267,7 @@ def _connect_pick(chat, providers):
     elif sel in extras:
         entry = extras[sel]
         _connect_named(chat, providers, OpenAICompatibleProvider, sel,
-                       base_url=entry.base_url or chat.config.get('base_url'))
+                       base_url=entry.base_url or _target(chat)[1])
     elif '.' in sel or '://' in sel:
         _connect_url(chat, providers, sel, None)
     else:
@@ -302,16 +308,22 @@ def register_commands(commands):
 
     @commands.register('provider', description='Show or switch the active provider')
     def provider_cmd(arg=''):
+        current, _, model = _target(chat)
         if arg:
-            chat.config.set('provider', arg.strip())
+            provider = arg.strip()
+            bare = model.split('/', 1)[-1] if '/' in model else model
+            if not bare:
+                print('Set a model first with /model <model>')
+                return
+            chat.config.set('model', f'{provider}/{bare}')
             chat._reinit_provider()
-            print(f'Provider set to: {chat.config.get("provider")}')
+            print(f'Provider set to: {provider}')
             ok, msg, _ = chat.check_connection()
             if not ok:
                 print(f'  Warning: connection test failed - {msg}')
                 print('  Run /connect to fix provider settings')
         else:
-            print(f'Current provider: {chat.config.get("provider")}')
+            print(f'Current provider: {current}')
 
     @commands.register(
         'providers',
@@ -331,13 +343,12 @@ def register_commands(commands):
     def model_cmd(arg=''):
         arg = arg.strip()
         if not arg:
-            provider = chat.config.get('provider')
-            model = chat.config.get('model')
+            provider, _, model = _target(chat)
             print(f'{DIM}@ Model: {provider}/{model}{RESET}')
             return
         ref = chat.unfold_ref(arg)
         if ref is not None:
-            provider, base_url, model = ref
+            provider, _, model = ref
             if chat._ensure_model_approved(provider, model):
                 chat.config.set('model', f'{provider}/{model}')
                 chat._reinit_provider()
@@ -345,10 +356,12 @@ def register_commands(commands):
             else:
                 print(f'{RED}✗ Model not approved: {provider}/{model}{RESET}')
             return
-        chat.config.set('model', arg)
-        chat.provider.model = chat.config.get('model')
-        chat.models.put(chat.config.get('provider'), arg)
-        print(f'{DIM}@ Model: {chat.config.get("provider")}/{arg}{RESET}')
+        provider, _, _ = _target(chat)
+        chat.config.set('model', f'{provider}/{arg}')
+        chat._reinit_provider()
+        provider, _, model = _target(chat)
+        chat.models.put(provider, model)
+        print(f'{DIM}@ Model: {provider}/{model}{RESET}')
 
     @commands.register(
         'models',
@@ -405,7 +418,8 @@ def _providers_cli(args):
         if not entries:
             print('No provider connections configured')
             return 0
-        active = config.get('provider')
+        engine = Engine(config, ui=NullUI())
+        active, _, _ = engine.model_target()
         for entry in sorted(entries, key=lambda e: e.provider):
             mark = '>' if entry.provider == active else ' '
             key = ' (key)' if entry.api_key else ''
@@ -440,7 +454,6 @@ def _providers_cli(args):
             entry = registry.find(args.name)
             api_key = entry.api_key if entry else ''
         registry.put(args.name, base_url, api_key)
-        config.set('provider', args.name)
         config.set('base_url', base_url)
         print(f'Connected provider: {args.name} ({base_url})')
         return 0
