@@ -448,6 +448,9 @@ class PluginManager:
     def register_skills(self, registry):
         self._run_hook('register_skills', registry)
 
+    def register_catalog(self, registry):
+        self._run_hook('register_catalog', registry)
+
     def register_fixtures(self, fixtures):
         self._run_hook('register_fixtures', fixtures)
 

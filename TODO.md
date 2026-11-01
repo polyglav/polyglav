@@ -43,7 +43,6 @@
 
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 
-- [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
 - [ ] Move tool config, permissions, and tests into the owning plugins
 
@@ -140,6 +139,7 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed the catalog to a registry service
 - [x] Added job supervisor routing
 - [x] Added the session tool log
 - [x] Removed tool output caps and spill

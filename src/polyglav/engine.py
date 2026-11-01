@@ -185,6 +185,14 @@ class Engine:
         return self._plugin_manager.service('memory')
 
     @property
+    def catalog(self):
+        if getattr(self, '_catalog', None) is None:
+            from .catalog import CatalogRegistry
+            self._catalog = CatalogRegistry()
+            self._plugin_manager.register_catalog(self._catalog)
+        return self._catalog
+
+    @property
     def skills(self):
         if getattr(self, '_skills', None) is None:
             factory = self._plugin_manager.service('skill_registry')

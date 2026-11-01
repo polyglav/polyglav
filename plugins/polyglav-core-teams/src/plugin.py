@@ -13,6 +13,10 @@ try:
         'polyglav_core_teams_runner', SRC / 'runner.py')
     _runner = importlib.util.module_from_spec(_spec)
     _spec.loader.exec_module(_runner)
+    _catalog_spec = importlib.util.spec_from_file_location(
+        'polyglav_core_teams_catalog', SRC / 'catalog.py')
+    _catalog = importlib.util.module_from_spec(_catalog_spec)
+    _catalog_spec.loader.exec_module(_catalog)
 finally:
     if _added:
         sys.path.remove(str(SRC))
@@ -23,6 +27,10 @@ Team = _teams.Team
 def register_services(services):
     services['team_registry'] = _teams.TeamRegistry
     services['team_runner'] = _runner
+
+
+def register_catalog(catalog):
+    catalog.register('team', _catalog)
 
 
 def register_commands(commands):

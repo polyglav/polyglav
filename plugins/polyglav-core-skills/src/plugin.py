@@ -9,6 +9,10 @@ if str(SRC) not in sys.path:
     _added = True
 try:
     import skills as _skills
+    _catalog_spec = importlib.util.spec_from_file_location(
+        'polyglav_core_skills_catalog', SRC / 'catalog.py')
+    _catalog = importlib.util.module_from_spec(_catalog_spec)
+    _catalog_spec.loader.exec_module(_catalog)
 finally:
     if _added:
         sys.path.remove(str(SRC))
@@ -19,6 +23,10 @@ Skill = _skills.Skill
 def register_services(services):
     services['skill_registry'] = _skills.SkillRegistry
     services['skills_section'] = _skills.skills_section
+
+
+def register_catalog(catalog):
+    catalog.register('skill', _catalog)
 
 
 def register_commands(commands):
