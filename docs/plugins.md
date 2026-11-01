@@ -183,6 +183,7 @@ polyglav plugins test [name]
 - `install` clones a git URL or copies a local directory into `.polyglav/plugins/` (or `~/.config/polyglav/plugins/` with `--global`), records `source`, and with `--deps` runs `pip install` on the declared `requires`.
 - `update` runs `git pull` for remote sources or re-copies a local path.
 - `test` runs a plugin's `tests/` unit suite (`--verbose` for per-test output). Without a name it runs every plugin that has one. The core test suite also runs these through `tests/test_plugin_suites.py`.
+- The same test contract applies to bundled and external plugins. Each `tests/test*.py` module must import cleanly, and an import failure is reported as a failing test rather than skipped. A plugin without tests is valid, but `polyglav plugins test <name>` returns an error for it.
 - Bundled plugins report an error for `update` and `uninstall`. Disable them instead.
 
 ## Status

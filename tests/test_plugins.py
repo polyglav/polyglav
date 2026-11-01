@@ -762,6 +762,14 @@ class TestPluginsTestCommand(PluginTestBase):
     def test_cli_test_unknown_returns_1(self):
         self.assertEqual(self._cmd(name='nope'), 1)
 
+    def test_broken_test_module_fails(self):
+        write_plugin(self.plugins_dir, 'hello', SIMPLE_TOOL_PLUGIN,
+                     SIMPLE_MANIFEST)
+        tdir = self.plugins_dir / 'hello' / 'tests'
+        tdir.mkdir(exist_ok=True)
+        (tdir / 'test_broken.py').write_text('import missing_module\n')
+        self.assertEqual(self._cmd(name='hello'), 1)
+
     def test_cli_test_no_tests_returns_1(self):
         write_plugin(self.plugins_dir, 'hello', SIMPLE_TOOL_PLUGIN, SIMPLE_MANIFEST)
         self.assertEqual(self._cmd(name='hello'), 1)

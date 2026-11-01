@@ -165,7 +165,12 @@ def load_plugin_test_suite(directory: Path):
             _sys.modules[mod_name] = module
             try:
                 spec.loader.exec_module(module)
-            except Exception:
+            except Exception as exc:
+                def _failed(path=path, exc=exc):
+                    raise AssertionError(
+                        f'plugin test module failed to import: {path}: {exc}')
+                suite.addTest(unittest.FunctionTestCase(
+                    _failed, description=f'import {path.name}'))
                 continue
             suite.addTests(unittest.defaultTestLoader.loadTestsFromModule(module))
     finally:

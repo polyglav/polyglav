@@ -197,7 +197,6 @@ Capabilities install as discoverable, isolated packages.
 | Shared plugin virtualenv - one venv for all plugin dependencies | M | isolated deps, one venv |
 | Per-plugin virtualenv isolation - per-plugin `.venv`, site-packages injected at import | M | strongest dependency separation |
 | Externalize bundled plugins - versioned repos, bundled copies stay the default | M | versioned bundled plugins |
-| External plugin test contract - external plugins ship a test suite and `polyglav plugins test` runs it | S-M | tested plugins |
 | Cross-plugin tool router - virtual tool names (`open`, `search`, ...) dispatch per-argument to the matching plugin handler | M | context-aware dispatch |
 | Content ingestion - cache web and PDF results under `.polyglav/files`, scrape full pages, and convert local or remote PDFs to text | M | reusable content |
 | Agent folder watcher - process new files on arrival | S-M | arrival-driven work |

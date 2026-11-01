@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added the external plugin test contract - `polyglav plugins test` runs bundled and external plugin suites, and an unimportable test module now fails instead of being skipped
 - Changed plugin defaults - jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled, while serve remains available
 - Added the REPL plugin - `polyglav-core-repl` owns `ChatLoop`, the `repl` front-end, and `/clear`, while the core keeps the UI primitives
 - Moved the jobs scheduler and job service into the jobs plugin - `polyglav-core-jobs` owns the job model, registry, scheduler, memory hooks, and one `cmd_jobs` handler shared by `/jobs` and `polyglav jobs`
