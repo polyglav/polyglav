@@ -251,3 +251,18 @@ class TestOutputLog(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TestIdleInterrupt(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def test_first_ctrl_c_hints_and_second_exits(self):
+        def interrupt(prompt):
+            raise KeyboardInterrupt
+        self.chat._read_input = interrupt
+        self.assertEqual(self.chat._read_line(), '')
+        self.assertIsNone(self.chat._read_line())

@@ -167,6 +167,10 @@ def _jobs_run(config: Config, registry: JobRegistry, args) -> int:
         if getattr(args, 'no_retry', False):
             job.retries, job.backoff = 0, 0
         run = scheduler.run_job(job)
+    except KeyboardInterrupt:
+        print(f'Run {job.name}: cancelled')
+        registry.save()
+        return 130
     finally:
         job.retries, job.backoff = original_retries, original_backoff
         registry.save()

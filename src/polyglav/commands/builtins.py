@@ -51,13 +51,6 @@ def _tool_rows(chat):
             n, chat._tool_registry.permission_for(n)))]
 
 
-def _run_todo(chat, args):
-    chat._init_tooling()
-    if not chat._tool_registry:
-        return 'Error: tool calling is disabled'
-    return chat._tool_registry.execute('todo', args)
-
-
 def _render_tool_detail(chat, name):
     info = chat._tool_registry.info(name)
     if not info:

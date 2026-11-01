@@ -1,15 +1,33 @@
+import sys
 from pathlib import Path
 
-from polyglav.tools.plan import register_plan_tool
-from polyglav.tools.todo import register_todo_tool
 from polyglav.ui import DIM, RED, RESET
+
+SRC = Path(__file__).resolve().parent
+_added = False
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+    _added = True
+try:
+    import plan as _plan
+    import todo as _todo
+finally:
+    if _added:
+        sys.path.remove(str(SRC))
+
+
+def register_services(services):
+    from types import SimpleNamespace
+    services['bookkeeping'] = SimpleNamespace(
+        plan_context=_plan.plan_context,
+        todo_context=_todo.todo_context)
 
 
 def register_tools(registry):
     engine = getattr(registry, 'engine', None)
     if engine is not None:
-        register_plan_tool(registry, engine)
-        register_todo_tool(registry, engine)
+        _plan.register_plan_tool(registry, engine)
+        _todo.register_todo_tool(registry, engine)
 
 
 def _run_todo(chat, args):
@@ -30,7 +48,8 @@ def register_commands(commands):
             ('off', 'Detach the plan from this session'),
         ])
     def plan_cmd(arg=''):
-        from polyglav.tools.plan import display_path, plan_path, resolve_plan
+        display_path, plan_path, resolve_plan = (
+            _plan.display_path, _plan.plan_path, _plan.resolve_plan)
         arg = arg.strip()
         session = chat.current_session
         if arg in ('off', 'detach'):
@@ -65,7 +84,8 @@ def register_commands(commands):
 
     @commands.register('plans', description='List stored plans, or show one')
     def plans_cmd(arg=''):
-        from polyglav.tools.plan import display_path, list_plans, resolve_plan
+        display_path, list_plans, resolve_plan = (
+            _plan.display_path, _plan.list_plans, _plan.resolve_plan)
         arg = arg.strip()
         if arg:
             path = resolve_plan(chat.config, arg)
@@ -99,7 +119,7 @@ def register_commands(commands):
             ('start', 'Mark a todo item doing'),
         ])
     def todo_cmd(arg=''):
-        from polyglav.tools.todo import todo_context
+        todo_context = _todo.todo_context
         arg = arg.strip()
         if not arg:
             text = todo_context(chat.config, chat.current_session)
@@ -131,7 +151,8 @@ def register_commands(commands):
 
     @commands.register('todos', description='List stored todos, or show one')
     def todos_cmd(arg=''):
-        from polyglav.tools.todo import list_todos, render_todo, resolve_todo
+        list_todos, render_todo, resolve_todo = (
+            _todo.list_todos, _todo.render_todo, _todo.resolve_todo)
         arg = arg.strip()
         if arg:
             path = resolve_todo(chat.config, arg)

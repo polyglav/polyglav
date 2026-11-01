@@ -43,10 +43,8 @@
 
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
 
-- [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
 
 
-- [ ] Change CLI signals - idle Ctrl-C, pause and continue, serve stop, job cancel, and fleet escalation
 - [ ] Move plugin CLI tests into each plugin suite
 
 
@@ -133,6 +131,8 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed CLI signals
+- [x] Moved bookkeeping to the bookkeeping plugin
 - [x] Removed legacy config keys
 - [x] Changed model config to one ref
 - [x] Added the generic openai-compatible provider entry

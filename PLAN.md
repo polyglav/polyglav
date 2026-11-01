@@ -15,7 +15,6 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Move bookkeeping to a plugin | S-M | optional plan and todo |
 
 ## Slash command surface
 
@@ -30,7 +29,6 @@ The CLI is a plugin-aware front-end over the same services as the REPL, so no su
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Signal and exit contract | S | predictable interruption |
 
 ## Config surface
 
@@ -47,7 +45,6 @@ Tools that are not loop primitives live with their plugins, asks block inline, a
 | Task | Effort | Provides |
 |------|--------|----------|
 | Move exec config into the exec plugin | S | plugin-owned shell policy |
-| Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Remove tool output caps, drop, spill, and temp settings | S | one output model |
 
 ## Session storage

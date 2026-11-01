@@ -1345,12 +1345,13 @@ class Engine:
         instruction = system_instruction(self.config, self._mode())
         if instruction:
             out.append({'role': 'system', 'content': instruction})
-        from .tools.plan import plan_context
-        from .tools.todo import todo_context
-        plan = plan_context(self.config, self.current_session)
+        service = self._plugin_manager.service('bookkeeping')
+        plan = (service.plan_context(self.config, self.current_session)
+                if service is not None else '')
         if plan:
             out.append({'role': 'system', 'content': plan})
-        todo = todo_context(self.config, self.current_session)
+        todo = (service.todo_context(self.config, self.current_session)
+                if service is not None else '')
         if todo:
             out.append({'role': 'system', 'content': todo})
         for turn in self.current_session.turns:

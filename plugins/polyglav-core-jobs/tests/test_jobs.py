@@ -984,6 +984,20 @@ class TestJobsCli(unittest.TestCase):
         registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
         self.assertEqual(registry.find('probe').mode, 'read')
 
+    def test_run_ctrl_c_returns_130(self):
+        cmd_jobs = _cli_module.cmd_jobs
+        registry = JobRegistry(self.base / '.polyglav' / 'jobs.json')
+        registry.put(Job('nightly', {'interval': 60}, prompt='p',
+                         status='approved'))
+        scheduler = SimpleNamespace(run_job=MagicMock(
+            side_effect=KeyboardInterrupt))
+        with patch.object(_cli_module, 'JobScheduler',
+                          return_value=scheduler):
+            with patch('sys.stdout', new=io.StringIO()) as buf:
+                code = cmd_jobs(self._args(action='run', name='nightly'))
+        self.assertEqual(code, 130)
+        self.assertIn('cancelled', buf.getvalue())
+
     def test_build_engine_defaults_to_write_mode(self):
         _build_engine = _scheduler_module._build_engine
         job = Job('m', {'interval': 3600}, prompt='p', status='approved')

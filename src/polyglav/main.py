@@ -168,6 +168,7 @@ def main(argv=None):
         pass
     except KeyboardInterrupt:
         print()
+        return 130
     except Exception as e:
         print(f'\nUnexpected error: {e}', file=sys.stderr)
         sys.exit(1)

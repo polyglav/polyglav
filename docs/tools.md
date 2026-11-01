@@ -61,7 +61,7 @@ The ask is not additionally gated: `tool_permission.ask` defaults to `allow`, si
 4. Each result is appended as a `tool` message (with `tool_call_id` and the tool name), plus a one-line `analysis` when `tool_analysis` is enabled.
 5. The loop continues with the enriched context until the model answers.
 
-Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a `(cancelled)` note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (`n` still declines just that tool). Headless behavior mirrors this, and `polyglav run` exits non-zero on a cancelled turn.
+Ctrl-C pauses the root turn: streaming stops, partial output is persisted, `(paused)` prints, and the prompt returns. `/continue` resumes it and `/cancel` closes it. Ctrl-C on a child run cancels that child and returns a cancelled result to the parent, which continues. At a Y/n confirm, Ctrl-C cancels the tool and follows the same root or child rule. Idle Ctrl-C prints a hint, and a second Ctrl-C within two seconds exits. `polyglav run` exits `130` when interrupted, `polyglav jobs run` reports a cancelled run and exits `130`, `serve` and the job daemon stop cleanly, and fleet Ctrl-C is a graceful down that escalates to `SIGKILL` after the grace period.
 
 ## Inspecting a tool
 
