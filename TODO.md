@@ -46,10 +46,7 @@
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
 - [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
 - [ ] Move `plan_write`, `todo`, `/plan`, `/plans`, `/todo`, and `/todos` to the bookkeeping plugin
-- [ ] Add a session tool log - one `<session>.tools.log` beside the session, with line-range refs and summaries
-- [ ] Remove `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes`
 - [ ] Move tool config, permissions, and tests into the owning plugins
-- [ ] Add `tool_output_log` and remove age retention
 
 - [ ] Remove legacy config keys without migration - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `provider`
 - [ ] Change model config - one `model` ref, optional `base_url`, and the connection in `providers.json`
@@ -144,6 +141,9 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Added the session tool log
+- [x] Removed tool output caps and spill
+- [x] Added tool_output_log
 - [x] Changed the core boundary
 - [x] Added plugin docs for ownership, defaults, and dependencies
 - [x] Added plugin tests for every extracted command and tool

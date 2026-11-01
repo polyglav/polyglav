@@ -244,19 +244,16 @@ class TestConfigMerge(_IsolatedConfigBase):
         self.assertEqual(permissions['mcp'], 'ask')
 
     def test_lists_and_scalars_replace(self):
-        self.write_local({'tools_output_drop': ['web_fetch'],
+        self.write_local({'tools.deny': ['web_fetch'],
                           'temperature': 0.1})
         c = Config(path=str(self.project))
-        self.assertEqual(c.get('tools_output_drop'), ['web_fetch'])
+        self.assertEqual(c.get('tools.deny'), ['web_fetch'])
         self.assertEqual(c.get('temperature'), 0.1)
 
-    def test_legacy_output_key_aliases_are_gone(self):
-        self.write_local({'noise_tools': ['web_fetch'],
-                          'session_tool_max_chars': 25})
+    def test_tool_output_log_defaults_on(self):
         c = Config(path=str(self.project))
-        self.assertEqual(c.get('tools_output_drop'),
-                         ['web_fetch', 'open', 'fetch_page'])
-        self.assertEqual(c.get('tools_output_max_chars'), 0)
+        self.assertTrue(c.get('tool_output_log'))
+        self.assertIsNone(c.get('tools_output_max_chars'))
 
     def test_reload_keeps_nested_defaults(self):
         self.write_local({'tool_permission': {'bash': 'allow'}})

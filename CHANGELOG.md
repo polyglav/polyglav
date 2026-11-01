@@ -2,6 +2,9 @@
 
 ## v0.50.0
 
+- Added the session tool log - every tool result appends to `<session>.tools.log` with a line-range ref, byte and line counts, and a summary, and the session keeps the summary instead of the full text
+- Removed tool output caps and spill - `tools_output_max_chars`, `tools_output_drop`, `tools_output_spill`, `tools_output_dir`, and `tools_output_tmp_max_bytes` are gone, and session deletion removes the sidecar
+- Added tool_output_log - tool results append to the session sidecar by default, and disabling it keeps inline output
 - Changed the core boundary - the core keeps the loop, registries, policy, provider base, config, sessions, and runs, while the optional surfaces and their config live in plugins with documented ownership, defaults, and dependencies
 - Moved UI rendering and display config into the REPL plugin - `ReplUI`, `SubRunUI`, prompt and spinner behavior, and the display config keys now live in `polyglav-core-repl`, while the core keeps headless, null, glyph, markdown, and prompt primitives
 - Added the external plugin test contract - `polyglav plugins test` runs bundled and external plugin suites, and an unimportable test module now fails instead of being skipped

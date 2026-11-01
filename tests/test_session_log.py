@@ -60,17 +60,6 @@ class TestSessionModel(unittest.TestCase):
         turns.finish_tool(part, 'result')
         self.assertNotIn('call_id', s.to_dict()['turns'][0]['parts'][1])
 
-    def test_max_chars_truncates_persisted_only(self):
-        s = Session('s1')
-        s.add_user('hi')
-        part = s.add_tool('web_search', {})
-        turns.finish_tool(part, 'x' * 100)
-        d = s.to_dict(max_chars=20)
-        tool = d['turns'][0]['parts'][1]
-        self.assertTrue(tool['output'].startswith('x' * 20))
-        self.assertIn('truncated from 100 chars', tool['output'])
-        self.assertEqual(part['output'], 'x' * 100)
-
     def test_created_at_defaults_to_now(self):
         s = Session('s1')
         self.assertTrue(s.created_at)
@@ -230,48 +219,16 @@ class TestSessionModel(unittest.TestCase):
         finally:
             tmp.cleanup()
 
-    def test_delete_removes_spill_dir(self):
+    def test_delete_removes_tool_log(self):
         tmp = tempfile.TemporaryDirectory()
         try:
             sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
             s = sm.create('sess')
             sm.save(s)
-            spill = sm.tmp_dir / 'sess' / '1_0.txt'
-            spill.parent.mkdir(parents=True)
-            spill.write_text('x')
+            log = sm.sessions_dir / 'sess.tools.log'
+            log.write_text('# body\n')
             self.assertTrue(sm.delete('sess'))
-            self.assertFalse(spill.parent.exists())
-        finally:
-            tmp.cleanup()
-
-    def test_prune_tmp_removes_oldest_over_cap(self):
-        tmp = tempfile.TemporaryDirectory()
-        try:
-            sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
-            root = sm.tmp_dir / 'sess'
-            root.mkdir(parents=True)
-            old = root / 'old.txt'
-            new = root / 'new.txt'
-            old.write_text('a' * 60)
-            new.write_text('b' * 60)
-            os.utime(old, (1000, 1000))
-            os.utime(new, (2000, 2000))
-            sm.prune_tmp(60)
-            self.assertFalse(old.exists())
-            self.assertTrue(new.exists())
-        finally:
-            tmp.cleanup()
-
-    def test_prune_tmp_zero_is_unlimited(self):
-        tmp = tempfile.TemporaryDirectory()
-        try:
-            sm = SessionManager(Path(tmp.name) / '.polyglav' / 'sessions')
-            root = sm.tmp_dir / 'sess'
-            root.mkdir(parents=True)
-            kept = root / 'a.txt'
-            kept.write_text('x' * 100)
-            sm.prune_tmp(0)
-            self.assertTrue(kept.exists())
+            self.assertFalse(log.exists())
         finally:
             tmp.cleanup()
 
@@ -288,126 +245,18 @@ class TestSessionModel(unittest.TestCase):
         finally:
             tmp.cleanup()
 
-    def test_save_applies_max_chars_to_file(self):
-        tmp = tempfile.TemporaryDirectory()
-        try:
-            sm = SessionManager(Path(tmp.name))
-            s = sm.create('cap')
-            s.add_user('hi')
-            part = s.add_tool('web_search', {})
-            turns.finish_tool(part, 'x' * 50)
-            sm.save(s, max_chars=10)
-            with open(sm.sessions_dir / 'cap.json') as f:
-                data = json.load(f)
-            self.assertIn('truncated from 50 chars',
-                          data['turns'][0]['parts'][1]['output'])
-            self.assertEqual(part['output'], 'x' * 50)
-        finally:
-            tmp.cleanup()
-
-    def test_to_dict_drops_listed_tool_content(self):
+    def test_tool_ref_keeps_summary(self):
         s = Session('s1')
         s.add_user('hi')
         part = s.add_tool('fetch_page', {'url': 'x'})
-        turns.finish_tool(part, 'huge page content' * 50)
-        d = s.to_dict(drop_tools=['fetch_page'])
+        turns.finish_tool(part, 'full page body')
+        part['ref'] = '.polyglav/sessions/s1.tools.log#L1-L3'
+        part['summary'] = 'full page body'
+        d = s.to_dict()
         tool = d['turns'][0]['parts'][1]
-        self.assertIn('excluded from log', tool['output'])
-        self.assertEqual(tool['dropped'],
-                         {'reason': 'drop', 'original_chars': 850})
-        self.assertEqual(part['output'], 'huge page content' * 50)
-
-    def test_max_chars_records_dropped_provenance(self):
-        s = Session('s1')
-        s.add_user('hi')
-        part = s.add_tool('web_search', {})
-        turns.finish_tool(part, 'x' * 100)
-        d = s.to_dict(max_chars=20)
-        self.assertEqual(d['turns'][0]['parts'][1]['dropped'],
-                         {'reason': 'max_chars', 'original_chars': 100})
-
-    def test_to_dict_keeps_unlisted_tool_content(self):
-        s = Session('s1')
-        s.add_user('hi')
-        part = s.add_tool('web_search', {})
-        turns.finish_tool(part, 'search results')
-        d = s.to_dict(drop_tools=['fetch_page'])
-        tool = d['turns'][0]['parts'][1]
-        self.assertEqual(tool['output'], 'search results')
-        self.assertNotIn('dropped', tool)
-
-    def test_spill_writes_dropped_output_and_ref(self):
-        tmp = tempfile.TemporaryDirectory()
-        try:
-            base = Path(tmp.name) / '.polyglav'
-            s = Session('s1')
-            s.add_user('hi')
-            part = s.add_tool('fetch_page', {'url': 'x'})
-            turns.finish_tool(part, 'full page body')
-            calls = []
-
-            def spill(name, text):
-                path = base / 'tmp' / 's1' / name
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text)
-                calls.append((name, text))
-                return str(path.relative_to(base.parent))
-
-            d = s.to_dict(drop_tools=['fetch_page'], spill=spill)
-            tool = d['turns'][0]['parts'][1]
-            self.assertEqual(tool['dropped']['ref'],
-                             '.polyglav/tmp/s1/1_1.txt')
-            self.assertEqual(calls, [('1_1.txt', 'full page body')])
-            self.assertTrue((base / 'tmp' / 's1' / '1_1.txt').exists())
-        finally:
-            tmp.cleanup()
-
-    def test_spill_for_capped_output(self):
-        tmp = tempfile.TemporaryDirectory()
-        try:
-            base = Path(tmp.name) / '.polyglav'
-            s = Session('s1')
-            s.add_user('hi')
-            part = s.add_tool('web_search', {})
-            turns.finish_tool(part, 'x' * 50)
-
-            def spill(name, text):
-                path = base / 'tmp' / 's1' / name
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(text)
-                return str(path.relative_to(base.parent))
-
-            d = s.to_dict(max_chars=10, spill=spill)
-            dropped = d['turns'][0]['parts'][1]['dropped']
-            self.assertEqual(dropped['reason'], 'max_chars')
-            self.assertEqual(dropped['ref'], '.polyglav/tmp/s1/1_1.txt')
-            self.assertEqual((base / 'tmp' / 's1' / '1_1.txt').read_text(),
-                             'x' * 50)
-        finally:
-            tmp.cleanup()
-
-    def test_no_spill_ref_when_spill_is_none(self):
-        s = Session('s1')
-        s.add_user('hi')
-        part = s.add_tool('fetch_page', {'url': 'x'})
-        turns.finish_tool(part, 'page body')
-        d = s.to_dict(drop_tools=['fetch_page'])
-        self.assertNotIn('ref', d['turns'][0]['parts'][1]['dropped'])
-
-    def test_existing_dropped_ref_is_reused_without_spill(self):
-        s = Session('s1')
-        s.add_user('hi')
-        part = s.add_tool('fetch_page', {'url': 'x'})
-        turns.finish_tool(part, 'page body')
-        part['output'] = 'marker'
-        part['dropped'] = {'reason': 'drop', 'original_chars': 9,
-                           'ref': '.polyglav/tmp/s1/1_1.txt'}
-        calls = []
-        d = s.to_dict(drop_tools=['fetch_page'],
-                      spill=lambda name, text: calls.append(name) or 'new')
-        self.assertEqual(calls, [])
-        dropped = d['turns'][0]['parts'][1]['dropped']
-        self.assertEqual(dropped['ref'], '.polyglav/tmp/s1/1_1.txt')
+        self.assertEqual(tool['output'], 'full page body')
+        self.assertEqual(tool['ref'], '.polyglav/sessions/s1.tools.log#L1-L3')
+        self.assertEqual(part['output'], 'full page body')
 
     def test_read_does_not_switch_current(self):
         tmp = tempfile.TemporaryDirectory()
@@ -496,23 +345,19 @@ class TestSessionLogLoop(unittest.TestCase):
         self.assertEqual(tool['call_id'], 'call_test123')
         self.assertIn('duration', tool)
 
-    def test_auto_save_spills_when_enabled(self):
-        self.chat.config.set('tools_output_spill', True)
+    def test_auto_save_writes_tool_log_ref(self):
         session = self.chat.current_session
         part = session.add_tool('fetch_page', {'url': 'x'})
         turns.finish_tool(part, 'page body')
+        self.chat._store_tool_output(part, 'page body', 1, 0, 'fetch_page')
         type(self.chat).session_auto_save(self.chat)
-        base = self.chat.sessions.sessions_dir.parent
-        path = base / 'tmp' / session.session_name / '1_0.txt'
-        self.assertTrue(path.exists())
-        self.assertEqual(path.read_text(), 'page body')
         with open(self.chat.sessions.sessions_dir
                   / f'{session.session_name}.json') as f:
             data = json.load(f)
-        dropped = data['turns'][0]['parts'][0]['dropped']
-        self.assertEqual(
-            dropped['ref'],
-            f'.polyglav/tmp/{session.session_name}/1_0.txt')
+        tool = data['turns'][0]['parts'][0]
+        self.assertTrue(tool['ref'].endswith('.tools.log#L1-L4'))
+        self.assertEqual(tool['summary'], 'page body')
+        self.assertEqual(tool['output'], 'page body')
 
     def test_session_new_stamps_current_role(self):
         self.chat.role = 'assistant'

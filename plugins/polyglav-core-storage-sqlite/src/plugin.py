@@ -20,11 +20,8 @@ class SQLiteSessionStore:
     def _connect(self):
         return sqlite3.connect(self.path)
 
-    def save(self, session, max_chars: int = 0,
-             drop_tools: list[str] | None = None, spill=None) -> None:
-        data = json.dumps(session.to_dict(
-            max_chars=max_chars, drop_tools=drop_tools, spill=spill),
-            separators=(',', ':'))
+    def save(self, session) -> None:
+        data = json.dumps(session.to_dict(), separators=(',', ':'))
         with closing(self._connect()) as db:
             with db:
                 db.execute(

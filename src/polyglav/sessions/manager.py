@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -211,49 +210,15 @@ class Session:
                 return ended
         return self.updated_at
 
-    def to_dict(self, max_chars: int = 0, drop_tools: list[str] | None = None,
-                spill=None):
-        drop_tools = set(drop_tools or [])
+    def to_dict(self):
         out_turns = []
         for turn in self.turns:
             serialized = {k: v for k, v in turn.items() if k != 'parts'}
             parts = []
-            for index, part in enumerate(turn.get('parts') or []):
+            for part in turn.get('parts') or []:
                 p = dict(part)
-                output = p.get('output')
-                if p.get('type') == 'tool' and isinstance(output, str):
-                    dropped = p.get('dropped') or {}
-                    ref = str(p.get('ref') or dropped.get('ref') or '')
-                    if not ref and spill is not None:
-                        try:
-                            ref = spill(
-                                f'{turn.get("index", 0)}_{index}.txt',
-                                output)
-                        except OSError:
-                            ref = ''
-                        if ref:
-                            p['ref'] = ref
-                    reason = ''
-                    if p.get('name') in drop_tools:
-                        if ref:
-                            p['output'] = (
-                                f'[{p["name"]} result excluded from log; '
-                                f'full output: {ref}]')
-                        else:
-                            p['output'] = (
-                                f'[{p["name"]} result excluded from log; '
-                                'see tool call above for parameters]')
-                        reason = 'drop'
-                    elif max_chars > 0 and len(output) > max_chars:
-                        p['output'] = output[:max_chars] + (
-                            f'… (truncated from {len(output)} chars)')
-                        reason = 'max_chars'
-                    if reason:
-                        dropped = {'reason': reason,
-                                   'original_chars': len(output)}
-                        if ref:
-                            dropped['ref'] = ref
-                        p['dropped'] = dropped
+                if p.get('type') == 'tool' and p.get('ref') and p.get('summary'):
+                    p['output'] = p['summary']
                 parts.append(p)
             serialized['parts'] = parts
             out_turns.append(serialized)
@@ -430,11 +395,9 @@ class SessionManager:
         if last is not None and last.get('status') in ('running', 'paused'):
             session._open = last
 
-    def _save_jsonl(self, session: Session, max_chars: int = 0,
-                    drop_tools: list[str] | None = None, spill=None) -> None:
+    def _save_jsonl(self, session: Session) -> None:
         path = self.sessions_dir / f'{session.session_name}.jsonl'
-        data = session.to_dict(max_chars=max_chars, drop_tools=drop_tools,
-                               spill=spill)
+        data = session.to_dict()
         meta = {k: v for k, v in data.items() if k != 'turns'}
         meta_key = json.dumps(meta, sort_keys=True)
         turns_list = data.get('turns') or []
@@ -500,30 +463,24 @@ class SessionManager:
         except OSError:
             pass
 
-    def save(self, session: Session | None = None, max_chars: int = 0,
-             drop_tools: list[str] | None = None, spill=None):
+    def save(self, session: Session | None = None):
         s = session or self.current
         if s is None:
             return
         if not getattr(s, '_dirty', True):
             return
         if self.store is not None:
-            self.store.save(s, max_chars=max_chars, drop_tools=drop_tools,
-                            spill=spill)
+            self.store.save(s)
             s._dirty = False
             return
         if self.storage == 'jsonl':
-            self._save_jsonl(s, max_chars=max_chars, drop_tools=drop_tools,
-                             spill=spill)
+            self._save_jsonl(s)
             return
         path = self.sessions_dir / f'{s.session_name}.json'
         tmp = path.with_suffix('.json.tmp')
         try:
             with open(tmp, 'w') as f:
-                json.dump(s.to_dict(max_chars=max_chars,
-                                    drop_tools=drop_tools,
-                                    spill=spill), f,
-                          separators=(',', ':'))
+                json.dump(s.to_dict(), f, separators=(',', ':'))
             tmp.replace(path)
             s._dirty = False
         except OSError as e:
@@ -568,31 +525,7 @@ class SessionManager:
         walk(root, 0)
         return out
 
-    @property
-    def tmp_dir(self) -> Path:
-        return self.sessions_dir.parent / 'tmp'
-
-    def prune_tmp(self, max_bytes: int = 0) -> None:
-        if max_bytes <= 0:
-            return
-        root = self.tmp_dir
-        if not root.exists():
-            return
-        files = [p for p in root.rglob('*') if p.is_file()]
-        total = sum(p.stat().st_size for p in files)
-        if total <= max_bytes:
-            return
-        for path in sorted(files, key=lambda p: p.stat().st_mtime):
-            if total <= max_bytes:
-                break
-            try:
-                total -= path.stat().st_size
-                path.unlink()
-            except OSError:
-                pass
-
-    def delete(self, session_name: str,
-               extra_dirs: list[Path] | None = None) -> bool:
+    def delete(self, session_name: str) -> bool:
         found = bool(self.store.delete(session_name)) if self.store else False
         for suffix in ('.json', '.jsonl'):
             path = self.sessions_dir / f'{session_name}{suffix}'
@@ -600,8 +533,9 @@ class SessionManager:
                 path.unlink()
                 found = True
         if found:
-            shutil.rmtree(self.tmp_dir / session_name, ignore_errors=True)
-            for root in extra_dirs or []:
-                shutil.rmtree(Path(root) / session_name, ignore_errors=True)
+            try:
+                (self.sessions_dir / f'{session_name}.tools.log').unlink()
+            except OSError:
+                pass
             return True
         return False

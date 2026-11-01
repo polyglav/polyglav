@@ -87,6 +87,7 @@ DEFAULT_CONFIG = {
     'temperature': 0.7,
     'tool_calling': True,
     'tool_max_result_chars': 100000,
+    'tool_output_log': True,
     'tool_permission': {
         'ask': 'allow',
         'bash': 'ask',
@@ -103,11 +104,6 @@ DEFAULT_CONFIG = {
     },
     'tools.allow': [],
     'tools.deny': [],
-    'tools_output_drop': ['web_fetch', 'open', 'fetch_page'],
-    'tools_output_dir': '.polyglav/tmp/',
-    'tools_output_max_chars': 0,
-    'tools_output_spill': False,
-    'tools_output_tmp_max_bytes': 50000000,
 }
 
 VERBOSITY_SCOPES = ('thinking', 'output', 'status', 'tools', 'footer')
@@ -195,14 +191,10 @@ CONFIG_DESCRIPTIONS = {
     'temperature': 'Sampling temperature',
     'tool_calling': 'Enable OpenAI-compatible function calling',
     'tool_max_result_chars': 'Cap tool-result content returned to the model',
+    'tool_output_log': 'Append tool results to one log beside the session',
     'tool_permission': 'Category permission actions',
     'tools.allow': 'Name-level allowlist',
     'tools.deny': 'Name-level deny list',
-    'tools_output_drop': 'Tool results replaced by a marker in persisted sessions',
-    'tools_output_dir': 'Persistent tool output folder when tools_output_spill is on',
-    'tools_output_max_chars': 'Cap persisted tool-result content',
-    'tools_output_spill': 'Persist tool output to tools_output_dir instead of the system temp directory',
-    'tools_output_tmp_max_bytes': 'Cap on total spilled tool output size',
 }
 
 CONFIG_VALUE_INLINE = 40

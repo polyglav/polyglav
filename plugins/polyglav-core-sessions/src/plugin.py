@@ -228,8 +228,7 @@ def register_commands(commands):
             if not name:
                 print('Usage: /sessions delete <name>')
                 return
-            roots = chat.tool_output_roots() if hasattr(chat, 'tool_output_roots') else []
-            if chat.sessions.delete(name, extra_dirs=roots):
+            if chat.sessions.delete(name):
                 print(f'Deleted session: {name}')
             else:
                 print(f'Session not found: {name}')

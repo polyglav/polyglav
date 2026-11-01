@@ -13,7 +13,7 @@ from .commands.registry import CommandRegistry
 from .commands.builtins import register_builtins
 from .plugins.manager import PluginManager
 from .ui import NullUI, StatusMetrics, glyph, glyph_map
-from . import spill as spill_store
+from . import tool_log
 
 
 @dataclass
@@ -394,47 +394,32 @@ class Engine:
         probe = factory(base_url=base_url, api_key=api_key, model=model)
         return probe._fetch_models()
 
-    def tool_output_root(self) -> Path:
-        return spill_store.root_for(self.config, self.sessions.sessions_dir)
-
-    def tool_output_roots(self) -> list[Path]:
-        return spill_store.roots_for(self.config, self.sessions.sessions_dir)
+    def tool_log_path(self) -> Path:
+        return tool_log.path_for(self.sessions.sessions_dir,
+                                 self.current_session.session_name)
 
     def resolve_tool_ref(self, ref: str) -> str | None:
-        return spill_store.resolve(ref, self.sessions.sessions_dir)
+        return tool_log.resolve(ref, self.sessions.sessions_dir)
 
     def _store_tool_output(self, part: dict, output: str, turn_index: int,
-                           part_index: int) -> str:
+                           part_index: int, name: str = '') -> str:
         if not isinstance(output, str) or not output:
             return ''
+        if not self.config.get('tool_output_log', True):
+            return ''
         try:
-            ref = spill_store.write(
-                self.tool_output_root(), self.current_session.session_name,
-                turn_index, part_index, output, self.sessions.sessions_dir)
+            stored = tool_log.append(
+                self.sessions.sessions_dir, self.current_session.session_name,
+                turn_index, part_index, name, output)
         except OSError:
             return ''
-        part['ref'] = ref
-        return ref
+        part.update(stored)
+        return str(stored['ref'])
 
     def session_auto_save(self):
         if not (self.current_session and self.current_session.turns):
             return
-        name = self.current_session.session_name
-
-        def spill(filename: str, text: str) -> str:
-            return spill_store.write_file(
-                self.tool_output_root(), name, filename, text,
-                self.sessions.sessions_dir)
-
-        self.sessions.save(
-            self.current_session,
-            max_chars=self.config.get('tools_output_max_chars', 0),
-            drop_tools=self.config.get('tools_output_drop', []),
-            spill=spill,
-        )
-        max_bytes = self.config.get('tools_output_tmp_max_bytes', 0)
-        for root in self.tool_output_roots():
-            spill_store.prune(root, max_bytes)
+        self.sessions.save(self.current_session)
 
     def load_or_create_session(self, name: str | None = None):
         self.sessions.materialize(self.current_session)
@@ -1169,7 +1154,7 @@ class Engine:
             turn = self.current_session.open_turn()
             turn_index = turn.get('index', 0) if turn else 0
             part_index = max(0, len(turn.get('parts') or []) - 1) if turn else 0
-            ref = self._store_tool_output(part, output, turn_index, part_index)
+            ref = self._store_tool_output(part, output, turn_index, part_index, name)
             stored = self._with_output_ref(output, ref)
             turns.finish_tool(part, stored, is_error=output.startswith('Error'),
                               analysis=analysis, duration=duration)
