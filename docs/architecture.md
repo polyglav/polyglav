@@ -79,7 +79,6 @@ Plugins extend the core with tools, providers, commands, and services without ch
 ```
 src/polyglav/
 ├── __main__.py          # python -m polyglav
-├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 ├── cli.py               # headless entry points
 ├── commands/            # command registry + builtins
 ├── config.py            # JSON config (global + local merge)

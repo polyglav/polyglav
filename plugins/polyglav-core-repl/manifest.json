@@ -1,0 +1,18 @@
+{
+  "name": "polyglav-core-repl",
+  "version": "0.1.0",
+  "description": "Terminal REPL front-end - bundled with polyglav",
+  "polyglav_version": ">=0.49.0,<1.0",
+  "python": ">=3.11",
+  "entry": "src/plugin.py",
+  "provides": {
+    "tools": [],
+    "providers": [],
+    "commands": [
+      "/clear"
+    ],
+    "frontends": [
+      "repl"
+    ]
+  }
+}

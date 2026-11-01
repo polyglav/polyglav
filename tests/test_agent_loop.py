@@ -317,7 +317,7 @@ class TestAgentLoop(unittest.TestCase):
     def test_clear_screen_on_repl_start_default(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn('\033[3J\033[2J\033[H', out.getvalue())
 
@@ -325,7 +325,7 @@ class TestAgentLoop(unittest.TestCase):
         self.chat.config.data['clear_screen'] = False
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertNotIn('\033[3J\033[2J\033[H', out.getvalue())
         self.assertIn('Polyglav', out.getvalue())
@@ -334,7 +334,7 @@ class TestAgentLoop(unittest.TestCase):
         from polyglav import get_version
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn(f'v{get_version()}', out.getvalue())
 
@@ -343,14 +343,14 @@ class TestAgentLoop(unittest.TestCase):
         self.chat.config.data['show_version'] = False
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertNotIn(f'v{get_version()}', out.getvalue())
 
     def test_banner_shows_mode_and_model_line(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn('@ Read mode (ollama/test-model)', out.getvalue())
         self.assertIn('\033[90m@ Read mode', out.getvalue())
@@ -358,7 +358,7 @@ class TestAgentLoop(unittest.TestCase):
     def test_banner_shows_location_and_help_hint(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         value = out.getvalue()
         self.assertIn(str(self.chat.config.local_path.parent.parent), value)
@@ -368,7 +368,7 @@ class TestAgentLoop(unittest.TestCase):
         self.chat.current_session.mode = 'write'
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         self.assertIn('@ Write mode (ollama/test-model)', out.getvalue())
 

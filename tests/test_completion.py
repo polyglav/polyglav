@@ -13,14 +13,14 @@ class TestCompletion(unittest.TestCase):
         self.addCleanup(self.chat._tmp.cleanup)
 
     def _complete(self, line, text):
-        with patch('polyglav.chat.readline.get_line_buffer', return_value=line):
+        with patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value=line):
             return self.chat._completer(text, 0)
 
     def test_command_completion(self):
         self.assertEqual(self._complete('/he', '/he'), '/help ')
 
     def test_command_completion_exhausts(self):
-        with patch('polyglav.chat.readline.get_line_buffer', return_value='/he'):
+        with patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value='/he'):
             self.assertIsNone(self.chat._completer('/he', 1))
 
     def test_session_name_completion(self):
@@ -39,7 +39,7 @@ class TestCompletion(unittest.TestCase):
         self.assertEqual(self._complete('/plugins dis', 'dis'), 'disable ')
 
     def test_subcommand_completion_exhausts(self):
-        with patch('polyglav.chat.readline.get_line_buffer', return_value='/session zz'):
+        with patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value='/session zz'):
             self.assertIsNone(self.chat._completer('zz', 0))
 
     def test_plain_input_no_completion(self):
@@ -70,14 +70,14 @@ class TestCompletion(unittest.TestCase):
         self.assertEqual(self._complete('/models list olla', 'olla'), 'ollama ')
 
     def test_setup_readline_libedit_binding(self):
-        with patch('polyglav.chat.readline') as rl:
+        with patch('polyglav_core_repl_chat.readline') as rl:
             rl.__doc__ = 'libedit readline'
             self.chat._setup_readline()
             rl.set_completer_delims.assert_called_once_with(' \t\n')
             rl.parse_and_bind.assert_called_once_with('bind ^I rl_complete')
 
     def test_setup_readline_gnu_binding(self):
-        with patch('polyglav.chat.readline') as rl:
+        with patch('polyglav_core_repl_chat.readline') as rl:
             rl.__doc__ = 'GNU readline'
             self.chat._setup_readline()
             rl.parse_and_bind.assert_called_once_with('tab: complete')

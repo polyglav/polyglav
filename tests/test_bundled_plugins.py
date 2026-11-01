@@ -25,6 +25,7 @@ BUNDLED = {
     'polyglav-core-openai',
     'polyglav-core-opencode',
     'polyglav-core-providers',
+    'polyglav-core-repl',
     'polyglav-core-quality',
     'polyglav-core-roles',
     'polyglav-core-sessions',

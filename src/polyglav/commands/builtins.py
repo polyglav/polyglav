@@ -110,10 +110,6 @@ def register_builtins(registry):
         chat.session_auto_save()
         sys.exit(0)
 
-    @registry.register('clear', description='Clear the screen and reprint the header')
-    def clear_cmd(_=None):
-        chat.redraw()
-
     @registry.register('continue',
                        description='Resume the last active paused turn, or a parent or session ID')
     def continue_cmd(arg=''):

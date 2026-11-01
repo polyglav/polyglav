@@ -412,7 +412,7 @@ class TestHooks(PluginTestBase):
         frontend = registry.get('custom')
         self.assertIsNotNone(frontend)
         self.assertEqual(frontend.factory(self.config, self.pm), 'custom-front')
-        self.assertEqual(registry.names(), ['custom'])
+        self.assertEqual(registry.names(), ['custom', 'repl'])
 
     def test_duplicate_cli_command_is_plugin_error(self):
         import argparse

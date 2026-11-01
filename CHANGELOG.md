@@ -2,6 +2,7 @@
 
 ## v0.50.0
 
+- Added the REPL plugin - `polyglav-core-repl` owns `ChatLoop`, the `repl` front-end, and `/clear`, while the core keeps the UI primitives
 - Moved the jobs scheduler and job service into the jobs plugin - `polyglav-core-jobs` owns the job model, registry, scheduler, memory hooks, and one `cmd_jobs` handler shared by `/jobs` and `polyglav jobs`
 - Moved memory files and injection into the memory plugin - `polyglav-core-memory` owns memory storage, role and team injection, and `/memorize`, while callers use the `memory` service and skip memory when it is absent
 - Moved the skill registry into the skills plugin - `polyglav-core-skills` owns skill loading, saves, and prompt sections, while the engine resolves them through plugin services

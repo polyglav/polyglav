@@ -2,12 +2,13 @@ import io
 import unittest
 from unittest.mock import patch
 
-from polyglav.chat import _display_width
 from polyglav.ui import (
     CYAN, DIM, ITALIC_GRAY, MAGENTA, ORANGE, RED, YELLOW,
 )
 
-from tests.helpers import make_chat
+from tests.helpers import chat_module, make_chat
+
+_display_width = chat_module()._display_width
 
 
 class TestReplOutput(unittest.TestCase):
@@ -29,7 +30,7 @@ class TestReplOutput(unittest.TestCase):
     def test_header(self):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=EOFError):
+            with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
                 self.chat.run()
         value = out.getvalue()
         self.assertIn('Polyglav v', value)
@@ -54,7 +55,7 @@ class TestReplOutput(unittest.TestCase):
         self.assertIn('\033[J', value)
 
     def test_long_reprint_clears_all_wrapped_rows(self):
-        with patch('polyglav.chat._terminal_columns', return_value=10):
+        with patch('polyglav_core_repl_chat._terminal_columns', return_value=10):
             value = self._capture(lambda: self.chat._reprint_line('x' * 25))
         self.assertEqual(value.count('\033[A'), 3)
         self.assertIn('\033[J', value)

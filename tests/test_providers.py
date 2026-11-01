@@ -8,7 +8,9 @@ from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from polyglav.config import Config
-from polyglav.chat import ChatLoop
+from tests.helpers import chat_module
+
+ChatLoop = chat_module().ChatLoop
 from polyglav.plugins.manager import PluginManager
 from polyglav.providers import (
     PROVIDERS, detect_provider, merged_providers, OpenAICompatibleProvider,

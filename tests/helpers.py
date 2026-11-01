@@ -4,13 +4,35 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from polyglav.config import Config
-from polyglav.chat import ChatLoop
 from polyglav.sessions.manager import SessionManager
 from polyglav.runs import RunRegistry
 from polyglav.commands.registry import CommandRegistry
 from polyglav.commands.builtins import register_builtins
 from polyglav.plugins.manager import PluginManager
 from polyglav.ui import ReplUI
+
+
+_CHAT_MODULE = None
+
+
+def chat_module():
+    global _CHAT_MODULE
+    if _CHAT_MODULE is not None:
+        return _CHAT_MODULE
+    import importlib.util
+    import sys
+    path = (Path(__file__).resolve().parents[1] / 'plugins'
+            / 'polyglav-core-repl' / 'src' / 'chat.py')
+    spec = importlib.util.spec_from_file_location(
+        'polyglav_core_repl_chat', path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['polyglav_core_repl_chat'] = module
+    spec.loader.exec_module(module)
+    _CHAT_MODULE = module
+    return module
+
+
+ChatLoop = chat_module().ChatLoop
 
 
 def seed_roles(chat: ChatLoop, *names: str) -> None:

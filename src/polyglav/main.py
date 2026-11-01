@@ -2,7 +2,6 @@ import sys
 import argparse
 
 from .config import Config
-from .chat import ChatLoop
 from .plugins.manager import CLIRegistry, FrontendRegistry, PluginManager
 from . import get_version
 
@@ -128,15 +127,9 @@ def _build_parser(config, pm):
     return parser
 
 
-def _repl_frontend(config, plugin_manager):
-    return ChatLoop(config, plugin_manager=plugin_manager)
-
-
 def _frontends(pm):
     registry = FrontendRegistry()
     pm.register_frontends(registry)
-    if registry.get('repl') is None:
-        registry.register('repl', _repl_frontend, 'Terminal REPL')
     return registry
 
 

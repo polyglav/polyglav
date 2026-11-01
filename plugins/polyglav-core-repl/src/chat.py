@@ -5,11 +5,11 @@ import shutil
 import unicodedata
 from pathlib import Path
 
-from .config import Config, config_bool
-from .engine import Engine
-from .ui import DIM, MAGENTA, RESET, ReplUI
-from .modes import mode_color, resolve_mode, unknown_mode
-from . import get_version
+from polyglav.config import Config, config_bool
+from polyglav.engine import Engine
+from polyglav.ui import DIM, MAGENTA, RESET, ReplUI
+from polyglav.modes import mode_color, resolve_mode, unknown_mode
+from polyglav import get_version
 
 HISTFILE = '.polyglav_history'
 
@@ -152,7 +152,7 @@ class ChatLoop(Engine):
                     return options[state] + ' '
                 return None
         if head.endswith('/mode '):
-            from .modes import mode_list
+            from polyglav.modes import mode_list
             options = sorted(m.name for m in mode_list(self.config)
                              if m.name.startswith(text))
             if state < len(options):
@@ -331,7 +331,7 @@ class ChatLoop(Engine):
     def _open_output_log(self):
         if not config_bool(self.config.get('output_log', False)):
             return None
-        from .ui import TeeStream
+        from polyglav.ui import TeeStream
         worktree = self.config.local_path.parent.parent
         base = Path(str(self.config.get('output_log_dir', '.polyglav/output')
                          or '.polyglav/output'))

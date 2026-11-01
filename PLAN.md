@@ -15,7 +15,7 @@ The core keeps the loop, registry, policy, providers base, config, sessions, and
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| REPL plugin | M-L | a replaceable terminal front-end |
+| Move UI rendering into the REPL plugin | M | presentation outside the core |
 | Move bookkeeping to a plugin | S-M | optional plan and todo |
 | Plugin defaults and core boundary | S | opt-in autonomy and network |
 | Plugin docs and tests | S-M | maintained plugins |

@@ -795,7 +795,7 @@ class TestReadlineCompleter(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def _buffer(self, line):
-        return patch('polyglav.chat.readline.get_line_buffer', return_value=line)
+        return patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value=line)
 
     def _make_sessions(self, *names):
         for n in names:
@@ -1029,10 +1029,10 @@ class TestModeCompleter(unittest.TestCase):
         self.chat._tmp.cleanup()
 
     def test_mode_completes_names(self):
-        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode w'):
+        with patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value='/mode w'):
             self.assertEqual(self.chat._completer('w', 0), 'write ')
             self.assertIsNone(self.chat._completer('w', 1))
-        with patch('polyglav.chat.readline.get_line_buffer', return_value='/mode '):
+        with patch('polyglav_core_repl_chat.readline.get_line_buffer', return_value='/mode '):
             matches = []
             i = 0
             while True:

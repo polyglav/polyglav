@@ -81,6 +81,7 @@ DEFAULT_CONFIG = {
         'polyglav-core-openai',
         'polyglav-core-opencode',
         'polyglav-core-providers',
+        'polyglav-core-repl',
         'polyglav-core-roles',
         'polyglav-core-sessions',
         'polyglav-core-serve',

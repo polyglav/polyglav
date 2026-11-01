@@ -2,9 +2,12 @@ import io
 import unittest
 from unittest.mock import MagicMock, patch
 
-from polyglav.chat import _open_delim, _strip_framing
 from polyglav.ui import CYAN, MAGENTA, ORANGE
-from tests.helpers import make_chat
+from tests.helpers import chat_module, make_chat
+
+_chat = chat_module()
+_open_delim = _chat._open_delim
+_strip_framing = _chat._strip_framing
 
 
 class TestOpenDelim(unittest.TestCase):
@@ -72,8 +75,8 @@ class TestReplInput(unittest.TestCase):
     def _run(self, lines):
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=lines):
-                with patch('polyglav.chat.readline'):
+            with patch('polyglav_core_repl_chat.input', side_effect=lines):
+                with patch('polyglav_core_repl_chat.readline'):
                     self.chat.run()
         return out.getvalue()
 
@@ -165,8 +168,8 @@ class TestOutputLog(unittest.TestCase):
         self.chat.chat = MagicMock()
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            with patch('polyglav.chat.input', side_effect=list(lines)):
-                with patch('polyglav.chat.readline'):
+            with patch('polyglav_core_repl_chat.input', side_effect=list(lines)):
+                with patch('polyglav_core_repl_chat.readline'):
                     self.chat.run()
         return self.chat.config.local_path.parent.parent
 
@@ -235,8 +238,8 @@ class TestOutputLog(unittest.TestCase):
         with patch.object(self.chat._plugin_manager, 'register_startup',
                           add_hook):
             with patch('sys.stdout', new=out):
-                with patch('polyglav.chat.input', side_effect=EOFError):
-                    with patch('polyglav.chat.readline'):
+                with patch('polyglav_core_repl_chat.input', side_effect=EOFError):
+                    with patch('polyglav_core_repl_chat.readline'):
                         self.chat.run()
         value = out.getvalue()
         self.assertLess(value.index('Polyglav'), value.index('STARTUP-MARKER'))
