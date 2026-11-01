@@ -66,6 +66,14 @@ The entry module may sit anywhere under the plugin directory. The `manifest.json
 { "name": "polyglav-core-teams", "depends": ["polyglav-core-roles"] }
 ```
 
+### Core boundary and ownership
+
+The core keeps the agent loop, `ToolRegistry`, command dispatch, `ToolPolicy`, the provider base and registry, config, sessions, runs, the plugin manager, modes, and the `ask`, `delegate`, and `catalog` tools. Headless, null, glyph, markdown, and prompt primitives stay in the core so `polyglav run` and `polyglav serve` work without a terminal plugin.
+
+Plugins own the optional surfaces: roles, teams, skills, memory, jobs, fleet, MCP, webhook, eval, quality, sessions rendering and export, serve, providers, and the REPL. Each plugin declares its commands, tools, services, frontends, and config keys in `provides`. A plugin that owns a service exports it through `register_services`, and core features resolve it by name and degrade cleanly when it is absent.
+
+Defaults are explicit. The everyday bundled set is enabled in `DEFAULT_CONFIG['plugins']`, while jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled. Enabling a dependent plugin without its dependency is an error, not a silent fallback.
+
 ## Entry contract
 
 The entry module may define any of eleven hooks (all optional):
@@ -96,7 +104,9 @@ Plugin tools automatically inherit the tool permission policy, `/tool`, `/help`,
 
 ### Services
 
-`register_services` lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled `polyglav-core-web` registers `services['search']` with `search(query, num)`, `display(query, results)`, and `context(query, results)` methods (without it, that mode reports the service is unavailable instead of erroring). The bundled `polyglav-core-webhook` registers `services['report']` with a `report(payload, config)` method: the scheduler calls it once per completed job run with a `job.run.completed` payload and its `Config`, so the connector reads its own keys (e.g. `report.webhook`) and posts the report. Any plugin can register a `report` service the same way to deliver run summaries elsewhere (email, chat, a local log). See [jobs.md](jobs.md#report-back).
+`register_services` lets a plugin power a core feature that is not tool-calling. The core resolves services by name and degrades when one is absent. The main services are `search` from `polyglav-core-web`, `report` from `polyglav-core-webhook`, `session_store` from `polyglav-core-storage-sqlite`, `role_registry` from `polyglav-core-roles`, `team_registry` and `team_runner` from `polyglav-core-teams`, `skill_registry` and `skills_section` from `polyglav-core-skills`, `memory` from `polyglav-core-memory`, and `job_registry`, `job_scheduler`, and `job_service` from `polyglav-core-jobs`.
+
+The bundled `polyglav-core-web` registers `services['search']` with `search(query, num)`, `display(query, results)`, and `context(query, results)` methods (without it, that mode reports the service is unavailable instead of erroring). The bundled `polyglav-core-webhook` registers `services['report']` with a `report(payload, config)` method: the scheduler calls it once per completed job run with a `job.run.completed` payload and its `Config`, so the connector reads its own keys (e.g. `report.webhook`) and posts the report. Any plugin can register a `report` service the same way to deliver run summaries elsewhere (email, chat, a local log). See [jobs.md](jobs.md#report-back).
 
 ### Roles, teams, and skills
 

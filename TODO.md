@@ -42,9 +42,6 @@
 
 
 - [ ] Add the `/spawn` command - launch and supervise a scoped serve agent from the REPL
-- [ ] Change the core boundary - keep loop, registry, policy, provider base, config, sessions, and runs
-- [ ] Add plugin docs for ownership, defaults, and dependencies
-- [ ] Add plugin tests for every extracted command and tool
 
 - [ ] Add job supervisor routing - a job asks its supervisor role, default `assistant`, and never a human
 - [ ] Change the catalog - a core registry service and one `catalog` tool over registered adapters, with no catalog plugin
@@ -147,6 +144,9 @@
 - [ ] Add session interchange - Markdown import and shareable or published sessions
 
 ## Done
+- [x] Changed the core boundary
+- [x] Added plugin docs for ownership, defaults, and dependencies
+- [x] Added plugin tests for every extracted command and tool
 - [x] Moved UI rendering and display config into the REPL plugin
 - [x] Added the external plugin test contract
 - [x] Changed plugin defaults
