@@ -659,21 +659,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#unattended-mode" class="md-nav__link">
+  <a href="#exec_allow-command-allowlist-for-run_command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unattended mode
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bash_allow-command-allowlist-for-run_command" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        bash_allow - command allowlist for run_command
+        exec_allow - command allowlist for run_command
       
     </span>
   </a>
@@ -1366,21 +1355,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#unattended-mode" class="md-nav__link">
+  <a href="#exec_allow-command-allowlist-for-run_command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unattended mode
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bash_allow-command-allowlist-for-run_command" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        bash_allow - command allowlist for run_command
+        exec_allow - command allowlist for run_command
       
     </span>
   </a>
@@ -1481,7 +1459,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">s
 polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>max_tokens<span class="w"> </span><span class="m">0</span><span class="w"> </span>--global<span class="w">        </span><span class="c1"># global file</span>
 polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>max_tokens<span class="w">                 </span><span class="c1"># remove from project-local</span>
 </code></pre></div>
-<p>Deleting a project's <code>.polyglav/config.json</code> reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with <code>--global</code> (accepted by both the REPL <code>/config</code> and the CLI), e.g. <code>/config --global provider ollama</code>, <code>/config --global model &lt;model&gt;</code>.</p>
+<p>Deleting a project's <code>.polyglav/config.json</code> reverts it to the global and built-in defaults. To keep settings across local deletions, set them globally with <code>--global</code> (accepted by both the REPL <code>/config</code> and the CLI), e.g. <code>/config --global model &lt;provider&gt;/&lt;model&gt;</code>.</p>
 <h2 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1508,14 +1486,9 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Routing for the <code>ask</code> tool by kind (<code>permission</code>/<code>direction</code>)</td>
 </tr>
 <tr>
-<td><code>auto_continue</code></td>
-<td><code>true</code></td>
-<td>On truncation (<code>finish_reason=length</code>) with a partial answer, re-request with a "continue" instruction and stitch the parts into one message</td>
-</tr>
-<tr>
 <td><code>auto_continue_max</code></td>
 <td><code>2</code></td>
-<td>Max continuation rounds per turn before reporting truncation</td>
+<td>Max continuation rounds per turn on truncation. <code>0</code> turns continuation off</td>
 </tr>
 <tr>
 <td><code>base_url</code></td>
@@ -1535,22 +1508,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>confirm_timeout</code></td>
 <td><code>0</code></td>
-<td>Seconds a REPL confirm/ask prompt waits for input before auto-denying (<code>0</code> = wait forever). Applies at any depth, so an unattended-but-watched run still cannot freeze on a prompt. See <a href="#unattended-mode">Unattended mode</a></td>
-</tr>
-<tr>
-<td><code>connect_check</code></td>
-<td><code>true</code></td>
-<td>Test the provider connection on config changes: <code>/connect</code> probes before saving (broken values rejected unless confirmed), <code>/provider</code> warns on a failed probe. <code>false</code> skips all probes</td>
+<td>Seconds a REPL confirm/ask prompt waits for input before auto-denying (<code>0</code> = wait forever). Applies at any depth</td>
 </tr>
 <tr>
 <td><code>delegate_depth</code></td>
 <td><code>1</code></td>
 <td>Maximum nested <code>delegate</code> siblings. <code>0</code> = unlimited. A sibling cannot spawn another until the user raises this. See <a href="../modes/">modes.md</a></td>
-</tr>
-<tr>
-<td><code>footer_tokens</code></td>
-<td><code>["context"]</code></td>
-<td>Token counts the footer shows, in order, joined by <code>/</code>. <code>context</code> = <code>&lt;n&gt; tokens</code> (context/input size, chars/4 fallback), <code>in</code>/<code>out</code>/<code>thinking</code> = <code>&lt;n&gt;t</code> from provider usage (unavailable counts skipped). Empty list hides the section</td>
 </tr>
 <tr>
 <td><code>glyphs</code></td>
@@ -1590,12 +1553,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>mcp.servers</code></td>
 <td><code>[]</code></td>
-<td>MCP client server definitions (see <a href="../mcp/">mcp.md</a> for the schema)</td>
+<td>MCP client server definitions (owned by <code>polyglav-core-mcp</code>, see <a href="../mcp/">mcp.md</a>)</td>
 </tr>
 <tr>
 <td><code>mcp_server.allow_ask</code></td>
 <td><code>true</code></td>
-<td>When serving MCP, run <code>ask</code>-policy tools (deferred to the client) vs refuse them</td>
+<td>When serving MCP, run <code>ask</code>-policy tools (deferred to the client) vs refuse them (owned by <code>polyglav-core-mcp</code>)</td>
 </tr>
 <tr>
 <td><code>memory</code></td>
@@ -1620,7 +1583,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>model</code></td>
 <td><code>"llama3.2"</code></td>
-<td>Model name. A <code>provider/model</code> ref (e.g. <code>opencode-go/deepseek-v4-flash</code>) unfolds to that provider and model. <code>/model &lt;ref&gt;</code> persists only the ref, so a project config can be just <code>{"model": "provider/model"}</code>, while <code>provider</code>/<code>base_url</code> remain explicit overrides for <code>openai-compatible</code> and custom URL providers. An unfolded model must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
+<td>Model name or <code>provider/model</code> ref. The ref is the single source of truth: its prefix picks the provider, and a bare model uses <code>base_url</code> detection. <code>/model &lt;ref&gt;</code> stores the ref. A known ref must be approved (see <a href="../providers/#model-refs-and-approval">Model refs and approval</a>)</td>
 </tr>
 <tr>
 <td><code>output_log</code></td>
@@ -1648,19 +1611,9 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Plugins to load. Empty = all discovered plugins load</td>
 </tr>
 <tr>
-<td><code>print_max_chars</code></td>
-<td><code>4000</code></td>
-<td>Cap characters <code>/print</code> shows per part (<code>... (N more chars, use --full)</code> appended). <code>0</code> = unlimited, <code>--full</code> overrides for one call</td>
-</tr>
-<tr>
 <td><code>project_instructions</code></td>
 <td><code>"AGENTS.md"</code></td>
 <td>Per-worktree instructions file auto-loaded into the system prompt (e.g. <code>AGENTS.md</code>, <code>CLAUDE.md</code>). <code>""</code> disables. Absent files skipped, content capped at 20000 chars</td>
-</tr>
-<tr>
-<td><code>provider</code></td>
-<td><code>"ollama"</code></td>
-<td>Provider name. Bundled provider plugins (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>-opencode</code>) register <code>ollama</code>, <code>openai</code>, <code>groq</code>, <code>anthropic</code>, <code>opencode</code>, <code>opencode-go</code>. <code>openai-compatible</code> is the generic fallback. External plugins can register more</td>
 </tr>
 <tr>
 <td><code>query_refine</code></td>
@@ -1689,8 +1642,8 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 <tr>
 <td><code>search_results</code></td>
-<td><code>5</code></td>
-<td>Number of search results to fetch</td>
+<td><code>10</code></td>
+<td>Number of search results to fetch (owned by <code>polyglav-core-web</code>)</td>
 </tr>
 <tr>
 <td><code>show_version</code></td>
@@ -1718,11 +1671,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Sampling temperature</td>
 </tr>
 <tr>
-<td><code>tool_analysis</code></td>
-<td><code>false</code></td>
-<td>Model-generated one-line analysis of each tool result (log-only)</td>
-</tr>
-<tr>
 <td><code>tool_calling</code></td>
 <td><code>true</code></td>
 <td>Enable OpenAI-compatible function calling</td>
@@ -1731,6 +1679,11 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>tool_max_result_chars</code></td>
 <td><code>100000</code></td>
 <td>Cap tool-result content returned to the model (<code>... (truncated)</code> appended). <code>0</code> = unlimited. With the default, the model sizes files via the <code>file_read</code> header and pages with <code>offset</code>/<code>limit</code></td>
+</tr>
+<tr>
+<td><code>tool_output_log</code></td>
+<td><code>true</code></td>
+<td>Append every tool result to <code>&lt;session&gt;.tools.log</code> and keep a summary and line-range ref on the part. <code>false</code> keeps inline output</td>
 </tr>
 <tr>
 <td><code>tool_permission</code></td>
@@ -1746,36 +1699,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>tools.deny</code></td>
 <td><code>[]</code></td>
 <td>Name-level deny list (takes precedence over allow)</td>
-</tr>
-<tr>
-<td><code>tools_output_drop</code></td>
-<td><code>["web_fetch", "open", "fetch_page"]</code></td>
-<td>Tool results replaced by a marker with the ref in persisted sessions</td>
-</tr>
-<tr>
-<td><code>tools_output_dir</code></td>
-<td><code>".polyglav/tmp/"</code></td>
-<td>Persistent tool output folder used when <code>tools_output_spill</code> is on, relative to the worktree or absolute</td>
-</tr>
-<tr>
-<td><code>tools_output_max_chars</code></td>
-<td><code>0</code></td>
-<td><code>0</code> = unlimited. Caps the inline persisted tool-result content, while the full text stays at the ref</td>
-</tr>
-<tr>
-<td><code>tools_output_spill</code></td>
-<td><code>false</code></td>
-<td>Persist every tool result under <code>tools_output_dir</code> instead of the system temp directory. Every part records a <code>ref</code></td>
-</tr>
-<tr>
-<td><code>tools_output_tmp_max_bytes</code></td>
-<td><code>50000000</code></td>
-<td>Cap on the total size of the spill roots. Oldest files are removed past the cap. <code>0</code> = unlimited</td>
-</tr>
-<tr>
-<td><code>unattended</code></td>
-<td><code>false</code></td>
-<td>Unattended mode: no stdin is read at any depth. Confirms auto-deny and <code>ask target='user'</code> parks as a pending request (<code>.polyglav/asks.json</code>) instead of prompting. See <a href="#unattended-mode">Unattended mode</a></td>
 </tr>
 <tr>
 <td><code>verbosity</code></td>
@@ -1806,11 +1729,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td><code>verbosity.tools</code></td>
 <td><code>"inherit"</code></td>
 <td>Tool detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
-</tr>
-<tr>
-<td><code>web_search</code></td>
-<td><code>false</code></td>
-<td>Auto-search mode: search the web before answering</td>
 </tr>
 <tr>
 <td><code>word_streaming</code></td>
@@ -1859,12 +1777,11 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>plan.dir</code> is the plan file directory, relative to the worktree or absolute. The default is local and ignored by the <code>.polyglav/*</code> rule. Set it to a committed path, for example <code>docs/plans</code>, to keep plans in the repository. The todo state directory is fixed at <code>.polyglav/todos/</code>. <code>plan_write</code> and <code>todo</code> use the <code>read</code> permission key, so they are available in both modes and need no new permission. See <a href="../modes/">modes.md</a>.</p>
+<p><code>plan.dir</code> is the plan file directory, relative to the worktree or absolute. It is declared by <code>polyglav-core-bookkeeping</code>. The default is local and ignored by the <code>.polyglav/*</code> rule. Set it to a committed path, for example <code>docs/plans</code>, to keep plans in the repository. The todo state directory is fixed at <code>.polyglav/todos/</code>. <code>plan_write</code> and <code>todo</code> use the <code>read</code> permission key, so they are available in both modes and need no new permission. See <a href="../modes/">modes.md</a>.</p>
 <h3 id="tool_permission"><code>tool_permission</code><a class="headerlink" href="#tool_permission" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"ask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"bash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ask"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"bash_allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"pytest"</span><span class="p">,</span><span class="w"> </span><span class="s2">"python -m unittest"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ruff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"git"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"call"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"catalog"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"delegate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span>
@@ -1886,10 +1803,10 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><code>permission</code> is <code>auto</code> (ask the user) or <code>deny</code> (disable permission asks). <code>direction</code> always asks the user; <code>caller</code> and <code>auto</code> are accepted as <code>user</code> for one version. A sub-agent inherits the root <code>ReplUI</code> as <code>_ask_ui</code>, so its asks reach the terminal; under unattended mode they park instead.</p>
+<p><code>permission</code> is <code>auto</code> (ask the user) or <code>deny</code> (disable permission asks). <code>direction</code> always asks the user. A sub-agent inherits the root <code>ReplUI</code> as <code>_ask_ui</code>, so its asks reach the terminal.</p>
 <ul>
 <li><code>permission</code> - a sub-agent's request for a tool or write category it is not allowed to use (<code>ask(kind="permission", permission="bash")</code>). The user answers at the terminal. In <code>read</code> mode a request for a write key or for a category with declared write actions (for example <code>catalog save</code>) is redirected to a mode switch, since the action cannot take effect under the read cap (attended: the user is asked to switch, headless: the agent is told to use <code>ask(kind="direction")</code>). In <code>write</code> mode <code>auto</code> prompts the user, <code>deny</code> disables grants. A request above the mode-derived ceiling is always denied. The user may grant <code>always</code> (reusable for the rest of that sub-agent's run) or <code>once</code>. A user-routed ask offers <code>Approve once</code> / <code>Approve always</code> / <code>Deny</code>.</li>
-<li><code>direction</code> - a decision or scope change. It always asks the user; <code>caller</code> and <code>auto</code> are accepted as <code>user</code> for one version. An explicit <code>target</code> is no longer part of the schema.</li>
+<li><code>direction</code> - a decision or scope change. It always asks the user. An explicit <code>target</code> is no longer part of the schema.</li>
 </ul>
 <h3 id="permission-authority">Permission authority<a class="headerlink" href="#permission-authority" title="Permanent link">&para;</a></h3>
 <p>Every engine has two permission axes:</p>
@@ -1901,22 +1818,14 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <p>A sub-agent's effective permissions are the parent's <code>tool_permission</code>, narrowed by the role's <code>tool_permission</code> carve and capped by the mode-derived ceiling. The mode sets that ceiling: <code>write</code> makes write keys grantable, <code>read</code> denies them, and <code>grant_permission</code> (role or config) can only narrow the result. A role can never widen a category above the ceiling, so a sub-agent cannot gain a permission its caller was not authorized to delegate, and a sub-agent cannot escalate its mode past the caller's.</p>
 <p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them, as long as the session is in <code>write</code> mode.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The user may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>
-<h3 id="unattended-mode">Unattended mode<a class="headerlink" href="#unattended-mode" title="Permanent link">&para;</a></h3>
-<p><code>unattended: true</code> guarantees that nothing in a turn reads stdin, at any depth, so an overnight REPL run cannot freeze on a prompt. It applies to the whole sub-agent tree:</p>
+<h3 id="exec_allow-command-allowlist-for-run_command"><code>exec_allow</code> - command allowlist for <code>run_command</code><a class="headerlink" href="#exec_allow-command-allowlist-for-run_command" title="Permanent link">&para;</a></h3>
+<p><code>exec_allow</code> (list, default <code>[]</code>, declared by <code>polyglav-core-exec</code>) restricts <code>run_command</code> to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the <code>bash</code> action applies to every command). When set:</p>
 <ul>
-<li><strong>Confirms auto-deny.</strong> A tool whose policy action is <code>ask</code> (e.g. <code>run_command</code> with <code>bash: ask</code>) returns <code>[cancelled] User declined the &lt;name&gt; call</code> instead of prompting.</li>
-<li><strong><code>ask target='user'</code> parks instead of prompting.</strong> The root engine drops its terminal UI (<code>_ask_ui</code> is not propagated down the tree), and any user-routed ask becomes a pending request persisted in <code>.polyglav/asks.json</code>, returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code> so it continues or finishes. A sub-agent's user ask parks rather than consulting a caller, so the user decides. Permission asks park the same way.</li>
-<li><strong>Model approval is not prompted.</strong> An unapproved role/team model is denied (the run reports the error) unless the headless <code>approve_models</code> flag was passed. Launch with <code>--approve-model</code> if the run needs to approve one itself.</li>
-</ul>
-<p>Enable it per run with <code>polyglav --unattended</code> (not persisted), in config with <code>unattended: true</code>, or live with <code>/unattended</code>. Parked asks are listed and answered with <code>/asks</code> or the serve API (<code>GET /asks</code>, <code>POST /asks/&lt;id&gt;/answer</code>). Answering marks the ask answered and injects the answer into the origin session, so the next turn on that session resumes with the user's decision in context. Scheduled/durable job engines run unattended, so a job parks its user asks the same way. <code>confirm_timeout</code> (seconds, default <code>0</code> = forever) additionally makes attended confirm/ask prompts self-limiting, so a prompt left unanswered auto-denies instead of hanging.</p>
-<h3 id="bash_allow-command-allowlist-for-run_command"><code>bash_allow</code> - command allowlist for <code>run_command</code><a class="headerlink" href="#bash_allow-command-allowlist-for-run_command" title="Permanent link">&para;</a></h3>
-<p><code>tool_permission.bash_allow</code> (list, default <code>[]</code>) restricts <code>run_command</code> to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the <code>bash</code> action applies to every command). When set:</p>
-<ul>
-<li>Commands split into chained segments over <code>&amp;&amp;</code>, <code>||</code>, <code>;</code>, <code>|</code>, and <code>&amp;</code>. Every segment must start with an allowed prefix (e.g. <code>pytest -q &amp;&amp; ruff check .</code> needs both <code>pytest</code> and <code>ruff</code>).</li>
+<li>Commands split into chained segments over the shell chaining operators. Every segment must start with an allowed prefix (e.g. <code>pytest -q &amp;&amp; ruff check .</code> needs both <code>pytest</code> and <code>ruff</code>).</li>
 <li>Shell-script forms are rejected outright: multi-line commands and heredocs (<code>&lt;&lt;</code>) always return <code>deny</code>.</li>
 <li>A matching command falls through to the normal <code>bash</code> action (<code>ask</code> by default, <code>allow</code>/<code>deny</code> per config). A non-matching command is <code>deny</code>.</li>
 </ul>
-<p>The check runs through the per-invocation policy resolver, so it composes with modes, name-level <code>tools.deny</code>/<code>tools.allow</code>, and the worktree escalation. <code>bash_allow</code> gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.</p>
+<p>The check runs through the per-invocation policy resolver and a <code>_config</code> resolver argument, so it composes with modes, name-level <code>tools.deny</code>/<code>tools.allow</code>, and the worktree escalation. <code>exec_allow</code> gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.</p>
 <h2 id="model-registry-not-config">Model registry (not config)<a class="headerlink" href="#model-registry-not-config" title="Permanent link">&para;</a></h2>
 <p>Two global files live separately from config in <code>~/.config/polyglav/</code>. Neither is part of the config merge: <code>/config</code> never lists or writes them, and neither has a local scope.</p>
 <h3 id="provider-registry-providersjson">Provider registry (<code>providers.json</code>)<a class="headerlink" href="#provider-registry-providersjson" title="Permanent link">&para;</a></h3>
@@ -1934,7 +1843,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>api_key</code> lives here, one per provider, and is the only place API keys live.</li>
 <li><code>base_url</code> is the effective base URL of the connection: the preset provider default (e.g. <code>/connect ollama</code>) or a custom URL (<code>/connect &lt;url&gt;</code>). The engine falls back to it when the config leaves <code>base_url</code> empty.</li>
 <li>Managed through <code>/connect</code> (writes the key and any custom base URL). Re-running it re-enters a missing or stale key.</li>
-<li>The engine resolves the active provider's API key from this file (matching entry or <code>""</code>), falling back to a stored custom <code>base_url</code> when the config has none. There is no <code>api_key</code> config key anymore, and <code>polyglav config set api_key</code> would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.</li>
+<li>The engine resolves the active provider from the model ref and the provider entry. A manual <code>openai-compatible</code> entry in <code>providers.json</code> is the generic endpoint for a bare model or a custom OpenAI-compatible gateway. There is no <code>api_key</code> config key anymore, and <code>polyglav config set api_key</code> would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.</li>
 </ul>
 <h3 id="model-registry-modelsjson">Model registry (<code>models.json</code>)<a class="headerlink" href="#model-registry-modelsjson" title="Permanent link">&para;</a></h3>
 <p><code>~/.config/polyglav/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>

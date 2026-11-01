@@ -1056,10 +1056,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-a-tool-directly" class="md-nav__link">
+  <a href="#inspecting-a-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running a tool directly
+        Inspecting a tool
       
     </span>
   </a>
@@ -1348,10 +1348,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-a-tool-directly" class="md-nav__link">
+  <a href="#inspecting-a-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running a tool directly
+        Inspecting a tool
       
     </span>
   </a>
@@ -1496,15 +1496,22 @@
 <td>Manage roles, teams, and skills: list/show/save/validate/remove, plus reload</td>
 </tr>
 <tr>
-<td><code>code_format</code></td>
+<td><code>code_check</code></td>
 <td>polyglav-core-dev</td>
+<td><code>exec</code></td>
+<td><code>bash</code></td>
+<td>Check Python syntax with stdlib <code>compileall</code></td>
+</tr>
+<tr>
+<td><code>code_format</code></td>
+<td>polyglav-core-quality</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run the project formatter (<code>dev.format_cmd</code>, default <code>ruff format .</code>)</td>
 </tr>
 <tr>
 <td><code>code_lint</code></td>
-<td>polyglav-core-dev</td>
+<td>polyglav-core-quality</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
 <td>Run the project linter (<code>dev.lint_cmd</code>, default <code>ruff check .</code>)</td>
@@ -1521,7 +1528,7 @@
 <td>core</td>
 <td><code>delegate</code></td>
 <td><code>delegate</code></td>
-<td>Delegate a read-only sub-task to an anonymous sibling</td>
+<td>Delegate a sub-task to an anonymous sibling that inherits the caller mode and cap</td>
 </tr>
 <tr>
 <td><code>file_edit</code></td>
@@ -1591,7 +1598,7 @@
 <td>polyglav-core-exec</td>
 <td><code>exec</code></td>
 <td><code>bash</code></td>
-<td>Run a shell command with timeout (aliases <code>bash</code>, <code>exec</code>). Restricted by <code>tool_permission.bash_allow</code></td>
+<td>Run a shell command with timeout (aliases <code>bash</code>, <code>exec</code>). Restricted by <code>exec_allow</code></td>
 </tr>
 <tr>
 <td><code>todo</code></td>
@@ -1616,7 +1623,7 @@
 </tr>
 </tbody>
 </table>
-<p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>tools_output_drop</code>, and session logging. See <a href="../plugins/">plugins.md</a>.</p>
+<p>Plugins register additional tools the same way and automatically inherit tool policy, <code>/help</code>, query refinement, the session tool log. See <a href="../plugins/">plugins.md</a>.</p>
 <h2 id="asking-the-user">Asking the user<a class="headerlink" href="#asking-the-user" title="Permanent link">&para;</a></h2>
 <p>The <code>ask</code> tool (core, like <code>call</code>) pauses the run and routes a decision or permission request to the user, so a sub-agent or team stage gets a decision mid-run instead of returning open questions at the end. Schema: <code>question</code> (required), <code>context</code>, <code>options</code> (suggested answers), <code>kind</code> (<code>permission</code>/<code>direction</code>, default <code>direction</code>), and <code>permission</code> (the tool or category for a permission request):</p>
 <ul>
@@ -1625,7 +1632,7 @@
 <li>A <code>kind='direction'</code> ask must be self-contained. A question shorter than <code>ask_min_question_chars</code> with no <code>context</code> and no <code>options</code> is rejected with an error, so a placeholder such as <code>probe</code> cannot reach a person. <code>0</code> disables the guard.</li>
 <li>Options render as a numbered block (<code>1) opt</code>), and the answer prompt is <code>&gt;</code> at column 0 in the mode color. The answer accepts a number, a letter (<code>a</code>, <code>b</code>), or the option text, and any other input is a free-text answer.</li>
 <li>The ask prints as its own block: the origin header for a sub-agent ask, the gray question, then the context, then the numbered options, then the <code>&gt;</code> prompt. The spinner stops before the block so the question is never appended to a status line.</li>
-<li>When no one can answer (headless <code>run</code>/<code>serve</code>/jobs with no terminal), <code>ask</code> returns an <code>Error: ask has no one to answer ...</code> result and the run continues autonomously, or parks under unattended mode. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see <a href="../jobs/">jobs.md</a>).</li>
+<li>When no one can answer (headless <code>run</code>/<code>serve</code>/jobs with no terminal), <code>ask</code> returns an <code>Error: ask has no one to answer ...</code> result and the run continues autonomously. It never blocks on stdin outside the REPL. The asynchronous "pause a job and wait for a user reply over a connector" variant is tracked separately (see <a href="../jobs/">jobs.md</a>).</li>
 </ul>
 <p>The ask is not additionally gated: <code>tool_permission.ask</code> defaults to <code>allow</code>, since the question and answer are the point. Users can block it with <code>tools.deny: ["ask"]</code>. The question (tool arguments) and answer (tool result) persist in the asking session's log, and the call is recorded in the session <code>permissions</code> audit array like any tool call. A permission grant adds <code>scope</code> and <code>granted_by</code> fields to that audit entry.</p>
 <h2 id="plan-and-todo-bookkeeping">Plan and todo bookkeeping<a class="headerlink" href="#plan-and-todo-bookkeeping" title="Permanent link">&para;</a></h2>
@@ -1639,9 +1646,9 @@
 <li>Each result is appended as a <code>tool</code> message (with <code>tool_call_id</code> and the tool name), plus a one-line <code>analysis</code> when <code>tool_analysis</code> is enabled.</li>
 <li>The loop continues with the enriched context until the model answers.</li>
 </ol>
-<p>Ctrl-C in the REPL cancels the running turn: streaming and any in-flight tool execution are aborted, partial output is persisted, a <code>(cancelled)</code> note prints, and the prompt returns. At a Y/n confirm prompt it cancels the whole turn too (<code>n</code> still declines just that tool). Headless behavior mirrors this, and <code>polyglav run</code> exits non-zero on a cancelled turn.</p>
-<h2 id="running-a-tool-directly">Running a tool directly<a class="headerlink" href="#running-a-tool-directly" title="Permanent link">&para;</a></h2>
-<p><code>/tool &lt;name&gt; {"key": "value"}</code> runs any registered tool from the REPL, routed through the same policy. <code>/help &lt;tool&gt;</code> shows a tool's description, parameters, category, and permission.</p>
+<p>Ctrl-C pauses the root turn: streaming stops, partial output is persisted, <code>(paused)</code> prints, and the prompt returns. <code>/continue</code> resumes it and <code>/cancel</code> closes it. Ctrl-C on a child run cancels that child and returns a cancelled result to the parent, which continues. At a Y/n confirm, Ctrl-C cancels the tool and follows the same root or child rule. Idle Ctrl-C prints a hint, and a second Ctrl-C within two seconds exits. <code>polyglav run</code> exits <code>130</code> when interrupted, <code>polyglav jobs run</code> reports a cancelled run and exits <code>130</code>, <code>serve</code> and the job daemon stop cleanly, and fleet Ctrl-C is a graceful down that escalates to <code>SIGKILL</code> after the grace period.</p>
+<h2 id="inspecting-a-tool">Inspecting a tool<a class="headerlink" href="#inspecting-a-tool" title="Permanent link">&para;</a></h2>
+<p><code>/help &lt;tool&gt;</code> shows a tool's description, parameters, category, and permission. There is no direct REPL tool runner. Tools run through the model loop or a command that wraps them.</p>
 <h2 id="registration-metadata">Registration metadata<a class="headerlink" href="#registration-metadata" title="Permanent link">&para;</a></h2>
 <p>Tools are registered with <code>@registry.register(name, description, parameters)</code> plus optional metadata that shapes loop behavior:</p>
 <table>
@@ -1706,11 +1713,15 @@
 </tr>
 <tr>
 <td><code>loop</code></td>
-<td>When true, <code>/tool &lt;name&gt;</code> runs the tool as a real agent-loop turn (<code>Engine.chat_tool</code>) - the tool call and result persist, then the model streams its final answer. Used by <code>call</code> so a <code>/tool call</code> plan, results, and answer land in the session and a later prompt can continue the work. Direct <code>ToolRegistry.execute()</code> calls are unaffected</td>
+<td>When true, the tool runs as a real agent-loop turn (<code>Engine.chat_tool</code>) - the tool call and result persist, then the model streams its final answer. Used by <code>call</code> so a call plan, results, and answer land in the session and a later prompt can continue the work. Direct <code>ToolRegistry.execute()</code> calls are unaffected</td>
 </tr>
 <tr>
 <td><code>confirm</code></td>
 <td>When false, the tool is never Y/n confirm-gated even when its category action is <code>ask</code>, so the call proceeds and the permission audit records it as granted. Used by <code>ask</code> so a question is never blocked by the prompt it needs</td>
+</tr>
+<tr>
+<td><code>refs</code></td>
+<td>A <code>Callable[[dict, str], list[dict]]</code> that extracts structured references from the call and result, stored on the tool part and rendered by <code>/print</code></td>
 </tr>
 <tr>
 <td><code>error</code></td>
@@ -1752,7 +1763,7 @@
 <li>A large file is read in windows via <code>offset</code> / <code>limit</code> arguments (<code>file_read(path, offset=1, limit=200)</code>, then <code>offset=201</code>, ...).</li>
 </ul>
 <h2 id="tool-policy">Tool policy<a class="headerlink" href="#tool-policy" title="Permanent link">&para;</a></h2>
-<p>Every tool call is gated by <code>ToolPolicy</code> (<code>src/polyglav/tools/policy.py</code>), the single permission resolution point. The loop and <code>/tool</code> both route through it, so never special-case tool names for permission logic.</p>
+<p>Every tool call is gated by <code>ToolPolicy</code> (<code>src/polyglav/tools/policy.py</code>), the single permission resolution point. The loop routes through it, so never special-case tool names for permission logic.</p>
 <p>Actions are <code>allow</code> (no prompt), <code>ask</code> (Y/n confirm in the loop), or <code>deny</code> (tool filtered from the provider schema and refused on direct calls).</p>
 <p>Every resolution and its outcome (granted / declined / denied) is recorded to the session <code>permissions</code> array as an append-only audit trail. See <a href="../session/">session.md</a>.</p>
 <p>Resolution precedence:</p>
@@ -1809,7 +1820,7 @@
 </tr>
 <tr>
 <td><code>search_results</code></td>
-<td><code>5</code></td>
+<td><code>10</code></td>
 <td>Number of results <code>web_search</code> returns</td>
 </tr>
 <tr>
@@ -1833,9 +1844,9 @@
 <td>Category actions - <code>read</code>/<code>list</code>/<code>edit</code>/<code>bash</code>/<code>web</code>/<code>mcp</code> -&gt; <code>allow</code>/<code>ask</code>/<code>deny</code></td>
 </tr>
 <tr>
-<td><code>tool_permission.bash_allow</code></td>
+<td><code>exec_allow</code></td>
 <td><code>[]</code></td>
-<td><code>run_command</code> allowlist - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see <a href="../config/">config.md</a>)</td>
+<td><code>run_command</code> allowlist owned by <code>polyglav-core-exec</code> - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see <a href="../config/">config.md</a>)</td>
 </tr>
 <tr>
 <td><code>tools.allow</code></td>
@@ -1848,14 +1859,9 @@
 <td>Name-level deny list (takes precedence over allow)</td>
 </tr>
 <tr>
-<td><code>tools_output_drop</code></td>
-<td><code>["web_fetch", "open", "fetch_page"]</code></td>
-<td>Tool results replaced by a marker in persisted sessions</td>
-</tr>
-<tr>
-<td><code>tools_output_max_chars</code></td>
-<td><code>0</code></td>
-<td>Cap persisted tool-result content in session files (<code>0</code> = unlimited)</td>
+<td><code>tool_output_log</code></td>
+<td><code>true</code></td>
+<td>Append tool results to the session sidecar with line-range refs</td>
 </tr>
 <tr>
 <td><code>verbosity.tools</code></td>
@@ -1869,8 +1875,8 @@
 <h2 id="status-and-activity-lines">Status and activity lines<a class="headerlink" href="#status-and-activity-lines" title="Permanent link">&para;</a></h2>
 <p>Tool status is ephemeral REPL/CLI UI, never persisted to session files (tool calls and results are already recorded there). Registered tools render a typed activity line, <code>&lt;glyph&gt; &lt;verb&gt; &lt;key_arg&gt;</code> (e.g. <code>← Read README.md</code>, <code>→ Write test.md</code>, <code>$ Run pytest</code>), gated by <code>verbosity.tools</code> (<code>off</code> hides it, <code>summary</code> and <code>full</code> show it). Category defaults map to glyphs: read <code>←</code> Read, write <code>→</code> Write, search <code>%</code> Search, exec <code>$</code> Run, ask <code>?</code> Ask, todo <code>-</code> Todo, call <code>↳</code> Call, delegate <code>↳</code> Delegate, catalog <code>+</code> Catalog. Unmapped categories fall back to the <code>* &lt;name&gt; &lt;value&gt;</code> oneliner plus any <code>status</code> detail lines. Filesystem tools use the <code>*</code> glyph with distinct verbs: <code>* Glob</code>, <code>* List</code>, <code>* Grep</code>. MCP and Git use <code>*</code>.</p>
 <p>At <code>verbosity.tools = full</code>, the parameters the model passed (excluding the one already shown in the label) are appended: <code>← Read engine.py [offset=299, limit=85]</code>, <code>$ Run pytest [cwd=/workspace, timeout=600]</code>. Confirm prompts show the same suffix so cwd, timeout, and other arguments are visible before approving. At <code>summary</code>, only the one-line summary shows.</p>
-<p>When a tool call fails, the first line of its <code>Error:</code> result is echoed as a red <code>✗ ...</code> line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop, <code>/tool</code>, and policy-denied calls alike.</p>
-<p>Soft tool results (short one-line informational notes a tool returns instead of content, like <code>(empty file)</code>, <code>(empty directory)</code>, <code>(no matches for "x")</code>, <code>(end of content)</code>, or <code>No search results found.</code>) surface as a dimmed info line under the activity line at <code>summary</code>/<code>full</code>; <code>verbosity.tools = off</code> hides them. A tool opts in by declaring a <code>note</code> predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.</p>
+<p>When a tool call fails, the first line of its <code>Error:</code> result is echoed as a red <code>✗ ...</code> line under the activity line. Errors are never hidden. This applies to every tool through the shared dispatch point: the agent loop and policy-denied calls alike.</p>
+<p>Soft tool results (short one-line informational notes a tool returns instead of content, like <code>(empty file)</code>, <code>(empty directory)</code>, <code>(no matches for "x")</code>, <code>(end of content)</code>, or <code>No search results found.</code>) surface as a dimmed info line under the activity line at <code>summary</code>/<code>full</code>. <code>verbosity.tools = off</code> hides them. A tool opts in by declaring a <code>note</code> predicate (a callable taking the raw result and returning whether it is a note) in its registration metadata. The result itself is unchanged and still fed to the model.</p>
 
 
 

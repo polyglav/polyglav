@@ -792,10 +792,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supervisor-overnight-run" class="md-nav__link">
+  <a href="#scheduled-teams" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supervisor overnight run
+        Scheduled teams
       
     </span>
   </a>
@@ -1397,10 +1397,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supervisor-overnight-run" class="md-nav__link">
+  <a href="#scheduled-teams" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supervisor overnight run
+        Scheduled teams
       
     </span>
   </a>
@@ -1479,7 +1479,7 @@
 <span class="w">      </span><span class="nt">"schedule"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"cron"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0 2 * * *"</span><span class="w"> </span><span class="p">},</span>
 <span class="w">      </span><span class="nt">"prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Summarize today's operations logs into a short report."</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plan"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read"</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"researcher"</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"retries"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
@@ -1543,7 +1543,6 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>approve<span class="w"> </span>&lt;name&gt;<span class="w">                      </span><span class="c1"># proposed -&gt; approved (or arm the next run)</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>reject<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># proposed, disabled</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;name&gt;<span class="w"> </span>/<span class="w"> </span>disable<span class="w"> </span>&lt;name&gt;<span class="w">      </span><span class="c1"># toggle the enabled gate</span>
-polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>stop<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># same as disable - stop it now</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>edit<span class="w"> </span>&lt;name&gt;<span class="w">                         </span><span class="c1"># open/ create the task file in $EDITOR</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>remove<span class="w"> </span>&lt;name&gt;<span class="w">                       </span><span class="c1"># definition only. Sessions stay</span>
 polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="o">[</span>--no-retry<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span><span class="w"> </span><span class="c1"># run now, apply retries, print result</span>
@@ -1577,7 +1576,7 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 </tr>
 <tr>
 <td><code>--mode</code></td>
-<td>Mode override (<code>plan</code>, <code>build</code>, or custom)</td>
+<td>Mode override (<code>read</code>, <code>write</code>, or custom)</td>
 </tr>
 <tr>
 <td><code>--provider</code> / <code>--model</code></td>
@@ -1586,6 +1585,10 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 <tr>
 <td><code>--role</code></td>
 <td>Apply a role's system prompt, model, and tool permissions</td>
+</tr>
+<tr>
+<td><code>--team</code></td>
+<td>Run a named team for each scheduled run</td>
 </tr>
 <tr>
 <td><code>--system-prompt</code></td>
@@ -1630,32 +1633,19 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 <ol>
 <li><strong>Arm / disarm (before any run)</strong> - <code>add</code> starts <code>proposed</code>. <code>approve</code> arms it once, <code>stop</code>/<code>disable</code> disarms it. This is the baseline gate everyone uses.</li>
 <li><strong>Per-run approval (<code>--require-approval</code>)</strong> - for when "something has to be decided" about <em>this</em> run, not arm-or-disarm for all time. Each run parks in <code>waiting_approval</code>: the daemon will not fire it, <code>polyglav jobs status</code> shows <code>WAITING for approve</code>, and <code>polyglav jobs approve &lt;name&gt;</code> (or <code>/jobs approve</code>) arms exactly the next run. It parks again after the run. <code>reject</code> clears the grant. <code>run</code> still overrides and executes now.</li>
-<li><strong>Mid-run blocking approval (tool-level, planned)</strong> - an <code>ask</code> tool inside a running job pauses the run in place and waits for a user reply before resuming on the same session. The deepest "decide during the task" model, tracked separately in <a href="../../TODO.md">TODO.md</a>: it needs resumable mid-run state, a wait loop inside the run, and a transport to deliver the ask and return the answer (the planned webhook/email/Telegram connectors drive the same user API).</li>
+<li><strong>Mid-run supervisor decision (tool-level)</strong> - an <code>ask</code> tool inside a running job routes to the job supervisor, never to a human. The supervisor is <code>assistant</code> by default and can be set with <code>--supervisor</code> or <code>jobs.supervisor</code>. It receives the question, context, options, and the job task, and it may approve only within the job permission ceiling. A missing custom supervisor fails the run with a configuration error instead of parking. Re-escalation stops after a fixed depth.</li>
 </ol>
-<p>A job runs with <code>HeadlessUI(auto='deny')</code> on an unattended engine, the same posture as <code>polyglav serve</code>, plus parking. So until mid-run blocking is implemented, an <code>ask</code> inside a run is not paused and does not hang: it parks as a pending request in <code>.polyglav/asks.json</code> (returned to the agent as <code>[parked] Ask #&lt;id&gt; ...</code>), the run continues or finishes, and the user answers later with <code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>, which injects the answer into the run's session for the next run or continuation. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list) and it will not need mid-run interruption. <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>polyglav jobs show &lt;name&gt;</code> before a manual retry.</p>
+<p>A job runs with <code>HeadlessUI(auto='deny')</code>, so tool confirms still auto-deny. Give a job its permissions up front (<code>--tool-permission bash=allow</code>, a role carve, or a <code>--tools-deny</code> list). <code>timeout</code> runs the attempt on a daemon thread and abandons it if it overruns. The abandoned thread may still write to the shared session, so inspect a timed-out job with <code>polyglav jobs show &lt;name&gt;</code> before a manual retry.</p>
 <h2 id="report-back">Report-back<a class="headerlink" href="#report-back" title="Permanent link">&para;</a></h2>
 <p>A finished or failed run is surfaced in-band and, optionally, out-of-band, so an unattended supervisor does not have to be watched:</p>
 <ul>
 <li><strong><code>polyglav jobs status</code> / <code>/jobs status</code></strong> prints a <code>last run:</code> line per job (status, duration, reason, session) under the run counts.</li>
 <li><strong><code>polyglav jobs run</code> / <code>/jobs run</code></strong> print the run's result plus a <code>summary:</code> line from the run memory written after the run.</li>
 <li><strong>Delegated and team runs</strong> show their outcome in the REPL stage lines (<code>↳ Call</code>, <code>✓ Worked</code>, <code>↲</code>) when <code>verbosity.output</code> includes the role.</li>
-<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, memory summary, and parked asks). A pending ask parked during the run is flagged by id and origin, so a night that "finished but needs you" is visible in the report. Empty <code>report.webhook</code> is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
+<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, and memory summary). Empty <code>report.webhook</code> is a no-op. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
 </ul>
-<h2 id="supervisor-overnight-run">Supervisor overnight run<a class="headerlink" href="#supervisor-overnight-run" title="Permanent link">&para;</a></h2>
-<p>A standing supervisor job is the overnight surface: job engines run unattended (they never read stdin), park user questions as asks, and report back. One command scaffolds it:</p>
-<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>add-supervisor<span class="w"> </span>night<span class="w"> </span>--interval<span class="w"> </span><span class="m">86400</span><span class="w"> </span>--task<span class="w"> </span><span class="s2">"Lead the work."</span>
-<span class="c1"># creates .polyglav/jobs/night.md from a supervisor template, role=leader, approved</span>
-polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>daemon<span class="w">            </span><span class="c1"># runs it on schedule</span>
-polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>run<span class="w"> </span>night<span class="w">         </span><span class="c1"># or run it once now</span>
-</code></pre></div>
-<p>The job role is <code>leader</code>, whose <code>grant_permission</code> lets it delegate categories it denies itself (bash, web) to team stages, and whose <code>ask_policy</code> routes decisions to the user (parking them under unattended mode). The task file (<code>.polyglav/jobs/&lt;name&gt;.md</code>) carries the standing goal, and the next run picks up any edit. The model the job uses must be approved (<code>/model</code>, or <code>--approve-model</code> when a role or team references a model).</p>
-<p>While it runs:</p>
-<ul>
-<li><code>/asks</code> (or <code>GET /asks</code> on <code>polyglav serve</code>) lists parked asks. <code>/asks answer &lt;id&gt; &lt;text&gt;</code> (or <code>POST /asks/&lt;id&gt;/answer</code>) marks one answered and injects the answer into its origin session.</li>
-<li><code>polyglav jobs status</code> shows the last run plus any parked asks. <code>polyglav jobs run</code>/<code>/jobs run</code> print the run summary and parked asks.</li>
-<li>With <code>report.webhook</code> set, each completed run is POSTed out-of-band, so a finished or failed night is reported without the terminal being watched.</li>
-</ul>
-<p>Resuming a parked ask: the ask lives in the run's sub-session. Answer it, then continue that session with <code>polyglav run --session-id &lt;origin&gt; "continue"</code> (or <code>/session load &lt;origin&gt;</code> in the REPL).</p>
+<h2 id="scheduled-teams">Scheduled teams<a class="headerlink" href="#scheduled-teams" title="Permanent link">&para;</a></h2>
+<p>A recurring team run uses <code>polyglav jobs add &lt;name&gt; --team &lt;team&gt; --schedule</code>. The scheduler runs the named team through <code>Engine.run_team</code>, and each stage keeps its own session while the job records the team result.</p>
 <h2 id="session-files-per-run">Session files per run<a class="headerlink" href="#session-files-per-run" title="Permanent link">&para;</a></h2>
 <p>The <strong>compact memory</strong> is the run-memory file (<a href="#run-memory">Run memory</a>): a rolling summary injected into every run to keep the model oriented across runs. Session files are the per-run audit:</p>
 <ul>

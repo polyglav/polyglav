@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0500-2026-11-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.50.0 - 2026-11-01
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0490-2026-10-26" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1703,6 +1714,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0500-2026-11-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.50.0 - 2026-11-01
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0490-2026-10-26" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2259,6 +2281,97 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0500-2026-11-01">v0.50.0 - 2026-11-01<a class="headerlink" href="#v0500-2026-11-01" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added the spawn command - <code>/spawn &lt;name&gt; &lt;path&gt;</code> launches a scoped serve agent, <code>/spawn ask</code> delegates to it, <code>/spawn stop</code> stops it, and <code>/spawn</code> lists agent state in the REPL</li>
+<li>Changed CLI signals - idle Ctrl-C needs a second press within two seconds, the root pauses for <code>/continue</code> or <code>/cancel</code>, child runs cancel and return, <code>polyglav run</code> and <code>polyglav jobs run</code> exit <code>130</code>, and serve and fleet keep their graceful stop paths</li>
+<li>Moved bookkeeping to the bookkeeping plugin - <code>plan_write</code>, <code>todo</code>, <code>/plan</code>, <code>/plans</code>, <code>/todo</code>, and <code>/todos</code> now live in <code>polyglav-core-bookkeeping</code>, and the engine injects plan and todo context through the plugin service</li>
+<li>Removed legacy config keys - the <code>provider</code> key and the old tool-output settings are gone, with no migration</li>
+<li>Changed model config to one ref - <code>model</code> now carries the provider prefix, <code>base_url</code> is an optional override, and a generic <code>openai-compatible</code> connection is the manual fallback</li>
+<li>Added the generic openai-compatible provider entry - a <code>providers.json</code> entry resolves a bare or generic model through the OpenAI-compatible base</li>
+<li>Removed config compatibility aliases - old verbosity flags and aliases are ignored instead of migrated</li>
+<li>Changed the config command - the REPL and CLI share the config service with grouped output, <code>--json</code>, and validation</li>
+<li>Fixed the session render tool summary - a persisted tool part with a log ref now rehydrates its summary instead of requiring the removed drop transforms</li>
+<li>Moved tool config and permissions into the owning plugins - <code>exec_allow</code> is declared by <code>polyglav-core-exec</code> and resolved through a <code>_config</code> permission argument, while core keeps the model cap and the category permission map</li>
+<li>Changed the catalog to a registry service - the core keeps one <code>catalog</code> tool over registered adapters, and the roles, teams, and skills plugins own their own list, show, save, remove, and validate behavior</li>
+<li>Added job supervisor routing - a job asks its supervisor role, <code>assistant</code> by default, and a missing custom supervisor fails the run instead of reaching a human</li>
+<li>Added the session tool log - every tool result appends to <code>&lt;session&gt;.tools.log</code> with a line-range ref, byte and line counts, and a summary, and the session keeps the summary instead of the full text</li>
+<li>Removed tool output caps and spill - <code>tools_output_max_chars</code>, <code>tools_output_drop</code>, <code>tools_output_spill</code>, <code>tools_output_dir</code>, and <code>tools_output_tmp_max_bytes</code> are gone, and session deletion removes the sidecar</li>
+<li>Added tool_output_log - tool results append to the session sidecar by default, and disabling it keeps inline output</li>
+<li>Changed the core boundary - the core keeps the loop, registries, policy, provider base, config, sessions, and runs, while the optional surfaces and their config live in plugins with documented ownership, defaults, and dependencies</li>
+<li>Moved UI rendering and display config into the REPL plugin - <code>ReplUI</code>, <code>SubRunUI</code>, prompt and spinner behavior, and the display config keys now live in <code>polyglav-core-repl</code>, while the core keeps headless, null, glyph, markdown, and prompt primitives</li>
+<li>Added the external plugin test contract - <code>polyglav plugins test</code> runs bundled and external plugin suites, and an unimportable test module now fails instead of being skipped</li>
+<li>Changed plugin defaults - jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled, while serve remains available</li>
+<li>Added the REPL plugin - <code>polyglav-core-repl</code> owns <code>ChatLoop</code>, the <code>repl</code> front-end, and <code>/clear</code>, while the core keeps the UI primitives</li>
+<li>Moved the jobs scheduler and job service into the jobs plugin - <code>polyglav-core-jobs</code> owns the job model, registry, scheduler, memory hooks, and one <code>cmd_jobs</code> handler shared by <code>/jobs</code> and <code>polyglav jobs</code></li>
+<li>Moved memory files and injection into the memory plugin - <code>polyglav-core-memory</code> owns memory storage, role and team injection, and <code>/memorize</code>, while callers use the <code>memory</code> service and skip memory when it is absent</li>
+<li>Moved the skill registry into the skills plugin - <code>polyglav-core-skills</code> owns skill loading, saves, and prompt sections, while the engine resolves them through plugin services</li>
+<li>Moved the team registry and run_team into the teams plugin - <code>polyglav-core-teams</code> owns team loading, stage runs, loops, hierarchical managers, and team memory hooks, while the core keeps a thin <code>run_team</code> delegate</li>
+<li>Fixed the SQLite store connections - the session store closes every connection so test output is not polluted by resource warnings</li>
+<li>Moved the role registry into the roles plugin - <code>polyglav-core-roles</code> owns registry loading and saves, while the core keeps the role model and permission helpers for the loop and policy</li>
+<li>Removed <code>footer_tokens</code> - the footer shows the context count, and <code>/history</code> and <code>/print</code> own detailed usage</li>
+<li>Removed <code>print_max_chars</code> - <code>/print</code> uses a fixed 4000-character cap and <code>--full</code> still overrides it</li>
+<li>Changed the config command and CLI - <code>/config</code> groups keys by owner and supports <code>--json</code>, and <code>polyglav config get --json</code> prints the same shape</li>
+<li>Added onboarding provider presets - LM Studio and a custom URL join the built-in providers, with the local LM Studio endpoint prefilled</li>
+<li>Added the SQLite session store plugin - <code>polyglav-core-storage-sqlite</code> is off by default and keeps sessions in <code>.polyglav/sessions/sessions.db</code> with stdlib <code>sqlite3</code></li>
+<li>Moved session render into the sessions plugin - transcript rendering, <code>/print</code>, <code>/history</code>, and export/import handlers now live with <code>polyglav-core-sessions</code></li>
+<li>Moved bookkeeping config to the bookkeeping plugin - <code>plan.dir</code> is declared by <code>polyglav-core-bookkeeping</code></li>
+<li>Moved MCP config to the MCP plugin - <code>mcp.servers</code> and <code>mcp_server.allow_ask</code> are declared by <code>polyglav-core-mcp</code></li>
+<li>Moved fs, memory, and webhook config to plugins - <code>list_dir_max_entries</code>, <code>memory*</code>, and <code>report.webhook</code> are declared by their owning plugins</li>
+<li>Moved web config to the web plugin - <code>query_refine*</code> and <code>search_results</code> are declared by <code>polyglav-core-web</code>, with the search default raised to 10</li>
+<li>Added plugin config registration - <code>provides.config</code> declares plugin defaults and descriptions, and loaded plugins register them with the config service</li>
+<li>Added session load validation - a loaded session warns when its role or team no longer exists, and the team is recorded with the session</li>
+<li>Removed session compatibility - a missing tool-log ref renders <code>[tool log missing]</code> instead of stale inline text</li>
+<li>Changed CLI help grouping - <code>polyglav --help</code> lists core commands and plugin commands separately</li>
+<li>Added web result references - <code>web_search</code> stores title, URL, and snippet on the tool part, and <code>/print</code> renders them</li>
+<li>Changed the connect shorthand - <code>/providers connect</code> now runs the provider flow and <code>/connect</code> stays as the shorthand</li>
+<li>Added JSON materialization - JSONL stores write a portable <code>.json</code> snapshot on session switch and exit</li>
+<li>Added paused turn persistence - JSON and JSONL sessions both restore the last paused turn as open, so <code>/continue</code> works after a restart</li>
+<li>Showed in, out, and total tokens - <code>/history</code> and <code>/print</code> now render prompt, completion, and total token counts from the recorded turn usage</li>
+<li>Fixed the web plugin manifest to list <code>web_fetch</code> and <code>web_search</code>, matching the registered tools</li>
+<li>Changed the role and team prompts to run <code>code_check</code> and <code>code_test</code> by default, with lint and format only when the quality plugin is enabled</li>
+<li>Split code quality - <code>code_test</code> and the new stdlib <code>code_check</code> stay on by default, while <code>code_lint</code> and <code>code_format</code> moved to the off-by-default <code>polyglav-core-quality</code> plugin. Tests: <code>polyglav-core-dev</code>, <code>polyglav-core-quality</code></li>
+<li>Moved the fleet supervisor into the fleet plugin - the manifest, controller, health checks, restart policy, and <code>polyglav fleet</code> CLI now live with <code>polyglav-core-fleet</code>. Tests: <code>polyglav-core-fleet</code></li>
+<li>Moved the eval harness into the eval plugin - the fixture model, runner, metrics, and <code>polyglav eval</code> CLI now live with <code>polyglav-core-eval</code>. Tests: <code>polyglav-core-eval</code></li>
+<li>Removed unused legacy config keys - <code>api_key</code>, <code>connect_check</code>, <code>noise_tools</code>, and <code>session_tool_max_chars</code> are gone, provider probes always run, and the output-key migration is removed</li>
+<li>Changed auto-continue to <code>auto_continue_max</code> only - <code>0</code> turns continuation off and a positive value enables it, with no separate boolean</li>
+<li>Renamed <code>bash_allow</code> to <code>exec_allow</code> with no alias - the exec allowlist keeps the same prefix, chain, and heredoc rules under <code>tool_permission.exec_allow</code></li>
+<li>Changed the delegate contract - the tool now describes an anonymous sibling that inherits the caller mode and permission cap, not a read-only helper</li>
+<li>Moved the HTTP API and cancel into the serve plugin - the stdlib server, <code>POST /chat</code>, <code>POST /cancel</code>, and <code>polyglav serve</code> now live with the plugin. Tests: <code>polyglav-core-serve</code></li>
+<li>Added the providers CLI - <code>polyglav providers list</code>, <code>connect</code>, <code>probe</code>, and <code>remove</code> use the stored connections and set the active provider. Tests: <code>polyglav-core-providers</code></li>
+<li>Added the JSONL session store - <code>session.storage = jsonl</code> appends meta and turn events and restores the last event per turn, with JSON still the default. Tests: <code>test_session_io.py</code></li>
+<li>Added <code>/init</code> - onboarding writes an <code>AGENTS.md</code> skeleton, hints it when missing, and supports <code>--force</code> and <code>--update</code>. Tests: <code>polyglav-core-onboarding</code></li>
+<li>Added <code>jobs add --team</code> - a scheduled job can run a named team through <code>Engine.run_team</code>, with each stage keeping its own session. Tests: <code>test_jobs.py</code></li>
+<li>Removed the tool analysis and auto-search config - <code>tool_analysis</code> and <code>web_search</code> are gone, and asks always run through the tool loop. Tests: <code>test_session_log.py</code>, <code>test_engine.py</code></li>
+<li>Changed session saves to dirty writes - a session rewrites only when changed, the per-command save is gone, and the user prompt is written at turn end. Tests: <code>test_session_io.py</code></li>
+<li>Added atomic session writes - <code>SessionManager.save</code> writes compact JSON to a temp file and replaces the session. Tests: <code>test_session_io.py</code></li>
+<li>Removed the runs and tool commands - <code>/runs</code> is gone and <code>/status</code> plus <code>/history --tree</code> cover the views, <code>/tool</code> is gone and <code>/help</code> lists tools and shows their detail. Tests: <code>test_commands.py</code>, <code>test_completion.py</code></li>
+<li>Removed ask parking and unattended mode - asks are inline only, <code>.polyglav/asks.json</code>, <code>/asks</code>, the ask API, scheduler reporting, and <code>/unattended</code> are gone, and headless asks return no-answer. Tests: <code>test_ask.py</code>, <code>test_jobs.py</code>, <code>test_server.py</code></li>
+<li>Added Ctrl-C pause, <code>/continue</code>, and <code>/cancel</code> - Ctrl-C pauses the root turn, child runs stop as cancelled, <code>/continue</code> resumes a paused or targeted session, and a normal prompt asks before cancelling. Tests: <code>test_commands.py</code>, <code>test_engine.py</code></li>
+<li>Changed the history selectors - <code>/history</code> takes turn ranges, relative ranges, and <code>session:&lt;name&gt;</code> targets, and no longer uses <code>--run</code>. Tests: <code>test_history.py</code></li>
+<li>Changed the print selectors - <code>/print</code> takes turn ranges, relative ranges, parts, and <code>session:&lt;name&gt;</code> targets, and no longer uses <code>--run</code>. Tests: <code>test_print.py</code></li>
+<li>Added <code>/status</code> - a read-only view of the model, mode, session, runs, plugins, jobs, and fleet state. Tests: <code>test_commands.py</code></li>
+<li>Added a shared config service - <code>/config</code> and <code>polyglav config</code> validate keys through one service, and unknown keys fail instead of prompting. Tests: <code>test_config.py</code>, <code>test_commands.py</code></li>
+<li>Removed the jobs stop and add-supervisor commands - <code>disable</code> is the only stop path, and scheduled teams replace the broken supervisor scaffold. Tests: <code>test_jobs.py</code>, <code>test_commands.py</code></li>
+<li>Removed <code>--session-id</code> - <code>polyglav run</code> always creates an auto-named session. Tests: <code>test_cli.py</code></li>
+<li>Moved the export and import CLI to the sessions plugin - <code>polyglav export</code> and <code>polyglav import</code> register from <code>polyglav-core-sessions</code>. Tests: <code>test_session_import.py</code>, <code>test_plugins.py</code></li>
+<li>Moved the models CLI to the providers plugin - <code>polyglav models</code> registers from <code>polyglav-core-providers</code>. Tests: <code>test_models.py</code>, <code>test_plugins.py</code></li>
+<li>Moved the fleet CLI to a plugin - <code>polyglav fleet</code> registers from <code>polyglav-core-fleet</code>. Tests: <code>test_fleet.py</code>, <code>test_plugins.py</code></li>
+<li>Moved the eval CLI to a plugin - <code>polyglav eval</code> registers from <code>polyglav-core-eval</code>, which already owns the fixtures. Tests: <code>test_eval.py</code>, <code>test_plugins.py</code></li>
+<li>Moved the serve CLI to a plugin - <code>polyglav serve</code> registers from <code>polyglav-core-serve</code>. Tests: <code>test_cli.py</code>, <code>test_plugins.py</code></li>
+<li>Moved the jobs CLI to a plugin - <code>polyglav jobs</code> registers from <code>polyglav-core-jobs</code>, and the core keeps the handler for now. Tests: <code>test_plugins.py</code>, <code>test_cli.py</code></li>
+<li>Moved the sessions command to a plugin - <code>/sessions</code> lives in <code>polyglav-core-sessions</code>. Tests: <code>test_session_import.py</code>, <code>test_commands.py</code></li>
+<li>Moved the jobs command to a plugin - <code>/jobs</code> lives in <code>polyglav-core-jobs</code>. Tests: <code>test_jobs.py</code>, <code>test_commands.py</code></li>
+<li>Moved the memorize command to a plugin - <code>/memorize</code> lives in <code>polyglav-core-memory</code>. Tests: <code>test_memory.py</code>, <code>test_commands.py</code></li>
+<li>Moved bookkeeping to a plugin - <code>plan_write</code>, <code>todo</code>, <code>/plan</code>, <code>/plans</code>, <code>/todo</code>, and <code>/todos</code> live in <code>polyglav-core-bookkeeping</code>. Tests: <code>test_plan_todo.py</code>, <code>test_commands.py</code></li>
+<li>Moved skill management to a plugin - <code>/skills</code> lives in <code>polyglav-core-skills</code>. Tests: <code>test_commands.py</code>, <code>test_skills.py</code></li>
+<li>Moved team management to a plugin - <code>/teams</code> lives in <code>polyglav-core-teams</code>, which declares its dependency on <code>polyglav-core-roles</code>. Tests: <code>test_commands.py</code>, <code>test_teams.py</code></li>
+<li>Moved role management to a plugin - <code>/role</code>, <code>/roles</code>, and the <code>call</code> tool live in <code>polyglav-core-roles</code>, so the core loop runs without them. Tests: <code>test_call.py</code>, <code>test_commands.py</code>, <code>test_plugins.py</code></li>
+<li>Changed command aliases and added clear, new, and summary - removed <code>/c</code>, <code>/h</code>, <code>/q</code>, and <code>/v</code>, kept <code>/quit</code>, added <code>/clear</code>, <code>/new</code>, and <code>/summary</code>, and stored summaries without changing the provider context. Tests: <code>test_commands.py</code>, <code>test_turns.py</code></li>
+<li>Moved provider management to a plugin - <code>/connect</code>, <code>/model</code>, <code>/models</code>, <code>/provider</code>, and <code>/providers</code> live in <code>polyglav-core-providers</code>, while the core keeps the OpenAI-compatible base and registry. Tests: <code>test_commands.py</code>, <code>test_plugins.py</code></li>
+<li>Added CLI and front-end plugin hooks - plugins register CLI subcommands and named front-end factories, the core REPL is the default front-end, and <code>--frontend</code> selects another. Tests: <code>test_plugins.py</code></li>
+<li>Added plugin dependency loading - manifest <code>depends</code> loads dependencies first, reports missing and disabled dependencies, and marks cycles as errors. Tests: <code>test_plugins.py</code></li>
+</ul>
 <h2 id="v0490-2026-10-26">v0.49.0 - 2026-10-26<a class="headerlink" href="#v0490-2026-10-26" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Changed ask styling - the question line uses orange, the description and options use the default colour, and the answer prompt is a plain <code>&gt;</code> instead of the mode colour. Tests: <code>test_repl_output.py</code>, <code>test_ui.py</code></li>
@@ -2305,10 +2418,10 @@
 <li>Added Python 3.14 to CI and disabled fail-fast so every matrix result is visible.</li>
 <li>Added provider, model, and mode to onboarding, with a warm welcome and a hint to the remaining options. Tests: <code>polyglav-core-onboarding</code></li>
 <li>Fixed long wrapped input so every row is cleared before the colored reprint. Tests: <code>test_repl_output.py</code></li>
-<li>Removed Python 3.10 support; the floor is now 3.11. Tests: full suite on Python 3.11</li>
+<li>Removed Python 3.10 support. The floor is now 3.11. Tests: full suite on Python 3.11</li>
 <li>Compacted <code>/config</code> to key/value/origin, with <code>/config &lt;key&gt;</code> and <code>--verbose</code> for descriptions. Tests: <code>test_commands.py</code></li>
 <li>Cleaned <code>/modes</code> to a plain list and added <code>/modes &lt;name&gt;</code> for the mode instruction. Tests: <code>test_commands.py</code></li>
-<li>Changed the live input prompt to a plain <code>_</code> marker; the submitted line reprints as a mode-colored <code>&gt;</code> or a magenta <code>/</code>. Tests: <code>test_repl_input.py</code>, <code>test_repl_output.py</code></li>
+<li>Changed the live input prompt to a plain <code>_</code> marker. The submitted line reprints as a mode-colored <code>&gt;</code> or a magenta <code>/</code>. Tests: <code>test_repl_input.py</code>, <code>test_repl_output.py</code></li>
 </ul>
 <h2 id="v0450-2026-10-21">v0.45.0 - 2026-10-21<a class="headerlink" href="#v0450-2026-10-21" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2321,10 +2434,10 @@
 <li>Added a read-only <code>/runs</code> tree - run id, role, status, session, and a <code>log [n]</code> view of a run buffer, with no focus switch. Tests: <code>test_runs_command.py</code></li>
 <li>Added pause and resume - <code>/pause</code> holds the next turn, <code>/resume</code> clears it, and the state prints as <code>@ Paused #n</code> and <code>@ Resumed #n</code>. Tests: <code>test_pause.py</code></li>
 <li>Added verbosity rendering tests for thinking, tools, subruns, and footer levels. Tests: <code>test_verbosity.py</code></li>
-<li>Added the verbosity model - <code>quiet</code>, <code>normal</code>, and <code>verbose</code> presets plus <code>verbosity.thinking</code>, <code>verbosity.tools</code>, <code>verbosity.subruns</code>, and <code>verbosity.footer</code>; old display flags migrate on read, errors are always shown, and <code>/thinking</code> takes <code>off</code>, <code>summary</code>, or <code>full</code>. Tests: <code>test_verbosity.py</code>, <code>test_ui.py</code>, <code>test_engine.py</code>, <code>test_commands.py</code></li>
+<li>Added the verbosity model - <code>quiet</code>, <code>normal</code>, and <code>verbose</code> presets plus <code>verbosity.thinking</code>, <code>verbosity.tools</code>, <code>verbosity.subruns</code>, and <code>verbosity.footer</code>. Old display flags migrate on read, errors are always shown, and <code>/thinking</code> takes <code>off</code>, <code>summary</code>, or <code>full</code>. Tests: <code>test_verbosity.py</code>, <code>test_ui.py</code>, <code>test_engine.py</code>, <code>test_commands.py</code></li>
 <li>Added golden transcript tests for the REPL output vocabulary - header, prompts, thinking, tool summary, flat stages, ask block, warning, and error. Tests: <code>test_repl_output.py</code></li>
 <li>Changed sub-runs to flat stage lines - <code>↳ Call &lt;target&gt;</code>, <code>↲ &lt;result&gt;</code>, <code>✓ Worked: &lt;role&gt;</code>, and <code>✗ &lt;role&gt;</code> with no indentation. Tests: <code>test_ui.py</code>, <code>test_call.py</code>, <code>test_delegate_tool.py</code>, <code>test_run_buffer.py</code></li>
-<li>Changed the glyph set to the final vocabulary - <code>@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *</code>, <code>←</code>/<code>→</code>, and the braille spinner; dropped <code>☐</code>, <code>⎇</code>, <code>◈</code>, <code>·</code>, <code>…</code>, and <code>▸</code>. Tests: <code>test_ui.py</code></li>
+<li>Changed the glyph set to the final vocabulary - <code>@ ! ✗ ✓ ? % $ - ↳ ↲ ↓ ↑ + *</code>, <code>←</code>/<code>→</code>, and the braille spinner. Dropped <code>☐</code>, <code>⎇</code>, <code>◈</code>, <code>·</code>, <code>…</code>, and <code>▸</code>. Tests: <code>test_ui.py</code></li>
 <li>Fixed status lines to start on a new line after streamed text. Tests: <code>test_ui.py</code></li>
 <li>Changed the tool confirm to hide typed input by default. Tests: <code>test_ui.py</code></li>
 <li>Changed the ask layout - a gray question, a numbered option block, and a <code>&gt;</code> answer prompt in the mode color. Tests: <code>test_ui.py</code></li>
@@ -2447,7 +2560,7 @@
 </ul>
 <h2 id="v0350-2026-09-20">v0.35.0 - 2026-09-20<a class="headerlink" href="#v0350-2026-09-20" title="Permanent link">&para;</a></h2>
 <ul>
-<li>REPL UI colors and prompts - the terminal surface gets one color language and quicker prompts. The user prompt marker is bold cyan, activity/tool status lines and the confirm/ask prompts are orange (<code>\033[38;5;208m</code>), a failed tool call prints its <code>! Error:</code> line red, and the <code>- Thinking</code>/<code>+ Thought</code>/<code>(Thought N.Ns)</code> headers are blue while the reasoning body and tool output stay dim. Every status line now starts on a new line instead of trailing streamed text (<code>_ensure_newline</code>). The tool confirm defaults to yes on an empty answer (<code>[Y/n]</code>), and <code>/connect</code>, <code>/config</code>, and the compaction prompt follow the same <code>[Y/n]</code> convention. New <code>hide_confirm_input</code> config hides the typed input for the tool confirm while free-text <code>ask</code> answers stay visible. Docs (<code>config.md</code>, <code>architecture.md</code>, <code>commands.md</code>, <code>security.md</code>, <code>tools.md</code>, <code>writing-tools.md</code>). Tests: <code>tests/test_ui.py</code></li>
+<li>REPL UI colors and prompts - the terminal surface gets one color language and quicker prompts. The user prompt marker is bold cyan, activity/tool status lines and the confirm/ask prompts are orange, a failed tool call prints its <code>! Error:</code> line red, and the <code>- Thinking</code>/<code>+ Thought</code>/<code>(Thought N.Ns)</code> headers are blue while the reasoning body and tool output stay dim. Every status line now starts on a new line instead of trailing streamed text (<code>_ensure_newline</code>). The tool confirm defaults to yes on an empty answer (<code>[Y/n]</code>), and <code>/connect</code>, <code>/config</code>, and the compaction prompt follow the same <code>[Y/n]</code> convention. New <code>hide_confirm_input</code> config hides the typed input for the tool confirm while free-text <code>ask</code> answers stay visible. Docs (<code>config.md</code>, <code>architecture.md</code>, <code>commands.md</code>, <code>security.md</code>, <code>tools.md</code>, <code>writing-tools.md</code>). Tests: <code>tests/test_ui.py</code></li>
 <li>opencode reasoning echo - the <code>opencode</code> and <code>opencode-go</code> providers now send captured reasoning back as <code>reasoning_content</code>, which Console Go requires in thinking mode when a turn continues after tool calls (it rejected the tool-loop continuation with HTTP 400 <code>The reasoning_content in the thinking mode must be passed back to the API</code>). <code>OpenAICompatibleProvider</code> gains an <code>ECHO_REASONING</code> class attribute (default <code>false</code>) and <code>_prepare_messages</code>, which always drops the internal <code>thinking</code> key and, when enabled, copies it to <code>reasoning_content</code> on assistant messages. <code>OpenCodeProviderBase</code> sets the flag for both providers, and the auto-continue assistant message carries its thinking so a length continuation echoes it too. Other providers are unchanged, since some endpoints (the official DeepSeek reasoner) reject <code>reasoning_content</code> in the input. Docs (<code>providers.md</code>). Tests: <code>tests/test_providers.py</code>, <code>plugins/replio-core-opencode/tests/test_opencode_providers.py</code></li>
 <li>Session log version - every session records the Replio <code>version</code> that created it (<code>Session.version</code>, stamped in <code>SessionManager.create</code> via <code>get_version</code>). It is written to the session JSON next to <code>role</code>, round-trips through <code>to_dict</code>/<code>from_dict</code>, and is never refreshed, so a log says which build wrote it. Files written before the field load with an empty <code>version</code> (no backfill). Docs (<code>session.md</code>). Tests: <code>tests/test_session_log.py</code></li>
 <li>Per-run output buffers - every run records a plain-text <code>buffer</code>, and a sub-engine renders through a new <code>BufferUI</code> sink instead of <code>NullUI</code>, so its streamed output, tool lines, and footer land in the run (a focused run rebuilt for the REPL keeps the terminal <code>ReplUI</code>). <code>Run</code> gains <code>append_buffer</code>/<code>buffer_text</code>/<code>clear_buffer</code> plus a <code>buffer_lock</code> and a <code>max_buffer_lines</code> cap, and the new <code>run_buffer_max_lines</code> config (default 2000, <code>0</code> = unlimited) trims the oldest lines. <code>/focus log [n]</code> prints the focused run's buffer (all lines, or the last <code>n</code>). Docs (<code>commands.md</code>, <code>architecture.md</code>, <code>config.md</code>, <code>testing.md</code>). Tests: <code>tests/test_run_buffer.py</code>, plus <code>test_subagent.py</code></li>
@@ -2536,7 +2649,7 @@
 <h2 id="v0250-2026-09-02">v0.25.0 - 2026-09-02<a class="headerlink" href="#v0250-2026-09-02" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Project instructions file - per-worktree <code>AGENTS.md</code> (or any <code>project_instructions</code> name, <code>""</code> disables) is auto-loaded into the system prompt as a leading system message, capped at 20000 chars, present files only. It composes with <code>system_prompt</code> and the mode instruction and applies to sub-agents too (they share the worktree). Docs in <code>config.md</code> and <code>tools.md</code>. Tests: <code>test_modes.py</code> (<code>instructions_file_section</code> loading/absent/disabled/default/truncation) and <code>test_engine.py</code> (injection, absent skip, unset skip)</li>
-<li><code>run_command</code> command allowlist - <code>tool_permission.bash_allow</code> (default <code>[]</code>) restricts <code>run_command</code> to commands whose every chained segment (over <code>&amp;&amp;</code>/<code>||</code>/<code>;</code>/<code>|</code>/<code>&amp;</code>) starts with an allowed prefix. Heredocs and multi-line commands are rejected outright. Matching commands fall through to the normal <code>bash</code> action, others are denied. Implemented as a per-invocation policy resolver on <code>run_command</code>: the engine now injects the merged <code>tool_permission</code> into resolvers that declare a <code>_permissions</code> argument (a general capability, not a <code>run_command</code> special case), so it composes with modes, <code>tools.deny</code>/<code>tools.allow</code>, and worktree escalation. Docs in <code>config.md</code> (new <code>bash_allow</code> section) and <code>tools.md</code>. Tests: exec-suite allowlist cases (prefix, chain, pipe, heredoc, multi-line, empty) plus engine-level allow/deny</li>
+<li><code>run_command</code> command allowlist - <code>tool_permission.bash_allow</code> (default <code>[]</code>) restricts <code>run_command</code> to commands whose every chained segment over the shell chaining operators starts with an allowed prefix. Heredocs and multi-line commands are rejected outright. Matching commands fall through to the normal <code>bash</code> action, others are denied. Implemented as a per-invocation policy resolver on <code>run_command</code>: the engine now injects the merged <code>tool_permission</code> into resolvers that declare a <code>_permissions</code> argument (a general capability, not a <code>run_command</code> special case), so it composes with modes, <code>tools.deny</code>/<code>tools.allow</code>, and worktree escalation. Docs in <code>config.md</code> (new <code>bash_allow</code> section) and <code>tools.md</code>. Tests: exec-suite allowlist cases (prefix, chain, pipe, heredoc, multi-line, empty) plus engine-level allow/deny</li>
 <li><code>code_test</code> / <code>code_lint</code> / <code>code_format</code> wrappers - new bundled <code>replio-core-dev</code> plugin. Each runs the project command from a config key (<code>dev.test_cmd</code> default <code>python -m unittest discover</code>, <code>dev.lint_cmd</code> default <code>ruff check .</code>, <code>dev.format_cmd</code> default <code>ruff format .</code>), appends an optional <code>target</code>, and reports exit code + output. <code>bash</code> permission, <code>cwd</code> scoping, hard timeout clamp. Added to the default plugin list. Tests: plugin suite (unittest run, config commands, target append, failure/unknown/timeout/truncation, metadata)</li>
 <li><code>git</code> tool - new bundled <code>replio-core-git</code> plugin. Read-only <code>git</code> (status/diff/log/branch/show/rev_parse, <code>read</code> permission, worktree-scoped <code>cwd</code>) and <code>git_commit</code> (add/commit, <code>edit</code> permission, always ask-gated via its resolver). Both run <code>git</code> via <code>subprocess</code> argv (never a shell string) with a hard timeout. No push/merge/checkout/history rewrite. Added to the default plugin list. Tests: plugin suite against a temp repo (status/diff/log/branch/show/rev_parse, add/commit/all, missing cwd, permissions, aliases)</li>
 <li><code>file_edit</code> tool - new bundled <code>replio-core-edit</code> plugin. Targeted search-and-replace at a <code>path</code> (<code>old</code> -&gt; <code>new</code>, optional <code>count</code>, <code>0</code> = all), with a <code>difflib</code> diff preview in the status line. <code>edit</code> permission, <code>path</code> scoping, aliases <code>edit</code>, param aliases <code>file</code>/<code>old_text</code>/<code>new_text</code>. Complements <code>file_write</code> for surgical single-hunk edits. Added to the default plugin list. Docs in <code>tools.md</code> bundled-tools table. Tests: plugin suite (first/replace-all/count/delete/missing/directory/not-found/empty/aliases/metadata/status)</li>

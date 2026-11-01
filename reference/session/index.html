@@ -872,6 +872,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#sqlite-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jsonl-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSONL storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#where-sessions-live" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1315,6 +1337,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#sqlite-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQLite storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jsonl-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSONL storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#where-sessions-live" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1482,9 +1526,15 @@
 
 <h1 id="sessions">Sessions<a class="headerlink" href="#sessions" title="Permanent link">&para;</a></h1>
 <p>Sessions are complete, append-only conversation logs. Every turn (the user prompt, the agent's thinking, each tool call with its result, and the answer) is persisted as JSON under the project's <code>.polyglav/sessions/</code> directory. Entries are never removed. Compaction only trims the provider context, never the log.</p>
+<p>A paused turn is restored as open when the session loads, so <code>/continue</code> works after a restart. A loaded session warns when its recorded role or team no longer exists.</p>
+<p>A JSONL session is materialized to <code>.json</code> on session switch and exit, so the JSON stays portable. JSONL remains the source when both files exist.</p>
+<h2 id="sqlite-storage">SQLite storage<a class="headerlink" href="#sqlite-storage" title="Permanent link">&para;</a></h2>
+<p>Set <code>session.storage = "sqlite"</code> and enable <code>polyglav-core-storage-sqlite</code> to keep sessions in <code>.polyglav/sessions/sessions.db</code>. The plugin is off by default and uses only the standard library. A materialized JSON snapshot is still written on session switch and exit.</p>
+<h2 id="jsonl-storage">JSONL storage<a class="headerlink" href="#jsonl-storage" title="Permanent link">&para;</a></h2>
+<p>Set <code>session.storage = "jsonl"</code> to write append-only <code>.polyglav/sessions/&lt;name&gt;.jsonl</code> files beside the JSON store. Each line is a <code>meta</code> or <code>turn</code> event, the last event per turn wins on load, and JSON stays the export and import format. The default remains <code>json</code>.</p>
 <h2 id="where-sessions-live">Where sessions live<a class="headerlink" href="#where-sessions-live" title="Permanent link">&para;</a></h2>
 <p>Each session is one JSON file: <code>.polyglav/sessions/&lt;name&gt;.json</code>, next to the local <code>.polyglav/config.json</code>.</p>
-<p>Names are explicit (<code>/session new &lt;name&gt;</code>, <code>/session load &lt;name&gt;</code>, <code>polyglav run --session-id &lt;name&gt;</code>) or auto-generated as <code>ses_&lt;timestamp&gt;_&lt;id&gt;</code>, e.g. <code>ses_20260817_120000_ab12cd</code>. The <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).</p>
+<p>Names are explicit (<code>/session new &lt;name&gt;</code>, <code>/session load &lt;name&gt;</code>) or auto-generated as <code>ses_&lt;timestamp&gt;_&lt;id&gt;</code>, e.g. <code>ses_20260817_120000_ab12cd</code>. The <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).</p>
 <p>Session files carry a kind prefix so the kinds stay distinguishable at a glance:</p>
 <table>
 <thead>
@@ -1512,8 +1562,8 @@
 </tr>
 </tbody>
 </table>
-<p>The trailing <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The <code>session_id</code> is the stable run handle: each run mirrors it as <code>Run.session_id</code>, <code>/runs</code> and <code>/history</code> show it, and commands accept it as <code>#&lt;id&gt;</code> (<code>/history --run #ab12cd</code>, <code>/print --run #ab12cd</code>). Resolution is a direct filename glob for <code>*_&lt;id&gt;.json</code>, so an id is found without reading every session. The <code>ses_</code>, <code>job_</code>, and <code>sub_</code> kinds carry an id. Explicit names carry no id and are referenced by <code>session:&lt;name&gt;</code>. Files written before the <code>session_name</code>/<code>session_id</code> fields were introduced no longer load (the file is left on disk and stays listed).</p>
-<p>Delegation writes each sub-agent's log as its own session: <code>sub_&lt;ts&gt;_&lt;id&gt;</code> (<code>sub_20260817_120100_cd34ef</code>), with the calling session recorded as <code>parent_id</code> rather than in the filename. Job runs use <code>job_&lt;ts&gt;_&lt;id&gt;</code>, with the job name still recorded in the job registry and each run's <code>JobRun.session</code>. A caller may resume a run or session explicitly with <code>call</code>/<code>team</code> <code>resume=...</code> and <code>context=continue|compact|new</code>, which appends to that run's own log instead of minting a new one. These live in the same <code>.polyglav/sessions/</code> directory and are regular sessions, hidden from <code>/sessions list</code> and reachable through <code>/runs</code>, <code>/history --tree</code>, <code>/print --tree</code>, and <code>--tree</code> exports, so caller and sub-agent logs stay separate and complete.</p>
+<p>The trailing <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so a generated session is fully named from the start (no prompt-slug rename). The <code>session_id</code> is the stable run handle: each run mirrors it as <code>Run.session_id</code>, <code>/status</code> shows it, and the session name carries it. The <code>ses_</code>, <code>job_</code>, and <code>sub_</code> kinds carry an id. Explicit names carry no id and are referenced by <code>session:&lt;name&gt;</code>. Files written before the <code>session_name</code>/<code>session_id</code> fields were introduced no longer load (the file is left on disk and stays listed).</p>
+<p>Delegation writes each sub-agent's log as its own session: <code>sub_&lt;ts&gt;_&lt;id&gt;</code> (<code>sub_20260817_120100_cd34ef</code>), with the calling session recorded as <code>parent_id</code> rather than in the filename. Job runs use <code>job_&lt;ts&gt;_&lt;id&gt;</code>, with the job name still recorded in the job registry and each run's <code>JobRun.session</code>. A caller may resume a run or session explicitly with <code>call</code>/<code>team</code> <code>resume=...</code> and <code>context=continue|compact|new</code>, which appends to that run's own log instead of minting a new one. These live in the same <code>.polyglav/sessions/</code> directory and are regular sessions, hidden from <code>/sessions list</code> and reachable through <code>/history --tree</code>, <code>/print --tree</code>, and <code>--tree</code> exports, so caller and sub-agent logs stay separate and complete.</p>
 <p>Each session also records the agent <code>role</code> that owns it (the bound root role, the delegated role, the team-stage role, or the job role), stamped at creation. That makes a run reconstructable from its log even after the process exits. A plain root or a headless run with no <code>--role</code> leaves <code>role</code> empty.</p>
 <p>Each session also records the Polyglav <code>version</code> that created it, so a log says which build wrote it. The version is stamped once at creation and never changes. Files written before the field load with an empty <code>version</code> (no backfill).</p>
 <p>Session files written before the turn format (flat <code>messages</code>) and files written before the <code>session_name</code>/<code>session_id</code> rename do not load: <code>read()</code> returns nothing for them, the file is left untouched on disk, and <code>/sessions</code> still lists the name. The turn format is a full cutover, not a compatibility layer.</p>
@@ -1529,12 +1579,12 @@
 </thead>
 <tbody>
 <tr>
-<td><code>/history [n\|all] [--thoughts [all]] [--run &lt;target&gt;] [--tree]</code></td>
-<td>Numbered turn index of the active session (default last 10), with an optional dim thinking excerpt, a target selector, and a whole-tree view</td>
+<td><code>/history [N\|N-O\|-O\|N-\|all] [session:&lt;name&gt; ...] [--thoughts [all]] [--tree]</code></td>
+<td>Numbered turn index of the active session (default last 10), with an optional dim thinking excerpt and a whole-tree view</td>
 </tr>
 <tr>
-<td><code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;] [--tree]</code></td>
-<td>Reprint a turn in full, or only its m-th part, capped per part by <code>print_max_chars</code>; <code>--tree</code> renders the whole run tree</td>
+<td><code>/print [N\|N-O\|-O\|N-\|N.M] [session:&lt;name&gt; ...] [--full] [--tree]</code></td>
+<td>Reprint a turn in full, or only its m-th part, capped per part at 4000 characters. <code>--tree</code> renders the whole run tree</td>
 </tr>
 <tr>
 <td><code>/session</code></td>
@@ -1572,19 +1622,15 @@
 <td><code>/sessions import &lt;file&gt; [name] [--force]</code></td>
 <td>Import a session from a JSON export</td>
 </tr>
-<tr>
-<td><code>polyglav run --session-id &lt;name&gt;</code></td>
-<td>Load or create a session from headless mode</td>
-</tr>
 </tbody>
 </table>
 <p>The current session auto-saves after every turn and command, so nothing is lost on exit.</p>
-<p><code>/history</code> lists the active session's turns as a numbered index, one line per turn: <code>#&lt;index&gt;  [&lt;status&gt;]  &lt;duration&gt;  &lt;tool count&gt;  &lt;prompt&gt;</code>. The index is the turn's absolute <code>index</code>, so a turn can be named later regardless of the listing limit. <code>/history 3</code> shows the last three turns, <code>/history all</code> every turn, and <code>--thoughts</code> adds a dim first-line excerpt of the turn's thinking (<code>--thoughts all</code> prints the full thinking text). <code>/history --run &lt;#id|#run|role|session:name|name&gt;</code> reads another run's session without changing the current session: a session id (<code>#ab12cd</code>) resolves to a live run first, otherwise the saved <code>ses_</code> session, a numeric run id (<code>#3</code>) resolves to the saved session, a role resolves to the live run with that role or the saved session, and a name resolves to the saved session (files without the current turn format read as not found). <code>--tree</code> lists the root and every sub-run with its depth.</p>
-<p><code>/print &lt;n&gt;</code> reprints the turn with that absolute index: the full turn metadata block (<code>#index</code>, status, duration, tool count, <code>started</code>/<code>ended</code>, model, provider, mode, reasoning, with empty values shown as <code>-</code>, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with <code>input</code> JSON, <code>output</code>, <code>is_error</code>, and <code>analysis</code>, the answer, command records (a compaction summary included), and system notes. <code>/print &lt;n&gt;.&lt;m&gt;</code> prints only the m-th part of turn n. Each part's text is capped at <code>print_max_chars</code> characters (default 4000) with <code>... (N more chars, use --full)</code> appended, and <code>--full</code> (or <code>print_max_chars: 0</code>) removes the cap. <code>/print</code> takes the same <code>--run &lt;#id|#run|role|session:name|name&gt;</code> selector as <code>/history</code>, resolving through the same rules without changing the current session. <code>--tree</code> renders the whole run tree.</p>
+<p><code>/history</code> lists the active session's turns as a numbered index, one line per turn: <code>#&lt;index&gt;  [&lt;status&gt;]  &lt;duration&gt;  &lt;tool count&gt;  &lt;prompt&gt;</code>. The index is the turn's absolute <code>index</code>, so a turn can be named later regardless of the listing limit. <code>/history 3</code> shows the last three turns, <code>/history all</code> every turn, and <code>--thoughts</code> adds a dim first-line excerpt of the turn's thinking (<code>--thoughts all</code> prints the full thinking text). <code>/history session:&lt;name&gt;</code> reads another saved session without changing the current session. <code>--tree</code> lists the root and every sub-run with its depth.</p>
+<p><code>/print &lt;n&gt;</code> reprints the turn with that absolute index: the full turn metadata block (<code>#index</code>, status, duration, tool count, <code>started</code>/<code>ended</code>, model, provider, mode, reasoning, with empty values shown as <code>-</code>, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with <code>input</code> JSON, <code>output</code>, <code>is_error</code>, and <code>analysis</code>, the answer, command records (a compaction summary included), and system notes. <code>/print &lt;n&gt;.&lt;m&gt;</code> prints only the m-th part of turn n. Each part's text is capped at 4000 characters with <code>... (N more chars, use --full)</code> appended, and <code>--full</code> removes the cap. <code>/print</code> takes the same <code>session:&lt;name&gt;</code> selector as <code>/history</code>, so it can read another saved session without changing the current session. <code>--tree</code> renders the whole run tree.</p>
 <h2 id="exporting-to-markdown">Exporting to Markdown<a class="headerlink" href="#exporting-to-markdown" title="Permanent link">&para;</a></h2>
 <p><code>/sessions export &lt;name&gt;</code> renders any saved session as a Markdown transcript. It reads the persisted log directly (<code>read()</code>, not <code>load()</code>), so the current session is never switched and the source file is left untouched. <code>--tree</code> renders the root and every sub-run, separated by <code>---</code>.</p>
 <p>Default output is <code>.polyglav/exports/&lt;name&gt;.md</code>, next to the <code>sessions/</code> directory. A second argument overrides the path (<code>/sessions export &lt;name&gt; out.md</code>). <code>-</code> prints the transcript to stdout instead of a file. The command tab-completes session names.</p>
-<p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, serialization-time transforms (<code>tools_output_drop</code> markers, <code>tools_output_max_chars</code> truncation) carry through as they appear in the file.</p>
+<p>The export is the full, auditable log: user prompts, each thinking block, tool calls (arguments and result, with the optional <code>analysis</code>), plain assistant answers, <code>command</code> records, compaction summaries (with the trimmed-context boundary), system notes, and a final <code>## Errors</code> section. Since it renders the persisted form, line-range tool refs resolve to their log sections as they appear in the file.</p>
 <p>The header lists the session metadata every transcript starts with: created and updated timestamps, session id, role, mode, version, turn count, and the derived <code>outcome</code> (empty fields render as <code>-</code>).</p>
 <p>The headless CLI <code>polyglav export &lt;name&gt; [--out &lt;file&gt;] [--json] [--tree]</code> reuses the same renderer for scripts and CI. <code>--out -</code> prints to stdout, and the default matches the slash command (<code>.polyglav/exports/&lt;name&gt;.md</code>). <code>--tree</code> includes sub-runs and defaults to <code>&lt;name&gt;_tree.md</code> (or <code>_tree.json</code>).</p>
 <p><code>--json</code> (and <code>/sessions export &lt;name&gt; --json</code>) emits a machine-readable document instead: <code>{"info": {...}, "turns": [...], "errors": [...], "permissions": [...]}</code>, where <code>info</code> holds the session header (name, id, role, mode, version, created and updated timestamps, parent and sub-session links, and the derived title, outcome, and idle time), <code>turns</code> is the full turn log, and <code>errors</code> and <code>permissions</code> are the session-level audit arrays. The document round-trips through the JSON import. The default output becomes <code>.polyglav/exports/&lt;name&gt;.json</code>. With <code>--tree</code>, the document is <code>{"sessions": [&lt;document&gt;, ...]}</code> in root-first order.</p>
@@ -1683,7 +1729,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>/sessions preview</code> prints the <code>parent</code> and <code>sub-sessions</code> links. <code>/sessions list</code> shows root sessions only; <code>/runs</code>, <code>/history --tree</code>, and <code>/print --tree</code> reach the sub-runs.</p>
+<p><code>/sessions preview</code> prints the <code>parent</code> and <code>sub-sessions</code> links. <code>/sessions list</code> shows root sessions only. <code>/history --tree</code> and <code>/print --tree</code> reach the sub-runs.</p>
 <p>A session's <code>title</code>, <code>outcome</code>, and <code>idle_at</code> are derived on read rather than stored, so the log stays the single source of truth and no index file is needed. <code>title</code> is the first <code>user</code> prompt collapsed to one line and clipped to 60 characters, <code>outcome</code> is <code>error</code> when any turn failed and <code>ok</code> otherwise, and <code>idle_at</code> is the last turn's <code>ended_at</code> (falling back to <code>updated_at</code>). <code>/sessions preview</code> shows all three.</p>
 <h2 id="turn-and-part-schema">Turn and part schema<a class="headerlink" href="#turn-and-part-schema" title="Permanent link">&para;</a></h2>
 <p>A turn is one user prompt (or one slash command) and the agent's response to it. It holds the turn-level context and an ordered list of parts:</p>
@@ -1765,7 +1811,7 @@
 <tr>
 <td><code>tool</code></td>
 <td><code>name</code>, <code>input</code>, <code>output</code>, <code>is_error</code>, <code>analysis</code>, <code>call_id</code>, <code>duration</code>, <code>usage</code></td>
-<td>One tool call and its result, co-located. <code>usage</code> is the assistant round that issued the call, recorded once per round. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is the optional one-line model insight (<code>tool_analysis</code> config), <code>call_id</code> is the provider's tool-call id, and <code>duration</code> is the wall-clock seconds the call took</td>
+<td>One tool call and its result, co-located. <code>usage</code> is the assistant round that issued the call, recorded once per round. <code>input</code> is the parsed argument object, <code>is_error</code> marks an <code>Error</code> result, <code>analysis</code> is reserved for a one-line insight, <code>call_id</code> is the provider's tool-call id, and <code>duration</code> is the wall-clock seconds the call took</td>
 </tr>
 <tr>
 <td><code>command</code></td>
@@ -1775,7 +1821,7 @@
 <tr>
 <td><code>system</code></td>
 <td><code>text</code></td>
-<td>An injected note (e.g. the <code>web_search: true</code> auto-search context)</td>
+<td>An injected note</td>
 </tr>
 </tbody>
 </table>
@@ -1814,7 +1860,6 @@
 <span class="w">   </span><span class="nt">"compact_from"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}]}</span>
 </code></pre></div>
 <p>A <code>command</code> part with a <code>summary</code> is a compaction record: <code>summary</code> holds the text and <code>compact_from</code> the turn <code>index</code> where the kept portion starts. The configured <code>system_prompt</code> and mode instruction are injected at request time, never stored in the log.</p>
-<p>Answering a parked ask (<code>/asks answer &lt;id&gt; &lt;text&gt;</code> or <code>POST /asks/&lt;id&gt;/answer</code> on <code>polyglav serve</code>) appends a <code>user</code> part <code>[answer to parked ask #&lt;id&gt;] &lt;answer&gt;</code> to the ask's origin session, so the next turn on that session resumes with the user's decision in context. See <a href="../config/#unattended-mode">config.md</a>.</p>
 <h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
 <p>Turn-level failures are appended to the <code>errors</code> array, separate from the turn log:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unauthorized"</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:40:00+00:00"</span><span class="p">}</span>
@@ -1859,14 +1904,8 @@
 <h2 id="append-only-semantics">Append-only semantics<a class="headerlink" href="#append-only-semantics" title="Permanent link">&para;</a></h2>
 <p>Turns and errors are only ever appended. Compaction stores the summary in a <code>command</code> part and leaves the earlier turns in place. Loading a session never rewrites history. The only transformations happen at serialization time (below), never to the in-memory log. A turn is written whenever it produced content or thinking, so a truncated mid-reasoning turn still persists its thinking, and a reasoning-only turn (thinking, no text) is recorded rather than lost. An empty turn (no content, no thinking) still records its status and any tool results.</p>
 <h2 id="serialization-time-transforms">Serialization-time transforms<a class="headerlink" href="#serialization-time-transforms" title="Permanent link">&para;</a></h2>
-<p>Every tool result is written to disk when the tool returns, and the <code>tool</code> part records a <code>ref</code>. By default the file lives under the system temp directory at <code>&lt;tmp&gt;/polyglav/&lt;session&gt;/&lt;turn&gt;_&lt;part&gt;.txt</code>. With <code>tools_output_spill</code> on, files live under <code>tools_output_dir</code>, which defaults to <code>.polyglav/tmp/</code>, so persistence needs no manually defined path.</p>
-<p>Two config keys reshape the inline <code>tool</code> output when the session is written to disk, without touching the stored parts:</p>
-<ul>
-<li><strong><code>tools_output_drop</code></strong> (default <code>["web_fetch", "open", "fetch_page"]</code>) - output of the listed tools is replaced with <code>[&lt;tool&gt; result excluded from log, full output: &lt;ref&gt;]</code>, keeping noisy results out of session files while <code>input</code> and the ref stay on the part.</li>
-<li><strong><code>tools_output_max_chars</code></strong> (default <code>0</code> = unlimited) - caps persisted tool <code>output</code> to N characters, appending <code>… (truncated from &lt;len&gt; chars)</code>.</li>
-</ul>
-<p>Both transforms add a <code>dropped</code> marker on the part so the log records what was removed and why: <code>{"reason": "drop" | "max_chars", "original_chars": &lt;len&gt;, "ref": "&lt;path&gt;"}</code>. The <code>ref</code> stays on the part even without a transform, so <code>/print</code> reads the stored text when the inline copy was dropped or capped. The in-memory part keeps its full <code>output</code>, so the marker is written to disk only.</p>
-<p>The spill roots are pruned to <code>tools_output_tmp_max_bytes</code> (oldest files first) after each save, and a session's directories are removed when the session is deleted.</p>
+<p>Every tool result appends to one log beside the session, <code>.polyglav/sessions/&lt;session&gt;.tools.log</code>, when <code>tool_output_log</code> is true (the default). The <code>tool</code> part records a relative line-range <code>ref</code> such as <code>.polyglav/sessions/&lt;session&gt;.tools.log#L120-L180</code>, plus <code>bytes</code>, <code>lines</code>, and <code>summary</code>. The session keeps the summary as its inline <code>output</code>, while <code>/print</code> and Markdown export resolve the line range to the full section. Small results are logged too.</p>
+<p>Disabling <code>tool_output_log</code> keeps the full inline output and accepts a larger session file. The log is deleted with its session, is never pruned partially, and a missing ref renders <code>[tool log missing]</code>. Old sessions with inline output load as-is.</p>
 <h2 id="preparing-the-provider-context">Preparing the provider context<a class="headerlink" href="#preparing-the-provider-context" title="Permanent link">&para;</a></h2>
 <p>The provider payload is prepared from the turns by <code>turns.provider_messages()</code> (via <code>Engine._provider_messages</code>):</p>
 <ul>

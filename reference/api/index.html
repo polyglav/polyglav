@@ -530,28 +530,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#get-asks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /asks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#post-asksanswer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        POST /asks//answer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#get-health" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1254,28 +1232,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#get-asks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /asks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#post-asksanswer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        POST /asks//answer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#get-health" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1317,7 +1273,7 @@
 <h1 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
 <p><code>polyglav serve</code> runs an HTTP JSON API on <code>127.0.0.1:8787</code> by default (override with <code>--host</code> / <code>--port</code>).</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve
-<span class="c1"># polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /asks, POST /asks/&lt;id&gt;/answer, GET /health, GET /version)</span>
+<span class="c1"># polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /health, GET /version)</span>
 </code></pre></div>
 <p>All responses are JSON with <code>Content-Type: application/json</code>.</p>
 <h2 id="post-chat">POST /chat<a class="headerlink" href="#post-chat" title="Permanent link">&para;</a></h2>
@@ -1353,20 +1309,6 @@
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/sessions
 <span class="c1"># {"sessions": ["ses_20260814_192251_ab12cd", "api"]}</span>
 </code></pre></div>
-<h2 id="get-asks">GET /asks<a class="headerlink" href="#get-asks" title="Permanent link">&para;</a></h2>
-<p>Lists parked asks. Unattended runs park <code>ask target='user'</code> instead of blocking or erroring, see <a href="../config/#unattended-mode">config.md</a>. Each entry carries <code>id</code>, <code>question</code>, <code>context</code>, <code>options</code>, <code>origin</code> (the session that parked it), <code>kind</code> (<code>direction</code>/<code>permission</code>), <code>permission</code>, <code>status</code> (<code>pending</code>/<code>answered</code>), <code>answer</code>, and timestamps.</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/asks
-<span class="c1"># {"asks": [{"id": 1, "question": "which port?", "origin": "sub_20260910_...", "kind": "direction", "status": "pending", ...}]}</span>
-</code></pre></div>
-<h2 id="post-asksanswer">POST /asks/<id>/answer<a class="headerlink" href="#post-asksanswer" title="Permanent link">&para;</a></h2>
-<p>Answers a parked ask. Marks it <code>answered</code>, injects a <code>user</code> message <code>[answer to parked ask #&lt;id&gt;] &lt;answer&gt;</code> into the origin session (so the next turn on that session sees it), and returns the ask plus a resume hint.</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/asks/1/answer<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"answer": "use port 8080"}'</span>
-<span class="c1"># {"ask": {"id": 1, ..., "status": "answered", "answer": "use port 8080"},</span>
-<span class="c1">#  "session": "sub_20260910_...", "resume": "polyglav run --session-id sub_... \"continue\"",</span>
-<span class="c1">#  "injected": true}</span>
-</code></pre></div>
-<p>Errors: <code>400</code> for a missing/empty <code>answer</code> or invalid JSON body, <code>404</code> for an unknown ask id.</p>
 <h2 id="get-health">GET /health<a class="headerlink" href="#get-health" title="Permanent link">&para;</a></h2>
 <p>Liveness check.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/health

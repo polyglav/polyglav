@@ -361,6 +361,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plugin-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slash-command-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slash command surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tool-ownership-and-agent-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tool ownership and agent interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1417,6 +1483,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#plugin-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slash-command-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slash command surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-surface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config surface
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tool-ownership-and-agent-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tool ownership and agent interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1672,6 +1804,114 @@
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
+<h2 id="plugin-boundary">Plugin boundary<a class="headerlink" href="#plugin-boundary" title="Permanent link">&para;</a></h2>
+<p>The core keeps the loop, registry, policy, providers base, config, sessions, and runs. Access, orchestration, capability, and storage extras load as plugins with declared dependencies.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="slash-command-surface">Slash command surface<a class="headerlink" href="#slash-command-surface" title="Permanent link">&para;</a></h2>
+<p>The REPL exposes one canonical name per command, separates commands from tools, and keeps current-state singular commands apart from catalog plural commands.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="cli-surface">CLI surface<a class="headerlink" href="#cli-surface" title="Permanent link">&para;</a></h2>
+<p>The CLI is a plugin-aware front-end over the same services as the REPL, so no subcommand reimplements command behavior.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="config-surface">Config surface<a class="headerlink" href="#config-surface" title="Permanent link">&para;</a></h2>
+<p>The config schema loses legacy keys, gains an owner per key, and renders grouped objects in both the REPL and the CLI.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="tool-ownership-and-agent-interaction">Tool ownership and agent interaction<a class="headerlink" href="#tool-ownership-and-agent-interaction" title="Permanent link">&para;</a></h2>
+<p>Tools that are not loop primitives live with their plugins, asks block inline, and the delegate contract matches what it actually does.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="session-storage">Session storage<a class="headerlink" href="#session-storage" title="Permanent link">&para;</a></h2>
+<p>The session log stays append-only in meaning, writes are atomic, and runtime cost is proportional to new data rather than total history.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <h2 id="self-development-team-enablement">Self-development team enablement<a class="headerlink" href="#self-development-team-enablement" title="Permanent link">&para;</a></h2>
 <p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.</p>
 <table>
@@ -1722,16 +1962,6 @@
 </thead>
 <tbody>
 <tr>
-<td>Memory with references - a compact summary plus pointers to full-length Markdown and session artifacts, with a stale-reference guard</td>
-<td>S-M</td>
-<td>recall without replay</td>
-</tr>
-<tr>
-<td>Role memory for delegated roles - inject role memory in <code>_new_sub_engine</code> through a shared compose helper, with a refresh path</td>
-<td>S</td>
-<td>a role remembers across runs</td>
-</tr>
-<tr>
 <td>Shared codebase research - a role consults a shared research note (or memory) so roles do not re-read the same files</td>
 <td>S-M</td>
 <td>no duplicated reads</td>
@@ -1742,9 +1972,9 @@
 <td>memory the agent maintains</td>
 </tr>
 <tr>
-<td>Conclusion stage - a write-scoped stage that distills a finished run into role files, skills, or memory, and never commits</td>
+<td>Memory references and self-improvement - bounded summaries point at full artifacts, and a conclusion stage distills finished runs into role memory and skills</td>
 <td>M</td>
-<td>self-improvement loop</td>
+<td>recall and self-improvement</td>
 </tr>
 </tbody>
 </table>
@@ -1855,29 +2085,9 @@
 </thead>
 <tbody>
 <tr>
-<td>Manager role - runs one or many teams and reports, sequential first</td>
-<td>M</td>
-<td>one window over several teams</td>
-</tr>
-<tr>
 <td>Composer plugin (nice-to-have) - a bundled role that designs a team from an under-specified request by asking clarifying questions and saving it</td>
 <td>M</td>
 <td>guided team design</td>
-</tr>
-<tr>
-<td>Core dev team configuration - a development team with the review loop plus the project lead/support teams and skills</td>
-<td>S</td>
-<td>ready-made teams and skills</td>
-</tr>
-<tr>
-<td>Role-name sync - adopt assistant, composer, manager, and specialist across types, prompts, and docs</td>
-<td>S</td>
-<td>one canonical vocabulary</td>
-</tr>
-<tr>
-<td>Assistant-roles track docs - record the architecture and work packages in VISION, PLAN, and TODO</td>
-<td>S</td>
-<td>documented direction</td>
 </tr>
 <tr>
 <td>Leader PM posture - hold the whole picture, push back on a request that breaks the project, and concretize an ambiguous prompt</td>
@@ -1903,24 +2113,9 @@
 </thead>
 <tbody>
 <tr>
-<td>Onboarding - first run: the assistant introduces itself, explains what it can do, and asks what to do. No system-level configuration for simple users</td>
+<td>Agent status - one <code>/status</code> surface for sessions, runs, jobs, fleet health, and configured agents across machines</td>
 <td>M</td>
-<td>a supported first step</td>
-</tr>
-<tr>
-<td>One-window status - <code>/status</code> lists sessions, running agents, and configured jobs on the machine, with logs reachable from the same surface</td>
-<td>M</td>
-<td>see everything from one place</td>
-</tr>
-<tr>
-<td>Agent health monitoring - the assistant watches endpoints (e.g. the <code>/health</code> of agents running as web APIs) and warns when an agent stops responding</td>
-<td>S-M</td>
-<td>alert when an agent is down</td>
-</tr>
-<tr>
-<td><code>/spawn</code> command - launch a scoped <code>polyglav serve</code> agent from the REPL (home -&gt; project path), supervise (health/list/stop) and delegate to it</td>
-<td>S-M</td>
-<td>fleet agents from the terminal</td>
+<td>one status view</td>
 </tr>
 </tbody>
 </table>
@@ -1956,11 +2151,6 @@
 <td>review-and-fix loops (later phase, listed in VISION.md out-of-scope)</td>
 </tr>
 <tr>
-<td>PM/dev/tester team orchestration as a user-facing pattern</td>
-<td>M</td>
-<td>team pattern on top of the teams registry</td>
-</tr>
-<tr>
 <td>Custom system prompts per session</td>
 <td>S-M</td>
 <td>per-site instructions</td>
@@ -1969,11 +2159,6 @@
 <td>Role directory scan for export/import - read <code>.polyglav/roles/*.md</code> (front-matter roles) to import and export roles to Markdown</td>
 <td>S-M</td>
 <td>portable role definitions</td>
-</tr>
-<tr>
-<td>Swarm orchestration umbrella (TODO item)</td>
-<td>-</td>
-<td>decomposed by this package</td>
 </tr>
 </tbody>
 </table>
@@ -1994,34 +2179,24 @@
 <td>encoded recurring behavior</td>
 </tr>
 <tr>
-<td><code>jobs add --team</code> - scheduled team runs, per-run team summary session, member sessions as team stages</td>
-<td>M</td>
-<td>recurring team pipelines</td>
-</tr>
-<tr>
-<td>Jobs operator API - <code>GET /jobs</code> and <code>POST /jobs/&lt;name&gt;/approve|reject|run|disable</code> on <code>polyglav serve</code></td>
-<td>M</td>
-<td>any client can see/act per agent</td>
-</tr>
-<tr>
 <td>Job event hooks - the scheduler emits typed transitions (<code>proposed</code>, <code>approved</code>, <code>will_run</code>, <code>executing</code>, <code>verified</code>, <code>failed</code>, <code>timeout</code>, <code>waiting_approval</code>) to registered <code>services</code>, channel-agnostic core</td>
 <td>M</td>
 <td>notification source</td>
 </tr>
 <tr>
-<td>Job connectors - bundled <code>polyglav-core-webhook</code> (stdlib JSON POST, zero deps) first, email (SMTP + polling) and Telegram (urllib long-poll) plugins later, all driving the jobs operator API</td>
-<td>M-L</td>
-<td>operators react in time</td>
-</tr>
-<tr>
-<td>Fleet jobs overview - <code>polyglav jobs list --root &lt;dir&gt;</code> combined agent/job table (agent, job, status, next run, task), then a web Control UI on top</td>
+<td>Job notifications and outbound connectors - one event stream over a stdlib webhook, then email and Telegram, with approve, reject, run, and disable routed to the jobs API</td>
 <td>M</td>
-<td>one view of what runs next</td>
+<td>one notification stream</td>
 </tr>
 <tr>
-<td>Mid-run blocking job approval - an <code>ask</code> inside a running job pauses in place (per-tool-call <code>waiting_approval</code>), notifies via a connector, and resumes the same session on reply. Needs resumable mid-run state, a wait loop inside the run, and the connectors above</td>
-<td>L</td>
-<td>decide during the task</td>
+<td>Inbound run triggers - accept webhook events that start a run or answer a job question</td>
+<td>M</td>
+<td>external triggers</td>
+</tr>
+<tr>
+<td>Jobs and fleet control API, then Control UI - <code>GET /jobs</code> and <code>POST /jobs/&lt;name&gt;/approve|reject|run|disable</code> on <code>polyglav serve</code>, a fleet-wide <code>--root</code> list, and a stdlib web Control UI</td>
+<td>M</td>
+<td>one control surface</td>
 </tr>
 </tbody>
 </table>
@@ -2065,12 +2240,7 @@
 <td>control-plane rule</td>
 </tr>
 <tr>
-<td>Minimal web Control UI - stdlib <code>http.server</code> page over the existing <code>polyglav serve</code> JSON API</td>
-<td>M</td>
-<td>dashboard over the JSON API</td>
-</tr>
-<tr>
-<td>Multiuser API + queue / rate limits</td>
+<td>Multiuser API and queue - a fleet-level central model layer with request queues and per-token rate limits</td>
 <td>M</td>
 <td>many feeds without blocking the loop</td>
 </tr>
@@ -2123,19 +2293,14 @@
 <td>versioned bundled plugins</td>
 </tr>
 <tr>
-<td>Plugin test harness - external plugins ship a test suite, <code>polyglav plugins test &lt;name&gt;</code> runs it</td>
-<td>S-M</td>
-<td>tested plugins</td>
-</tr>
-<tr>
 <td>Cross-plugin tool router - virtual tool names (<code>open</code>, <code>search</code>, ...) dispatch per-argument to the matching plugin handler</td>
 <td>M</td>
 <td>context-aware dispatch</td>
 </tr>
 <tr>
-<td>Web scraper + PDF-to-text plugins</td>
-<td>S-M</td>
-<td>non-text content types</td>
+<td>Content ingestion - cache web and PDF results under <code>.polyglav/files</code>, scrape full pages, and convert local or remote PDFs to text</td>
+<td>M</td>
+<td>reusable content</td>
 </tr>
 <tr>
 <td>Agent folder watcher - process new files on arrival</td>
@@ -2317,14 +2482,9 @@
 </thead>
 <tbody>
 <tr>
-<td>Conversation sharing links - web-shareable sessions (builds on Markdown export)</td>
+<td>Session interchange - Markdown import and shareable or published sessions</td>
 <td>M</td>
-<td>shareable sessions</td>
-</tr>
-<tr>
-<td>Session import from Markdown</td>
-<td>M</td>
-<td>round-trip session exchange</td>
+<td>round-trip and sharing</td>
 </tr>
 <tr>
 <td>Bookmarks (<code>/bookmark</code>)</td>

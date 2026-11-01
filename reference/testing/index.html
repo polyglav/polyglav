@@ -1296,15 +1296,7 @@
 </tr>
 <tr>
 <td><code>test_ask.py</code></td>
-<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), direction routing (always the user; <code>caller</code>/<code>auto</code> accepted as <code>user</code> for one version), the clarity guard (a short question with no context or options is rejected), ask options rendering (numbered block, <code>&gt;</code> prompt, number/letter/free-text selection), permission-request routing (prompts the root, unattended parks, a read-mode catalog ask offers a mode switch), sub-engine <code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
-</tr>
-<tr>
-<td><code>test_asks.py</code></td>
-<td>Pending-ask inbox: <code>AskStore</code> add/find/list/status-filter/answer round-trip + persistence + incrementing ids + unknown/empty answer, <code>inject_answer</code> appends the <code>user</code> part to the origin session (+ missing-session skip), parking (unattended root ask -&gt; <code>[parked]</code> + record with no stdin, an unattended sub-agent ask parks without consulting a caller, permission asks park, attended still prompts), resume-in-context after reload, <code>/asks</code> command (list/show/answer/usage/unknown-id, answer reloads a current origin session), serve <code>GET /asks</code> + <code>POST /asks/&lt;id&gt;/answer</code> (200/404/400)</td>
-</tr>
-<tr>
-<td><code>test_autonomous_supervisor.py</code></td>
-<td>End-to-end governance loop (deterministic, mock provider): a <code>leader</code>-typed supervisor job runs a <code>team</code>, a stage's <code>ask</code> parks under unattended mode, the run verifies and the <code>report</code> payload carries the parked ask. Answering injects into the origin session and a resumed turn sees it. The <code>grant_permission</code> ceiling lets the leader delegate <code>bash</code> it denies itself</td>
+<td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), direction routing (always the user, with <code>caller</code>/<code>auto</code> accepted as <code>user</code> for one version), the clarity guard (a short question with no context or options is rejected), ask options rendering (numbered block, <code>&gt;</code> prompt, number/letter/free-text selection), permission-request routing (prompts the root, a read-mode catalog ask offers a mode switch), sub-engine <code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
 </tr>
 <tr>
 <td><code>test_bundled_plugins.py</code></td>
@@ -1312,11 +1304,11 @@
 </tr>
 <tr>
 <td><code>test_cli.py</code></td>
-<td><code>polyglav run</code>: JSON/text output, session-id persistence, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>polyglav export</code>: default/custom/stdout targets, JSON default file and stdout, unknown session. <code>polyglav import</code>: round-trip, JSON document and raw-dict input, name retention, explicit name, collision error, force overwrite, missing file, main dispatch. <code>polyglav models</code>: bare configured listing (grouped, active marker, key marker, empty) and <code>list [provider]</code> probe (default/<code>&lt;provider&gt;</code>, error/empty), <code>main</code> dispatch for both. <code>polyglav plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch</td>
+<td><code>polyglav run</code>: JSON/text output, exit codes, one-shot overrides applied but never persisted, <code>_engine_from_args</code> approval wiring (explicit <code>--model</code> auto-approves, <code>--approve-model</code> grants, default does not). <code>polyglav plugins</code>: list/install/uninstall, enable/disable plugins-list toggle + unknown name, <code>main</code> dispatch. Model, eval, export, and import CLI coverage lives in each plugin suite</td>
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
-<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under <code>/tool</code>, mode-filtered listings), <code>/modes</code> list, <code>--verbose</code> descriptions, and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, <code>connect_check</code> off, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>api_key</code> as a normal key incl. global writes, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
+<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under the tools section, mode-filtered listings), <code>/modes</code> list, <code>--verbose</code> descriptions, and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
 </tr>
 <tr>
 <td><code>test_completion.py</code></td>
@@ -1324,11 +1316,11 @@
 </tr>
 <tr>
 <td><code>test_config.py</code></td>
-<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin). <code>api_key</code> is an ordinary key, with no global forcing, <code>0600</code>, or migration. Verbosity defaults and migration are covered in <code>test_verbosity.py</code></td>
+<td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin) Verbosity defaults and migration are covered in <code>test_verbosity.py</code></td>
 </tr>
 <tr>
 <td><code>test_call.py</code></td>
-<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.output</code> display, streamed sub-run suppression of the duplicate echo, <code>/tool call</code> single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
+<td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.output</code> display, streamed sub-run suppression of the duplicate echo, direct <code>call</code> tool single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
 <tr>
 <td><code>test_catalog.py</code></td>
@@ -1343,16 +1335,16 @@
 <td><code>Engine.chat</code> turn result, thinking/content separation, load-or-create sessions, auto <code>ses_&lt;ts&gt;_&lt;id&gt;</code> naming (stable across turns), read-mode schema filtering, instruction injection, per-turn <code>mode</code>, glyph param suffix gating, <code>✗</code> error-line rendering (never hidden), soft-result note-line rendering at <code>verbosity.tools</code>, <code>check_connection</code>/<code>list_models</code> probe resolution and overrides without state mutation, <code>_reinit_provider</code> provider-registry API key resolution (no config fallback, registry custom base_url fallback when config empty), model-ref unfold + approval gate (unfolded provider/base_url/model, headless deny, <code>approve_models</code> grant, chat short-circuit, subrole-model unfold + gate, team-run pre-check deny)</td>
 </tr>
 <tr>
-<td><code>test_eval.py</code></td>
+<td><code>polyglav-core-eval/tests/test_eval.py</code></td>
 <td>Eval harness: fixture model + loading, declarative verifier (exact/must_include/avoid/max_calls/min_calls/args), metric computation (accuracy, redundant, errors, tokens), fixture discovery + precedence (plugin/global/local), cwd isolation and restore, suite aggregation</td>
 </tr>
 <tr>
-<td><code>test_fleet.py</code></td>
+<td><code>polyglav-core-fleet/tests/test_fleet.py</code></td>
 <td>Fleet supervisor: port allocation (preferred/bind-probe fallback/in-use skip/exhaustion), <code>/health</code> probe ok + failure, manifest/state round-trip + corrupt tolerance, spawn &gt; health &gt; crash &gt; restart &gt; down via <code>sys.executable -c</code> mock servers, <code>max_restarts</code> give-up, unhealthy-threshold restart, disabled gate, log files, env seams (<code>POLYGLAV_FLEET_PORT</code>), <code>polyglav fleet</code> CLI (init/add/remove/status/restart/config incl. role inline + unknown-role error), detached-daemon end-to-end (up --detach, status, down)</td>
 </tr>
 <tr>
 <td><code>test_history.py</code></td>
-<td><code>/history</code> command: default last-10 / <code>n</code> / <code>all</code> listings by absolute turn index, header with total turns and role, line fields (status, duration, tool count, prompt), command-only turns, prompt first-line clip, <code>--thoughts</code> excerpt vs <code>--thoughts all</code>, <code>--run</code> target resolution (session name, bare name, live <code>#run</code>, saved-run <code>#run</code>, live <code>#id</code>, saved <code>#id</code>, live role run, saved session fallback) without changing the current session, unknown target and usage errors, empty-session cases</td>
+<td><code>/history</code> command: default last-10 / <code>n</code> / <code>all</code> listings by absolute turn index, header with total turns and role, line fields (status, duration, tool count, prompt), command-only turns, prompt first-line clip, <code>--thoughts</code> excerpt vs <code>--thoughts all</code>, <code>session:&lt;name&gt;</code> target resolution without changing the current session, unknown target and usage errors, empty-session cases</td>
 </tr>
 <tr>
 <td><code>test_http.py</code></td>
@@ -1388,7 +1380,7 @@
 </tr>
 <tr>
 <td><code>test_print.py</code></td>
-<td><code>/print</code> command: whole-turn reprint with the full metadata block (empty fields as <code>-</code>, including a command turn), part-only <code>&lt;n&gt;.&lt;m&gt;</code>, out-of-range part, unknown turn, <code>print_max_chars</code> cap vs <code>--full</code>, <code>--run</code> targets (session name, bare name, live role run, saved session fallback, live <code>#run</code>, live <code>#id</code>) without changing the current session, unknown target and usage/invalid-spec errors</td>
+<td><code>/print</code> command: whole-turn reprint with the full metadata block (empty fields as <code>-</code>, including a command turn), part-only <code>&lt;n&gt;.&lt;m&gt;</code>, out-of-range part, unknown turn, fixed print cap vs <code>--full</code>, <code>session:&lt;name&gt;</code> targets without changing the current session, unknown target and usage/invalid-spec errors</td>
 </tr>
 <tr>
 <td><code>test_provider_session.py</code></td>
@@ -1411,11 +1403,7 @@
 <td>REPL input: multi-line <code>"""</code>/<code>'''</code> block detection, framing strip (pure, lead-in, indentation preserved), EOF exit during an open block, slash commands single-line, output log written only when enabled and rotated per session, plain text by default (no ANSI) with <code>output_log_ansi</code> keeping the colors, banner precedes startup hooks, mode-colored live prompt and <code>NO_COLOR</code> fallback, submitted-line reprint in the mode and command colors</td>
 </tr>
 <tr>
-<td><code>test_pause.py</code></td>
-<td>Pause/resume: <code>/pause</code> and <code>/resume</code> state, <code>@ Paused #n root</code> and <code>@ Resumed #n root</code>, and a chat turn skipped while paused</td>
-</tr>
-<tr>
-<td><code>test_plan_todo.py</code></td>
+<td><code>polyglav-core-bookkeeping/tests/test_plan_todo.py</code></td>
 <td>Plan and todo bookkeeping: <code>plan_write</code> creates <code>plan_&lt;ts&gt;_&lt;session_id&gt;.md</code> under <code>plan.dir</code>, attaches the path to the session, validates the required sections, appends revisions and honors <code>replace</code>, injects the bounded plan block, propagates the plan to sub-engines, round-trips the session <code>plan</code> field, and <code>/plan</code> and <code>/plans</code> show, attach, detach, and list plans. The <code>todo</code> tool adds, starts, completes, blocks, removes, lists, and shows items, updates <code>.polyglav/todos/&lt;session&gt;.json</code>, injects the current-work block, prints a note, and <code>/todo</code> and <code>/todos</code> show and edit lists</td>
 </tr>
 <tr>
@@ -1439,12 +1427,16 @@
 <td><code>RunRegistry</code>: sequential ids, parent/children tree and creation-order call log, <code>finish</code> status set-once, duration and usage storage, <code>rollup</code>, task recording, unknown-run tolerance. Engine runs: root run registration, sub-engine shares the registry and links the parent, <code>run_subagent</code> finishes the child run, <code>load_or_create_session</code> updates the run session and session id</td>
 </tr>
 <tr>
-<td><code>test_runs_command.py</code></td>
-<td><code>/runs</code>: read-only tree, duration, own/tree tokens, and no run-switch output</td>
+<td><code>polyglav-core-quality/tests/test_tools.py</code></td>
+<td>Optional lint/format wrappers: configured commands, failure output, missing cwd, metadata, aliases</td>
 </tr>
 <tr>
-<td><code>test_server.py</code></td>
-<td><code>polyglav serve</code> HTTP API: <code>/chat</code>, <code>/sessions</code>, <code>/health</code>, <code>/version</code></td>
+<td><code>polyglav-core-storage-sqlite/tests/test_store.py</code></td>
+<td>SQLite session store: round-trip, delete, materialize</td>
+</tr>
+<tr>
+<td><code>polyglav-core-serve/tests/test_server.py</code></td>
+<td><code>polyglav serve</code> HTTP API: <code>/chat</code>, <code>/cancel</code>, <code>/sessions</code>, <code>/health</code>, <code>/version</code></td>
 </tr>
 <tr>
 <td><code>test_session_id.py</code></td>
@@ -1460,7 +1452,7 @@
 </tr>
 <tr>
 <td><code>test_session_log.py</code></td>
-<td>Session model: turn/part storage and the explicit turn/part API, turn index/status/metadata, per-turn <code>usage</code>/<code>context_tokens</code>/<code>finish_reason</code> telemetry, append-only serialization, <code>max_chars</code>/<code>tools_output_drop</code> transforms on tool-part output (with the <code>dropped</code> provenance marker and the optional <code>tools_output_spill</code> ref, and the tmp spill-dir removal on delete plus tmp pruning), tool-part <code>call_id</code>/<code>duration</code>, errors/permissions round-trip, <code>session_id</code> field round-trip, <code>write_summary</code> file, files without the current format do not load (and stay listed), compaction boundary and provider reconstruction (with the standalone summary file), agent-loop turn persistence (thinking, tool parts, analysis, stop reason, call id)</td>
+<td>Session model: turn/part storage and the explicit turn/part API, turn index/status/metadata, per-turn <code>usage</code>/<code>context_tokens</code>/<code>finish_reason</code> telemetry, append-only serialization, tool-part summary and ref persistence and sidecar deletion, tool-part <code>call_id</code>/<code>duration</code>, errors/permissions round-trip, <code>session_id</code> field round-trip, <code>write_summary</code> file, files without the current format do not load (and stay listed), compaction boundary and provider reconstruction (with the standalone summary file), agent-loop turn persistence (thinking, tool parts, analysis, stop reason, call id)</td>
 </tr>
 <tr>
 <td><code>test_session_metadata.py</code></td>
@@ -1475,8 +1467,8 @@
 <td><code>SkillRegistry</code>: local/global dir scans, plugin/global/local merge and precedence, origins, put/remove round-trip, reload (disk re-read + plugin-manager re-apply), <code>skills_section</code>, <code>/skills</code> command (list/show/new override/remove, plugin remove rejected)</td>
 </tr>
 <tr>
-<td><code>test_spill.py</code></td>
-<td>Tool output spill: system temp default, worktree-relative persistent refs, custom <code>tools_output_dir</code>, prune by age/size, engine ref on every tool part, auto-save dropped marker, <code>/print</code> ref rendering, and session delete removing both spill roots</td>
+<td><code>test_tool_log.py</code></td>
+<td>Session tool log: append and line-range refs, summaries, engine refs, <code>tool_output_log</code> off, auto-save summary, <code>/print</code> resolution, and sidecar deletion</td>
 </tr>
 <tr>
 <td><code>test_subagent.py</code></td>
@@ -1511,10 +1503,6 @@
 <td>Turn model (<code>src/polyglav/sessions/turns.py</code>): turn/part shape and builders for the six part types, <code>finish_turn</code>/<code>finish_tool</code>, <code>tool</code> co-location, provider reconstruction (a turn's text plus consecutive tool parts grouped into one assistant <code>tool_calls</code> message followed by its tool results, thinking attached to the answer or tool round, reasoning-only turns, command parts dropped, system passthrough, deterministic tool-call ids, JSON-serialized arguments), and <code>compaction</code>/<code>provider_messages</code> (summary plus turn-index boundary)</td>
 </tr>
 <tr>
-<td><code>test_unattended.py</code></td>
-<td>Unattended mode: config defaults, root <code>_ask_ui</code> dropped (config, <code>--unattended</code>, <code>/unattended</code>) and restored by <code>set_unattended</code>, sub-engine inherits <code>unattended</code> + no <code>_ask_ui</code>, confirm auto-deny (no <code>ui.confirm</code> call), root and sub-agent user asks park without reading stdin, full-loop run_command confirm auto-deny, model approval not prompted unless <code>approve_models</code>, <code>/unattended</code> command status + toggle, <code>confirm_timeout</code> deny-on-timeout / answer-when-ready / zero-timeout passthrough for confirm and ask</td>
-</tr>
-<tr>
 <td><code>test_roles.py</code></td>
 <td><code>RoleRegistry</code>: bundled/plugin/global/local merge and precedence, origins (bundled/plugin/local/global origin), tags roundtrip + merge, put/remove/reload (disk re-read + plugin-manager re-apply), <code>/roles</code> command (list/show/new override/remove, <code>list &lt;tag&gt;</code> filter, bundled remove rejected)</td>
 </tr>
@@ -1533,7 +1521,7 @@
 <p>Each bundled plugin ships its unit tests in its own directory (<code>plugins/&lt;name&gt;/tests/</code>), covering the plugin's tools and helpers without touching the core. The core suite discovers them through <code>tests/test_plugin_suites.py</code> (registered via <code>load_tests</code>), so <code>python -m unittest discover tests</code> runs everything. A single plugin's suite runs standalone with <code>python plugins/&lt;name&gt;/tests/&lt;file&gt;.py</code>, and headless via <code>polyglav plugins test &lt;name&gt;</code> (or <code>polyglav plugins test</code> for every plugin with a suite).</p>
 <h2 id="live-testing">Live testing<a class="headerlink" href="#live-testing" title="Permanent link">&para;</a></h2>
 <p>Manual live tests against a real provider API are done ad-hoc, not automated. Use a local model (Ollama) or a disposable API key, and verify a turn end-to-end: streaming output, a tool call round trip, and session persistence.</p>
-<p>The overnight autonomous run is verified live with a real model: <code>polyglav jobs add-supervisor night --interval 86400 --task "..."</code>, run it (<code>polyglav jobs run night</code> or the daemon), watch <code>/asks</code> for a parked question, answer it, and confirm the run completes and (with <code>report.webhook</code> set) the report arrives. See the <a href="../jobs/#supervisor-overnight-run">Supervisor overnight run</a> section in <code>docs/jobs.md</code>.</p>
+<p>The overnight autonomous run is verified live with a real model: <code>polyglav jobs add &lt;name&gt; --role manager --interval 86400 --file .polyglav/jobs/&lt;name&gt;.md</code>, run it (<code>polyglav jobs run &lt;name&gt;</code> or the daemon), and confirm the run completes and, with <code>report.webhook</code> set, the report arrives. See <a href="../jobs/">jobs.md</a>.</p>
 
 
 

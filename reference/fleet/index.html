@@ -709,6 +709,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spawning-from-the-repl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spawning from the REPL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supervisor" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1271,6 +1282,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#spawning-from-the-repl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spawning from the REPL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supervisor" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1383,8 +1405,7 @@ polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="
 </table>
 <p>A minimal agent config (<code>.polyglav/config.json</code> in its own directory):</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ollama"</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"llama3.2"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ollama/llama3.2"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are the documentation agent. Convert PDFs to text, keep the index current, and answer questions from the stored docs."</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"tools.allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"glob"</span><span class="p">,</span><span class="w"> </span><span class="s2">"file_read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"file_write"</span><span class="p">,</span><span class="w"> </span><span class="s2">"run_command"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pdf2text"</span><span class="p">,</span><span class="w"> </span><span class="s2">"watch_folder"</span><span class="p">,</span><span class="w"> </span><span class="s2">"search_index"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"tool_permission"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"read"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"list"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"bash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="p">,</span><span class="w"> </span><span class="nt">"web"</span><span class="p">:</span><span class="w"> </span><span class="s2">"allow"</span><span class="w"> </span><span class="p">},</span>
@@ -1395,6 +1416,13 @@ polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>agents/docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
 curl<span class="w"> </span>localhost:8781/chat<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"prompt": "What does spec-42.pdf say?", "session": "docs-pool"}'</span>
 </code></pre></div>
+<h2 id="spawning-from-the-repl">Spawning from the REPL<a class="headerlink" href="#spawning-from-the-repl" title="Permanent link">&para;</a></h2>
+<p>With <code>polyglav-core-fleet</code> enabled, <code>/spawn</code> starts and supervises one scoped agent without leaving the REPL. It writes the agent into the worktree fleet manifest, starts <code>polyglav serve</code> on a free port, and waits for <code>GET /health</code>.</p>
+<div class="highlight"><pre><span></span><code>/spawn docs-agent ../docs
+/spawn ask docs-agent Summarize the current specification.
+/spawn stop docs-agent
+</code></pre></div>
+<p>The first form creates or updates the agent directory. The <code>ask</code> form posts to the running agent's <code>POST /chat</code> and prints its answer. <code>/spawn</code> without arguments lists agent state, port, and pid. The fleet plugin remains off by default, so enable it before using the command.</p>
 <h2 id="supervisor">Supervisor<a class="headerlink" href="#supervisor" title="Permanent link">&para;</a></h2>
 <p><code>polyglav fleet</code> supervises the agents from the terminal: port allocation, health checks, a restart policy, and per-agent config generation. It is the systemd/Compose-shaped layer for a single host, so Docker is not needed. A fleet root is a directory holding the agents, typically one folder each, with two files in its <code>.polyglav/</code>:</p>
 <ul>

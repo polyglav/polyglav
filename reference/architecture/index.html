@@ -1472,11 +1472,11 @@
 </code></pre></div>
 <p><code>status</code> is <code>ok</code>, <code>error</code>, <code>empty</code>, <code>truncated</code>, or <code>cancelled</code>. Any front-end addresses sessions via <code>Engine.load_or_create_session(name)</code>. <code>Engine.chat_tool(name, args)</code> runs a <code>loop</code>-registered tool (e.g. <code>call</code>) as a persisted agent-loop turn: the tool call and result land in the session, then the model streams its final answer.</p>
 <h2 id="runs">Runs<a class="headerlink" href="#runs" title="Permanent link">&para;</a></h2>
-<p>Every engine instance is a run, tracked in a process-local <code>RunRegistry</code> (<code>src/polyglav/runs.py</code>) shared across the delegation tree. A run records a numeric <code>id</code>, the agent <code>role</code>, the <code>session</code>, the <code>session_id</code> (a durable six-character handle, empty for explicit names), the <code>parent</code> run id and its ordered <code>children</code>, a <code>status</code> (<code>running</code>, <code>done</code>, or <code>error</code>), the <code>task</code> brief, timestamps, and its <code>duration</code> and token <code>usage</code>. Delegated and team-stage engines register as children of the caller (<code>_new_sub_engine</code> passes the registry and parent id) and are finished when their <code>chat</code> returns. <code>RunRegistry.runs()</code> is the flat creation-order call log, <code>children(id)</code> walks the tree, and <code>rollup(id)</code> sums a run and its children. A sub-engine renders through <code>SubRunUI</code> when <code>verbosity.output</code> includes its role, and otherwise through <code>NullUI</code>, so its output either appears under the caller or stays in its own session. <code>/runs</code> shows each run's duration and own/tree tokens, and <code>/print --run</code> prints a run's stored output.</p>
+<p>Every engine instance is a run, tracked in a process-local <code>RunRegistry</code> (<code>src/polyglav/runs.py</code>) shared across the delegation tree. A run records a numeric <code>id</code>, the agent <code>role</code>, the <code>session</code>, the <code>session_id</code> (a durable six-character handle, empty for explicit names), the <code>parent</code> run id and its ordered <code>children</code>, a <code>status</code> (<code>running</code>, <code>done</code>, or <code>error</code>), the <code>task</code> brief, timestamps, and its <code>duration</code> and token <code>usage</code>. Delegated and team-stage engines register as children of the caller (<code>_new_sub_engine</code> passes the registry and parent id) and are finished when their <code>chat</code> returns. <code>RunRegistry.runs()</code> is the flat creation-order call log, <code>children(id)</code> walks the tree, and <code>rollup(id)</code> sums a run and its children. A sub-engine renders through <code>SubRunUI</code> when <code>verbosity.output</code> includes its role, and otherwise through <code>NullUI</code>, so its output either appears under the caller or stays in its own session. <code>/status</code> shows live runs, and <code>/print session:&lt;name&gt;</code> prints a run's stored output.</p>
 <h2 id="focus">Focus<a class="headerlink" href="#focus" title="Permanent link">&para;</a></h2>
-<p><code>ChatLoop.active()</code> returns the root engine. The REPL runs one process and one context at a time: there is no focus stack or handoff. <code>SubRunUI</code> forwards a visible sub-run into the caller under <code>verbosity.output</code>, while hidden sub-runs stay in their own sessions. <code>/runs</code> prints the run tree read-only, <code>/print --run</code> reads a run's output, and <code>/pause</code>/<code>/resume</code> hold the next turn at the turn boundary. The <code>prompt_role</code> and <code>focus_on_delegate</code> config keys are gone; the live prompt is a mode-colored <code>&gt;</code>, and the submitted line reprints in the same color.</p>
+<p><code>ChatLoop.active()</code> returns the root engine. The REPL runs one process and one context at a time: there is no focus stack or handoff. <code>SubRunUI</code> forwards a visible sub-run into the caller under <code>verbosity.output</code>, while hidden sub-runs stay in their own sessions. <code>/status</code> shows live runs, <code>/print session:&lt;name&gt;</code> reads a run's output, and Ctrl-C pauses the root turn for <code>/continue</code> or <code>/cancel</code>, a child run is cancelled and the parent continues, and idle Ctrl-C requires a second press within two seconds to exit. The <code>prompt_role</code> and <code>focus_on_delegate</code> config keys are gone. The live prompt is a mode-colored <code>&gt;</code>, and the submitted line reprints in the same color.</p>
 <h2 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h2>
-<p>A run's own session is the context within a run. Across runs, continuity is bounded memory owned by <code>src/polyglav/memory.py</code>, one compacted Markdown summary per scope under <code>.polyglav/memory/</code> (<code>roles/&lt;role&gt;.md</code>, <code>teams/&lt;name&gt;.md</code>, <code>jobs/&lt;name&gt;.md</code>). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. <code>memory</code>, <code>memory_scopes</code>, and <code>memory_max_chars</code> gate and cap it, and <code>/memorize</code> writes a scope on demand. See <a href="../memory/">memory.md</a>.</p>
+<p>A run's own session is the context within a run. Across runs, continuity is bounded memory owned by <code>polyglav-core-memory</code>, one compacted Markdown summary per scope under <code>.polyglav/memory/</code> (<code>roles/&lt;role&gt;.md</code>, <code>teams/&lt;name&gt;.md</code>, <code>jobs/&lt;name&gt;.md</code>). Role memory is injected into a sub-agent's system prompt and refreshed after its run, and team/job memory is injected into briefs and refreshed after their runs, all through the same compaction summarizer with the previous memory as a seed. <code>memory</code>, <code>memory_scopes</code>, and <code>memory_max_chars</code> gate and cap it, and <code>/memorize</code> writes a scope on demand. See <a href="../memory/">memory.md</a>.</p>
 <h2 id="one-stream-one-round-trip">One stream, one round trip<a class="headerlink" href="#one-stream-one-round-trip" title="Permanent link">&para;</a></h2>
 <p>When no tools are used, a turn is a single streaming request, with no separate non-streaming decision round. <code>chat_nonstreaming()</code> is reserved for auxiliary decisions: query refinement, tool-result analysis, compaction. The <code>&lt;thinking&gt;</code> marker split lives in the engine so thinking stays separate from content in JSON results and session logs.</p>
 <h2 id="ui-sinks">UI sinks<a class="headerlink" href="#ui-sinks" title="Permanent link">&para;</a></h2>
@@ -1507,7 +1507,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>ReplUI</code>'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in <code>src/polyglav/ui.py</code>, gated by the <code>markdown_streaming</code> config.</p>
+<p><code>ReplUI</code>'s markdown rendering (code blocks, inline code, bold) is a lightweight token-level state machine in <code>polyglav-core-repl</code>, gated by the <code>markdown_streaming</code> config.</p>
 <h2 id="front-ends">Front-ends<a class="headerlink" href="#front-ends" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1543,14 +1543,10 @@
 <h2 id="source-layout">Source layout<a class="headerlink" href="#source-layout" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>src/polyglav/
 ├── __main__.py          # python -m polyglav
-├── chat.py              # ChatLoop(Engine) - REPL shell with readline
 ├── cli.py               # headless entry points
 ├── commands/            # command registry + builtins
 ├── config.py            # JSON config (global + local merge)
 ├── engine.py            # headless agent core - Engine, TurnResult, chat_tool, run_subagent, run_team
-├── eval.py              # tool-use eval harness (polyglav eval)
-├── fleet.py             # FleetController - supervised serve agents
-├── jobs.py              # Job/JobRun model + registry
 ├── main.py              # CLI arg parsing + bootstrap (REPL, run, serve, ...)
 ├── modes.py             # read/write caps and descriptions merged into tool policy
 ├── models.py            # global approved-model registry (models.json)
@@ -1559,14 +1555,10 @@
 │   ├── __init__.py      # PROVIDERS registry + detect_provider (host patterns)
 │   ├── base.py          # BaseProvider + OpenAICompatibleProvider
 │   └── registry.py      # ProviderRegistry (providers.json - keys + base URLs)
-├── scheduler.py         # JobScheduler - durable job daemon
-├── server.py            # stdlib HTTP JSON API
-├── sessions/            # session CRUD + markdown render
-├── skills.py            # SkillRegistry (per-role instructions)
-├── teams.py             # TeamRegistry (named team pipelines) + team memory helpers
+├── sessions/            # session CRUD
 ├── tools/               # tool registry, tool policy, call, delegate, ask, plan, todo
-├── roles.py             # RoleRegistry (roles, plugin/global/local)
-├── ui.py                # UISink - ReplUI / SubRunUI / HeadlessUI / NullUI
+├── role_model.py        # role model and permission helpers
+├── ui.py                # HeadlessUI, NullUI, glyphs, markdown, and prompt primitives
 └── utils/               # urllib-based SSE streaming
 </code></pre></div>
 <h2 id="extension-points">Extension points<a class="headerlink" href="#extension-points" title="Permanent link">&para;</a></h2>

@@ -1409,7 +1409,7 @@
 <p>A leader can set <code>grant_permission</code> to hand down a category it denies itself, so one supervisor can authorize an implementer without using the tool itself. The mode sets the outer ceiling: write keys are grantable in <code>write</code>, and denied in <code>read</code>.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Read mode cannot run tests or lint (<code>run_command</code> and <code>code_test</code> are <code>bash</code>), commit (<code>vcs</code>), or use MCP until the user switches to <code>write</code>.</li>
+<li>Read mode cannot run tests or lint (<code>run_command</code>, <code>code_test</code>, and <code>code_check</code> are <code>bash</code>), commit (<code>vcs</code>), or use MCP until the user switches to <code>write</code>.</li>
 <li>Read mode can still write the plan and the todo, because those tools write only <code>.polyglav/plans/</code> and <code>.polyglav/todos/</code>.</li>
 <li>Existing configs and scripts that relied on the old <code>build</code> default now run read-only until they set <code>mode: "write"</code>.</li>
 <li>A new plugin write key stays denied in read mode until it is added to <code>access.read_tools</code>.</li>

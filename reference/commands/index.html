@@ -575,6 +575,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#command-grammar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command grammar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cli" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -613,6 +624,17 @@
     <span class="md-ellipsis">
       
         polyglav import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglav-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav providers
       
     </span>
   </a>
@@ -1326,6 +1348,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#command-grammar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command grammar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cli" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1364,6 +1397,17 @@
     <span class="md-ellipsis">
       
         polyglav import
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polyglav-providers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav providers
       
     </span>
   </a>
@@ -1482,6 +1526,15 @@
 
 <h1 id="commands-cli">Commands &amp; CLI<a class="headerlink" href="#commands-cli" title="Permanent link">&para;</a></h1>
 <h2 id="slash-commands">Slash commands<a class="headerlink" href="#slash-commands" title="Permanent link">&para;</a></h2>
+<h2 id="command-grammar">Command grammar<a class="headerlink" href="#command-grammar" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A singular noun names the current entity: <code>/mode</code>, <code>/model</code>, <code>/provider</code>, <code>/session</code>, <code>/role</code>, <code>/plan</code>, <code>/todo</code>.</li>
+<li>A plural noun names the catalog: <code>/modes</code>, <code>/models</code>, <code>/providers</code>, <code>/sessions</code>, <code>/roles</code>, <code>/plans</code>, <code>/todos</code>.</li>
+<li>A verb is a global action: <code>/clear</code>, <code>/compact</code>, <code>/help</code>, <code>/exit</code>, <code>/summary</code>, <code>/status</code>, <code>/continue</code>, <code>/cancel</code>.</li>
+<li>An action on a catalog is <code>&lt;plural&gt; &lt;verb&gt;</code>: <code>/providers connect</code>, <code>/sessions load</code>, <code>/roles show</code>, <code>/jobs run</code>.</li>
+<li><code>/quit</code>, <code>/new</code>, and <code>/connect</code> are the only shorthand names. There are no one-letter aliases.</li>
+<li><code>/help</code> lists commands and tools. <code>/help &lt;name&gt;</code> shows detail for either.</li>
+</ul>
 <p>Run <code>polyglav</code> and type <code>/</code> to tab-complete commands. Use <code>/help</code> or <code>/help &lt;cmd&gt;</code> for details.</p>
 <table>
 <thead>
@@ -1493,44 +1546,59 @@
 </thead>
 <tbody>
 <tr>
-<td><code>/asks</code></td>
+<td><code>/cancel</code></td>
 <td></td>
-<td>List and answer parked asks from unattended runs (<code>/asks answer &lt;id&gt; &lt;text&gt;</code>, <code>/asks list [all|pending|answered]</code>, <code>/asks show &lt;id&gt;</code>). Answering resumes the origin session. See <a href="../config/#unattended-mode">config.md</a></td>
+<td>Close a paused turn as cancelled</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td></td>
+<td>Clear the screen and reprint the header without leaving or changing the session</td>
 </tr>
 <tr>
 <td><code>/compact</code></td>
-<td><code>/c</code></td>
+<td></td>
 <td>Summarize the conversation and trim the provider context</td>
 </tr>
 <tr>
 <td><code>/config</code></td>
 <td></td>
-<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is alphabetical with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, default, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every default and description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
+<td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is grouped by owner and alphabetical within each group, with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, default, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every default and description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
+</tr>
+<tr>
+<td><code>/continue</code></td>
+<td></td>
+<td>Resume the last active paused turn, or <code>parent</code> or a run or session ID</td>
 </tr>
 <tr>
 <td><code>/connect</code></td>
 <td></td>
-<td>Connect a provider. <code>/connect</code> picks interactively from the known providers. <code>/connect &lt;name&gt;</code> presets a known provider's defaults and (re)enters its API key. <code>/connect &lt;url&gt;</code> detects a known host or creates a named custom provider (derived from the host, or <code>/connect &lt;url&gt; &lt;name&gt;</code> to name it). Tests the connection before saving, stores the API key + base URL in global <code>providers.json</code>, and writes <code>provider</code>/<code>base_url</code> into config - the model is picked separately with <code>/model</code></td>
+<td>Connect a provider. <code>/connect</code> picks interactively from the known providers. <code>/connect &lt;name&gt;</code> presets a known provider's defaults and (re)enters its API key. <code>/connect &lt;url&gt;</code> detects a known host or creates a named custom provider (derived from the host, or <code>/connect &lt;url&gt; &lt;name&gt;</code> to name it). Tests the connection before saving, stores the API key + base URL in global <code>providers.json</code>, and writes the model ref or <code>base_url</code> into config. The model is picked separately with <code>/model</code></td>
 </tr>
 <tr>
 <td><code>/exit</code></td>
-<td><code>/quit</code>, <code>/q</code></td>
+<td><code>/quit</code></td>
 <td>Save and exit</td>
 </tr>
 <tr>
 <td><code>/help</code></td>
-<td><code>/h</code></td>
+<td></td>
 <td>Show available commands and tools (<code>/help &lt;cmd|tool&gt;</code> for detail)</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td></td>
+<td>Generate an <code>AGENTS.md</code> skeleton, with <code>--force</code> and <code>--update</code></td>
 </tr>
 <tr>
 <td><code>/history</code></td>
 <td></td>
-<td>List the active session's turns as a numbered index: <code>/history [n|all] [--thoughts [all]] [--run &lt;target&gt;] [--tree]</code>. Default last 10, <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), <code>--run</code> reads another run's session, and <code>--tree</code> lists the root and its sub-runs. Turn lines include the turn's total tokens when the provider reported usage. See <a href="../session/">session.md</a></td>
+<td>List the active session's turns as a numbered index: <code>/history [N|N-O|-O|N-|all] [session:&lt;name&gt; ...] [--thoughts [all]] [--tree]</code>. With no selector it shows the last 10. <code>--thoughts</code> adds a dim thinking excerpt (<code>all</code> prints it in full), <code>session:&lt;name&gt;</code> reads another session, and <code>--tree</code> lists the root and its sub-runs. Turn lines include the turn's total tokens when the provider reported usage. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/jobs</code></td>
 <td></td>
-<td>Manage scheduled and durable jobs: <code>add</code>, <code>add-supervisor</code>, <code>approve</code>, <code>disable</code>, <code>enable</code>, <code>list</code>, <code>reject</code>, <code>remove</code>, <code>run</code>, <code>show</code>, <code>status</code>, <code>stop</code>. See <a href="../jobs/">jobs.md</a></td>
+<td>Manage scheduled and durable jobs: <code>add</code>, <code>approve</code>, <code>disable</code>, <code>enable</code>, <code>list</code>, <code>reject</code>, <code>remove</code>, <code>run</code>, <code>show</code>, <code>status</code>. See <a href="../jobs/">jobs.md</a></td>
 </tr>
 <tr>
 <td><code>/mcp</code></td>
@@ -1563,14 +1631,14 @@
 <td>List the available agent modes, marking the current one. <code>/modes --verbose</code> adds each mode's description, and <code>/modes &lt;name&gt;</code> prints that mode's instruction. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
+<td><code>/new</code></td>
+<td></td>
+<td>Start a new session, the same as <code>/session new</code></td>
+</tr>
+<tr>
 <td><code>/onboard</code></td>
 <td></td>
 <td>Set up this project (provider, model, mode, purpose, assistant, output log). See <a href="../plugins/">plugins.md</a></td>
-</tr>
-<tr>
-<td><code>/pause</code></td>
-<td></td>
-<td>Hold the next turn at the turn boundary; <code>/resume</code> clears it. State prints as <code>@ Paused #n</code> and <code>@ Resumed #n</code></td>
 </tr>
 <tr>
 <td><code>/plan</code></td>
@@ -1590,7 +1658,7 @@
 <tr>
 <td><code>/print</code></td>
 <td></td>
-<td>Reprint a turn (or one part) in full: <code>/print &lt;n&gt;[.&lt;m&gt;] [--full] [--run &lt;target&gt;] [--tree]</code>. Shows the turn metadata, prompt, thinking, each tool call with input/output, and the answer. Tool output is read from its stored <code>ref</code> when the inline copy was dropped or capped. Each part is capped by <code>print_max_chars</code>, and <code>--full</code> drops the cap. <code>--tree</code> renders the root and its sub-runs. See <a href="../session/">session.md</a></td>
+<td>Reprint turns: <code>/print [N|N-O|-O|N-|N.M] [session:&lt;name&gt; ...] [--full] [--tree]</code>. <code>N</code> prints one turn, <code>N-O</code> a range, <code>-O</code> the last O turns, <code>N-</code> from N to the current turn, and <code>N.M</code> a part. <code>session:&lt;name&gt;</code> reads another session. <code>--tree</code> renders the root and its sub-runs. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/provider</code></td>
@@ -1603,11 +1671,6 @@
 <td>List provider connections, alphabetical, with the active one marked and <code>(key)</code> when a key is stored, and <code>(custom)</code> for a provider with no built-in factory</td>
 </tr>
 <tr>
-<td><code>/resume</code></td>
-<td></td>
-<td>Clear a paused run and continue at the next turn</td>
-</tr>
-<tr>
 <td><code>/role</code></td>
 <td></td>
 <td>Show the active run's role and session. See <a href="../roles/">roles.md</a></td>
@@ -1616,11 +1679,6 @@
 <td><code>/roles</code></td>
 <td></td>
 <td>Manage roles: <code>list</code> (<code>list &lt;tag&gt;</code> filters), <code>new &lt;name&gt; [prompt]</code>, <code>remove &lt;name&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../roles/">roles.md</a></td>
-</tr>
-<tr>
-<td><code>/runs</code></td>
-<td></td>
-<td>Show the run tree read-only: run id, role, status, session, session id, duration, and own/tree tokens. Use <code>/print --run &lt;target&gt;</code> for a run's output. See <a href="../session/">session.md</a></td>
 </tr>
 <tr>
 <td><code>/session</code></td>
@@ -1636,6 +1694,21 @@
 <td><code>/skills</code></td>
 <td></td>
 <td>Manage skills: <code>list</code>, <code>new &lt;name&gt;</code>, <code>remove &lt;name&gt;</code>, <code>show &lt;name&gt;</code>. See <a href="../skills/">skills.md</a></td>
+</tr>
+<tr>
+<td><code>/summary</code></td>
+<td></td>
+<td>Summarize the current session into <code>.polyglav/summaries/&lt;session&gt;.md</code> without trimming the provider context</td>
+</tr>
+<tr>
+<td><code>/spawn</code></td>
+<td></td>
+<td>Launch, list, stop, or ask a scoped serve agent. <code>/spawn &lt;name&gt; &lt;path&gt;</code> launches one, <code>/spawn ask &lt;name&gt; &lt;prompt&gt;</code> delegates to it, <code>/spawn stop &lt;name&gt;</code> stops it, and <code>/spawn</code> lists agents</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td></td>
+<td>Show the model, mode, current session, context, live runs, plugins, jobs, and fleet state</td>
 </tr>
 <tr>
 <td><code>/teams</code></td>
@@ -1663,24 +1736,14 @@
 <td>List every stored todo, marking the current one. <code>/todos &lt;id&gt;</code> prints one by session id or name. See <a href="../modes/">modes.md</a></td>
 </tr>
 <tr>
-<td><code>/tool</code></td>
-<td></td>
-<td>Run a tool directly (<code>/tool &lt;name&gt; {"key": "value"}</code>)</td>
-</tr>
-<tr>
-<td><code>/unattended</code></td>
-<td></td>
-<td>Show or toggle unattended mode (<code>/unattended on</code>/<code>off</code>): no stdin at any depth, confirms auto-deny, user asks park or return without pausing. See <a href="../config/#unattended-mode">config.md</a></td>
-</tr>
-<tr>
 <td><code>/version</code></td>
-<td><code>/v</code></td>
+<td></td>
 <td>Show the Polyglav version</td>
 </tr>
 </tbody>
 </table>
-<p><code>/help</code> renders commands with subcommands indented below and lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools) the same way under <code>/tool</code>. <code>/tool</code> with no arguments lists the same tools with their short descriptions. Providers and models complete at the prompt: <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a provider then its known models (from <code>models.json</code> and a cached live probe).</p>
-<p>Delegation is a normal tool: the caller agent proposes it, or you run it directly, and <code>/tool call {"target": "researcher", "task": "..."}</code> routes through the same tool policy. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs with <code>/tool call {"target": "...", "kind": "team", "task": "..."}</code>. Anonymous read-only help runs with <code>/tool delegate {"task": "..."}</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
+<p><code>/help</code> renders commands with subcommands indented below and then lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools). Providers and models complete at the prompt: <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a provider then its known models (from <code>models.json</code> and a cached live probe).</p>
+<p>Delegation is a normal tool: the caller agent proposes it, or you ask for it in a prompt and the model routes the same <code>call</code> tool. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs through the same <code>call</code> tool with <code>kind: "team"</code>. Anonymous help runs through <code>delegate</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
 </code></pre></div>
@@ -1744,10 +1807,6 @@
 <tr>
 <td><code>--verbose</code></td>
 <td>Print tool status and diagnostics to stderr</td>
-</tr>
-<tr>
-<td><code>--session-id</code></td>
-<td>Persistent session name (load or create)</td>
 </tr>
 <tr>
 <td><code>--yes</code></td>
@@ -1829,6 +1888,14 @@
 </tr>
 </tbody>
 </table>
+<h3 id="polyglav-providers"><code>polyglav providers</code><a class="headerlink" href="#polyglav-providers" title="Permanent link">&para;</a></h3>
+<p>Manage provider connections.</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>providers<span class="w"> </span>list
+polyglav<span class="w"> </span>providers<span class="w"> </span>connect<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--base-url<span class="w"> </span>&lt;url&gt;<span class="w"> </span>--key<span class="w"> </span>&lt;key&gt;
+polyglav<span class="w"> </span>providers<span class="w"> </span>probe<span class="w"> </span>&lt;name&gt;
+polyglav<span class="w"> </span>providers<span class="w"> </span>remove<span class="w"> </span>&lt;name&gt;
+</code></pre></div>
+<p><code>connect</code> stores the connection in <code>providers.json</code> and sets the active provider and base URL. <code>probe</code> tests the stored endpoint. The key is never printed.</p>
 <h3 id="polyglav-models"><code>polyglav models</code><a class="headerlink" href="#polyglav-models" title="Permanent link">&para;</a></h3>
 <p>List configured models, or probe a provider's available models (mirrors <code>/models</code>).</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>models<span class="w">                          </span><span class="c1"># approved-model history grouped by provider, `&gt;` marks the active model, `(key)` a stored key</span>
@@ -1999,10 +2066,6 @@ polyglav<span class="w"> </span>config<span class="w"> </span>reload<span class=
 <tr>
 <td><code>add</code></td>
 <td><code>polyglav jobs add &lt;name&gt; --file jobs/&lt;name&gt;.md --cron "0 2 * * *"</code> (or <code>--interval N</code> / <code>--at ISO</code>, with <code>--prompt</code> optional when <code>--file</code> given), plus <code>--mode</code>, <code>--provider</code>/<code>--model</code>, <code>--role</code>, <code>--system-prompt</code>, <code>--tools-deny</code>, <code>--tool-permission</code>, <code>--retries</code>, <code>--backoff</code>, <code>--timeout</code>, <code>--require-approval</code>, <code>--approve-model</code>, <code>--approval auto</code></td>
-</tr>
-<tr>
-<td><code>add-supervisor</code></td>
-<td><code>polyglav jobs add-supervisor &lt;name&gt; [--interval N | --at ISO | --cron "expr"] [--task "text" | --file path]</code> - scaffold an approved <code>leader</code>-typed supervisor job from the supervisor task template</td>
 </tr>
 <tr>
 <td><code>approve</code></td>

@@ -1429,7 +1429,7 @@
 <h1 id="mcp-model-context-protocol">MCP (Model Context Protocol)<a class="headerlink" href="#mcp-model-context-protocol" title="Permanent link">&para;</a></h1>
 <p>Polyglav speaks MCP in both directions through the bundled <code>polyglav-core-mcp</code> plugin. It is stdlib-only, with no third-party <code>mcp</code> library, and uses JSON-RPC 2.0 over newline-delimited stdio and SSE over urllib:</p>
 <ul>
-<li><strong>Client</strong> - connect to external MCP servers (stdio or HTTP), import their tools into the <code>ToolRegistry</code>, and call them like any other Polyglav tool. Tool policy, <code>/tool</code>, <code>/help</code>, glyph activity lines, query refinement and session logging all apply.</li>
+<li><strong>Client</strong> - connect to external MCP servers (stdio or HTTP), import their tools into the <code>ToolRegistry</code>, and call them like any other Polyglav tool. Tool policy, <code>/help</code>, glyph activity lines, query refinement and session logging all apply.</li>
 <li><strong>Server</strong> - expose Polyglav's registered tools and sessions as an MCP server to external agents (Claude, opencode, and other MCP clients) over stdio (<code>polyglav mcp</code>) and HTTP (<code>POST /mcp</code> on <code>polyglav serve</code>).</li>
 </ul>
 <p>Both eras are supported and negotiated per connection: the modern stateless revision (<code>2026-07-28</code>, per-request <code>_meta</code>) and the legacy <code>initialize</code>-handshake revisions (<code>2025-11-25</code> and earlier). The client probes <code>server/discover</code> and falls back to <code>initialize</code>. The server serves either, based on how the client opens.</p>

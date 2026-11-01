@@ -1360,7 +1360,7 @@ polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </s
 </ul>
 <p>The catalog is contributed through the <code>register_fixtures(fixtures)</code> plugin entry hook, which takes a dict of fixture id to fixture data. Any plugin can ship its own fixtures the same way, and local files override plugin fixtures by <code>id</code>.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<p><code>tests/test_eval.py</code> covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The <code>polyglav eval</code> CLI is covered in <code>tests/test_cli.py</code>, and the <code>register_fixtures</code> hook in <code>tests/test_plugins.py</code>.</p>
+<p><code>plugins/polyglav-core-eval/tests/test_eval.py</code> covers the fixture model, verifier evaluation, metric computation (accuracy, redundant, errors, tokens), fixture discovery and precedence, and the aggregation. The suite is driven with a mock provider, so it runs without network or an API key. The <code>polyglav eval</code> CLI is covered in <code>tests/test_cli.py</code>, and the <code>register_fixtures</code> hook in <code>tests/test_plugins.py</code>.</p>
 
 
 

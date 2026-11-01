@@ -818,6 +818,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Manifest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-boundary-and-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core boundary and ownership
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -848,6 +876,17 @@
     <span class="md-ellipsis">
       
         Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catalog adapters
       
     </span>
   </a>
@@ -1395,6 +1434,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Manifest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plugin-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugin dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-boundary-and-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core boundary and ownership
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1425,6 +1492,17 @@
     <span class="md-ellipsis">
       
         Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#catalog-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catalog adapters
       
     </span>
   </a>
@@ -1609,7 +1687,7 @@
 </tr>
 </tbody>
 </table>
-<p>First-party plugins ship with polyglav and are listed in the default <code>plugins</code> config, so they are active out of the box. <code>polyglav-core-web</code> provides <code>web_search</code> and <code>web_fetch</code>. <code>polyglav-core-webhook</code> provides the job report-back connector (<code>report.webhook</code>). <code>polyglav-core-fs</code> provides <code>file_read</code>, <code>list_dir</code>, <code>file_write</code>, <code>glob</code>, and <code>grep</code>. <code>polyglav-core-exec</code> provides <code>run_command</code>. <code>polyglav-core-mcp</code> provides the MCP client (<code>mcp_connect</code>/<code>mcp_list</code>/<code>mcp_disconnect</code>) and server (<code>polyglav mcp</code> and <code>POST /mcp</code>). See <a href="../mcp/">mcp.md</a>. <code>polyglav-core-eval</code> provides the eval fixture catalog for <code>polyglav eval</code>. See <a href="../eval/">eval.md</a>. <code>polyglav-core-edit</code> provides <code>file_edit</code>, <code>polyglav-core-git</code> provides <code>git</code>/<code>git_commit</code>, <code>polyglav-core-dev</code> provides <code>code_test</code>/<code>code_lint</code>/<code>code_format</code>, and <code>polyglav-core-onboarding</code> runs first-run project setup (<code>/onboard</code>). The vendor providers ship as bundled plugins too (<code>polyglav-core-ollama</code>, <code>polyglav-core-openai</code>, <code>polyglav-core-groq</code>, <code>polyglav-core-anthropic</code>, <code>polyglav-core-opencode</code>). See <a href="../providers/">providers.md</a>. They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from <code>plugins</code> (or <code>/plugins disable</code>) to stop one loading. A global or local plugin with the same name overrides the bundled one.</p>
+<p>First-party plugins ship with polyglav. The default <code>plugins</code> config enables the everyday set, while jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled. <code>polyglav-core-web</code> provides <code>web_search</code> and <code>web_fetch</code>. <code>polyglav-core-webhook</code> provides the job report-back connector (<code>report.webhook</code>). <code>polyglav-core-fs</code> provides <code>file_read</code>, <code>list_dir</code>, <code>file_write</code>, <code>glob</code>, and <code>grep</code>. <code>polyglav-core-exec</code> provides <code>run_command</code>. <code>polyglav-core-mcp</code> provides the MCP client (<code>mcp_connect</code>/<code>mcp_list</code>/<code>mcp_disconnect</code>) and server (<code>polyglav mcp</code> and <code>POST /mcp</code>). See <a href="../mcp/">mcp.md</a>. <code>polyglav-core-eval</code> provides the eval harness, fixture catalog, and <code>polyglav eval</code> CLI. See <a href="../eval/">eval.md</a>. <code>polyglav-core-edit</code> provides <code>file_edit</code>, <code>polyglav-core-git</code> provides <code>git</code>/<code>git_commit</code>, <code>polyglav-core-dev</code> provides <code>code_test</code>/<code>code_check</code>, and <code>polyglav-core-onboarding</code> runs first-run project setup (<code>/onboard</code>) with Ollama, LM Studio, OpenAI, Anthropic, Groq, OpenCode, and custom URL presets. <code>polyglav-core-providers</code> owns provider connections and model commands (<code>/connect</code>, <code>/model</code>, <code>/models</code>, <code>/provider</code>, <code>/providers</code>) and the <code>models</code> CLI. <code>polyglav-core-repl</code> owns the terminal front-end and <code>/clear</code>. <code>polyglav-core-roles</code> owns the role registry, the role catalog, and the <code>call</code> tool. <code>polyglav-core-teams</code> owns the team catalog and <code>/teams</code>, and depends on roles. <code>polyglav-core-skills</code> owns <code>/skills</code>. <code>polyglav-core-bookkeeping</code> owns the plan and todo tools and commands. <code>polyglav-core-memory</code> owns <code>/memorize</code>. <code>polyglav-core-jobs</code> owns <code>/jobs</code>. <code>polyglav-core-sessions</code> owns <code>/sessions</code>, <code>/print</code>, <code>/history</code>, session render, and export and import. <code>polyglav-core-serve</code> owns the <code>serve</code> CLI. <code>polyglav-core-fleet</code> owns the fleet supervisor and the <code>fleet</code> CLI. The vendor providers ship as bundled plugins too (<code>polyglav-core-ollama</code>, <code>polyglav-core-openai</code>, <code>polyglav-core-groq</code>, <code>polyglav-core-anthropic</code>, <code>polyglav-core-opencode</code>). See <a href="../providers/">providers.md</a>. They behave like any other plugin but cannot be uninstalled or updated, since they version with polyglav. Remove a name from <code>plugins</code> (or <code>/plugins disable</code>) to stop one loading. A global or local plugin with the same name overrides the bundled one. <code>polyglav-core-quality</code> provides <code>code_lint</code>/<code>code_format</code> and is off by default, so lint and format stay opt-in. <code>polyglav-core-storage-sqlite</code> provides the optional SQLite session store and is also off by default.</p>
 <h2 id="plugin-layout">Plugin layout<a class="headerlink" href="#plugin-layout" title="Permanent link">&para;</a></h2>
 <p>A plugin is a directory with a <code>manifest.json</code>, an entry module, and an optional unit-test suite. Source modules live under <code>src/</code>, tests under <code>tests/</code> (a bare <code>.py</code> file at the root is also accepted, where name = filename and defaults apply):</p>
 <div class="highlight"><pre><span></span><code>~/.config/polyglav/plugins/web-scraper/
@@ -1630,6 +1708,7 @@
 <span class="w">  </span><span class="nt">"python"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=3.11"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"entry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"plugin.py"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"requires"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"beautifulsoup4"</span><span class="p">,</span><span class="w"> </span><span class="s2">"lxml"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"depends"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"polyglav-core-web"</span><span class="p">],</span>
 <span class="w">  </span><span class="nt">"provides"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"scrape_page"</span><span class="p">],</span><span class="w"> </span><span class="nt">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">"commands"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"/scrape"</span><span class="p">]},</span>
 <span class="w">  </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/example/polyglav-web-scraper"</span>
 <span class="p">}</span>
@@ -1679,6 +1758,11 @@
 <td>Third-party packages, metadata for status and <code>--deps</code> install, never imported by the core</td>
 </tr>
 <tr>
+<td><code>depends</code></td>
+<td><code>[]</code></td>
+<td>Other plugin names that must load first. Missing, disabled, incompatible, or cyclic dependencies block the dependent</td>
+</tr>
+<tr>
 <td><code>provides</code></td>
 <td><code>{}</code></td>
 <td>Declared tools/providers/commands for <code>/plugins</code> display</td>
@@ -1690,8 +1774,16 @@
 </tr>
 </tbody>
 </table>
+<h3 id="plugin-dependencies">Plugin dependencies<a class="headerlink" href="#plugin-dependencies" title="Permanent link">&para;</a></h3>
+<p><code>depends</code> lists other plugin names, not Python packages. Loading is topological: every dependency loads before its dependent. A missing dependency is an error, a disabled or incompatible dependency disables the dependent, and a cycle marks every member as an error. Disabling a plugin disables the plugins that depend on it. <code>/plugins</code> shows the declared dependencies.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"polyglav-core-teams"</span><span class="p">,</span><span class="w"> </span><span class="nt">"depends"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"polyglav-core-roles"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h3 id="core-boundary-and-ownership">Core boundary and ownership<a class="headerlink" href="#core-boundary-and-ownership" title="Permanent link">&para;</a></h3>
+<p>The core keeps the agent loop, <code>ToolRegistry</code>, command dispatch, <code>ToolPolicy</code>, the provider base and registry, config, sessions, runs, the plugin manager, modes, and the <code>ask</code>, <code>delegate</code>, and <code>catalog</code> tools. Headless, null, glyph, markdown, and prompt primitives stay in the core so <code>polyglav run</code> and <code>polyglav serve</code> work without a terminal plugin.</p>
+<p>Plugins own the optional surfaces: roles, teams, skills, memory, jobs, fleet, MCP, webhook, eval, quality, sessions rendering and export, serve, providers, and the REPL. Each plugin declares its commands, tools, services, frontends, and config keys in <code>provides</code>. A plugin that owns a service exports it through <code>register_services</code>, and core features resolve it by name and degrade cleanly when it is absent.</p>
+<p>Defaults are explicit. The everyday bundled set is enabled in <code>DEFAULT_CONFIG['plugins']</code>, while jobs, fleet, MCP, webhook, eval, quality, and SQLite stay off until enabled. Enabling a dependent plugin without its dependency is an error, not a silent fallback.</p>
 <h2 id="entry-contract">Entry contract<a class="headerlink" href="#entry-contract" title="Permanent link">&para;</a></h2>
-<p>The entry module may define any of nine hooks (all optional):</p>
+<p>The entry module may define any of eleven hooks (all optional):</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">register_tools</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>        <span class="c1"># @registry.register(...) - same as core tools</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_providers</span><span class="p">(</span><span class="n">providers</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>   <span class="c1"># providers["name"] = ProviderClass</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>     <span class="c1"># @commands.register(...) - same as core commands</span>
@@ -1701,15 +1793,34 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">register_skills</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>         <span class="c1"># skills.add_plugin({...}) - see skills.md</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_fixtures</span><span class="p">(</span><span class="n">fixtures</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>     <span class="c1"># fixtures["id"] = fixture data - see eval.md</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_startup</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>         <span class="c1"># hooks.append(callable(chat)) - run once when the REPL starts</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_cli</span><span class="p">(</span><span class="n">cli</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>               <span class="c1"># cli.add_parser(...) - plugin CLI subcommand</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_frontends</span><span class="p">(</span><span class="n">frontends</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>   <span class="c1"># frontends.register(name, factory) - access layer</span>
 </code></pre></div>
-<p>Plugin tools automatically inherit the tool permission policy, <code>/tool</code>, <code>/help</code>, query refinement, <code>tools_output_drop</code>, and session logging. The loop never special-cases plugin names. A tool handler may declare a <code>_config</code> keyword argument to receive the engine's <code>Config</code> (e.g. to read a config key like <code>tool_max_result_chars</code>). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See <a href="../tools/">tools.md</a>.</p>
+<p><code>register_cli(cli)</code> runs while the command-line parser is built, after the core subcommands. <code>cli.add_parser(name, **kwargs)</code> returns an <code>argparse</code> parser and rejects duplicate names. A plugin attaches its handler with <code>parser.set_defaults(func=handler)</code>. The handler receives the parsed <code>args</code>, and <code>args._polyglav_config</code> and <code>args._polyglav_plugins</code> are available for the loaded config and plugin manager. A plugin that raises while registering its command is marked as an error, and the rest of the CLI still starts.</p>
+<p><code>register_frontends(frontends)</code> registers a named front-end factory <code>factory(config, plugin_manager)</code>. <code>polyglav-core-repl</code> registers the default <code>repl</code> front-end. Another plugin may register a different front-end name. <code>--frontend &lt;name&gt;</code> selects another registered front-end when no subcommand is given. Unknown names fail with a clear error.</p>
+<p>Plugin tools automatically inherit the tool permission policy, <code>/help</code>, query refinement, and the session tool log. The loop never special-cases plugin names. A tool handler may declare a <code>_config</code> keyword argument to receive the engine's <code>Config</code> (e.g. to read a config key like <code>tool_max_result_chars</code>). The registry passes it only when the handler's signature accepts it. It is never exposed to the model. See <a href="../tools/">tools.md</a>.</p>
 <h3 id="providers">Providers<a class="headerlink" href="#providers" title="Permanent link">&para;</a></h3>
 <p><code>register_providers</code> contributes to the same provider set as the core <code>PROVIDERS</code> dict: the plugin provider appears in the <code>/connect</code> picker, and passing its <code>DEFAULT_BASE_URL</code> as a <code>/connect &lt;url&gt;</code> argument selects it automatically (see <a href="../providers/">providers.md</a>). A plugin provider's <code>DEFAULT_BASE_URL</code> also makes it a model-ref target (<code>&lt;name&gt;/&lt;model&gt;</code>). A provider class may declare <code>HOST_PATTERNS</code> (a tuple of URL substrings) so <code>/connect &lt;url&gt;</code> auto-detects it from the host (see <a href="../providers/#auto-detection">Auto-detection</a>). The core <code>detect_provider()</code> scans the merged set and prefers the longest matching pattern. The bundled vendor providers (<code>polyglav-core-ollama</code>, <code>-openai</code>, <code>-groq</code>, <code>-anthropic</code>, <code>polyglav-core-opencode</code>) are plugins themselves, so an external plugin registering a provider with the same name as a bundled one does not override it, because the core <code>PROVIDERS</code> registry wins on name conflicts.</p>
 <h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h3>
-<p><code>register_services</code> lets a plugin power a core feature that is not tool-calling. Two services exist today: web search-then-answer and job report-back. The bundled <code>polyglav-core-web</code> registers <code>services['search']</code> with <code>search(query, num)</code>, <code>display(query, results)</code>, and <code>context(query, results)</code> methods (without it, that mode reports the service is unavailable instead of erroring). The bundled <code>polyglav-core-webhook</code> registers <code>services['report']</code> with a <code>report(payload, config)</code> method: the scheduler calls it once per completed job run with a <code>job.run.completed</code> payload and its <code>Config</code>, so the connector reads its own keys (e.g. <code>report.webhook</code>) and posts the report. Any plugin can register a <code>report</code> service the same way to deliver run summaries elsewhere (email, chat, a local log). See <a href="../jobs/#report-back">jobs.md</a>.</p>
+<p><code>register_services</code> lets a plugin power a core feature that is not tool-calling. The core resolves services by name and degrades when one is absent. The main services are <code>search</code> from <code>polyglav-core-web</code>, <code>report</code> from <code>polyglav-core-webhook</code>, <code>session_store</code> from <code>polyglav-core-storage-sqlite</code>, <code>role_registry</code> from <code>polyglav-core-roles</code>, <code>team_registry</code> and <code>team_runner</code> from <code>polyglav-core-teams</code>, <code>skill_registry</code> and <code>skills_section</code> from <code>polyglav-core-skills</code>, <code>memory</code> from <code>polyglav-core-memory</code>, <code>bookkeeping</code> from <code>polyglav-core-bookkeeping</code>, and <code>job_registry</code>, <code>job_scheduler</code>, and <code>job_service</code> from <code>polyglav-core-jobs</code>.</p>
+<p>The bundled <code>polyglav-core-web</code> registers <code>services['search']</code> with <code>search(query, num)</code>, <code>display(query, results)</code>, and <code>context(query, results)</code> methods (without it, that mode reports the service is unavailable instead of erroring). The bundled <code>polyglav-core-webhook</code> registers <code>services['report']</code> with a <code>report(payload, config)</code> method: the scheduler calls it once per completed job run with a <code>job.run.completed</code> payload and its <code>Config</code>, so the connector reads its own keys (e.g. <code>report.webhook</code>) and posts the report. Any plugin can register a <code>report</code> service the same way to deliver run summaries elsewhere (email, chat, a local log). See <a href="../jobs/#report-back">jobs.md</a>.</p>
+<h3 id="catalog-adapters">Catalog adapters<a class="headerlink" href="#catalog-adapters" title="Permanent link">&para;</a></h3>
+<p><code>register_catalog(catalog)</code> registers a catalog adapter under a kind such as <code>role</code>, <code>team</code>, or <code>skill</code>. The core <code>catalog</code> tool delegates <code>list</code>, <code>show</code>, <code>save</code>, <code>remove</code>, and <code>validate</code> to that adapter, so the core never imports a role, team, or skill model. The roles, teams, and skills plugins own their adapters.</p>
 <h3 id="roles-teams-and-skills">Roles, teams, and skills<a class="headerlink" href="#roles-teams-and-skills" title="Permanent link">&para;</a></h3>
 <p><code>register_roles(registry)</code> contributes roles to the <code>RoleRegistry</code> via <code>registry.add_plugin(entry)</code> (same entry shape as <code>roles.json</code>). Plugin roles form an in-memory layer below global and local, so precedence is <code>plugin &lt; global &lt; local</code>, and a <code>roles.json</code> entry can always override or replace a plugin-provided role. <code>register_teams(teams)</code> and <code>register_skills(skills)</code> register into the team and skills registries the same way (<code>teams.add_plugin(...)</code> / <code>skills.add_plugin(...)</code>, entry shapes in <a href="../teams/">teams.md</a> and <a href="../skills/">skills.md</a>). The <code>/roles</code> list marks plugin roles <code>(plugin)</code>. After <code>/plugins install</code>/<code>update</code>/<code>uninstall</code> the running REPL re-applies all three hooks immediately. Tools and commands still activate on the next start.</p>
 <h3 id="eval-fixtures">Eval fixtures<a class="headerlink" href="#eval-fixtures" title="Permanent link">&para;</a></h3>
+<p><code>provides.config</code> declares plugin-owned config keys. Each key maps to an object with <code>default</code> and <code>description</code>. Loaded plugins register those defaults with the config service, so <code>/config</code> validates the key, shows the description, and uses the default when neither the global nor the local file sets it.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"provides"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"web.search_results"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Number of search results to fetch"</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
 <p><code>register_fixtures(fixtures)</code> contributes task fixtures to the tool-use evaluation harness. The hook receives a dict of fixture <code>id</code> to fixture data (same shape as the JSON fixtures under <code>.polyglav/eval/</code>, see <a href="../eval/">eval.md</a>). Local and global fixture files override plugin fixtures by <code>id</code>. The bundled <code>polyglav-core-eval</code> plugin ships the default catalog this way.</p>
 <h3 id="startup">Startup<a class="headerlink" href="#startup" title="Permanent link">&para;</a></h3>
 <p><code>register_startup(hooks)</code> appends a <code>callable(chat)</code> that the REPL runs once when it starts, after plugins load, after the banner, and before the first prompt. It is the first-run hook: the bundled <code>polyglav-core-onboarding</code> plugin uses it to detect an unconfigured project, connect a provider, pick a model and mode, ask about the project purpose, assistant, and output log, then write the local config. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only <code>ChatLoop</code> runs startup hooks, so headless <code>run</code>/<code>serve</code> engines never prompt.</p>
@@ -1758,6 +1869,7 @@ polyglav plugins test [name]
 <li><code>install</code> clones a git URL or copies a local directory into <code>.polyglav/plugins/</code> (or <code>~/.config/polyglav/plugins/</code> with <code>--global</code>), records <code>source</code>, and with <code>--deps</code> runs <code>pip install</code> on the declared <code>requires</code>.</li>
 <li><code>update</code> runs <code>git pull</code> for remote sources or re-copies a local path.</li>
 <li><code>test</code> runs a plugin's <code>tests/</code> unit suite (<code>--verbose</code> for per-test output). Without a name it runs every plugin that has one. The core test suite also runs these through <code>tests/test_plugin_suites.py</code>.</li>
+<li>The same test contract applies to bundled and external plugins. Each <code>tests/test*.py</code> module must import cleanly, and an import failure is reported as a failing test rather than skipped. A plugin without tests is valid, but <code>polyglav plugins test &lt;name&gt;</code> returns an error for it.</li>
 <li>Bundled plugins report an error for <code>update</code> and <code>uninstall</code>. Disable them instead.</li>
 </ul>
 <h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
