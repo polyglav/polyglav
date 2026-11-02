@@ -53,6 +53,37 @@ class TestAutoCompaction(unittest.TestCase):
     def tearDown(self):
         self.chat._tmp.cleanup()
 
+    def test_average_round_weight(self):
+        self.chat._round_weights = [10000, 20000, 30000]
+        self.chat.config.set('compact_before', 3)
+        self.assertEqual(self.chat._average_round_weight(), 20000)
+
+    def test_projection_triggers_before_limit(self):
+        self.chat.config.set('compact_at', 100000)
+        self.chat.config.set('compact_before', 3)
+        self.chat._round_weights = [20000, 20000, 20000]
+        self.assertTrue(
+            self.chat._auto_compact_due({'context_tokens': 90000}))
+        self.assertFalse(
+            self.chat._auto_compact_due({'context_tokens': 70000}))
+
+    def test_compact_before_zero_disables_projection(self):
+        self.chat.config.set('compact_at', 100000)
+        self.chat.config.set('compact_before', 0)
+        self.chat._round_weights = [20000, 20000, 20000]
+        self.assertFalse(
+            self.chat._auto_compact_due({'context_tokens': 90000}))
+
+    def test_compact_history_reads_turn_context(self):
+        session = self.chat.current_session
+        for value in (10000, 30000, 60000):
+            session.add_user('msg')
+            session.add_text('answer')
+            session.end_turn('ok', context_tokens=value)
+        weights, last = self.chat._compact_history()
+        self.assertEqual(weights, [20000, 30000])
+        self.assertEqual(last, 60000)
+
     def _prior_turn(self):
         self.chat.current_session.add_user('old task')
         self.chat.current_session.add_text('old answer')

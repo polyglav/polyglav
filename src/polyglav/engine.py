@@ -818,6 +818,7 @@ class Engine:
     def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
         self._denied_streak = 0
         self._auto_compact_done = False
+        self._round_weights, self._last_prompt_tokens = self._compact_history()
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
         tools_schema = self._init_tooling()
@@ -838,6 +839,10 @@ class Engine:
             if isinstance(prompt, int) and prompt > 0:
                 usage_total['prompt_tokens'] += prompt
                 usage_total['context_tokens'] = prompt
+                last = getattr(self, '_last_prompt_tokens', 0)
+                if last > 0:
+                    self._record_round_weight(prompt - last)
+                self._last_prompt_tokens = prompt
             completion = value.get('completion_tokens')
             if isinstance(completion, int) and completion > 0:
                 usage_total['completion_tokens'] += completion
@@ -1493,12 +1498,53 @@ class Engine:
     def _auto_compact_due(self, usage: dict | None) -> bool:
         if not config_bool(self.config.get('compact_auto', True)):
             return False
-        if self._auto_compact_done:
+        if getattr(self, '_auto_compact_done', False):
             return False
         limit = self._compact_limit()
         if limit <= 0:
             return False
-        return self._context_tokens(usage) >= limit
+        current = self._context_tokens(usage)
+        projected = current + self._average_round_weight()
+        return current >= limit or projected >= limit
+
+    def _average_round_weight(self) -> int:
+        before = max(0, int(self.config.get('compact_before', 3) or 0))
+        if before <= 0:
+            return 0
+        weights = [w for w in getattr(self, '_round_weights', []) if w > 0]
+        if not weights:
+            return 0
+        window = weights[-before:]
+        return int(sum(window) / len(window))
+
+    def _record_round_weight(self, weight: int) -> None:
+        before = max(0, int(self.config.get('compact_before', 3) or 0))
+        if before <= 0:
+            return
+        weights = getattr(self, '_round_weights', None)
+        if weights is None:
+            weights = self._round_weights = []
+        weights.append(max(0, int(weight)))
+        del weights[:-before]
+
+    def _compact_history(self) -> tuple[list[int], int]:
+        before = max(0, int(self.config.get('compact_before', 3) or 0))
+        contexts = []
+        for turn in self.current_session.turns:
+            if turns.command_only(turn):
+                continue
+            try:
+                value = int(turn.get('context_tokens') or 0)
+            except (TypeError, ValueError):
+                value = 0
+            if value > 0:
+                contexts.append(value)
+        weights = [max(0, later - earlier)
+                   for earlier, later in zip(contexts, contexts[1:])]
+        last = contexts[-1] if contexts else 0
+        if before <= 0:
+            return [], last
+        return weights[-before:], last
 
     def _auto_compact(self, usage: dict | None):
         self._auto_compact_done = True
