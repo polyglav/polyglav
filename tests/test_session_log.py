@@ -371,6 +371,7 @@ class TestCompactSession(unittest.TestCase):
     def setUp(self):
         self.chat = make_chat()
         self.chat.config.set('mode', 'write')
+        self.chat.config.set('compact_keep', 4)
         self.chat.config.apply('modes', {'read': {}, 'write': {}})
 
     def tearDown(self):

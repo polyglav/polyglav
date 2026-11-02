@@ -1,0 +1,118 @@
+import io
+import json
+import unittest
+from unittest.mock import patch
+
+from tests.helpers import make_chat
+
+
+class TestCompactLimit(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def test_absolute_limit(self):
+        self.chat.config.set('compact_at', 170000)
+        self.assertEqual(self.chat._compact_limit(), 170000)
+
+    def test_relative_limit_uses_context_window(self):
+        self.chat.config.set('compact_at', 0.85)
+        self.chat.config.set('context_window', 200000)
+        self.assertEqual(self.chat._compact_limit(), 170000)
+
+    def test_relative_limit_uses_model_entry(self):
+        self.chat.models.put('ollama', 'test-model')
+        self.chat.models.set_context_window('ollama', 'test-model', 100000)
+        self.chat.config.set('compact_at', 0.8)
+        self.assertEqual(self.chat._compact_limit(), 80000)
+
+    def test_relative_limit_without_window_is_off(self):
+        self.chat.config.set('compact_at', 0.85)
+        self.chat.config.set('context_window', 0)
+        self.assertEqual(self.chat._compact_limit(), 0)
+
+    def test_one_is_ambiguous(self):
+        self.chat.config.set('compact_at', 1)
+        self.assertEqual(self.chat._compact_limit(), 0)
+
+    def test_zero_disables(self):
+        self.chat.config.set('compact_at', 0)
+        self.assertEqual(self.chat._compact_limit(), 0)
+
+
+class TestAutoCompaction(unittest.TestCase):
+
+    def setUp(self):
+        self.chat = make_chat()
+        self.chat.config.set('compact_at', 100)
+        self.chat.config.set('compact_keep', 1)
+
+    def tearDown(self):
+        self.chat._tmp.cleanup()
+
+    def _prior_turn(self):
+        self.chat.current_session.add_user('old task')
+        self.chat.current_session.add_text('old answer')
+        self.chat.current_session.end_turn('ok')
+
+    def _tool_round(self, prompt_tokens=200000):
+        return [{
+            'type': 'tool_calls',
+            'usage': {'prompt_tokens': prompt_tokens,
+                      'completion_tokens': 10},
+            'tool_calls': [{
+                'id': 'call_1', 'type': 'function',
+                'function': {'name': 'list_dir',
+                             'arguments': json.dumps({'path': '.'})},
+            }],
+        }]
+
+    def test_triggers_after_tool_round(self):
+        self._prior_turn()
+        self.chat.provider.chat.side_effect = [
+            self._tool_round(),
+            [{'type': 'token', 'content': 'done'},
+             {'type': 'done', 'reason': 'stop'}],
+        ]
+        self.chat.provider.chat_nonstreaming.return_value = {
+            'role': 'assistant', 'content': 'SUMMARY', 'tool_calls': None}
+        with patch('sys.stdout', new=io.StringIO()):
+            result = self.chat.chat('new task')
+        self.assertEqual(result.status, 'ok')
+        self.chat.provider.chat_nonstreaming.assert_called_once()
+        record = self.chat.current_session.turns[-1]['parts'][0]
+        self.assertEqual(record['text'], '/compact')
+        self.assertEqual(record['summary'], 'SUMMARY')
+
+    def test_failed_summary_is_not_retried(self):
+        self._prior_turn()
+        self.chat.provider.chat.side_effect = [
+            self._tool_round(),
+            self._tool_round(),
+            [{'type': 'token', 'content': 'done'},
+             {'type': 'done', 'reason': 'stop'}],
+        ]
+        self.chat.provider.chat_nonstreaming.return_value = {
+            'error': {'code': 500, 'message': 'no summary'}}
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.chat('new task')
+        self.assertEqual(self.chat.provider.chat_nonstreaming.call_count, 1)
+
+    def test_disabled_does_not_summarize(self):
+        self.chat.config.set('compact_auto', False)
+        self._prior_turn()
+        self.chat.provider.chat.side_effect = [
+            self._tool_round(),
+            [{'type': 'token', 'content': 'done'},
+             {'type': 'done', 'reason': 'stop'}],
+        ]
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.chat('new task')
+        self.chat.provider.chat_nonstreaming.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main()

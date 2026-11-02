@@ -19,6 +19,7 @@ class ModelEntry:
     last_used: str = ''
     ok_at: str = ''
     last_error: str = ''
+    context_window: int = 0
 
     @classmethod
     def from_dict(cls, d: dict) -> 'ModelEntry':
@@ -29,6 +30,7 @@ class ModelEntry:
             last_used=d.get('last_used', ''),
             ok_at=d.get('ok_at', ''),
             last_error=d.get('last_error', ''),
+            context_window=d.get('context_window', 0),
         )
 
 
@@ -95,6 +97,18 @@ class ModelRegistry:
             return None
         entry.last_used = _now()
         entry.last_error = str(error)[:200]
+        self._save()
+        return entry
+
+    def set_context_window(self, provider: str, model: str,
+                           tokens: int) -> ModelEntry | None:
+        entry = self.find(provider, model)
+        if entry is None:
+            return None
+        try:
+            entry.context_window = max(0, int(tokens))
+        except (TypeError, ValueError):
+            entry.context_window = 0
         self._save()
         return entry
 

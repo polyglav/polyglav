@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.51.0
+
+- Added automatic compaction limits - `compact_auto` turns the threshold on by default, `compact_at` accepts a fraction of `context_window` below `1` or absolute tokens above `1`, and `compact_keep` defaults to one round. A relative limit is skipped with a warning when `context_window` is unknown, and a model entry can now carry its own `context_window`. Docs (`config.md`, `AGENTS.md`). Tests: `test_auto_compact.py`
+
 ## v0.50.0 - 2026-11-01
 
 - Added the spawn command - `/spawn <name> <path>` launches a scoped serve agent, `/spawn ask` delegates to it, `/spawn stop` stops it, and `/spawn` lists agent state in the REPL

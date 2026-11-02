@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from .config import Config, verbosity_level
+from .config import Config, config_bool, verbosity_level
 from .runs import Run, RunRegistry
 from .sessions.manager import SessionManager, coded_session_name
 from .sessions import turns
@@ -101,6 +101,8 @@ class Engine:
         self._ui = ui
         self._sub_run = False
         self._denied_streak = 0
+        self._compact_warnings: set[str] = set()
+        self._auto_compact_done = False
         self._ask_ui = ui if getattr(ui, 'interactive', False) else None
         self._owns_provider = provider is None
         if plugin_manager is None:
@@ -815,6 +817,7 @@ class Engine:
 
     def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
         self._denied_streak = 0
+        self._auto_compact_done = False
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
         tools_schema = self._init_tooling()
@@ -867,6 +870,8 @@ class Engine:
                       'id': 'call_seed'}])
             while True:
                 self._reload_catalogs_if_changed()
+                if self._auto_compact_due(usage_total):
+                    self._auto_compact(usage_total)
                 think_start: datetime | None = None
 
                 def feed_thinking(text):
@@ -1434,22 +1439,93 @@ class Engine:
         self.ui.info(summary)
         self.session_auto_save()
 
-    def compact_session(self):
-        keep = max(0, int(self.config.get('compact_keep', 4)))
+    def _context_window(self) -> int:
+        provider, _, model = self.model_target()
+        entry = (self.models.find(provider, model)
+                 if self.models is not None else None)
+        if entry is not None:
+            try:
+                value = int(entry.context_window or 0)
+            except (TypeError, ValueError):
+                value = 0
+            if value > 0:
+                return value
+        try:
+            value = int(self.config.get('context_window', 0) or 0)
+        except (TypeError, ValueError):
+            value = 0
+        return max(0, value)
+
+    def _compact_limit(self) -> int:
+        raw = self.config.get('compact_at', 0)
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            return 0
+        if value <= 0:
+            return 0
+        if value > 1:
+            return int(value)
+        if value == 1:
+            self._warn_compact_once(
+                'ambiguous',
+                'compact_at 1.0 is ambiguous; use a value below 1 for a '
+                'fraction or above 1 for absolute tokens')
+            return 0
+        window = self._context_window()
+        if window <= 0:
+            self._warn_compact_once(
+                'window',
+                'compact_at is relative but context_window is unknown; set '
+                'context_window or use an absolute compact_at')
+            return 0
+        return max(1, int(value * window))
+
+    def _warn_compact_once(self, key: str, message: str):
+        warnings = getattr(self, '_compact_warnings', None)
+        if warnings is None:
+            warnings = self._compact_warnings = set()
+        if key in warnings:
+            return
+        warnings.add(key)
+        self.ui.warning(message)
+
+    def _auto_compact_due(self, usage: dict | None) -> bool:
+        if not config_bool(self.config.get('compact_auto', True)):
+            return False
+        if self._auto_compact_done:
+            return False
+        limit = self._compact_limit()
+        if limit <= 0:
+            return False
+        return self._context_tokens(usage) >= limit
+
+    def _auto_compact(self, usage: dict | None):
+        self._auto_compact_done = True
+        before = self._context_tokens(usage)
+        if self.compact_session(auto=True):
+            after = self._context_tokens()
+            self.ui.info(f'Auto-compacted at {before:,} tokens '
+                         f'(now {after:,})')
+
+    def compact_session(self, auto: bool = False) -> bool:
+        keep = max(0, int(self.config.get('compact_keep', 1)))
         base = list(self.current_session.turns)
         if base and turns.command_only(base[-1]):
             base = base[:-1]
         if not base:
-            self.ui.info('Nothing to compact')
-            return
+            if not auto:
+                self.ui.info('Nothing to compact')
+            return False
         boundary = max(0, len(base) - keep) if keep else 0
         summarize = base[:boundary]
         if not summarize:
-            self.ui.info('Nothing to compact')
-            return
+            if not auto:
+                self.ui.info('Nothing to compact')
+            return False
         summary = self._summarize(turns.provider_messages(summarize))
         if summary is None:
-            return
+            return False
         if boundary < len(base):
             compact_from = base[boundary]['index']
         else:
@@ -1464,11 +1540,14 @@ class Engine:
                 self.current_session.session_name, header + summary)
         except OSError:
             pass
-        n, chars = self._context_size()
-        self.ui.info(f'Compacted - context now {n} messages ({self._human_chars(chars)})')
-        self.ui.info('--- earlier conversation ---')
-        self.ui.info(summary)
+        if not auto:
+            n, chars = self._context_size()
+            self.ui.info(f'Compacted - context now {n} messages '
+                         f'({self._human_chars(chars)})')
+            self.ui.info('--- earlier conversation ---')
+            self.ui.info(summary)
         self.session_auto_save()
+        return True
 
     def _context_size(self) -> tuple[int, int]:
         msgs = self._provider_messages()

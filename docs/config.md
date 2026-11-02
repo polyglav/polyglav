@@ -50,8 +50,12 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `auto_continue_max`         | `2`                    | Max continuation rounds per turn on truncation. `0` turns continuation off |
 | `base_url`                  | `"https://api.ollama.com"` | Provider endpoint                                                  |
 | `clear_screen`              | `true`                 | Clear the screen before the REPL banner                                |
-| `compact_keep`              | `4`                    | Turns to keep when compacting the provider context                     |
+| `compact_at`                | `170000`               | Compaction limit. A value below `1` is a fraction of `context_window` (for example `0.85`), a value above `1` is absolute tokens, and `1` is rejected as ambiguous. `0` disables the limit |
+| `compact_auto`              | `true`                 | Enable automatic compaction when the context approaches `compact_at`   |
+| `compact_before`            | `3`                    | Rounds of headroom used to project the next context size before the limit |
+| `compact_keep`              | `1`                    | Rounds to keep when compacting the provider context                    |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth |
+| `context_window`            | `0`                    | Model context window in tokens. `0` = unknown, so a relative `compact_at` is skipped. A model entry can carry its own value |
 | `delegate_depth`            | `1`                    | Maximum nested `delegate` siblings. `0` = unlimited. A sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |
 | `grant_permission`          | `{}`                   | Optional narrowing of the mode-derived delegation ceiling. In `write` mode the mode itself grants write keys, in `read` mode grants are denied, and this key can only narrow the result (for example `{"bash": "ask"}`). See [Permission authority](#permission-authority) |
