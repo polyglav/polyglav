@@ -75,11 +75,14 @@ def system_part(text: str, timestamp: str | None = None) -> dict:
 
 def command_part(command: str, summary: str = '', compact_from=None,
                  timestamp: str | None = None,
-                 compact_from_part=None) -> dict:
+                 compact_from_part=None, **extra) -> dict:
     part = _part('command', text=command, summary=summary,
                  compact_from=compact_from, timestamp=timestamp)
     if compact_from_part is not None:
         part['compact_from_part'] = compact_from_part
+    for key, value in extra.items():
+        if value is not None:
+            part[key] = value
     return part
 
 

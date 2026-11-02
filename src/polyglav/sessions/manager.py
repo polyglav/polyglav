@@ -137,11 +137,11 @@ class Session:
 
     def add_command(self, command: str, summary: str = '', compact_from=None,
                     timestamp: str | None = None,
-                    compact_from_part=None) -> dict:
+                    compact_from_part=None, **extra) -> dict:
         turn = turns.new_turn(len(self.turns) + 1)
         self.turns.append(turn)
         part = turns.command_part(command, summary, compact_from, timestamp,
-                                  compact_from_part)
+                                  compact_from_part, **extra)
         turns.add_part(turn, part)
         turns.finish_turn(turn, 'ok')
         self._touch()
@@ -155,7 +155,7 @@ class Session:
         return None
 
     def set_compaction(self, summary: str, compact_from: int,
-                       compact_from_part: int = 0) -> dict:
+                       compact_from_part: int = 0, **extra) -> dict:
         part = self.last_command_part()
         if part is None or part.get('summary'):
             part = self.add_command('/compact')
@@ -165,15 +165,26 @@ class Session:
             part['compact_from_part'] = compact_from_part
         else:
             part.pop('compact_from_part', None)
+        for key, value in extra.items():
+            if value is None:
+                part.pop(key, None)
+            else:
+                part[key] = value
         self._touch()
         return part
 
-    def set_summary(self, summary: str) -> dict:
+    def set_summary(self, summary: str, **extra) -> dict:
         part = self.last_command_part()
         if part is None or part.get('summary'):
             part = self.add_command('/summary')
         part['summary'] = summary
         part.pop('compact_from', None)
+        part.pop('compact_from_part', None)
+        for key, value in extra.items():
+            if value is None:
+                part.pop(key, None)
+            else:
+                part[key] = value
         self._touch()
         return part
 

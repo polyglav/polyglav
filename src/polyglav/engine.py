@@ -25,6 +25,7 @@ class TurnResult:
     duration: float = 0.0
     usage: dict | None = None
     context_tokens: int = 0
+    compactions: list = field(default_factory=list)
     finish_reason: str = ''
     model: str = ''
     provider: str = ''
@@ -42,6 +43,7 @@ class TurnResult:
             'duration': self.duration,
             'usage': self.usage,
             'context_tokens': self.context_tokens,
+            'compactions': self.compactions,
             'finish_reason': self.finish_reason,
             'model': self.model,
             'provider': self.provider,
@@ -818,6 +820,7 @@ class Engine:
     def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
         self._denied_streak = 0
         self._auto_compact_done = False
+        self._turn_compactions: list[dict] = []
         self._round_weights, self._last_prompt_tokens = self._compact_history()
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
@@ -1121,6 +1124,7 @@ class Engine:
             duration=duration,
             usage=usage,
             context_tokens=self._context_tokens(usage),
+            compactions=list(getattr(self, '_turn_compactions', [])),
             finish_reason=reason,
             model=model_target[2],
             provider=model_target[0],
@@ -1401,6 +1405,7 @@ class Engine:
         return out
 
     def _summarize(self, msgs: list[dict], previous: str = '') -> str | None:
+        self._last_summary_usage = None
         clean = self._clean_messages(msgs)
         prompt = (
             "Summarize the conversation up to this point into a concise summary that "
@@ -1431,6 +1436,8 @@ class Engine:
         if not summary:
             self.ui.info('Compaction failed - context unchanged')
             return None
+        self._last_summary_usage = (result.get('usage')
+                                    if isinstance(result, dict) else None)
         return summary
 
     def summary_session(self):
@@ -1440,10 +1447,12 @@ class Engine:
         if not base:
             self.ui.info('Nothing to summarize')
             return
+        self._last_summary_usage = None
         summary = self._summarize(turns.provider_messages(base))
         if summary is None:
             return
-        self.current_session.set_summary(summary)
+        self.current_session.set_summary(
+            summary, usage=getattr(self, '_last_summary_usage', None))
         try:
             header = (f'# Summary: {self.current_session.session_name}\n\n'
                       f'- Version: {self.current_session.version or "-"}\n\n')
@@ -1560,7 +1569,11 @@ class Engine:
     def _auto_compact(self, usage: dict | None):
         self._auto_compact_done = True
         before = self._context_tokens(usage)
-        if self.compact_session(auto=True):
+        record = self.compact_session(auto=True)
+        if record:
+            compactions = getattr(self, '_turn_compactions', None)
+            if compactions is not None:
+                compactions.append(record)
             after = self._context_tokens()
             self.ui.info(f'Auto-compacted at {before:,} tokens '
                          f'(now {after:,})')
@@ -1591,20 +1604,20 @@ class Engine:
             return None
         return rounds[-keep]
 
-    def compact_session(self, auto: bool = False) -> bool:
+    def compact_session(self, auto: bool = False) -> dict | None:
         keep = max(0, int(self.config.get('compact_keep', 1)))
         base = list(self.current_session.turns)
         boundary = self._compact_boundary(base, keep)
         if boundary is None:
             if not auto:
                 self.ui.info('Nothing to compact')
-            return False
+            return None
         boundary_turn, boundary_part = boundary
         previous, previous_turn, previous_part = turns.compaction(base)
         if previous and (previous_turn, previous_part) >= boundary:
             if not auto:
                 self.ui.info('Nothing to compact')
-            return False
+            return None
         start_turn = previous_turn if previous else 0
         start_part = previous_part if previous else 0
         msgs = turns.provider_messages_between(
@@ -1612,12 +1625,27 @@ class Engine:
         if not msgs:
             if not auto:
                 self.ui.info('Nothing to compact')
-            return False
+            return None
+        context_before = self._context_tokens()
+        tokens_summarized = max(
+            1, sum(len(m.get('content') or '') for m in msgs) // 4)
         summary = self._summarize(msgs, previous=previous)
         if summary is None:
-            return False
-        self.current_session.set_compaction(
-            summary, boundary_turn, boundary_part)
+            return None
+        usage = getattr(self, '_last_summary_usage', None)
+        rounds = self._compact_rounds(base)
+        start = (start_turn, start_part)
+        rounds_summarized = sum(
+            1 for value in rounds if start <= value < boundary)
+        record = self.current_session.set_compaction(
+            summary, boundary_turn, boundary_part,
+            auto=auto,
+            reason='threshold' if auto else 'manual',
+            usage=usage,
+            context_before=context_before,
+            rounds_summarized=rounds_summarized,
+            tokens_summarized=tokens_summarized)
+        record['context_after'] = self._context_tokens()
         try:
             header = (f'# Compaction summary: '
                       f'{self.current_session.session_name}\n\n'
@@ -1636,7 +1664,7 @@ class Engine:
             self.ui.info('--- earlier conversation ---')
             self.ui.info(summary)
         self.session_auto_save()
-        return True
+        return record
 
     def _context_size(self) -> tuple[int, int]:
         msgs = self._provider_messages()

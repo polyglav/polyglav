@@ -387,6 +387,7 @@ class TestCompactSession(unittest.TestCase):
         self.chat.provider.chat_nonstreaming.return_value = {
             'role': 'assistant', 'content': text,
             'tool_calls': None, 'finish_reason': 'stop',
+            'usage': {'prompt_tokens': 20, 'completion_tokens': 5},
         }
 
     def test_compact_keeps_all_turns_and_stamps_record(self):
@@ -405,6 +406,21 @@ class TestCompactSession(unittest.TestCase):
         self.assertEqual(
             [p['text'] for t in session.turns[:6] for p in t['parts']],
             [c for i in range(6) for c in (f'msg {i}', f'answer {i}')])
+
+    def test_compact_records_telemetry(self):
+        self._fill(6)
+        self._summary()
+        with patch('sys.stdout', new=io.StringIO()):
+            self.chat.compact_session()
+        record = self.chat.current_session.turns[-1]['parts'][0]
+        self.assertFalse(record['auto'])
+        self.assertEqual(record['reason'], 'manual')
+        self.assertEqual(record['usage'],
+                         {'prompt_tokens': 20, 'completion_tokens': 5})
+        self.assertEqual(record['rounds_summarized'], 2)
+        self.assertGreater(record['tokens_summarized'], 0)
+        self.assertIn('context_before', record)
+        self.assertIn('context_after', record)
 
     def test_provider_messages_uses_summary_and_boundary(self):
         self._fill(6)

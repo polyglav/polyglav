@@ -147,7 +147,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
 | `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
-| `command` | `text` | A slash command. `summary`, `compact_from`, and `compact_from_part` are set on a `/compact` record |
+| `command` | `text` | A slash command. `summary`, `compact_from`, and `compact_from_part` are set on a `/compact` record, which also carries `auto`, `reason`, `usage`, `context_before`, `context_after`, `rounds_summarized`, and `tokens_summarized` |
 | `system` | `text` | An injected note |
 
 A tool call and its result never split into separate records: the `tool` part is created with `name`/`input`/`call_id`, the engine executes the call, and `output`/`is_error`/`analysis`/`duration` fill in on the same part. Thinking recorded before a tool round becomes a `thinking` part ahead of the `tool` parts.
@@ -195,7 +195,7 @@ A command and a compaction record:
    "compact_from": 4, "compact_from_part": 7, "timestamp": "..."}]}
 ```
 
-A `command` part with a `summary` is a compaction record: `summary` holds the text, `compact_from` the turn `index`, and `compact_from_part` the part index in that turn where the kept portion starts. A missing `compact_from_part` or `0` means the whole boundary turn is kept. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
+A `command` part with a `summary` is a compaction record: `summary` holds the text, `compact_from` the turn `index`, and `compact_from_part` the part index in that turn where the kept portion starts. A missing `compact_from_part` or `0` means the whole boundary turn is kept. `auto` and `reason` say whether the threshold or `/compact` triggered it, `usage` is the summarization request usage, `context_before` and `context_after` are the estimated context sizes, and `rounds_summarized` and `tokens_summarized` describe the summarized input. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
 
 
 ## Errors
@@ -253,6 +253,6 @@ For compaction, tool results fold back into the summarized context as `[tool res
 
 ## Compaction
 
-`/compact` summarizes the earlier conversation and trims the provider context, controlled by `compact_keep` (default `1` round kept at the tail). A round is one assistant response with its tool calls and results, or one assistant answer. The current user prompt is always kept. The summary is stored in the `summary` of a `command` part with a `compact_from` turn index and a `compact_from_part` part index, so the full history stays in the log while only the summary plus the kept rounds are sent to the model going forward. Automatic compaction uses the same boundary when `compact_auto` is on.
+`/compact` summarizes the earlier conversation and trims the provider context, controlled by `compact_keep` (default `1` round kept at the tail). A round is one assistant response with its tool calls and results, or one assistant answer. The current user prompt is always kept. The summary is stored in the `summary` of a `command` part with a `compact_from` turn index and a `compact_from_part` part index, so the full history stays in the log while only the summary plus the kept rounds are sent to the model going forward. Automatic compaction uses the same boundary when `compact_auto` is on. The record also carries the summarization usage and the context size before and after, so a run log shows what each compaction cost.
 
 The same summary is also written to `.polyglav/summaries/<name>.md` as a standalone brief (session name, `compact_from` turn and part, version, then the summary text), so a person or another agent can attach it without reading the session log. That file is derived and best-effort, and the in-log `command` part stays the source of truth.

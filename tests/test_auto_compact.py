@@ -135,7 +135,8 @@ class TestAutoCompaction(unittest.TestCase):
              {'type': 'done', 'reason': 'stop'}],
         ]
         self.chat.provider.chat_nonstreaming.return_value = {
-            'role': 'assistant', 'content': 'SUMMARY', 'tool_calls': None}
+            'role': 'assistant', 'content': 'SUMMARY', 'tool_calls': None,
+            'usage': {'prompt_tokens': 50, 'completion_tokens': 10}}
         with patch('sys.stdout', new=io.StringIO()):
             result = self.chat.chat('new task')
         self.assertEqual(result.status, 'ok')
@@ -143,6 +144,14 @@ class TestAutoCompaction(unittest.TestCase):
         record = self.chat.current_session.turns[-1]['parts'][0]
         self.assertEqual(record['text'], '/compact')
         self.assertEqual(record['summary'], 'SUMMARY')
+        self.assertTrue(record['auto'])
+        self.assertEqual(record['reason'], 'threshold')
+        self.assertEqual(record['usage']['prompt_tokens'], 50)
+        self.assertIn('context_before', record)
+        self.assertIn('context_after', record)
+        self.assertGreaterEqual(record['rounds_summarized'], 1)
+        self.assertGreater(record['tokens_summarized'], 0)
+        self.assertEqual(result.compactions[0]['summary'], 'SUMMARY')
 
     def test_failed_summary_is_not_retried(self):
         self._prior_turn()
