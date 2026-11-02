@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.51.0
+## v0.51.0 - 2026-11-02
 
 - Added metrics command - `polyglav metrics list` discovers task files under `.polyglav/metrics` and the global config, and `polyglav metrics run` writes JSON records under `.polyglav/metrics/runs`. Docs (`commands.md`, `index.md`, `testing.md`)
 - Added metric recorder - `polyglav.metrics` runs a task under `single` and `multi` conditions and writes one record with per-round context size and composition, tool and edit evidence accesses with content hashes and result tokens, compaction events, probe answers, and cost. `polyglav.cost` and `cost.rates` provide the cost model. Docs (`metrics.md`, `config.md`). Tests: `test_metrics.py`, `test_cost.py`

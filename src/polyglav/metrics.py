@@ -466,7 +466,8 @@ def run_task(task: MetricTask, source: Config | None = None,
         _provision(worktree, task, config_data)
         config = Config(path=str(worktree))
         ui = HeadlessUI(auto='allow', stream=False, verbose=False)
-        engine = Engine(config, ui=ui, provider=provider)
+        engine = Engine(config, ui=ui, provider=provider,
+                        approve_models=True)
         engine.load_or_create_session(None)
         provider_name, _, model = engine.model_target()
         rates = rates_from_config(config, provider_name, model)

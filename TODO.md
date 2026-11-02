@@ -9,7 +9,7 @@
 - Markdown catalogue for teams and skills - store them as Markdown (front matter) referenced from JSON, with roles already done, in one catalogue directory
 - Hidden files and allowed paths - hide secrets and config from tools by default, and restrict visible paths to allowed roots
 - Context policy - keep user prompts until the task is done, cut unused references and tool results immediately, add a recall tool for role and team memory, enforce a configurable context limit, and offload large tool results to `.polyglav/tmp/` referenced from the session log
-- Context UI polish - auto-compaction, context trim, highlighting, and context desaturation
+- Context UI polish - context trim, highlighting, and context desaturation
 - Open WebUI and OpenTUI connectors - drive Polyglav from external chat and terminal UIs
 - Tool-call quality enhancer - steer tool calling toward correct, cheaper calls (for example web-search parameters that find the right references) and better results
 - PlantUML plugin - an external plugin that draws configurations and workflows as node diagrams instead of ASCII
