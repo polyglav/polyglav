@@ -1342,7 +1342,8 @@ class Engine:
 
     def _provider_messages(self) -> list[dict]:
         from .modes import system_instruction, instructions_file_section
-        summary, boundary = turns.compaction(self.current_session.turns)
+        summary, boundary_turn, boundary_part = turns.compaction(
+            self.current_session.turns)
         out = []
         if summary:
             out.append({
@@ -1365,9 +1366,14 @@ class Engine:
         if todo:
             out.append({'role': 'system', 'content': todo})
         for turn in self.current_session.turns:
-            if boundary and turn.get('index', 0) < boundary:
+            index = turn.get('index', 0)
+            if boundary_turn and index < boundary_turn:
                 continue
-            out.extend(turns.turn_to_provider(turn))
+            if boundary_turn and index == boundary_turn:
+                out.extend(turns.turn_to_provider(
+                    turn, start_part=boundary_part, keep_prelude=True))
+            else:
+                out.extend(turns.turn_to_provider(turn))
         return out
 
     def _clean_messages(self, msgs: list[dict]) -> list[dict]:
@@ -1394,14 +1400,19 @@ class Engine:
                 out.append(m)
         return out
 
-    def _summarize(self, msgs: list[dict]) -> str | None:
+    def _summarize(self, msgs: list[dict], previous: str = '') -> str | None:
         clean = self._clean_messages(msgs)
         prompt = (
             "Summarize the conversation up to this point into a concise summary that "
             "preserves key facts, decisions, tool findings, and open questions. "
+            "Preserve the original user task and its constraints. "
             "The summary will be the only remaining record of the earlier conversation. "
             "Return only the summary text, nothing else."
         )
+        if previous:
+            prompt += ("\n\nPrevious summary:\n\n" + previous +
+                       "\n\nMerge the previous summary and the new messages into "
+                       "one updated summary.")
         try:
             result = self.provider.chat_nonstreaming(
                 [{'role': 'system', 'content': prompt}] + clean,
@@ -1554,34 +1565,66 @@ class Engine:
             self.ui.info(f'Auto-compacted at {before:,} tokens '
                          f'(now {after:,})')
 
+    def _compact_rounds(self, base: list[dict]) -> list[tuple[int, int]]:
+        rounds: list[tuple[int, int]] = []
+        for turn in base:
+            if turns.command_only(turn):
+                continue
+            index = turn.get('index', 0)
+            for start in turns.round_starts(turn):
+                rounds.append((index, start))
+        return rounds
+
+    def _compact_boundary(self, base: list[dict],
+                          keep: int) -> tuple[int, int] | None:
+        rounds = self._compact_rounds(base)
+        if not rounds:
+            return None
+        if keep <= 0:
+            last_turn = rounds[-1][0]
+            first = next((start for index, start in rounds
+                          if index == last_turn), None)
+            if first is None:
+                return None
+            return last_turn, first
+        if len(rounds) <= keep:
+            return None
+        return rounds[-keep]
+
     def compact_session(self, auto: bool = False) -> bool:
         keep = max(0, int(self.config.get('compact_keep', 1)))
         base = list(self.current_session.turns)
-        if base and turns.command_only(base[-1]):
-            base = base[:-1]
-        if not base:
+        boundary = self._compact_boundary(base, keep)
+        if boundary is None:
             if not auto:
                 self.ui.info('Nothing to compact')
             return False
-        boundary = max(0, len(base) - keep) if keep else 0
-        summarize = base[:boundary]
-        if not summarize:
+        boundary_turn, boundary_part = boundary
+        previous, previous_turn, previous_part = turns.compaction(base)
+        if previous and (previous_turn, previous_part) >= boundary:
             if not auto:
                 self.ui.info('Nothing to compact')
             return False
-        summary = self._summarize(turns.provider_messages(summarize))
+        start_turn = previous_turn if previous else 0
+        start_part = previous_part if previous else 0
+        msgs = turns.provider_messages_between(
+            base, start_turn, start_part, boundary_turn, boundary_part)
+        if not msgs:
+            if not auto:
+                self.ui.info('Nothing to compact')
+            return False
+        summary = self._summarize(msgs, previous=previous)
         if summary is None:
             return False
-        if boundary < len(base):
-            compact_from = base[boundary]['index']
-        else:
-            compact_from = base[-1]['index'] + 1
-        self.current_session.set_compaction(summary, compact_from)
+        self.current_session.set_compaction(
+            summary, boundary_turn, boundary_part)
         try:
             header = (f'# Compaction summary: '
                       f'{self.current_session.session_name}\n\n'
-                      f'- Compact from turn: {compact_from}\n'
-                      f'- Version: {self.current_session.version or "-"}\n\n')
+                      f'- Compact from turn: {boundary_turn}\n')
+            if boundary_part:
+                header += f'- Compact from part: {boundary_part}\n'
+            header += f'- Version: {self.current_session.version or "-"}\n\n'
             self.sessions.write_summary(
                 self.current_session.session_name, header + summary)
         except OSError:

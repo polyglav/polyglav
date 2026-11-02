@@ -147,7 +147,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
 | `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
-| `command` | `text` | A slash command. `summary` and `compact_from` are set on a `/compact` record |
+| `command` | `text` | A slash command. `summary`, `compact_from`, and `compact_from_part` are set on a `/compact` record |
 | `system` | `text` | An injected note |
 
 A tool call and its result never split into separate records: the `tool` part is created with `name`/`input`/`call_id`, the engine executes the call, and `output`/`is_error`/`analysis`/`duration` fill in on the same part. Thinking recorded before a tool round becomes a `thinking` part ahead of the `tool` parts.
@@ -192,10 +192,10 @@ A command and a compaction record:
   {"type": "command", "text": "/model llama3.3", "timestamp": "..."}]}
 {"index": 4, "status": "ok", "parts": [
   {"type": "command", "text": "/compact", "summary": "Summary of the earlier conversation...",
-   "compact_from": 4, "timestamp": "..."}]}
+   "compact_from": 4, "compact_from_part": 7, "timestamp": "..."}]}
 ```
 
-A `command` part with a `summary` is a compaction record: `summary` holds the text and `compact_from` the turn `index` where the kept portion starts. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
+A `command` part with a `summary` is a compaction record: `summary` holds the text, `compact_from` the turn `index`, and `compact_from_part` the part index in that turn where the kept portion starts. A missing `compact_from_part` or `0` means the whole boundary turn is kept. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
 
 
 ## Errors
@@ -241,7 +241,7 @@ Disabling `tool_output_log` keeps the full inline output and accepts a larger se
 
 The provider payload is prepared from the turns by `turns.provider_messages()` (via `Engine._provider_messages`):
 
-- The latest `command` part with a `summary` becomes a `system` summary: `Summary of earlier conversation:\n\n<summary>`, and turns before its `compact_from` index are skipped.
+- The latest `command` part with a `summary` becomes a `system` summary: `Summary of earlier conversation:\n\n<summary>`, turns before its `compact_from` index are skipped, and within the boundary turn only parts from `compact_from_part` are used while its `user` and `system` prelude stays.
 - `command` parts are dropped.
 - Within a turn, assistant text and the consecutive `tool` parts that follow become one assistant message with `tool_calls` (reusing each part's stored `call_id`, or a synthesized id for older logs), followed by the `tool` result messages, so a co-located tool round rebuilds to the OpenAI-compatible shape.
 - `thinking` is attached to the assistant message it preceded.
@@ -253,6 +253,6 @@ For compaction, tool results fold back into the summarized context as `[tool res
 
 ## Compaction
 
-`/compact` summarizes the earlier conversation and trims the provider context, controlled by `compact_keep` (default 4 = turns kept at the tail). The summary is stored in the `summary` of a `command` part with a `compact_from` turn index, so the full history stays in the log while only the summary plus the kept turns are sent to the model going forward.
+`/compact` summarizes the earlier conversation and trims the provider context, controlled by `compact_keep` (default `1` round kept at the tail). A round is one assistant response with its tool calls and results, or one assistant answer. The current user prompt is always kept. The summary is stored in the `summary` of a `command` part with a `compact_from` turn index and a `compact_from_part` part index, so the full history stays in the log while only the summary plus the kept rounds are sent to the model going forward. Automatic compaction uses the same boundary when `compact_auto` is on.
 
-The same summary is also written to `.polyglav/summaries/<name>.md` as a standalone brief (session name, `compact_from` turn, version, then the summary text), so a person or another agent can attach it without reading the session log. That file is derived and best-effort, and the in-log `command` part stays the source of truth.
+The same summary is also written to `.polyglav/summaries/<name>.md` as a standalone brief (session name, `compact_from` turn and part, version, then the summary text), so a person or another agent can attach it without reading the session log. That file is derived and best-effort, and the in-log `command` part stays the source of truth.

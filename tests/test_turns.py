@@ -208,9 +208,59 @@ class TestProviderMessages(unittest.TestCase):
 
     def test_compaction_boundary(self):
         ts = self._turns()
-        summary, boundary = turns.compaction(ts)
+        summary, boundary, part = turns.compaction(ts)
         self.assertEqual(summary, 'THE SUMMARY')
         self.assertEqual(boundary, 2)
+        self.assertEqual(part, 0)
+
+    def test_compaction_part_boundary(self):
+        ts = self._turns()
+        ts[1]['parts'][0]['compact_from_part'] = 3
+        summary, boundary, part = turns.compaction(ts)
+        self.assertEqual(summary, 'THE SUMMARY')
+        self.assertEqual(boundary, 2)
+        self.assertEqual(part, 3)
+
+    def test_provider_messages_starts_at_part_boundary(self):
+        one = turns.new_turn(1)
+        turns.add_part(one, turns.user_part('task'))
+        turns.add_part(one, turns.tool_part(
+            'file_read', {'path': 'a'}, output='A'))
+        turns.add_part(one, turns.tool_part(
+            'file_read', {'path': 'b'}, output='B'))
+        turns.add_part(one, turns.text_part('answer'))
+        command = turns.new_turn(2)
+        turns.add_part(command, turns.command_part(
+            '/compact', summary='SUMMARY', compact_from=1,
+            compact_from_part=2))
+        out = turns.provider_messages([one, command])
+        self.assertEqual(out[0]['role'], 'system')
+        self.assertIn('SUMMARY', out[0]['content'])
+        roles = [m['role'] for m in out[1:]]
+        self.assertEqual(roles, ['user', 'assistant', 'tool', 'assistant'])
+        self.assertEqual(out[1]['content'], 'task')
+        self.assertEqual(out[3]['content'], 'B')
+        self.assertEqual(out[4]['content'], 'answer')
+
+    def test_round_starts(self):
+        turn = turns.new_turn(1)
+        turns.add_part(turn, turns.user_part('task'))
+        turns.add_part(turn, turns.tool_part('a'))
+        turns.add_part(turn, turns.tool_part('b'))
+        turns.add_part(turn, turns.text_part('answer'))
+        self.assertEqual(turns.round_starts(turn), [1, 3])
+
+    def test_provider_messages_between(self):
+        one = turns.new_turn(1)
+        turns.add_part(one, turns.user_part('task'))
+        turns.add_part(one, turns.tool_part('a', output='A'))
+        turns.add_part(one, turns.tool_part('b', output='B'))
+        turns.add_part(one, turns.text_part('answer'))
+        out = turns.provider_messages_between([one], 0, 0, 1, 2)
+        self.assertEqual([m['role'] for m in out],
+                         ['user', 'assistant', 'tool'])
+        self.assertEqual(out[0]['content'], 'task')
+        self.assertEqual(out[2]['content'], 'A')
 
     def test_provider_messages_starts_at_boundary(self):
         out = turns.provider_messages(self._turns())

@@ -47,7 +47,7 @@ class TestAutoCompaction(unittest.TestCase):
 
     def setUp(self):
         self.chat = make_chat()
-        self.chat.config.set('compact_at', 100)
+        self.chat.config.set('compact_at', 1000)
         self.chat.config.set('compact_keep', 1)
 
     def tearDown(self):
@@ -83,6 +83,32 @@ class TestAutoCompaction(unittest.TestCase):
         weights, last = self.chat._compact_history()
         self.assertEqual(weights, [20000, 30000])
         self.assertEqual(last, 60000)
+
+    def test_intra_turn_compaction_keeps_last_round(self):
+        session = self.chat.current_session
+        session.add_user('task')
+        session.add_thinking('think 1')
+        first = session.add_tool('list_dir', {'path': 'a'}, call_id='c1')
+        from polyglav.sessions import turns as turn_parts
+        turn_parts.finish_tool(first, 'A')
+        session.add_thinking('think 2')
+        second = session.add_tool('list_dir', {'path': 'b'}, call_id='c2')
+        turn_parts.finish_tool(second, 'B')
+        self.chat.provider.chat_nonstreaming.return_value = {
+            'role': 'assistant', 'content': 'SUMMARY', 'tool_calls': None}
+        with patch('sys.stdout', new=io.StringIO()):
+            self.assertTrue(self.chat.compact_session(auto=True))
+        record = session.turns[-1]['parts'][0]
+        self.assertEqual(record['compact_from'], 1)
+        self.assertEqual(record['compact_from_part'], 4)
+        msgs = self.chat._provider_messages()
+        self.assertIn('SUMMARY', msgs[0]['content'])
+        contents = [m.get('content') for m in msgs]
+        self.assertIn('task', contents)
+        self.assertIn('B', contents)
+        calls = [m for m in msgs if m.get('tool_calls')]
+        self.assertEqual(calls[-1]['tool_calls'][0]['function']['name'],
+                         'list_dir')
 
     def _prior_turn(self):
         self.chat.current_session.add_user('old task')

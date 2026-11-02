@@ -74,9 +74,13 @@ def system_part(text: str, timestamp: str | None = None) -> dict:
 
 
 def command_part(command: str, summary: str = '', compact_from=None,
-                 timestamp: str | None = None) -> dict:
-    return _part('command', text=command, summary=summary,
+                 timestamp: str | None = None,
+                 compact_from_part=None) -> dict:
+    part = _part('command', text=command, summary=summary,
                  compact_from=compact_from, timestamp=timestamp)
+    if compact_from_part is not None:
+        part['compact_from_part'] = compact_from_part
+    return part
 
 
 def tool_part(name: str, input=None, output: str = '', is_error: bool = False,
@@ -122,13 +126,25 @@ def _arguments(value) -> str:
         return '{}'
 
 
-def turn_to_provider(turn: dict) -> list[dict]:
+def turn_to_provider(turn: dict, start_part: int = 0,
+                     keep_prelude: bool = False) -> list[dict]:
     out: list[dict] = []
     parts = turn.get('parts') or []
     index = turn.get('index', 0)
     pending_text: str | None = None
     pending_thinking: str | None = None
     i = 0
+    if start_part > 0 and keep_prelude:
+        while i < start_part:
+            part = parts[i]
+            kind = part.get('type')
+            if kind == 'user':
+                out.append({'role': 'user', 'content': part.get('text') or ''})
+            elif kind == 'system':
+                out.append({'role': 'system', 'content': part.get('text') or ''})
+            i += 1
+    else:
+        i = max(0, start_part)
     while i < len(parts):
         part = parts[i]
         kind = part.get('type')
@@ -180,24 +196,53 @@ def turn_to_provider(turn: dict) -> list[dict]:
     return out
 
 
-def compaction(turns) -> tuple[str, int]:
+def round_starts(turn: dict) -> list[int]:
+    parts = turn.get('parts') or []
+    starts: list[int] = []
+    i = 0
+    while i < len(parts):
+        kind = parts[i].get('type')
+        if kind == 'tool':
+            starts.append(i)
+            i += 1
+            while i < len(parts) and parts[i].get('type') == 'tool':
+                if parts[i].get('usage') is not None:
+                    break
+                i += 1
+        elif kind == 'text':
+            starts.append(i)
+            while i < len(parts) and parts[i].get('type') == 'text':
+                i += 1
+        else:
+            i += 1
+    return starts
+
+
+def compaction(turns) -> tuple[str, int, int]:
     summary = ''
-    boundary = 0
+    boundary_turn = 0
+    boundary_part = 0
     for turn in turns:
         for part in turn.get('parts') or []:
             if part.get('type') != 'command' or not part.get('summary'):
                 continue
             if part.get('compact_from') is None:
                 continue
-            summary = part['summary']
             value = part.get('compact_from')
-            if isinstance(value, int) and value > boundary:
-                boundary = value
-    return summary, boundary
+            if not isinstance(value, int):
+                continue
+            value_part = part.get('compact_from_part')
+            if not isinstance(value_part, int) or value_part < 0:
+                value_part = 0
+            if (value, value_part) >= (boundary_turn, boundary_part):
+                summary = part['summary']
+                boundary_turn = value
+                boundary_part = value_part
+    return summary, boundary_turn, boundary_part
 
 
 def provider_messages(turns) -> list[dict]:
-    summary, boundary = compaction(turns)
+    summary, boundary_turn, boundary_part = compaction(turns)
     out: list[dict] = []
     if summary:
         out.append({
@@ -205,7 +250,41 @@ def provider_messages(turns) -> list[dict]:
             'content': 'Summary of earlier conversation:\n\n' + summary,
         })
     for turn in turns:
-        if boundary and turn.get('index', 0) < boundary:
+        index = turn.get('index', 0)
+        if boundary_turn and index < boundary_turn:
             continue
-        out.extend(turn_to_provider(turn))
+        if boundary_turn and index == boundary_turn:
+            out.extend(turn_to_provider(turn, start_part=boundary_part,
+                                        keep_prelude=True))
+        else:
+            out.extend(turn_to_provider(turn))
+    return out
+
+
+def provider_messages_between(turns, start_turn: int = 0,
+                              start_part: int = 0,
+                              end_turn: int = 0,
+                              end_part: int = 0) -> list[dict]:
+    out: list[dict] = []
+    for turn in turns:
+        index = turn.get('index', 0)
+        if start_turn and index < start_turn:
+            continue
+        if end_turn and index > end_turn:
+            break
+        parts = turn.get('parts') or []
+        lo = start_part if index == start_turn else 0
+        hi = end_part if index == end_turn else len(parts)
+        if index == start_turn and start_part > 0:
+            prelude = [p for p in parts[:start_part]
+                       if p.get('type') in ('user', 'system')]
+            if prelude:
+                truncated = dict(turn)
+                truncated['parts'] = prelude
+                out.extend(turn_to_provider(truncated))
+        if hi <= lo:
+            continue
+        truncated = dict(turn)
+        truncated['parts'] = parts[lo:hi]
+        out.extend(turn_to_provider(truncated))
     return out

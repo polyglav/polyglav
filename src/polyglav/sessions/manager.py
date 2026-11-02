@@ -136,10 +136,12 @@ class Session:
         return self.add_part(turns.tool_part(name, input, **kwargs))
 
     def add_command(self, command: str, summary: str = '', compact_from=None,
-                    timestamp: str | None = None) -> dict:
+                    timestamp: str | None = None,
+                    compact_from_part=None) -> dict:
         turn = turns.new_turn(len(self.turns) + 1)
         self.turns.append(turn)
-        part = turns.command_part(command, summary, compact_from, timestamp)
+        part = turns.command_part(command, summary, compact_from, timestamp,
+                                  compact_from_part)
         turns.add_part(turn, part)
         turns.finish_turn(turn, 'ok')
         self._touch()
@@ -152,12 +154,17 @@ class Session:
                     return part
         return None
 
-    def set_compaction(self, summary: str, compact_from: int) -> dict:
+    def set_compaction(self, summary: str, compact_from: int,
+                       compact_from_part: int = 0) -> dict:
         part = self.last_command_part()
         if part is None or part.get('summary'):
             part = self.add_command('/compact')
         part['summary'] = summary
         part['compact_from'] = compact_from
+        if compact_from_part:
+            part['compact_from_part'] = compact_from_part
+        else:
+            part.pop('compact_from_part', None)
         self._touch()
         return part
 
