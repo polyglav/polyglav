@@ -2,6 +2,7 @@
 
 ## v0.51.0
 
+- Added metrics command - `polyglav metrics list` discovers task files under `.polyglav/metrics` and the global config, and `polyglav metrics run` writes JSON records under `.polyglav/metrics/runs`. Docs (`commands.md`, `index.md`, `testing.md`)
 - Added metric recorder - `polyglav.metrics` runs a task under `single` and `multi` conditions and writes one record with per-round context size and composition, tool and edit evidence accesses with content hashes and result tokens, compaction events, probe answers, and cost. `polyglav.cost` and `cost.rates` provide the cost model. Docs (`metrics.md`, `config.md`). Tests: `test_metrics.py`, `test_cost.py`
 - Added engine observer hooks - `Engine.add_observer` emits request start/end, tool end, and compaction events with context blocks, usage, and result tokens, sub-engines inherit the observers, and `chat(deny_tools=...)` supports tool-free probe turns. Docs (`session.md`). Tests: `test_engine_observer.py`
 - Added compaction telemetry - each compaction record now carries `auto`, `reason`, summarization `usage`, `context_before`/`context_after`, `rounds_summarized`, and `tokens_summarized`, and `TurnResult` exposes the compactions of a turn. Docs (`session.md`). Tests: `test_session_log.py`, `test_auto_compact.py`

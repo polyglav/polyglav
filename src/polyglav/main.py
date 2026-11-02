@@ -60,6 +60,24 @@ def _add_config_parser(sub):
                          help='Use the project-local config file (default)')
 
 
+def _add_metrics_parser(sub):
+    p = sub.add_parser('metrics', help='Run metric tasks and write run records')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    g = p.add_subparsers(dest='action', required=True)
+    g.add_parser('list', help='List discovered metric tasks')
+    r = g.add_parser('run', help='Run metric tasks and write JSON records')
+    r.add_argument('--task', help='Task id or substring (default: all)')
+    r.add_argument('--condition', default='single',
+                   help='Comma-separated conditions: single, multi')
+    r.add_argument('--provider', help='Provider override')
+    r.add_argument('--model', help='Model override')
+    r.add_argument('--base-url', help='Base URL override')
+    r.add_argument('--output', choices=['table', 'json'], default='table',
+                   help='Output format (default: table)')
+    r.add_argument('--out', help='Record directory (default: .polyglav/metrics/runs)')
+
+
 def _add_plugins_parser(sub):
     p = sub.add_parser('plugins', help='Manage plugins (list, install, update, uninstall)')
     p.add_argument('--path', default=argparse.SUPPRESS,
@@ -117,6 +135,7 @@ def _build_parser(config, pm):
     _add_run_parser(sub)
     _add_mcp_parser(sub)
     _add_config_parser(sub)
+    _add_metrics_parser(sub)
     _add_plugins_parser(sub)
     cli = CLIRegistry(sub, config, pm)
     core = list(cli.names())
@@ -155,6 +174,9 @@ def main(argv=None):
     if args.command == 'config':
         from .cli import cmd_config
         return cmd_config(args)
+    if args.command == 'metrics':
+        from .metrics import cmd_metrics
+        return cmd_metrics(args)
 
     frontend = _frontends(pm).get(args.frontend or 'repl')
     if frontend is None:

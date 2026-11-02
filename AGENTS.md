@@ -47,8 +47,10 @@ Polyglav/
 │   ├── __init__.py
 │   ├── __main__.py          # python -m polyglav
 │   ├── main.py              # CLI arg parsing + bootstrap (default REPL, run, serve)
-│   ├── cli.py               # `polyglav run` / `polyglav serve` / `polyglav eval` headless entry points
+│   ├── cli.py               # `polyglav run` / `polyglav serve` / `polyglav eval` / `polyglav metrics` headless entry points
 │   ├── config.py            # JSON config (global + local merge)
+│   ├── cost.py              # Token cost model for metric records
+│   ├── metrics.py           # Metric task runner, evidence tracking, and run records
 │   ├── models.py            # global model registry - models.json (connections + keys)
 │   ├── role_model.py        # Role model, frontmatter, and permission helpers
 │   ├── engine.py            # Headless agent core - Engine + TurnResult + run_subagent

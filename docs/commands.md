@@ -62,7 +62,7 @@ Delegation is a normal tool: the caller agent proposes it, or you ask for it in 
 ## CLI
 
 ```
-usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
+usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,metrics,models,plugins,run,serve} ...
 ```
 
 Global:
@@ -156,6 +156,26 @@ polyglav eval --path <project> run --compare ollama,openai --output json
 | `--base-url`     |                              | Base URL override                 |
 | `--compare`      |                              | Comma-separated providers to compare |
 | `--output`       | `table`                      | `table` or `json`                 |
+
+### `polyglav metrics`
+
+Run metric tasks and write one JSON record per task and condition. See [metrics.md](metrics.md).
+
+```bash
+polyglav metrics --path <project> list
+polyglav metrics --path <project> run --task <id> --condition single
+polyglav metrics --path <project> run --condition single,multi --output json
+```
+
+| Flag             | Default                      | Description                       |
+|------------------|------------------------------|-----------------------------------|
+| `--task`         |                              | Task id or substring (default: all) |
+| `--condition`    | `single`                     | Comma-separated conditions: `single`, `multi` |
+| `--provider`     |                              | Provider override                 |
+| `--model`        |                              | Model override                    |
+| `--base-url`     |                              | Base URL override                 |
+| `--output`       | `table`                      | `table` or `json`                 |
+| `--out`          | `.polyglav/metrics/runs`     | Record directory                  |
 
 ### `polyglav config`
 

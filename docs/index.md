@@ -14,6 +14,7 @@ Detailed reference for Polyglav. For the overview and features see the [README](
 - [Eval harness](eval.md) - tool-use evaluation (`polyglav eval`), task fixtures, metrics
 - [Jobs](jobs.md) - scheduled and durable jobs (`polyglav jobs`), cron scheduling, approvals
 - [Memory](memory.md) - bounded role, team, and job memory, automatic and manual
+- [Metric runs](metrics.md) - context, tool, evidence, compaction, probe, and cost records (`polyglav metrics`)
 - [Model Context Protocol](mcp.md) - MCP client and server
 - [Modes and access](modes.md) - read (plan) and write (work) posture, plan and todo bookkeeping, access classification, the mode cap
 - [Plugins](plugins.md) - bundled, layout, manifest, management
