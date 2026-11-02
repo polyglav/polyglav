@@ -1501,14 +1501,39 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <td>Clear the screen before the REPL banner</td>
 </tr>
 <tr>
+<td><code>compact_at</code></td>
+<td><code>170000</code></td>
+<td>Compaction limit. A value below <code>1</code> is a fraction of <code>context_window</code> (for example <code>0.85</code>), a value above <code>1</code> is absolute tokens, and <code>1</code> is rejected as ambiguous. <code>0</code> disables the limit</td>
+</tr>
+<tr>
+<td><code>compact_auto</code></td>
+<td><code>true</code></td>
+<td>Enable automatic compaction when the context approaches <code>compact_at</code></td>
+</tr>
+<tr>
+<td><code>compact_before</code></td>
+<td><code>3</code></td>
+<td>Rounds of headroom used to project the next context size before the limit</td>
+</tr>
+<tr>
 <td><code>compact_keep</code></td>
-<td><code>4</code></td>
-<td>Turns to keep when compacting the provider context</td>
+<td><code>1</code></td>
+<td>Rounds to keep when compacting the provider context</td>
 </tr>
 <tr>
 <td><code>confirm_timeout</code></td>
 <td><code>0</code></td>
 <td>Seconds a REPL confirm/ask prompt waits for input before auto-denying (<code>0</code> = wait forever). Applies at any depth</td>
+</tr>
+<tr>
+<td><code>context_window</code></td>
+<td><code>0</code></td>
+<td>Model context window in tokens. <code>0</code> = unknown, so a relative <code>compact_at</code> is skipped. A model entry can carry its own value</td>
+</tr>
+<tr>
+<td><code>cost.rates</code></td>
+<td><code>{}</code></td>
+<td>Cost model for metric records: USD per 1M tokens, keyed by <code>provider/model</code>, then <code>provider</code>, then <code>default</code> (<code>{"input": .., "output": .., "cache_read": ..}</code>). <code>cache_read</code> is a subset of the prompt tokens, and a <code>0</code> cache rate charges cached tokens at the input rate</td>
 </tr>
 <tr>
 <td><code>delegate_depth</code></td>

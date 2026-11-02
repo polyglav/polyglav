@@ -664,6 +664,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#polyglav-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#polyglav-config" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1437,6 +1448,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#polyglav-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        polyglav metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#polyglav-config" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1745,7 +1767,7 @@
 <p><code>/help</code> renders commands with subcommands indented below and then lists the allowed tools (policy- and mode-filtered, so read mode hides write and exec tools). Providers and models complete at the prompt: <code>/connect</code>, <code>/provider</code>, <code>/providers</code>, and <code>/models list</code> complete provider names, and <code>/model</code> completes a provider then its known models (from <code>models.json</code> and a cached live probe).</p>
 <p>Delegation is a normal tool: the caller agent proposes it, or you ask for it in a prompt and the model routes the same <code>call</code> tool. A configured role is called without prompting (<code>call</code> defaults to <code>allow</code>. Set a role's <code>call</code> to <code>ask</code> to confirm), and a role outside the registry is denied. A named team runs through the same <code>call</code> tool with <code>kind: "team"</code>. Anonymous help runs through <code>delegate</code>. See <a href="../roles/">roles.md</a> and <a href="../swarm/">swarm.md</a>.</p>
 <h2 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,models,plugins,run,serve} ...
+<div class="highlight"><pre><span></span><code>usage: polyglav [-h] [--path PATH] [-v] {config,eval,export,fleet,jobs,mcp,metrics,models,plugins,run,serve} ...
 </code></pre></div>
 <p>Global:</p>
 <table>
@@ -1961,6 +1983,58 @@ polyglav<span class="w"> </span><span class="nb">eval</span><span class="w"> </s
 <td><code>--output</code></td>
 <td><code>table</code></td>
 <td><code>table</code> or <code>json</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="polyglav-metrics"><code>polyglav metrics</code><a class="headerlink" href="#polyglav-metrics" title="Permanent link">&para;</a></h3>
+<p>Run metric tasks and write one JSON record per task and condition. See <a href="../metrics/">metrics.md</a>.</p>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>metrics<span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>list
+polyglav<span class="w"> </span>metrics<span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--task<span class="w"> </span>&lt;id&gt;<span class="w"> </span>--condition<span class="w"> </span>single
+polyglav<span class="w"> </span>metrics<span class="w"> </span>--path<span class="w"> </span>&lt;project&gt;<span class="w"> </span>run<span class="w"> </span>--condition<span class="w"> </span>single,multi<span class="w"> </span>--output<span class="w"> </span>json
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--task</code></td>
+<td></td>
+<td>Task id or substring (default: all)</td>
+</tr>
+<tr>
+<td><code>--condition</code></td>
+<td><code>single</code></td>
+<td>Comma-separated conditions: <code>single</code>, <code>multi</code></td>
+</tr>
+<tr>
+<td><code>--provider</code></td>
+<td></td>
+<td>Provider override</td>
+</tr>
+<tr>
+<td><code>--model</code></td>
+<td></td>
+<td>Model override</td>
+</tr>
+<tr>
+<td><code>--base-url</code></td>
+<td></td>
+<td>Base URL override</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td><code>table</code></td>
+<td><code>table</code> or <code>json</code></td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td><code>.polyglav/metrics/runs</code></td>
+<td>Record directory</td>
 </tr>
 </tbody>
 </table>

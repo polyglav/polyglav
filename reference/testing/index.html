@@ -1295,6 +1295,10 @@
 <td>Agent-loop behavior: single round trip, thinking persistence, graceful error bail, empty/truncated-stream multi-attempt retry, recovery hint after failed tool-call rounds, truncation error messages (configured cap vs provider default), auto-continue on truncation (stitch + cap + continue instruction), reasoning-only turn not flagged empty, empty-done retried, KeyboardInterrupt cancels the turn (mid-stream and after a tool call) with partial output persisted, unknown-tool results list available tools</td>
 </tr>
 <tr>
+<td><code>test_auto_compact.py</code></td>
+<td>Automatic compaction: absolute and relative <code>compact_at</code>, model-entry and config context windows, ambiguous <code>1.0</code>, disabled limit, headroom projection, turn history, trigger after a tool round, failed summary not retried, intra-turn round boundary, automatic record telemetry</td>
+</tr>
+<tr>
 <td><code>test_ask.py</code></td>
 <td><code>ask</code> tool (core): schema/registration (<code>category ask</code>, <code>permission ask</code>, <code>key_arg question</code>, <code>tool_permission.ask</code> default allow), user answer / empty-cancelled / context+options rendering, no-channel error (headless), direction routing (always the user, with <code>caller</code>/<code>auto</code> accepted as <code>user</code> for one version), the clarity guard (a short question with no context or options is rejected), ask options rendering (numbered block, <code>&gt;</code> prompt, number/letter/free-text selection), permission-request routing (prompts the root, a read-mode catalog ask offers a mode switch), sub-engine <code>_ask_ui</code> inheritance, full-loop ask -&gt; answer tool part -&gt; continue</td>
 </tr>
@@ -1319,6 +1323,10 @@
 <td>Config scopes: local-only saves, <code>--global</code> writes, <code>apply()</code> in-memory overrides (never written), unset fallback/origin, global&gt;local merge, empty-local-does-not-shadow-global, <code>polyglav config</code> CLI (get/set/unset/reload, JSON values, show-origin) Verbosity defaults and migration are covered in <code>test_verbosity.py</code></td>
 </tr>
 <tr>
+<td><code>test_cost.py</code></td>
+<td>Cost model: rate normalization, input/output/cache token parts, cached-price calculation, and <code>provider/model</code> &gt; <code>provider</code> &gt; <code>default</code> rate precedence</td>
+</tr>
+<tr>
 <td><code>test_call.py</code></td>
 <td><code>call</code> tool: role allow default (no prompt) / <code>ask</code> confirm grant-decline / unknown-role deny, <code>verbosity.output</code> display, streamed sub-run suppression of the duplicate echo, direct <code>call</code> tool single print, empty-content log-summary fallback, sub-agent session persistence + resolver actions</td>
 </tr>
@@ -1333,6 +1341,10 @@
 <tr>
 <td><code>test_engine.py</code></td>
 <td><code>Engine.chat</code> turn result, thinking/content separation, load-or-create sessions, auto <code>ses_&lt;ts&gt;_&lt;id&gt;</code> naming (stable across turns), read-mode schema filtering, instruction injection, per-turn <code>mode</code>, glyph param suffix gating, <code>✗</code> error-line rendering (never hidden), soft-result note-line rendering at <code>verbosity.tools</code>, <code>check_connection</code>/<code>list_models</code> probe resolution and overrides without state mutation, <code>_reinit_provider</code> provider-registry API key resolution (no config fallback, registry custom base_url fallback when config empty), model-ref unfold + approval gate (unfolded provider/base_url/model, headless deny, <code>approve_models</code> grant, chat short-circuit, subrole-model unfold + gate, team-run pre-check deny)</td>
+</tr>
+<tr>
+<td><code>test_engine_observer.py</code></td>
+<td>Engine observer hooks: request start/end with context blocks and ctx tokens, tool end with full output and result tokens, compaction events, <code>deny_tools=['*']</code> schema filtering and refusal, <code>context_snapshot</code>, and sub-engine observer inheritance</td>
 </tr>
 <tr>
 <td><code>polyglav-core-eval/tests/test_eval.py</code></td>
@@ -1357,6 +1369,10 @@
 <tr>
 <td><code>test_memory.py</code></td>
 <td>Shared <code>memory</code> module: path under <code>.polyglav/memory/&lt;scope&gt;/</code>, read/write round-trip, missing-empty, legacy job/team fallback reads, <code>memory_enabled</code> global + per-scope, <code>cap_memory</code> truncation. Engine role memory: injection into the sub-agent system prompt, scope-disabled skip, write after <code>run_subagent</code>, disabled skip, <code>Engine.memorize</code> + <code>/memorize</code> command, team memory on the shared path</td>
+</tr>
+<tr>
+<td><code>test_metrics.py</code></td>
+<td>Metric runs: task model and discovery, evidence matching, content hashing, probe scoring, single and multi conditions, tool/edit/context records, compaction events, cost aggregation, table output, and the list command</td>
 </tr>
 <tr>
 <td><code>test_models.py</code></td>
