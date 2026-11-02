@@ -146,7 +146,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `user` | `text`, `origin` | A user prompt. `origin` records who sent it: absent or `user` for the person, a role name for a delegated prompt |
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
-| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, and `duration` is the wall-clock seconds the call took |
+| `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage`, `result_tokens` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, `duration` is the wall-clock seconds the call took, and `result_tokens` is the chars/4 estimate of the full result before truncation |
 | `command` | `text` | A slash command. `summary`, `compact_from`, and `compact_from_part` are set on a `/compact` record, which also carries `auto`, `reason`, `usage`, `context_before`, `context_after`, `rounds_summarized`, and `tokens_summarized` |
 | `system` | `text` | An injected note |
 

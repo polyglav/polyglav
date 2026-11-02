@@ -105,6 +105,10 @@ class Engine:
         self._denied_streak = 0
         self._compact_warnings: set[str] = set()
         self._auto_compact_done = False
+        self._observers: list[Callable[[dict], None]] = []
+        self._request_round = 0
+        self._turn_deny_tools: set[str] = set()
+        self._last_summary_usage: dict | None = None
         self._ask_ui = ui if getattr(ui, 'interactive', False) else None
         self._owns_provider = provider is None
         if plugin_manager is None:
@@ -591,6 +595,7 @@ class Engine:
         sub = Engine(sub_config, ui=ui,
                      plugin_manager=self._plugin_manager, provider=provider,
                      runs=self.runs, parent_run=self.current_run.id, run=run)
+        sub._observers = list(getattr(self, '_observers', []))
         sub.role = role_name
         sub.current_run.role = role_name
         sub.current_run.task = task
@@ -757,7 +762,8 @@ class Engine:
             'reasoning': self.config.get('reasoning'),
         }
 
-    def chat(self, text: str, origin: str = '') -> TurnResult:
+    def chat(self, text: str, origin: str = '',
+             deny_tools: list[str] | None = None) -> TurnResult:
         if getattr(self, '_provider_error', None):
             return TurnResult(status='error',
                               errors=[{'code': '', 'message': self._provider_error}],
@@ -768,7 +774,7 @@ class Engine:
             **self._turn_meta()
         )
 
-        return self._agent_loop()
+        return self._agent_loop(deny_tools=deny_tools)
 
     def paused_turn(self):
         turn = self.current_session.open_turn()
@@ -817,10 +823,13 @@ class Engine:
                               session=self.current_session.session_name)
         return self._agent_loop(seed_tool=(name, arguments))
 
-    def _agent_loop(self, seed_tool: tuple[str, dict] | None = None) -> TurnResult:
+    def _agent_loop(self, seed_tool: tuple[str, dict] | None = None,
+                    deny_tools: list[str] | None = None) -> TurnResult:
         self._denied_streak = 0
         self._auto_compact_done = False
         self._turn_compactions: list[dict] = []
+        self._request_round = 0
+        self._turn_deny_tools = {str(name) for name in (deny_tools or [])}
         self._round_weights, self._last_prompt_tokens = self._compact_history()
         if self.current_session.open_turn() is None:
             self.current_session.start_turn(**self._turn_meta())
@@ -916,6 +925,19 @@ class Engine:
                             assistant,
                             {'role': 'user', 'content': CONTINUE_INSTRUCTION},
                         ]
+                    self._request_round += 1
+                    round_number = self._request_round
+                    turn = self.current_session.open_turn()
+                    turn_index = turn.get('index', 0) if turn else 0
+                    request_usage = None
+                    if self._has_observers():
+                        self._emit({
+                            'type': 'request_start',
+                            'turn': turn_index,
+                            'round': round_number,
+                            'ctx_tokens': self._context_tokens(),
+                            'context_blocks': self._provider_blocks(),
+                        })
                     s_content = ''
                     s_thinking = ''
                     in_thinking = False
@@ -973,6 +995,7 @@ class Engine:
                                     int(event.get('chars') or 0))
                             elif t == 'tool_calls':
                                 tool_calls_detected = True
+                                request_usage = event.get('usage') or request_usage
                                 merge_usage(event.get('usage'))
                                 end_thinking()
                                 executed_tool_calls += self._execute_tool_calls(
@@ -1000,6 +1023,7 @@ class Engine:
                                 break
                             elif t == 'done':
                                 got_done = True
+                                request_usage = event.get('usage') or request_usage
                                 merge_usage(event.get('usage'))
                                 reason = event.get('reason', '')
                                 end_thinking()
@@ -1024,6 +1048,32 @@ class Engine:
                         self.ui.error(0, str(e))
                         status = 'error'
                         aborted = True
+                    if self._has_observers():
+                        usage = request_usage or {}
+                        prompt = usage.get('prompt_tokens')
+                        prompt = prompt if isinstance(prompt, int) else 0
+                        details = usage.get('prompt_tokens_details') or {}
+                        cached = details.get('cached_tokens')
+                        if not isinstance(cached, int):
+                            cached = usage.get('cached_tokens')
+                        cached = cached if isinstance(cached, int) else 0
+                        completion = usage.get('completion_tokens')
+                        completion = completion if isinstance(completion, int) else 0
+                        request_status = (
+                            'tool_calls' if tool_calls_detected
+                            else 'error' if aborted else 'done')
+                        self._emit({
+                            'type': 'request_end',
+                            'turn': turn_index,
+                            'round': round_number,
+                            'status': request_status,
+                            'finish_reason': reason,
+                            'usage': request_usage,
+                            'input_tokens': prompt,
+                            'cache_read_tokens': cached,
+                            'completion_tokens': completion,
+                            'ctx_tokens': prompt + cached,
+                        })
                     if aborted:
                         break
                     if tool_calls_detected:
@@ -1157,6 +1207,7 @@ class Engine:
                 part['usage'] = dict(usage)
             tool_start = time.monotonic()
             output = self._run_tool(name, args)
+            result_tokens = max(1, len(output) // 4) if output else 0
             refs = self._tool_registry.refs_for(name, args, output)
             if refs:
                 part['refs'] = refs
@@ -1175,8 +1226,25 @@ class Engine:
             part_index = max(0, len(turn.get('parts') or []) - 1) if turn else 0
             ref = self._store_tool_output(part, output, turn_index, part_index, name)
             stored = self._with_output_ref(output, ref)
-            turns.finish_tool(part, stored, is_error=output.startswith('Error'),
+            is_error = output.startswith('Error')
+            part['result_tokens'] = result_tokens
+            turns.finish_tool(part, stored, is_error=is_error,
                               analysis=analysis, duration=duration)
+            if self._has_observers():
+                info = self._tool_registry.info(name) or {}
+                self._emit({
+                    'type': 'tool_end',
+                    'turn': turn_index,
+                    'round': getattr(self, '_request_round', 0),
+                    'part': part_index,
+                    'name': name,
+                    'category': info.get('category', ''),
+                    'arguments': args,
+                    'output': output,
+                    'result_tokens': result_tokens,
+                    'is_error': is_error,
+                    'duration': duration,
+                })
         return executed
 
     @staticmethod
@@ -1236,13 +1304,20 @@ class Engine:
         policy = getattr(self, '_tool_policy', None)
         if registry is None or policy is None:
             return []
+        denied = getattr(self, '_turn_deny_tools', set())
+        if '*' in denied:
+            return []
         allowed = {n for n in registry.names()
-                   if policy.allowed(n, registry.permission_for(n))}
+                   if registry.canonical_name(n) not in denied
+                   and policy.allowed(n, registry.permission_for(n))}
         return registry.schema_filtered(allowed)
 
     def _run_tool(self, name: str, args: dict, echo: bool = True) -> str:
         registry = self._tool_registry
         policy = self._tool_policy
+        denied = getattr(self, '_turn_deny_tools', set())
+        if '*' in denied or registry.canonical_name(name) in denied:
+            return f'Error: tool "{name}" is disabled for this turn'
         if not registry.is_registered(name):
             available = ', '.join(registry.primary_names())
             result = f'Error: unknown tool "{name}"'
@@ -1379,6 +1454,119 @@ class Engine:
             else:
                 out.extend(turns.turn_to_provider(turn))
         return out
+
+    def _block(self, kind: str, content: str, turn: int = 0,
+               part: int | None = None) -> dict:
+        text = content or ''
+        return {
+            'kind': kind,
+            'content': text,
+            'tokens': max(1, len(text) // 4) if text else 0,
+            'turn': turn,
+            'part': part,
+        }
+
+    def _turn_blocks(self, turn: dict, start_part: int = 0,
+                     keep_prelude: bool = False) -> list[dict]:
+        parts = turn.get('parts') or []
+        index = turn.get('index', 0)
+        blocks: list[dict] = []
+        i = 0
+        if start_part > 0 and keep_prelude:
+            while i < start_part:
+                part = parts[i]
+                kind = part.get('type')
+                if kind == 'user':
+                    blocks.append(self._block(
+                        'user', part.get('text') or '', index, i))
+                elif kind == 'system':
+                    blocks.append(self._block(
+                        'system', part.get('text') or '', index, i))
+                i += 1
+        else:
+            i = max(0, start_part)
+        while i < len(parts):
+            part = parts[i]
+            kind = part.get('type')
+            if kind == 'user':
+                blocks.append(self._block(
+                    'user', part.get('text') or '', index, i))
+            elif kind == 'system':
+                blocks.append(self._block(
+                    'system', part.get('text') or '', index, i))
+            elif kind == 'thinking':
+                blocks.append(self._block(
+                    'thinking', part.get('text') or '', index, i))
+            elif kind == 'text':
+                blocks.append(self._block(
+                    'assistant', part.get('text') or '', index, i))
+            elif kind == 'tool':
+                value = part.get('input')
+                call_text = json.dumps(value) if value is not None else ''
+                blocks.append(self._block(
+                    'tool_call', call_text, index, i))
+                blocks.append(self._block(
+                    'tool', part.get('output') or '', index, i))
+            i += 1
+        return blocks
+
+    def _provider_blocks(self) -> list[dict]:
+        from .modes import system_instruction, instructions_file_section
+        summary, boundary_turn, boundary_part = turns.compaction(
+            self.current_session.turns)
+        blocks: list[dict] = []
+        if summary:
+            blocks.append(self._block(
+                'summary', 'Summary of earlier conversation:\n\n' + summary))
+        instructions = instructions_file_section(self.config)
+        if instructions:
+            blocks.append(self._block('instructions', instructions))
+        instruction = system_instruction(self.config, self._mode())
+        if instruction:
+            blocks.append(self._block('system', instruction))
+        service = self._plugin_manager.service('bookkeeping')
+        plan = (service.plan_context(self.config, self.current_session)
+                if service is not None else '')
+        if plan:
+            blocks.append(self._block('plan', plan))
+        todo = (service.todo_context(self.config, self.current_session)
+                if service is not None else '')
+        if todo:
+            blocks.append(self._block('todo', todo))
+        for turn in self.current_session.turns:
+            index = turn.get('index', 0)
+            if boundary_turn and index < boundary_turn:
+                continue
+            if boundary_turn and index == boundary_turn:
+                blocks.extend(self._turn_blocks(
+                    turn, boundary_part, keep_prelude=True))
+            else:
+                blocks.extend(self._turn_blocks(turn))
+        return blocks
+
+    def context_snapshot(self) -> dict:
+        return {
+            'messages': self._provider_messages(),
+            'blocks': self._provider_blocks(),
+            'tokens': self._context_tokens(),
+        }
+
+    def add_observer(self, fn: Callable[[dict], None]) -> None:
+        observers = getattr(self, '_observers', None)
+        if observers is None:
+            observers = self._observers = []
+        if fn not in observers:
+            observers.append(fn)
+
+    def _emit(self, event: dict) -> None:
+        for fn in list(getattr(self, '_observers', [])):
+            try:
+                fn(event)
+            except Exception:
+                pass
+
+    def _has_observers(self) -> bool:
+        return bool(getattr(self, '_observers', []))
 
     def _clean_messages(self, msgs: list[dict]) -> list[dict]:
         out = []
@@ -1646,6 +1834,13 @@ class Engine:
             rounds_summarized=rounds_summarized,
             tokens_summarized=tokens_summarized)
         record['context_after'] = self._context_tokens()
+        if self._has_observers():
+            event = dict(record)
+            event['type'] = 'compaction'
+            turn = self.current_session.open_turn()
+            event['turn'] = turn.get('index', 0) if turn else 0
+            event['round'] = getattr(self, '_request_round', 0)
+            self._emit(event)
         try:
             header = (f'# Compaction summary: '
                       f'{self.current_session.session_name}\n\n'

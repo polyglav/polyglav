@@ -2,6 +2,7 @@
 
 ## v0.51.0
 
+- Added engine observer hooks - `Engine.add_observer` emits request start/end, tool end, and compaction events with context blocks, usage, and result tokens, sub-engines inherit the observers, and `chat(deny_tools=...)` supports tool-free probe turns. Docs (`session.md`). Tests: `test_engine_observer.py`
 - Added compaction telemetry - each compaction record now carries `auto`, `reason`, summarization `usage`, `context_before`/`context_after`, `rounds_summarized`, and `tokens_summarized`, and `TurnResult` exposes the compactions of a turn. Docs (`session.md`). Tests: `test_session_log.py`, `test_auto_compact.py`
 - Added round-aware compaction - `compact_keep` now counts rounds, the current user prompt is always kept, and a compaction record carries `compact_from_part` so a single long turn can trim its older tool rounds. Docs (`session.md`). Tests: `test_turns.py`, `test_session_log.py`, `test_auto_compact.py`
 - Added compaction headroom - the automatic trigger projects the next round from the last `compact_before` round weights, so it compacts before the limit is reached instead of after. Docs (`config.md`). Tests: `test_auto_compact.py`
