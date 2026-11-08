@@ -2,6 +2,7 @@
 
 ## v0.52.0
 
+- Added model context budget command - `polyglav models context <ref> <tokens>` and `/models context` set `context_window` on the model entry, and `polyglav models` shows `ctx=...`. The value is a context budget, not a hard model limit. Docs (`commands.md`, `providers.md`, `config.md`, `metrics.md`). Tests: `test_commands.py`, `polyglav-core-providers/tests/test_cli.py`
 - Added metric tool paths and patch artifacts - tool calls now carry `path`, capped `arguments`, and `arguments_truncated`, and edit outputs land in `artifacts.patches` with bytes and lines. Docs (`metrics.md`). Tests: `test_metrics.py`
 - Added metric instrument fingerprint - records `version`, `package_version`, best-effort `commit`, `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, `platform`, and a `settings` block with the context budget and compaction thresholds. The prompt hash covers the sent blocks in order, and the tool hash covers ordered names and descriptions. Docs (`metrics.md`, `config.md`, `AGENTS.md`). Tests: `test_metrics.py`
 - Added snapshot probes - probes run against frozen context snapshots at baseline, after each turn, around each compaction (`compaction_before`/`compaction_after`), and at the end, without adding a session turn. Probe usage and cost are reported separately from agent cost, and `chat_nonstreaming` now returns usage. Docs (`metrics.md`, `session.md`). Tests: `test_metrics.py`, `test_engine_observer.py`, `test_providers.py`

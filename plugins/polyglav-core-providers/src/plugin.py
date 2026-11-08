@@ -47,6 +47,30 @@ def _remove_model(chat, ref):
     print(f'Removed model: {provider}/{model}')
 
 
+def _set_context(chat, arg):
+    parts = arg.split()
+    if len(parts) != 2:
+        print('Usage: /models context <provider>/<model> <tokens>')
+        return
+    ref, tokens_text = parts
+    try:
+        tokens = int(tokens_text)
+    except ValueError:
+        print('Usage: /models context <provider>/<model> <tokens>')
+        return
+    if tokens <= 0:
+        print('Context budget must be a positive number of tokens')
+        return
+    provider, _, model = chat.model_target(ref)
+    if not model:
+        print(f'Cannot resolve model: {ref}')
+        return
+    if chat.models.find(provider, model) is None:
+        chat.models.put(provider, model)
+    chat.models.set_context_window(provider, model, tokens)
+    print(f'{provider}/{model}: context budget {tokens:,} tokens')
+
+
 def _render_known_models(chat):
     entries = chat.models.all()
     if not entries:
@@ -57,13 +81,24 @@ def _render_known_models(chat):
         for e in items:
             active = '>' if _active_model(chat, e) else ' '
             key = ' (key)' if chat.providers.api_key_for(e.provider) else ''
+            budget = getattr(e, 'context_window', 0) or 0
+            ctx = f' (ctx={_format_tokens(budget)})' if budget else ''
             if e.last_error:
                 status = '  (failed)'
             elif not e.ok_at:
                 status = '  (unused)'
             else:
                 status = ''
-            print(f'  {active} {e.model}{key}{status}')
+            print(f'  {active} {e.model}{key}{ctx}{status}')
+
+
+def _format_tokens(value: int) -> str:
+    if value >= 1_000_000:
+        text = f'{value / 1_000_000:.1f}M'
+        return text.replace('.0M', 'M')
+    if value >= 1_000:
+        return f'{value / 1_000:.0f}k'
+    return str(value)
 
 
 def _render_online_models(chat, provider_arg):
@@ -369,6 +404,7 @@ def register_commands(commands):
                      'models'),
         subcommands=[
             ('list', "Probe a provider's advertised models (list [provider], default current)"),
+            ('context', 'Set a context budget (context <provider>/<model> <tokens>)'),
             ('remove', 'Remove a model from the registry (remove <provider>/<model>)'),
         ])
     def models_cmd(arg=''):
@@ -379,10 +415,12 @@ def register_commands(commands):
             _render_online_models(chat, '')
         elif arg.startswith('list '):
             _render_online_models(chat, arg[len('list'):].strip())
+        elif arg == 'context' or arg.startswith('context '):
+            _set_context(chat, arg[len('context'):].strip())
         elif arg == 'remove' or arg.startswith('remove '):
             _remove_model(chat, arg[len('remove'):].strip())
         else:
-            print('Usage: /models [list [provider]|remove <provider>/<model>]')
+            print('Usage: /models [list [provider]|context <provider>/<model> <tokens>|remove <provider>/<model>]')
 
 
 def _run_models(args):
@@ -401,6 +439,9 @@ def register_cli(cli):
     gl = g.add_parser('list', help='Probe a provider advertised models (default: current provider)')
     gl.add_argument('provider', nargs='?', default='',
                     help='Provider name (default: current)')
+    gc = g.add_parser('context', help='Set the context budget for a model')
+    gc.add_argument('ref', help='Model ref (provider/model) or bare model')
+    gc.add_argument('tokens', type=int, help='Context budget in tokens')
     p.set_defaults(func=_run_models)
     _register_providers_cli(cli)
 

@@ -30,7 +30,7 @@ The vendor providers ship as bundled plugins. The core keeps the base classes (`
 }
 ```
 
-The engine resolves the API key for the active provider from the provider registry (a `(key)` entry from `/connect`), falling back to `""`, and no environment variable is consulted. A custom `base_url` stored there is used when the config leaves it empty. The approved-model history (`~/.config/polyglav/models.json`) records every model used for `/models`.
+The engine resolves the API key for the active provider from the provider registry (a `(key)` entry from `/connect`), falling back to `""`, and no environment variable is consulted. A custom `base_url` stored there is used when the config leaves it empty. The approved-model history (`~/.config/polyglav/models.json`) records every model used for `/models`, and each entry can carry a `context_window` budget.
 
 ## Model refs and approval
 
@@ -54,7 +54,7 @@ When the model is bare, or when `base_url` matches a known host, the provider is
 - `/connect <url>` - connect by URL. A known host (or a plugin provider's default URL) selects that provider with the URL as its base URL. Anything else creates a named custom provider, with the name derived from the host (e.g. `https://llm.acme.example/v1` -> `acme-example`).
 - `/connect <url> <name>` - custom provider with an explicit name instead of the derived one.
 
-All forms **test the connection** (a `GET <base_url>/v1/models` probe) before saving: broken values are rejected unless you confirm `Save anyway?`. A successful connect prints `Connected to <provider> (<base_url>)`, records the entry in `providers.json`, writes the provider ref or `base_url` into the config, and points you at `/models list <provider>` to pick a model. Related surfaces: `/model <name>` shows or switches the active model (a `provider/model` ref switches provider and model together, approving the model), `/models` lists the configured/approved models, `/models list [provider]` probes a provider's advertised models, `/provider <name>` shows or switches the active provider, and `polyglav run --provider ... --model ... --base-url ...` provides headless overrides. `OpenAICompatibleProvider.check_connection()` returns `(ok, message)` by reusing `_fetch_models()`, the shared `GET /v1/models` helper that `list_models()` also uses.
+All forms **test the connection** (a `GET <base_url>/v1/models` probe) before saving: broken values are rejected unless you confirm `Save anyway?`. A successful connect prints `Connected to <provider> (<base_url>)`, records the entry in `providers.json`, writes the provider ref or `base_url` into the config, and points you at `/models list <provider>` to pick a model. Related surfaces: `/model <name>` shows or switches the active model (a `provider/model` ref switches provider and model together, approving the model), `/models` lists the configured/approved models, `/models list [provider]` probes a provider's advertised models, `/models context <provider>/<model> <tokens>` sets a context budget, `/provider <name>` shows or switches the active provider, and `polyglav run --provider ... --model ... --base-url ...` provides headless overrides. `OpenAICompatibleProvider.check_connection()` returns `(ok, message)` by reusing `_fetch_models()`, the shared `GET /v1/models` helper that `list_models()` also uses.
 
 ## The `chat()` contract
 

@@ -53,7 +53,7 @@ A task is a JSON file under `.polyglav/metrics/*.json` or `~/.config/polyglav/me
 - `evidence` declares the identifiers and needles the instrument looks for in tool results, edits, context blocks, and probe answers.
 - `goal_evidence` is the task's goal set G. It is copied into the record as input metadata, not computed by the instrument.
 - `probes` are checkpoint questions. `canonical` holds the accepted answers. Each probe runs against a frozen snapshot, never as a session turn: `baseline` at the first request, `turn` after a turn in `multi` (filtered by `at_turn` when it is above zero), `compaction_before` and `compaction_after` around each compaction, and `final` at the end. The snapshot plus the question goes to the provider directly, so recall comes from the recorded context and the run is not changed. `compaction_before`/`compaction_after` share a `compaction_index`, which gives `GSD_c` per boundary.
-- `compact` overlays the automatic compaction settings for the run. Use an absolute `at` value for a stable boundary, for example `170000`. `window` is the context budget passed to `context_window`, not a hard model limit. The budget controls relative thresholds and display, while the agent loop continues until the provider stops it.
+- `compact` overlays the automatic compaction settings for the run. Use an absolute `at` value for a stable boundary, for example `170000`. `window` is the context budget passed to `context_window`, not a hard model limit. The budget controls relative thresholds and display, while the agent loop continues until the provider stops it. Set a model-level budget once with `polyglav models context <provider/model> <tokens>`, or set `compact.window` per task.
 - `temperature` defaults to the project config.
 
 ## Record
@@ -82,7 +82,7 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
      "content_hash": "ab12cd34ef56", "is_error": false}
   ],
   "edits": [
-    {"turn": 1, "round": 5, "path": "src/app.py", "category": "edit",
+    {"turn": 1, "round": 5, "path": "src/app.py", "category": "write",
      "result_tokens": 120, "evidence_ids": ["e1"], "content_hash": "..."}
   ],
   "compactions": [

@@ -130,9 +130,12 @@ polyglav providers remove <name>
 List configured models, or probe a provider's available models (mirrors `/models`).
 
 ```bash
-polyglav models                          # approved-model history grouped by provider, `>` marks the active model, `(key)` a stored key
+polyglav models                          # approved-model history grouped by provider, `>` marks the active model, `(key)` a stored key, `(ctx=...)` the context budget
 polyglav models list [provider]          # probe a provider's advertised models (default: current), exit 1 on failure
+polyglav models context <ref> <tokens>   # set the context budget for a model, e.g. opencode-go/deepseek-v4.1-flash 1000000
 ```
+
+The context budget is used for relative compaction thresholds and display, not as a hard model limit. It is stored on the model entry in `models.json`.
 
 | Flag             | Default                      | Description                       |
 |------------------|------------------------------|-----------------------------------|

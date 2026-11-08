@@ -102,6 +102,32 @@ class TestCliModels(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn('No models listed from ollama', out)
 
+    def test_models_context_sets_budget(self):
+        entry = SimpleNamespace(provider='opencode-go',
+                                model='deepseek-v4.1-flash',
+                                context_window=0)
+        engine = self._engine()
+        engine.model_target.return_value = (
+            'opencode-go', '', 'deepseek-v4.1-flash')
+        engine.models.find.return_value = entry
+        engine.models.set_context_window.return_value = entry
+        rc, out, _ = self._capture(
+            self._args(action='context',
+                       ref='opencode-go/deepseek-v4.1-flash',
+                       tokens=1000000), engine)
+        self.assertEqual(rc, 0)
+        engine.models.set_context_window.assert_called_once_with(
+            'opencode-go', 'deepseek-v4.1-flash', 1000000)
+        self.assertIn('context budget 1,000,000 tokens', out)
+
+    def test_models_bare_shows_context(self):
+        e = SimpleNamespace(provider='ollama', model='deepseek',
+                            context_window=1000000)
+        engine = self._engine(models=[e], grouped=[('ollama', [e])])
+        rc, out, _ = self._capture(self._args(), engine)
+        self.assertEqual(rc, 0)
+        self.assertIn('(ctx=1M)', out)
+
     def test_models_main_dispatch(self):
         e = SimpleNamespace(provider='ollama', model='llama3.2')
         engine = self._engine(models=[e], grouped=[('ollama', [e])])

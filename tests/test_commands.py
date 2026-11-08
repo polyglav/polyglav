@@ -678,6 +678,21 @@ class TestModelsCommand(unittest.TestCase):
         self.assertNotIn('(unused)', output)
         self.assertNotIn('(failed)', output)
 
+    def test_models_context_sets_budget(self):
+        self.chat.models.put('opencode-go', 'deepseek-v4.1-flash')
+        output = self._dispatch(
+            '/models context opencode-go/deepseek-v4.1-flash 1000000')
+        self.assertIn('context budget 1,000,000 tokens', output)
+        entry = self.chat.models.find(
+            'opencode-go', 'deepseek-v4.1-flash')
+        self.assertEqual(entry.context_window, 1000000)
+
+    def test_models_shows_context_budget(self):
+        self.chat.models.put('ollama', 'test-model')
+        self.chat.models.set_context_window('ollama', 'test-model', 1000000)
+        output = self._dispatch('/models')
+        self.assertIn('(ctx=1M)', output)
+
     def test_models_remove(self):
         self.chat.models.put('opencode-go', 'deepseek-v4-flash')
         output = self._dispatch('/models remove opencode-go/deepseek-v4-flash')

@@ -43,11 +43,40 @@ def cmd_run(args) -> int:
     return 0 if result.status in ('ok', 'truncated') else 1
 
 
+def _format_tokens(value: int) -> str:
+    if value >= 1_000_000:
+        text = f'{value / 1_000_000:.1f}M'
+        return text.replace('.0M', 'M')
+    if value >= 1_000:
+        return f'{value / 1_000:.0f}k'
+    return str(value)
+
+
 def cmd_models(args) -> int:
     from .ui import NullUI
     config = Config(path=getattr(args, 'path', None))
     engine = Engine(config, ui=NullUI())
-    if getattr(args, 'action', None) != 'list':
+    action = getattr(args, 'action', None)
+    if action == 'context':
+        ref = (getattr(args, 'ref', '') or '').strip()
+        try:
+            tokens = int(getattr(args, 'tokens', 0) or 0)
+        except (TypeError, ValueError):
+            tokens = 0
+        if not ref or tokens <= 0:
+            print('Usage: polyglav models context <provider/model> <tokens>',
+                  file=sys.stderr)
+            return 1
+        provider, _, model = engine.model_target(ref)
+        if not model:
+            print(f'Cannot resolve model: {ref}', file=sys.stderr)
+            return 1
+        if engine.models.find(provider, model) is None:
+            engine.models.put(provider, model)
+        engine.models.set_context_window(provider, model, tokens)
+        print(f'{provider}/{model}: context budget {tokens:,} tokens')
+        return 0
+    if action != 'list':
         entries = engine.models.all()
         if not entries:
             print('No models configured yet - run /connect to add one')
@@ -58,7 +87,9 @@ def cmd_models(args) -> int:
             for e in items:
                 active = '>' if (e.provider == provider and e.model == model) else ' '
                 key = ' (key)' if engine.providers.api_key_for(e.provider) else ''
-                print(f'  {active} {e.model}{key}')
+                budget = getattr(e, 'context_window', 0) or 0
+                ctx = f' (ctx={_format_tokens(budget)})' if budget else ''
+                print(f'  {active} {e.model}{key}{ctx}')
         return 0
     target_provider, target_url, target_model = engine.model_target()
     provider = (getattr(args, 'provider', '') or '').strip() or target_provider
