@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -259,11 +260,12 @@ def _provision(worktree: Path, task: MetricTask, config_data: dict) -> None:
 
 class _Recorder:
     def __init__(self, task: MetricTask, condition: str, rates: dict,
-                 task_hash: str):
+                 task_hash: str, engine: Engine):
         self.task = task
         self.condition = condition
         self.rates = rates
         self.task_hash = task_hash
+        self.engine = engine
         self.started_at = now_stamp()
         self.rounds: list[dict] = []
         self.tool_calls: list[dict] = []
@@ -273,9 +275,17 @@ class _Recorder:
         self.statuses: list[str] = []
         self.last_result = None
         self.main_rounds = 0
+        self.baseline: dict | None = None
+        self.turn_snapshots: list[dict] = []
+        self.final_snapshot: dict | None = None
+        self.probe_parts = {'input': 0, 'output': 0, 'cache_read': 0}
+        self.probe_cost = 0.0
         self._round: dict | None = None
-        self._probe: Probe | None = None
-        self._ran_probes: set[str] = set()
+        self._pending_before: dict | None = None
+        self._compaction_pairs: list[dict] = []
+
+    def _snapshot(self) -> dict:
+        return copy.deepcopy(self.engine.context_snapshot())
 
     def _blocks(self, blocks: list[dict]) -> list[dict]:
         out = []
@@ -293,10 +303,11 @@ class _Recorder:
     def observe(self, event: dict) -> None:
         kind = event.get('type')
         if kind == 'request_start':
+            if self.baseline is None:
+                self.baseline = self._snapshot()
             self._round = {
                 'turn': event.get('turn', 0),
                 'round': event.get('round', 0),
-                'probe': self._probe.id if self._probe else '',
                 'ctx_tokens': event.get('ctx_tokens', 0),
                 'context_blocks': self._blocks(
                     event.get('context_blocks') or []),
@@ -305,7 +316,6 @@ class _Recorder:
             current = self._round or {
                 'turn': event.get('turn', 0),
                 'round': event.get('round', 0),
-                'probe': self._probe.id if self._probe else '',
                 'ctx_tokens': 0,
                 'context_blocks': [],
             }
@@ -321,16 +331,31 @@ class _Recorder:
                 'usage': usage,
                 'cost': estimate_cost(usage, self.rates),
             })
-            if not current.get('probe'):
-                self.main_rounds += 1
+            self.main_rounds += 1
             self.rounds.append(current)
             self._round = None
         elif kind == 'tool_end':
             self._tool(event)
+        elif kind == 'compaction_before':
+            self._pending_before = {
+                'index': event.get('compaction_index', 0),
+                'turn': event.get('turn', 0),
+                'snapshot': self._snapshot(),
+            }
         elif kind == 'compaction':
+            index = event.get('compaction_index', 0)
+            before = self._pending_before
+            if before is not None and before.get('index') != index:
+                before = None
+            self._compaction_pairs.append({
+                'index': index,
+                'turn': event.get('turn', 0),
+                'before': before.get('snapshot') if before else None,
+                'after': self._snapshot(),
+            })
+            self._pending_before = None
             item = {key: value for key, value in event.items()
                     if key != 'type'}
-            item['probe'] = self._probe.id if self._probe else ''
             item['cost'] = estimate_cost(event.get('usage'), self.rates)
             self.compactions.append(item)
 
@@ -347,7 +372,6 @@ class _Recorder:
             'evidence_ids': evidence_ids,
             'content_hash': content_hash(output),
             'is_error': bool(event.get('is_error')),
-            'probe': self._probe.id if self._probe else '',
         }
         self.tool_calls.append(entry)
         name = entry['name']
@@ -361,38 +385,106 @@ class _Recorder:
                 'result_tokens': entry['result_tokens'],
                 'evidence_ids': evidence_ids,
                 'content_hash': entry['content_hash'],
-                'probe': entry['probe'],
             })
 
     def note_result(self, result) -> None:
         self.last_result = result
         self.statuses.append(result.status)
 
-    def run_probes(self, engine: Engine, after_turn: int,
-                   all_probes: bool = False) -> None:
+    def capture_turn(self) -> None:
+        self.turn_snapshots.append(self._snapshot())
+
+    def capture_final(self) -> None:
+        self.final_snapshot = self._snapshot()
+
+    def _call_probe(self, provider, snapshot: dict, probe: Probe,
+                    phase: str, after_turn: int,
+                    compaction_index: int) -> tuple[str, dict | None, dict | None]:
+        messages = copy.deepcopy(snapshot.get('messages') or [])
+        messages.append({'role': 'user', 'content': probe.question})
+        had_session = hasattr(provider, 'session_id')
+        original = getattr(provider, 'session_id', None) if had_session else None
+        if had_session:
+            provider.session_id = (
+                f'{original or "probe"}:probe:{probe.id}:{phase}:'
+                f'{after_turn}:{compaction_index}')
+        try:
+            result = provider.chat_nonstreaming(messages, tools=None)
+        finally:
+            if had_session:
+                provider.session_id = original
+        if not isinstance(result, dict):
+            result = {}
+        usage = result.get('usage')
+        answer = (result.get('content') or '').strip()
+        error = result.get('error')
+        return answer, usage, error
+
+    def _ctx_tokens(self, usage: dict | None, messages: list[dict]) -> int:
+        if isinstance(usage, dict):
+            prompt = usage.get('prompt_tokens')
+            prompt = prompt if isinstance(prompt, int) else 0
+            details = usage.get('prompt_tokens_details') or {}
+            cached = details.get('cached_tokens')
+            if not isinstance(cached, int):
+                cached = usage.get('cached_tokens')
+            cached = cached if isinstance(cached, int) else 0
+            if prompt or cached:
+                return prompt + cached
+        chars = sum(len(m.get('content') or '') for m in messages)
+        return max(1, chars // 4)
+
+    def _probe_snapshot(self, provider, snapshot: dict | None, phase: str,
+                        after_turn: int, compaction_index: int = 0) -> None:
+        if not snapshot:
+            return
         for probe in self.task.probes:
-            if probe.id in self._ran_probes:
+            if (phase == 'turn' and probe.at_turn > 0
+                    and probe.at_turn != after_turn):
                 continue
-            if not all_probes and probe.at_turn != after_turn:
-                continue
-            self._probe = probe
-            result = engine.chat(probe.question, origin='metric-probe',
-                                 deny_tools=['*'])
-            self._probe = None
-            self._ran_probes.add(probe.id)
-            answer = result.content or ''
-            turns = engine.current_session.turns
-            probe_turn = turns[-1].get('index', 0) if turns else 0
+            answer, usage, error = self._call_probe(
+                provider, snapshot, probe, phase, after_turn, compaction_index)
+            messages = list(snapshot.get('messages') or [])
+            messages.append({'role': 'user', 'content': probe.question})
+            cost = estimate_cost(usage, self.rates)
+            parts = token_parts(usage)
+            for key in self.probe_parts:
+                self.probe_parts[key] += parts[key]
+            self.probe_cost += cost
             self.probes.append({
                 'id': probe.id,
+                'phase': phase,
                 'after_turn': after_turn,
-                'probe_turn': probe_turn,
+                'compaction_index': compaction_index,
                 'question': probe.question,
                 'answer': answer,
                 'correct': probe_correct(answer, probe),
                 'checkpoint': probe.checkpoint,
+                'ctx_tokens': self._ctx_tokens(usage, messages),
+                'usage': usage,
+                'cost': cost,
+                'error': error,
                 'evidence_ids': match_evidence(answer, self.task.evidence),
             })
+
+    def run_snapshot_probes(self, provider) -> None:
+        if self.baseline:
+            self._probe_snapshot(provider, self.baseline, 'baseline', 0)
+        for pair in self._compaction_pairs:
+            index = pair.get('index', 0)
+            turn = pair.get('turn', 0)
+            if pair.get('before'):
+                self._probe_snapshot(provider, pair['before'],
+                                     'compaction_before', turn, index)
+            self._probe_snapshot(provider, pair['after'],
+                                 'compaction_after', turn, index)
+        if self.condition == 'multi':
+            total = len(self.turn_snapshots)
+            for index, snapshot in enumerate(self.turn_snapshots, 1):
+                phase = 'final' if index == total else 'turn'
+                self._probe_snapshot(provider, snapshot, phase, index)
+        elif self.final_snapshot:
+            self._probe_snapshot(provider, self.final_snapshot, 'final', 1)
 
     def finish(self, engine: Engine, reason: str = 'completed') -> MetricRecord:
         provider, _, model = engine.model_target()
@@ -415,7 +507,8 @@ class _Recorder:
             status = self.statuses[-1]
         if status not in ('ok', 'truncated'):
             reason = status
-        total = round(total_cost, 6)
+        agent_total = round(total_cost, 6)
+        probe_total = round(self.probe_cost, 6)
         temperature = (self.task.temperature
                        if self.task.temperature is not None
                        else float(engine.config.get('temperature', 0.0) or 0.0))
@@ -446,7 +539,12 @@ class _Recorder:
             edits=self.edits,
             compactions=self.compactions,
             probes=self.probes,
-            cost={**total_parts, 'total': total},
+            cost={
+                **total_parts,
+                'total': agent_total,
+                'probe': {**self.probe_parts, 'total': probe_total},
+                'total_including_probe': round(agent_total + probe_total, 6),
+            },
             artifacts={},
         )
 
@@ -471,19 +569,20 @@ def run_task(task: MetricTask, source: Config | None = None,
         engine.load_or_create_session(None)
         provider_name, _, model = engine.model_target()
         rates = rates_from_config(config, provider_name, model)
-        recorder = _Recorder(task, condition, rates, task_hash)
+        recorder = _Recorder(task, condition, rates, task_hash, engine)
         engine.add_observer(recorder.observe)
         try:
             os.chdir(worktree)
             if condition == 'single':
                 prompt = task.prompt or '\n\n'.join(task.turns)
                 recorder.note_result(engine.chat(prompt, origin='metric'))
-                recorder.run_probes(engine, after_turn=1, all_probes=True)
+                recorder.capture_turn()
             else:
-                for index, prompt in enumerate(task.turns or [task.prompt], 1):
+                for prompt in (task.turns or [task.prompt]):
                     recorder.note_result(engine.chat(prompt, origin='metric'))
-                    recorder.run_probes(engine, after_turn=index)
-                recorder.run_probes(engine, after_turn=0)
+                    recorder.capture_turn()
+            recorder.capture_final()
+            recorder.run_snapshot_probes(engine.provider)
         finally:
             os.chdir(cwd)
         return recorder.finish(engine)
@@ -535,21 +634,23 @@ def select_tasks(tasks: dict[str, MetricTask],
 def format_results(records: list[MetricRecord]) -> str:
     lines = [
         f'{"task":<24} {"cond":<7} {"main":<5} {"probes":<7} '
-        f'{"ok":<4} {"comp":<5} {"peak":<9} {"cost":<10} {"status":<10}',
-        '-' * 88,
+        f'{"ok":<4} {"comp":<5} {"peak":<9} {"cost":<10} '
+        f'{"probe":<10} {"status":<10}',
+        '-' * 100,
     ]
     for record in records:
         peak = max((int(item.get('ctx_tokens') or 0)
                     for item in record.rounds), default=0)
         correct = sum(1 for item in record.probes if item.get('correct'))
+        probe_cost = (record.cost.get('probe') or {}).get('total', 0)
         lines.append(
             f'{record.task_id[:24]:<24} {record.condition:<7} '
             f'{record.run_end.get("main_rounds", 0):<5} '
             f'{len(record.probes):<7} {correct:<4} '
             f'{len(record.compactions):<5} {peak:<9} '
-            f'{record.cost.get("total", 0):<10} '
+            f'{record.cost.get("total", 0):<10} {probe_cost:<10} '
             f'{record.run_end.get("status", ""):<10}')
-    lines.append('-' * 88)
+    lines.append('-' * 100)
     lines.append(f'{len(records)} run(s)')
     return '\n'.join(lines)
 

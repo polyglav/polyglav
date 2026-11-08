@@ -32,6 +32,14 @@ def _answer(text, usage=10):
     ]
 
 
+def _probe_answer(text='alpha', usage=30):
+    return {
+        'role': 'assistant', 'content': text, 'tool_calls': None,
+        'finish_reason': 'stop',
+        'usage': {'prompt_tokens': usage, 'completion_tokens': 2},
+    }
+
+
 class TestModel(unittest.TestCase):
 
     def test_task_requires_id_and_prompt(self):
@@ -107,20 +115,28 @@ class TestRunTask(unittest.TestCase):
         provider = self._provider([
             _tool_round('file_read', 'a.txt'),
             _answer('alpha', 20),
-            _answer('alpha', 30),
         ])
+        provider.chat_nonstreaming.side_effect = [
+            _probe_answer('alpha', 30),
+            _probe_answer('alpha', 40),
+        ]
         record = run_task(self._task(), self.source, 'single', provider=provider)
         self.assertEqual(record.task_id, 't1')
         self.assertEqual(record.condition, 'single')
         self.assertEqual(record.tool_calls[0]['name'], 'file_read')
         self.assertEqual(record.tool_calls[0]['evidence_ids'], ['e1'])
         self.assertGreater(record.tool_calls[0]['result_tokens'], 0)
-        self.assertEqual(record.probes[0]['correct'], True)
+        self.assertEqual([item['phase'] for item in record.probes],
+                         ['baseline', 'final'])
+        self.assertTrue(all(item['correct'] for item in record.probes))
         self.assertEqual(record.probes[0]['checkpoint'], 'c1')
-        self.assertEqual(record.probes[0]['after_turn'], 1)
+        self.assertEqual(record.run_end['turns'], 1)
         self.assertEqual(record.rounds[0]['status'], 'tool_calls')
-        self.assertEqual(record.cost['input'], 60)
-        self.assertAlmostEqual(record.cost['total'], 0.000066)
+        self.assertEqual(record.cost['input'], 30)
+        self.assertAlmostEqual(record.cost['total'], 0.000034)
+        self.assertEqual(record.cost['probe']['input'], 70)
+        self.assertAlmostEqual(record.cost['probe']['total'], 0.000074)
+        self.assertAlmostEqual(record.cost['total_including_probe'], 0.000108)
         self.assertTrue(any(
             block['evidence_ids'] == ['e1']
             for item in record.rounds
@@ -130,50 +146,91 @@ class TestRunTask(unittest.TestCase):
         task = self._task(turns=['first', 'second'],
                           probes=[{'id': 'p1', 'question': 'q',
                                    'checkpoint': 'c1', 'canonical': ['two'],
-                                   'at_turn': 2}])
+                                   'at_turn': 1}])
         provider = self._provider([
             _answer('one', 10),
             _answer('two', 20),
-            _answer('two', 30),
         ])
+        provider.chat_nonstreaming.side_effect = [
+            _probe_answer('two', 30),
+            _probe_answer('two', 40),
+            _probe_answer('two', 50),
+        ]
         record = run_task(task, self.source, 'multi', provider=provider)
         self.assertEqual(record.run_end['main_turns'], 2)
-        self.assertEqual(record.probes[0]['after_turn'], 2)
-        self.assertEqual(record.probes[0]['correct'], True)
+        self.assertEqual([item['phase'] for item in record.probes],
+                         ['baseline', 'turn', 'final'])
+        self.assertEqual(record.probes[1]['after_turn'], 1)
+        self.assertEqual(record.probes[2]['after_turn'], 2)
+        self.assertTrue(all(item['correct'] for item in record.probes))
 
     def test_compaction_is_recorded(self):
         task = self._task(
             turns=['first', 'second'],
             compact={'at': 1000, 'keep': 1, 'before': 3, 'window': 0},
-            probes=[],
+            probes=[{'id': 'p1', 'question': 'q', 'checkpoint': 'c1',
+                     'canonical': ['alpha']}],
         )
         provider = self._provider([
             _answer('one', 100),
             _tool_round('list_dir', '.', usage=200000),
             _answer('two', 200100),
         ])
-        provider.chat_nonstreaming.return_value = {
-            'role': 'assistant', 'content': 'SUMMARY',
-            'usage': {'prompt_tokens': 1000, 'completion_tokens': 10},
-        }
+        calls = {'count': 0}
+
+        def nonstream(messages, tools=None):
+            calls['count'] += 1
+            if calls['count'] == 1:
+                return {'role': 'assistant', 'content': 'SUMMARY',
+                        'usage': {'prompt_tokens': 1000,
+                                  'completion_tokens': 10}}
+            return _probe_answer('alpha', 40)
+        provider.chat_nonstreaming.side_effect = nonstream
         record = run_task(task, self.source, 'multi', provider=provider)
         self.assertEqual(len(record.compactions), 1)
+        self.assertEqual(record.compactions[0]['compaction_index'], 1)
         self.assertTrue(record.compactions[0]['auto'])
         self.assertEqual(record.compactions[0]['reason'], 'threshold')
         self.assertEqual(record.compactions[0]['usage']['prompt_tokens'], 1000)
         self.assertIn('context_before', record.compactions[0])
+        phases = [item['phase'] for item in record.probes]
+        self.assertIn('baseline', phases)
+        self.assertIn('compaction_before', phases)
+        self.assertIn('compaction_after', phases)
+        self.assertIn('final', phases)
+        for item in record.probes:
+            if item['phase'] == 'compaction_before':
+                self.assertEqual(item['compaction_index'], 1)
+            if item['phase'] == 'compaction_after':
+                self.assertEqual(item['compaction_index'], 1)
         self.assertEqual(record.run_end['status'], 'ok')
+
+    def test_probe_uses_isolated_session_id(self):
+        provider = self._provider([_answer('alpha', 10)])
+        provider.session_id = 'orig'
+        seen = []
+
+        def nonstream(messages, tools=None):
+            seen.append(provider.session_id)
+            return _probe_answer('alpha', 20)
+        provider.chat_nonstreaming.side_effect = nonstream
+        record = run_task(self._task(), self.source, 'single', provider=provider)
+        self.assertEqual(provider.session_id, 'orig')
+        self.assertTrue(seen)
+        self.assertTrue(all(':probe:' in value for value in seen))
+        self.assertEqual([item['phase'] for item in record.probes],
+                         ['baseline', 'final'])
 
     def test_format_results(self):
         provider = self._provider([
             _answer('one', 10),
-            _answer('one', 20),
         ])
         record = run_task(self._task(probes=[]), self.source, 'single',
                           provider=provider)
         text = format_results([record])
         self.assertIn('t1', text)
         self.assertIn('single', text)
+        self.assertIn('probe', text)
 
 
 class TestDiscovery(unittest.TestCase):

@@ -208,6 +208,7 @@ class _RedirectAPIHandler(BaseHTTPRequestHandler):
                     'message': {'role': 'assistant', 'content': 'ok'},
                     'finish_reason': 'stop',
                 }],
+                'usage': {'prompt_tokens': 5, 'completion_tokens': 2},
             }).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -243,6 +244,8 @@ class TestPostRedirect(unittest.TestCase):
             thread.join()
         self.assertEqual(result['role'], 'assistant')
         self.assertEqual(result['content'], 'ok')
+        self.assertEqual(result['usage'],
+                         {'prompt_tokens': 5, 'completion_tokens': 2})
 
 
 class TestProviderEndpoints(unittest.TestCase):

@@ -147,7 +147,7 @@ Every part has `type` and `timestamp`. Fields beyond those depend on the type:
 | `text` | `text` | Assistant answer text |
 | `thinking` | `text` | Reasoning that preceded the answer or the tool call |
 | `tool` | `name`, `input`, `output`, `is_error`, `analysis`, `call_id`, `duration`, `usage`, `result_tokens` | One tool call and its result, co-located. `usage` is the assistant round that issued the call, recorded once per round. `input` is the parsed argument object, `is_error` marks an `Error` result, `analysis` is reserved for a one-line insight, `call_id` is the provider's tool-call id, `duration` is the wall-clock seconds the call took, and `result_tokens` is the chars/4 estimate of the full result before truncation |
-| `command` | `text` | A slash command. `summary`, `compact_from`, and `compact_from_part` are set on a `/compact` record, which also carries `auto`, `reason`, `usage`, `context_before`, `context_after`, `rounds_summarized`, and `tokens_summarized` |
+| `command` | `text` | A slash command. `summary`, `compact_from`, `compact_from_part`, `compaction_index`, `auto`, `reason`, `usage`, `context_before`, `context_after`, `rounds_summarized`, and `tokens_summarized` are set on a `/compact` record |
 | `system` | `text` | An injected note |
 
 A tool call and its result never split into separate records: the `tool` part is created with `name`/`input`/`call_id`, the engine executes the call, and `output`/`is_error`/`analysis`/`duration` fill in on the same part. Thinking recorded before a tool round becomes a `thinking` part ahead of the `tool` parts.
@@ -192,10 +192,10 @@ A command and a compaction record:
   {"type": "command", "text": "/model llama3.3", "timestamp": "..."}]}
 {"index": 4, "status": "ok", "parts": [
   {"type": "command", "text": "/compact", "summary": "Summary of the earlier conversation...",
-   "compact_from": 4, "compact_from_part": 7, "timestamp": "..."}]}
+   "compact_from": 4, "compact_from_part": 7, "compaction_index": 1, "timestamp": "..."}]}
 ```
 
-A `command` part with a `summary` is a compaction record: `summary` holds the text, `compact_from` the turn `index`, and `compact_from_part` the part index in that turn where the kept portion starts. A missing `compact_from_part` or `0` means the whole boundary turn is kept. `auto` and `reason` say whether the threshold or `/compact` triggered it, `usage` is the summarization request usage, `context_before` and `context_after` are the estimated context sizes, and `rounds_summarized` and `tokens_summarized` describe the summarized input. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
+A `command` part with a `summary` is a compaction record: `summary` holds the text, `compact_from` the turn `index`, and `compact_from_part` the part index in that turn where the kept portion starts. A missing `compact_from_part` or `0` means the whole boundary turn is kept. `compaction_index` numbers the compaction within the engine process, `auto` and `reason` say whether the threshold or `/compact` triggered it, `usage` is the summarization request usage, `context_before` and `context_after` are the estimated context sizes, and `rounds_summarized` and `tokens_summarized` describe the summarized input. The configured `system_prompt` and mode instruction are injected at request time, never stored in the log.
 
 
 ## Errors

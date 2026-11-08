@@ -107,6 +107,7 @@ class Engine:
         self._auto_compact_done = False
         self._observers: list[Callable[[dict], None]] = []
         self._request_round = 0
+        self._compaction_seq = 0
         self._turn_deny_tools: set[str] = set()
         self._last_summary_usage: dict | None = None
         self._ask_ui = ui if getattr(ui, 'interactive', False) else None
@@ -1817,14 +1818,29 @@ class Engine:
         context_before = self._context_tokens()
         tokens_summarized = max(
             1, sum(len(m.get('content') or '') for m in msgs) // 4)
-        summary = self._summarize(msgs, previous=previous)
-        if summary is None:
-            return None
-        usage = getattr(self, '_last_summary_usage', None)
         rounds = self._compact_rounds(base)
         start = (start_turn, start_part)
         rounds_summarized = sum(
             1 for value in rounds if start <= value < boundary)
+        self._compaction_seq = getattr(self, '_compaction_seq', 0) + 1
+        compaction_index = self._compaction_seq
+        if self._has_observers():
+            turn = self.current_session.open_turn()
+            self._emit({
+                'type': 'compaction_before',
+                'compaction_index': compaction_index,
+                'turn': turn.get('index', 0) if turn else 0,
+                'round': getattr(self, '_request_round', 0),
+                'boundary_turn': boundary_turn,
+                'boundary_part': boundary_part,
+                'context_before': context_before,
+                'rounds_summarized': rounds_summarized,
+                'tokens_summarized': tokens_summarized,
+            })
+        summary = self._summarize(msgs, previous=previous)
+        if summary is None:
+            return None
+        usage = getattr(self, '_last_summary_usage', None)
         record = self.current_session.set_compaction(
             summary, boundary_turn, boundary_part,
             auto=auto,
@@ -1832,7 +1848,8 @@ class Engine:
             usage=usage,
             context_before=context_before,
             rounds_summarized=rounds_summarized,
-            tokens_summarized=tokens_summarized)
+            tokens_summarized=tokens_summarized,
+            compaction_index=compaction_index)
         record['context_after'] = self._context_tokens()
         if self._has_observers():
             event = dict(record)

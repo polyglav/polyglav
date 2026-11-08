@@ -126,6 +126,7 @@ class OpenAICompatibleProvider(BaseProvider):
             'content': message.get('content'),
             'tool_calls': message.get('tool_calls'),
             'finish_reason': choice.get('finish_reason'),
+            'usage': result.get('usage'),
         }
 
     def chat(self, messages: list[dict], stream: bool = True,

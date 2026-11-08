@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.52.0
+
+- Added snapshot probes - probes run against frozen context snapshots at baseline, after each turn, around each compaction (`compaction_before`/`compaction_after`), and at the end, without adding a session turn. Probe usage and cost are reported separately from agent cost, and `chat_nonstreaming` now returns usage. Docs (`metrics.md`, `session.md`). Tests: `test_metrics.py`, `test_engine_observer.py`, `test_providers.py`
+
 ## v0.51.0 - 2026-11-02
 
 - Added metrics command - `polyglav metrics list` discovers task files under `.polyglav/metrics` and the global config, and `polyglav metrics run` writes JSON records under `.polyglav/metrics/runs`. Docs (`commands.md`, `index.md`, `testing.md`)

@@ -84,6 +84,10 @@ class TestObserver(unittest.TestCase):
         self.assertTrue(events[0]['auto'])
         self.assertEqual(events[0]['reason'], 'threshold')
         self.assertEqual(events[0]['usage']['prompt_tokens'], 50)
+        before = [e for e in self.events if e['type'] == 'compaction_before']
+        self.assertEqual(len(before), 1)
+        self.assertEqual(before[0]['compaction_index'],
+                         events[0]['compaction_index'])
 
     def test_deny_tools_star_empties_schema_and_refuses_calls(self):
         self._run([
