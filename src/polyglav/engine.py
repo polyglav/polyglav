@@ -1233,6 +1233,8 @@ class Engine:
                               analysis=analysis, duration=duration)
             if self._has_observers():
                 info = self._tool_registry.info(name) or {}
+                path_arg = self._tool_registry.path_arg_for(name)
+                path = args.get(path_arg) if path_arg else ''
                 self._emit({
                     'type': 'tool_end',
                     'turn': turn_index,
@@ -1240,6 +1242,7 @@ class Engine:
                     'part': part_index,
                     'name': name,
                     'category': info.get('category', ''),
+                    'path': path or '',
                     'arguments': args,
                     'output': output,
                     'result_tokens': result_tokens,

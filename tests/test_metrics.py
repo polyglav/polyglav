@@ -126,6 +126,9 @@ class TestRunTask(unittest.TestCase):
         self.assertEqual(record.condition, 'single')
         self.assertEqual(record.tool_calls[0]['name'], 'file_read')
         self.assertEqual(record.tool_calls[0]['evidence_ids'], ['e1'])
+        self.assertEqual(record.tool_calls[0]['path'], 'a.txt')
+        self.assertEqual(record.tool_calls[0]['arguments'], {'path': 'a.txt'})
+        self.assertFalse(record.tool_calls[0]['arguments_truncated'])
         self.assertGreater(record.tool_calls[0]['result_tokens'], 0)
         self.assertEqual([item['phase'] for item in record.probes],
                          ['baseline', 'final'])
@@ -142,6 +145,35 @@ class TestRunTask(unittest.TestCase):
             block['evidence_ids'] == ['e1']
             for item in record.rounds
             for block in item['context_blocks']))
+
+    def test_edit_stores_path_and_patch(self):
+        task = self._task(
+            prompt='Edit a.txt.',
+            files={'a.txt': 'needle alpha is here\n'},
+            probes=[],
+        )
+        edit_round = [{
+            'type': 'tool_calls',
+            'usage': {'prompt_tokens': 10, 'completion_tokens': 2},
+            'tool_calls': [{
+                'id': 'call_1', 'type': 'function',
+                'function': {'name': 'file_edit',
+                             'arguments': json.dumps({
+                                 'path': 'a.txt',
+                                 'old': 'needle alpha',
+                                 'new': 'needle beta'})},
+            }],
+        }]
+        provider = self._provider([edit_round, _answer('done', 10)])
+        record = run_task(task, self.source, 'single', provider=provider)
+        self.assertEqual(record.tool_calls[0]['path'], 'a.txt')
+        self.assertEqual(record.tool_calls[0]['category'], 'write')
+        self.assertEqual(record.edits[0]['path'], 'a.txt')
+        self.assertEqual(len(record.artifacts['patches']), 1)
+        patch = record.artifacts['patches'][0]
+        self.assertEqual(patch['path'], 'a.txt')
+        self.assertGreater(patch['bytes'], 0)
+        self.assertGreaterEqual(patch['lines'], 1)
 
     def test_multi_run_uses_turn_probes(self):
         task = self._task(turns=['first', 'second'],

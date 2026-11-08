@@ -368,6 +368,7 @@ class _Recorder:
         self.edits: list[dict] = []
         self.compactions: list[dict] = []
         self.probes: list[dict] = []
+        self.patches: list[dict] = []
         self.statuses: list[str] = []
         self.last_result = None
         self.main_rounds = 0
@@ -457,6 +458,15 @@ class _Recorder:
 
     def _tool(self, event: dict) -> None:
         output = event.get('output') or ''
+        arguments = event.get('arguments') or {}
+        if not isinstance(arguments, dict):
+            arguments = {}
+        path = event.get('path') or arguments.get('path', '')
+        try:
+            argument_text = json.dumps(arguments, sort_keys=True)
+        except (TypeError, ValueError):
+            argument_text = ''
+        truncated = len(argument_text) > 2000
         evidence_ids = match_evidence(output, self.task.evidence)
         entry = {
             'name': event.get('name', ''),
@@ -464,6 +474,9 @@ class _Recorder:
             'round': event.get('round', 0),
             'part': event.get('part', 0),
             'category': event.get('category', ''),
+            'path': path,
+            'arguments': {} if truncated else arguments,
+            'arguments_truncated': truncated,
             'result_tokens': event.get('result_tokens', 0),
             'evidence_ids': evidence_ids,
             'content_hash': content_hash(output),
@@ -472,16 +485,24 @@ class _Recorder:
         self.tool_calls.append(entry)
         name = entry['name']
         if entry['category'] == 'edit' or name in ('file_edit', 'file_write'):
-            arguments = event.get('arguments') or {}
             self.edits.append({
                 'turn': entry['turn'],
                 'round': entry['round'],
-                'path': arguments.get('path', ''),
+                'path': path,
                 'category': entry['category'],
                 'result_tokens': entry['result_tokens'],
                 'evidence_ids': evidence_ids,
                 'content_hash': entry['content_hash'],
             })
+            if output:
+                self.patches.append({
+                    'turn': entry['turn'],
+                    'round': entry['round'],
+                    'path': path,
+                    'patch': output,
+                    'bytes': len(output),
+                    'lines': output.count('\n') + 1,
+                })
 
     def note_result(self, result) -> None:
         self.last_result = result
@@ -643,7 +664,7 @@ class _Recorder:
             },
             instrument=_instrument_block(engine, self.baseline),
             settings=_settings_block(engine),
-            artifacts={},
+            artifacts={'patches': self.patches},
         )
 
 

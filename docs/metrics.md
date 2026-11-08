@@ -76,7 +76,9 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
   ],
   "tool_calls": [
     {"name": "file_read", "turn": 1, "round": 2, "part": 4,
-     "category": "read", "result_tokens": 800, "evidence_ids": ["e1"],
+     "category": "read", "path": "src/app.py",
+     "arguments": {"path": "src/app.py"}, "arguments_truncated": false,
+     "result_tokens": 800, "evidence_ids": ["e1"],
      "content_hash": "ab12cd34ef56", "is_error": false}
   ],
   "edits": [
@@ -122,6 +124,12 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
     "compact_auto": true, "compact_at": 170000, "compact_before": 3,
     "compact_keep": 1, "context_window": 1000000, "temperature": 0.0,
     "max_tokens": 8192
+  },
+  "artifacts": {
+    "patches": [
+      {"turn": 1, "round": 5, "path": "src/app.py", "patch": "...",
+       "bytes": 120, "lines": 4}
+    ]
   }
 }
 ```
@@ -129,13 +137,14 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
 The record carries the fields the metrics need:
 
 - `rounds` carries `ctx_tokens` (input plus cache-read tokens), `input_tokens`, `cache_read_tokens`, `completion_tokens`, `status`, `cost`, and the per-request `context_blocks` with `kind`, `turn`, `part`, `tokens`, and the matched `evidence_ids`.
-- `tool_calls` and `edits` carry `turn`, `result_tokens`, `evidence_ids`, and `content_hash`. `result_tokens` and block tokens use the same chars/4 counter for every run.
+- `tool_calls` and `edits` carry `turn`, `result_tokens`, `evidence_ids`, and `content_hash`. Tool calls also carry `path`, the parsed `arguments`, and `arguments_truncated` when the arguments exceed 2000 characters. `result_tokens` and block tokens use the same chars/4 counter for every run.
 - `compactions` carries the boundary, `compaction_index`, the automatic or manual reason, the summarization usage, and the context size before and after.
 - `probes` carries `phase`, `after_turn`, `compaction_index`, `ctx_tokens`, `usage`, `cost`, `correct`, `checkpoint`, and the raw answer for re-scoring. `compaction_before` and `compaction_after` share an index.
 - `run_end` carries the status and reason, so a run that stops early is distinguishable from one that completes.
 - `cost` aggregates the per-round and summarization usage through `cost.rates`. `cost.total` is the agent cost, `cost.probe` is the measurement cost, and `cost.total_including_probe` is the sum. `KJE` uses `cost.total`, not the probe share.
 - `instrument` identifies the build: `version`, `package_version`, best-effort `commit`, always-present `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, and `platform`. Without `.git`, `commit` is empty and `source_hash` plus `package_version` identify the installed source. `system_prompt_hash` hashes the sent blocks in order (`summary`, `instructions`, `system`, `plan`, `todo`), and `tools_hash` hashes the ordered tool names and descriptions.
 - `settings` records the run's compaction budget and thresholds: `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`.
+- `artifacts.patches` stores every edit output with `turn`, `round`, `path`, the `patch` text, `bytes`, and `lines`, so `R1` and diff size can be computed without re-reading the session.
 
 The instrument does not compute CRR, CEF, GSD, CTx, or PER. It writes the inputs: `goal_evidence` and the probe oracle come from the task description, and the context composition comes from the engine observer. `GSD` compares `baseline` with `final`; `GSD_c` compares `compaction_before` with `compaction_after` at the same `compaction_index`.
 
