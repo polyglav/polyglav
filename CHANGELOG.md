@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.52.0
+## v0.52.0 - 2026-11-08
 
+- Fixed metric read-mode edit preflight - the merged permission map is checked for `edit`, so a task that omits `tool_permission` no longer silently falls from `edit: allow` to the read cap. Other write keys remain task-explicit. Docs (`metrics.md`). Tests: `test_metrics.py`
 - Added metric task execution settings - metric tasks now carry `mode` (default `read`, with an explicit `--mode write` override), `temperature` (default `0.0`), and `system_prompt` (default empty), all task-only and never written to the project config. A task-level write permission under `read` fails before the run with a clear error, and `settings` records the effective mode, cap, permission map, and tool lists. Docs (`metrics.md`, `commands.md`). Tests: `test_metrics.py`
 - Fixed metric probe failures - a provider error during a snapshot probe is recorded on that probe instead of aborting the run. Tests: `test_metrics.py`
 - Added model context budget command - `polyglav models context <ref> <tokens>` and `/models context` set `context_window` on the model entry, and `polyglav models` shows `ctx=...`. The value is a context budget, not a hard model limit. Docs (`commands.md`, `providers.md`, `config.md`, `metrics.md`). Tests: `test_commands.py`, `polyglav-core-providers/tests/test_cli.py`

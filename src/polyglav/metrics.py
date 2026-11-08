@@ -382,6 +382,11 @@ def _check_task_permissions(task: MetricTask, config_data: dict) -> None:
     mode = config_data.get('mode') or task.mode
     if mode_cap(config_data, mode) != 'read':
         return
+    merged_edit = (config_data.get('tool_permission') or {}).get('edit')
+    if merged_edit is True or str(merged_edit).lower() in ('allow', 'ask'):
+        raise MetricConfigError(
+            f"metric task '{task.id}' requests edit "
+            f"but the effective mode cap is read")
     read = read_keys(config_data)
     for key in sorted(task.tool_permission or {}):
         action = task.tool_permission[key]
@@ -882,6 +887,8 @@ def cmd_metrics(args) -> int:
                 record.write(out_dir / f'{task.id}_{condition}_{stamp}.json')
             except OSError as e:
                 print(f'Error writing metric record: {e}', file=sys.stderr)
+    if not records and failed:
+        return 1
     if getattr(args, 'output', 'table') == 'json':
         sys.stdout.write(json.dumps([record.to_dict() for record in records],
                                     indent=2) + '\n')

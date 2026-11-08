@@ -108,6 +108,7 @@ class TestRunTask(unittest.TestCase):
             'id': 't1',
             'prompt': 'Read a.txt and report alpha.',
             'files': {'a.txt': 'needle alpha is here\n'},
+            'tool_permission': {'edit': 'deny'},
             'evidence': [{'id': 'e1', 'needles': ['needle alpha']}],
             'goal_evidence': ['e1'],
             'probes': [{'id': 'p1', 'question': 'What was alpha?',
@@ -161,6 +162,7 @@ class TestRunTask(unittest.TestCase):
             files={'a.txt': 'needle alpha is here\n'},
             probes=[],
             mode='write',
+            tool_permission={'edit': 'allow'},
         )
         edit_round = [{
             'type': 'tool_calls',
@@ -271,15 +273,35 @@ class TestRunTask(unittest.TestCase):
             run_task(task, self.source, 'single',
                      provider=self._provider([]))
 
-    def test_read_mode_default_is_read_only(self):
+    def test_read_mode_default_edit_allow_raises(self):
+        task = self._task(probes=[], tool_permission=None)
+        with self.assertRaisesRegex(MetricConfigError, 'requests edit'):
+            run_task(task, self.source, 'single',
+                     provider=self._provider([]))
+
+    def test_read_mode_with_edit_denied_runs(self):
         record = run_task(self._task(probes=[]), self.source, 'single',
                           provider=self._provider([_answer('one', 10)]))
         self.assertEqual(record.settings['mode'], 'read')
         self.assertEqual(record.settings['cap'], 'read')
         self.assertEqual(record.settings['tool_permission']['edit'], 'deny')
 
-    def test_mode_override_write(self):
+    def test_read_mode_explicit_bash_raises(self):
+        task = self._task(probes=[],
+                          tool_permission={'edit': 'deny', 'bash': 'allow'})
+        with self.assertRaisesRegex(MetricConfigError, 'requests bash'):
+            run_task(task, self.source, 'single',
+                     provider=self._provider([]))
+
+    def test_source_bash_ask_does_not_raise(self):
         record = run_task(self._task(probes=[]), self.source, 'single',
+                          provider=self._provider([_answer('one', 10)]))
+        self.assertEqual(record.settings['tool_permission']['bash'], 'deny')
+        self.assertEqual(record.settings['tool_permission']['edit'], 'deny')
+
+    def test_mode_override_write(self):
+        record = run_task(self._task(probes=[], tool_permission=None),
+                          self.source, 'single',
                           provider=self._provider([_answer('one', 10)]),
                           mode='write')
         self.assertEqual(record.settings['mode'], 'write')
@@ -408,10 +430,12 @@ class TestDiscovery(unittest.TestCase):
             mode=None, provider=None, model=None, base_url=None,
             output='table', out=str(Path(self.tmp.name) / 'runs'))
         err = io.StringIO()
-        with patch('sys.stderr', new=err), patch('sys.stdout', new=io.StringIO()):
+        out = io.StringIO()
+        with patch('sys.stderr', new=err), patch('sys.stdout', new=out):
             code = cmd_metrics(args)
         self.assertEqual(code, 1)
         self.assertIn("requests edit", err.getvalue())
+        self.assertEqual(out.getvalue(), '')
 
 
 if __name__ == '__main__':
