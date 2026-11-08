@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from polyglav import get_version
 from polyglav.config import Config
 from polyglav.metrics import (Evidence, MetricTask, Probe, cmd_metrics,
                               content_hash, discover_tasks, format_results,
@@ -220,6 +221,36 @@ class TestRunTask(unittest.TestCase):
         self.assertTrue(all(':probe:' in value for value in seen))
         self.assertEqual([item['phase'] for item in record.probes],
                          ['baseline', 'final'])
+
+    def test_instrument_and_settings(self):
+        task = self._task(
+            probes=[],
+            compact={'at': 170000, 'keep': 1, 'before': 3,
+                     'window': 1000000},
+        )
+        provider = self._provider([_answer('one', 10)])
+        record = run_task(task, self.source, 'single', provider=provider)
+        instrument = record.instrument
+        self.assertEqual(instrument['name'], 'polyglav')
+        self.assertEqual(instrument['version'], get_version())
+        self.assertIn('commit', instrument)
+        self.assertEqual(len(instrument['source_hash']), 12)
+        self.assertEqual(len(instrument['system_prompt_hash']), 12)
+        self.assertEqual(len(instrument['tools_hash']), 12)
+        self.assertTrue(instrument['python'])
+        self.assertEqual(record.settings['compact_at'], 170000)
+        self.assertEqual(record.settings['context_window'], 1000000)
+        self.assertEqual(record.settings['compact_keep'], 1)
+
+    def test_system_prompt_hash_tracks_config(self):
+        task = self._task(probes=[])
+        first = run_task(task, self.source, 'single',
+                         provider=self._provider([_answer('one', 10)]))
+        self.source.set('system_prompt', 'A different persona.')
+        second = run_task(task, self.source, 'single',
+                          provider=self._provider([_answer('one', 10)]))
+        self.assertNotEqual(first.instrument['system_prompt_hash'],
+                            second.instrument['system_prompt_hash'])
 
     def test_format_results(self):
         provider = self._provider([

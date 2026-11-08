@@ -4,12 +4,16 @@ import copy
 import hashlib
 import json
 import os
+import platform
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from importlib import metadata
 from pathlib import Path
 
+from . import get_version
 from .config import Config
 from .cost import estimate_cost, rates_from_config, token_parts
 from .engine import Engine
@@ -53,6 +57,89 @@ def probe_correct(answer: str, probe: 'Probe') -> bool:
     low = (answer or '').lower()
     return any(canonical and canonical.lower() in low
                for canonical in probe.canonical)
+
+
+_PROMPT_ORDER = ('summary', 'instructions', 'system', 'plan', 'todo')
+
+
+def _git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            cwd=Path(__file__).resolve().parents[2],
+            capture_output=True, text=True, timeout=2)
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ''
+
+
+def _source_hash() -> str:
+    root = Path(__file__).resolve().parent
+    digest = hashlib.sha1()
+    try:
+        for path in sorted(root.rglob('*.py')):
+            digest.update(str(path.relative_to(root)).encode('utf-8'))
+            digest.update(path.read_bytes())
+    except OSError:
+        return ''
+    return digest.hexdigest()[:12]
+
+
+def _system_prompt_hash(snapshot: dict | None) -> str:
+    if not snapshot:
+        return content_hash('')
+    parts = [block.get('content') or ''
+             for block in (snapshot.get('blocks') or [])
+             if block.get('kind') in _PROMPT_ORDER]
+    return content_hash('\n'.join(parts))
+
+
+def _tools_hash(engine: Engine) -> str:
+    try:
+        schema = engine._tool_schema()
+    except Exception:
+        schema = []
+    entries = []
+    for item in schema:
+        function = item.get('function') or {}
+        entries.append({
+            'name': function.get('name', ''),
+            'description': function.get('description', ''),
+        })
+    return content_hash(json.dumps(entries, sort_keys=True))
+
+
+def _instrument_block(engine: Engine, baseline: dict | None) -> dict:
+    try:
+        package_version = metadata.version('polyglav')
+    except metadata.PackageNotFoundError:
+        package_version = ''
+    return {
+        'name': 'polyglav',
+        'version': get_version(),
+        'package_version': package_version,
+        'commit': _git_commit(),
+        'source_hash': _source_hash(),
+        'system_prompt_hash': _system_prompt_hash(baseline),
+        'tools_hash': _tools_hash(engine),
+        'python': platform.python_version(),
+        'platform': platform.platform(),
+    }
+
+
+def _settings_block(engine: Engine) -> dict:
+    config = engine.config
+    return {
+        'compact_auto': bool(config.get('compact_auto', True)),
+        'compact_at': config.get('compact_at'),
+        'compact_before': config.get('compact_before'),
+        'compact_keep': config.get('compact_keep'),
+        'context_window': config.get('context_window'),
+        'temperature': config.get('temperature'),
+        'max_tokens': config.get('max_tokens'),
+    }
 
 
 @dataclass
@@ -176,6 +263,8 @@ class MetricRecord:
     compactions: list = field(default_factory=list)
     probes: list = field(default_factory=list)
     cost: dict = field(default_factory=dict)
+    instrument: dict = field(default_factory=dict)
+    settings: dict = field(default_factory=dict)
     artifacts: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -198,6 +287,8 @@ class MetricRecord:
             'compactions': self.compactions,
             'probes': self.probes,
             'cost': self.cost,
+            'instrument': self.instrument,
+            'settings': self.settings,
             'artifacts': self.artifacts,
         }
 
@@ -237,6 +328,11 @@ def _task_config(source: Config, task: MetricTask,
         'tool_calling': True,
         'tool_permission': permission,
         'tools.deny': deny,
+        'system_prompt': source.get('system_prompt', ''),
+        'mode': source.get('mode', 'read'),
+        'modes': source.get('modes') or {},
+        'project_instructions': source.get('project_instructions', 'AGENTS.md'),
+        'reasoning': source.get('reasoning', 'auto'),
         'compact_auto': compact.get('auto', source.get('compact_auto', True)),
         'compact_at': compact.get('at', source.get('compact_at', 170000)),
         'compact_before': compact.get('before', source.get('compact_before', 3)),
@@ -545,6 +641,8 @@ class _Recorder:
                 'probe': {**self.probe_parts, 'total': probe_total},
                 'total_including_probe': round(agent_total + probe_total, 6),
             },
+            instrument=_instrument_block(engine, self.baseline),
+            settings=_settings_block(engine),
             artifacts={},
         )
 

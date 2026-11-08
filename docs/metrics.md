@@ -41,7 +41,7 @@ A task is a JSON file under `.polyglav/metrics/*.json` or `~/.config/polyglav/me
     {"id": "p1", "question": "What was DEBUG before the edit?",
      "checkpoint": "after-edit", "canonical": ["true"], "at_turn": 2}
   ],
-  "compact": {"auto": true, "at": 0.85, "before": 3, "keep": 1, "window": 200000},
+  "compact": {"auto": true, "at": 170000, "before": 3, "keep": 1, "window": 1000000},
   "seed": 0,
   "temperature": 0.0
 }
@@ -53,7 +53,7 @@ A task is a JSON file under `.polyglav/metrics/*.json` or `~/.config/polyglav/me
 - `evidence` declares the identifiers and needles the instrument looks for in tool results, edits, context blocks, and probe answers.
 - `goal_evidence` is the task's goal set G. It is copied into the record as input metadata, not computed by the instrument.
 - `probes` are checkpoint questions. `canonical` holds the accepted answers. Each probe runs against a frozen snapshot, never as a session turn: `baseline` at the first request, `turn` after a turn in `multi` (filtered by `at_turn` when it is above zero), `compaction_before` and `compaction_after` around each compaction, and `final` at the end. The snapshot plus the question goes to the provider directly, so recall comes from the recorded context and the run is not changed. `compaction_before`/`compaction_after` share a `compaction_index`, which gives `GSD_c` per boundary.
-- `compact` overlays the automatic compaction settings for the run.
+- `compact` overlays the automatic compaction settings for the run. Use an absolute `at` value for a stable boundary, for example `170000`. `window` is the context budget passed to `context_window`, not a hard model limit. The budget controls relative thresholds and display, while the agent loop continues until the provider stops it.
 - `temperature` defaults to the project config.
 
 ## Record
@@ -111,6 +111,17 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
     "input": 12000, "output": 500, "cache_read": 2000, "total": 0.01,
     "probe": {"input": 212000, "output": 40, "cache_read": 0, "total": 0.0212},
     "total_including_probe": 0.0312
+  },
+  "instrument": {
+    "name": "polyglav", "version": "0.52.0", "package_version": "0.52.0",
+    "commit": "a2e8d96", "source_hash": "ab12cd34ef56",
+    "system_prompt_hash": "12ab34cd56ef", "tools_hash": "ef56ab12cd34",
+    "python": "3.14.6", "platform": "macOS-..."
+  },
+  "settings": {
+    "compact_auto": true, "compact_at": 170000, "compact_before": 3,
+    "compact_keep": 1, "context_window": 1000000, "temperature": 0.0,
+    "max_tokens": 8192
   }
 }
 ```
@@ -123,6 +134,8 @@ The record carries the fields the metrics need:
 - `probes` carries `phase`, `after_turn`, `compaction_index`, `ctx_tokens`, `usage`, `cost`, `correct`, `checkpoint`, and the raw answer for re-scoring. `compaction_before` and `compaction_after` share an index.
 - `run_end` carries the status and reason, so a run that stops early is distinguishable from one that completes.
 - `cost` aggregates the per-round and summarization usage through `cost.rates`. `cost.total` is the agent cost, `cost.probe` is the measurement cost, and `cost.total_including_probe` is the sum. `KJE` uses `cost.total`, not the probe share.
+- `instrument` identifies the build: `version`, `package_version`, best-effort `commit`, always-present `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, and `platform`. Without `.git`, `commit` is empty and `source_hash` plus `package_version` identify the installed source. `system_prompt_hash` hashes the sent blocks in order (`summary`, `instructions`, `system`, `plan`, `todo`), and `tools_hash` hashes the ordered tool names and descriptions.
+- `settings` records the run's compaction budget and thresholds: `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`.
 
 The instrument does not compute CRR, CEF, GSD, CTx, or PER. It writes the inputs: `goal_evidence` and the probe oracle come from the task description, and the context composition comes from the engine observer. `GSD` compares `baseline` with `final`; `GSD_c` compares `compaction_before` with `compaction_after` at the same `compaction_index`.
 
