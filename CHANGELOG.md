@@ -2,6 +2,7 @@
 
 ## v0.52.0
 
+- Added metric task execution settings - metric tasks now carry `mode` (default `read`, with an explicit `--mode write` override), `temperature` (default `0.0`), and `system_prompt` (default empty), all task-only and never written to the project config. A task-level write permission under `read` fails before the run with a clear error, and `settings` records the effective mode, cap, permission map, and tool lists. Docs (`metrics.md`, `commands.md`). Tests: `test_metrics.py`
 - Fixed metric probe failures - a provider error during a snapshot probe is recorded on that probe instead of aborting the run. Tests: `test_metrics.py`
 - Added model context budget command - `polyglav models context <ref> <tokens>` and `/models context` set `context_window` on the model entry, and `polyglav models` shows `ctx=...`. The value is a context budget, not a hard model limit. Docs (`commands.md`, `providers.md`, `config.md`, `metrics.md`). Tests: `test_commands.py`, `polyglav-core-providers/tests/test_cli.py`
 - Added metric tool paths and patch artifacts - tool calls now carry `path`, capped `arguments`, and `arguments_truncated`, and edit outputs land in `artifacts.patches` with bytes and lines. Docs (`metrics.md`). Tests: `test_metrics.py`

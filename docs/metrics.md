@@ -43,18 +43,24 @@ A task is a JSON file under `.polyglav/metrics/*.json` or `~/.config/polyglav/me
   ],
   "compact": {"auto": true, "at": 170000, "before": 3, "keep": 1, "window": 1000000},
   "seed": 0,
-  "temperature": 0.0
+  "mode": "write",
+  "temperature": 0.0,
+  "system_prompt": ""
 }
 ```
 
 - `id` is required. `prompt` is required for `single`, and `turns` is required for `multi`.
+- `mode` defaults to `read` and is a measurement condition, not the project mode. Set `"mode": "write"` or pass `--mode write` for a task that needs writes.
+- `temperature` defaults to `0.0` and comes only from the task. The project temperature is not inherited.
+- `system_prompt` defaults to `""` and comes only from the task. The project system prompt is not inherited. The mode instruction still applies.
 - `files` are written into the worktree before the run.
-- `tool_permission` merges over the metric defaults (`read`, `list`, `web`, and `edit` allowed, `bash`, `mcp`, `call`, `delegate`, and `ask` denied).
+- `tool_permission` starts from the mode-aware metric base (`read` denies `edit`, `write` allows it) and merges the environment policy and then the task. A task that explicitly requests a write-class `allow`/`ask` under `read` fails before the run with `metric task '<id>' requests <key> but the effective mode cap is read`.
 - `evidence` declares the identifiers and needles the instrument looks for in tool results, edits, context blocks, and probe answers.
 - `goal_evidence` is the task's goal set G. It is copied into the record as input metadata, not computed by the instrument.
 - `probes` are checkpoint questions. `canonical` holds the accepted answers. Each probe runs against a frozen snapshot, never as a session turn: `baseline` at the first request, `turn` after a turn in `multi` (filtered by `at_turn` when it is above zero), `compaction_before` and `compaction_after` around each compaction, and `final` at the end. The snapshot plus the question goes to the provider directly, so recall comes from the recorded context and the run is not changed. `compaction_before`/`compaction_after` share a `compaction_index`, which gives `GSD_c` per boundary.
 - `compact` overlays the automatic compaction settings for the run. Use an absolute `at` value for a stable boundary, for example `170000`. `window` is the context budget passed to `context_window`, not a hard model limit. The budget controls relative thresholds and display, while the agent loop continues until the provider stops it. Set a model-level budget once with `polyglav models context <provider/model> <tokens>`, or set `compact.window` per task.
-- `temperature` defaults to the project config.
+
+The task supplies the measurement conditions (`mode`, `temperature`, `system_prompt`, `tool_permission`, `compact`). The environment supplies access (`model`, `base_url`, the environment `tool_permission`, `cost.rates`, modes, and tool lists). The fields are written only to the throwaway worktree config and the record, never to the project config.
 
 ## Record
 
@@ -121,6 +127,11 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
     "python": "3.14.6", "platform": "macOS-..."
   },
   "settings": {
+    "mode": "write", "cap": "write",
+    "tool_permission": {"read": "allow", "list": "allow", "web": "allow",
+                        "edit": "allow", "bash": "deny", "mcp": "deny",
+                        "call": "deny", "delegate": "deny", "ask": "deny"},
+    "tools.allow": [], "tools.deny": [],
     "compact_auto": true, "compact_at": 170000, "compact_before": 3,
     "compact_keep": 1, "context_window": 1000000, "temperature": 0.0,
     "max_tokens": 8192
@@ -143,11 +154,11 @@ The record carries the fields the metrics need:
 - `run_end` carries the status and reason, so a run that stops early is distinguishable from one that completes.
 - `cost` aggregates the per-round and summarization usage through `cost.rates`. `cost.total` is the agent cost, `cost.probe` is the measurement cost, and `cost.total_including_probe` is the sum. `KJE` uses `cost.total`, not the probe share.
 - `instrument` identifies the build: `version`, `package_version`, best-effort `commit`, always-present `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, and `platform`. Without `.git`, `commit` is empty and `source_hash` plus `package_version` identify the installed source. `system_prompt_hash` hashes the sent blocks in order (`summary`, `instructions`, `system`, `plan`, `todo`), and `tools_hash` hashes the ordered tool names and descriptions.
-- `settings` records the run's compaction budget and thresholds: `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`.
+- `settings` records the run's effective configuration: `mode`, `cap`, `tool_permission`, `tools.allow`, `tools.deny`, `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`. `tool_permission` is the map after the mode cap, so a permissive environment policy under `read` shows the write keys as `deny`.
 - `artifacts.patches` stores every edit output with `turn`, `round`, `path`, the `patch` text, `bytes`, and `lines`, so `R1` and diff size can be computed without re-reading the session.
 
 The instrument does not compute CRR, CEF, GSD, CTx, or PER. It writes the inputs: `goal_evidence` and the probe oracle come from the task description, and the context composition comes from the engine observer. `GSD` compares `baseline` with `final`; `GSD_c` compares `compaction_before` with `compaction_after` at the same `compaction_index`.
 
 ## Testing
 
-`tests/test_metrics.py` covers the task model, evidence matching, content hashing, probe scoring, single and multi runs, compaction records, cost aggregation, discovery, and the list command. `tests/test_cost.py` covers the rate model. The engine side is covered by `tests/test_engine_observer.py` and `tests/test_auto_compact.py`.
+`tests/test_metrics.py` covers the task model, execution settings and preflight, evidence matching, content hashing, probe scoring, single and multi runs, compaction records, cost aggregation, discovery, and the list command. `tests/test_cost.py` covers the rate model. The engine side is covered by `tests/test_engine_observer.py` and `tests/test_auto_compact.py`.

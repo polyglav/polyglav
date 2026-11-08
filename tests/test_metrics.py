@@ -8,9 +8,10 @@ from unittest.mock import MagicMock, patch
 
 from polyglav import get_version
 from polyglav.config import Config
-from polyglav.metrics import (Evidence, MetricTask, Probe, cmd_metrics,
-                              content_hash, discover_tasks, format_results,
-                              match_evidence, probe_correct, run_task)
+from polyglav.metrics import (Evidence, MetricConfigError, MetricTask, Probe,
+                              cmd_metrics, content_hash, discover_tasks,
+                              format_results, match_evidence, probe_correct,
+                              run_task)
 
 
 def _tool_round(name, path, usage=10):
@@ -59,6 +60,14 @@ class TestModel(unittest.TestCase):
         self.assertEqual(task.turns, ['a', 'b'])
         self.assertEqual(task.evidence[0].id, 'e1')
         self.assertEqual(task.probes[0].checkpoint, 'c1')
+        self.assertEqual(task.mode, 'read')
+        self.assertEqual(task.temperature, 0.0)
+        self.assertEqual(task.system_prompt, '')
+
+    def test_task_mode_validation(self):
+        with self.assertRaises(MetricConfigError):
+            MetricTask.from_dict({'id': 't', 'prompt': 'x',
+                                  'mode': 'other'})
 
     def test_match_evidence(self):
         evidence = [Evidence('e1', ['alpha']), Evidence('e2', ['beta'])]
@@ -151,6 +160,7 @@ class TestRunTask(unittest.TestCase):
             prompt='Edit a.txt.',
             files={'a.txt': 'needle alpha is here\n'},
             probes=[],
+            mode='write',
         )
         edit_round = [{
             'type': 'tool_calls',
@@ -254,6 +264,42 @@ class TestRunTask(unittest.TestCase):
         self.assertEqual([item['phase'] for item in record.probes],
                          ['baseline', 'final'])
 
+    def test_read_mode_explicit_edit_raises(self):
+        task = self._task(probes=[], mode='read',
+                          tool_permission={'edit': 'allow'})
+        with self.assertRaisesRegex(MetricConfigError, 'requests edit'):
+            run_task(task, self.source, 'single',
+                     provider=self._provider([]))
+
+    def test_read_mode_default_is_read_only(self):
+        record = run_task(self._task(probes=[]), self.source, 'single',
+                          provider=self._provider([_answer('one', 10)]))
+        self.assertEqual(record.settings['mode'], 'read')
+        self.assertEqual(record.settings['cap'], 'read')
+        self.assertEqual(record.settings['tool_permission']['edit'], 'deny')
+
+    def test_mode_override_write(self):
+        record = run_task(self._task(probes=[]), self.source, 'single',
+                          provider=self._provider([_answer('one', 10)]),
+                          mode='write')
+        self.assertEqual(record.settings['mode'], 'write')
+        self.assertEqual(record.settings['cap'], 'write')
+        self.assertEqual(record.settings['tool_permission']['edit'], 'allow')
+
+    def test_temperature_defaults_to_zero(self):
+        self.source.set('temperature', 0.7)
+        record = run_task(self._task(probes=[]), self.source, 'single',
+                          provider=self._provider([_answer('one', 10)]))
+        self.assertEqual(record.temperature, 0.0)
+        self.assertEqual(record.settings['temperature'], 0.0)
+
+    def test_run_does_not_write_project_config(self):
+        path = Path(self.tmp.name) / '.polyglav' / 'config.json'
+        before = path.read_text()
+        run_task(self._task(probes=[]), self.source, 'single',
+                 provider=self._provider([_answer('one', 10)]))
+        self.assertEqual(path.read_text(), before)
+
     def test_instrument_and_settings(self):
         task = self._task(
             probes=[],
@@ -273,6 +319,11 @@ class TestRunTask(unittest.TestCase):
         self.assertEqual(record.settings['compact_at'], 170000)
         self.assertEqual(record.settings['context_window'], 1000000)
         self.assertEqual(record.settings['compact_keep'], 1)
+        self.assertEqual(record.settings['mode'], 'read')
+        self.assertEqual(record.settings['cap'], 'read')
+        self.assertEqual(record.settings['tool_permission']['edit'], 'deny')
+        self.assertEqual(record.settings['tools.deny'], [])
+        self.assertEqual(record.temperature, 0.0)
 
     def test_probe_error_is_recorded(self):
         provider = self._provider([_answer('alpha', 10)])
@@ -286,15 +337,20 @@ class TestRunTask(unittest.TestCase):
         self.assertEqual(record.probes[0]['error']['message'], 'probe failed')
         self.assertTrue(record.probes[1]['correct'])
 
-    def test_system_prompt_hash_tracks_config(self):
-        task = self._task(probes=[])
-        first = run_task(task, self.source, 'single',
+    def test_system_prompt_hash_tracks_task(self):
+        first = run_task(self._task(probes=[]), self.source, 'single',
                          provider=self._provider([_answer('one', 10)]))
-        self.source.set('system_prompt', 'A different persona.')
-        second = run_task(task, self.source, 'single',
-                          provider=self._provider([_answer('one', 10)]))
+        second = run_task(
+            self._task(probes=[], system_prompt='A different persona.'),
+            self.source, 'single',
+            provider=self._provider([_answer('one', 10)]))
         self.assertNotEqual(first.instrument['system_prompt_hash'],
                             second.instrument['system_prompt_hash'])
+        self.source.set('system_prompt', 'source persona')
+        third = run_task(self._task(probes=[]), self.source, 'single',
+                         provider=self._provider([_answer('one', 10)]))
+        self.assertEqual(first.instrument['system_prompt_hash'],
+                         third.instrument['system_prompt_hash'])
 
     def test_format_results(self):
         provider = self._provider([
@@ -340,6 +396,22 @@ class TestDiscovery(unittest.TestCase):
                     action='list', path=self.tmp.name))
         self.assertEqual(code, 0)
         self.assertIn('one - first task', out.getvalue())
+
+    def test_cli_reports_permission_error(self):
+        metrics_dir = Path(self.tmp.name) / '.polyglav' / 'metrics'
+        metrics_dir.mkdir(parents=True)
+        (metrics_dir / 'bad.json').write_text(json.dumps({
+            'id': 'bad', 'prompt': 'do it', 'mode': 'read',
+            'tool_permission': {'edit': 'allow'}}))
+        args = types.SimpleNamespace(
+            action='run', path=self.tmp.name, task='bad', condition='single',
+            mode=None, provider=None, model=None, base_url=None,
+            output='table', out=str(Path(self.tmp.name) / 'runs'))
+        err = io.StringIO()
+        with patch('sys.stderr', new=err), patch('sys.stdout', new=io.StringIO()):
+            code = cmd_metrics(args)
+        self.assertEqual(code, 1)
+        self.assertIn("requests edit", err.getvalue())
 
 
 if __name__ == '__main__':

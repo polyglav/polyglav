@@ -17,19 +17,30 @@ from . import get_version
 from .config import Config
 from .cost import estimate_cost, rates_from_config, token_parts
 from .engine import Engine
+from .modes import merge_policy, mode_cap, read_keys
 from .ui import HeadlessUI
 
 DEFAULT_METRIC_PERMISSION = {
     'read': 'allow',
     'list': 'allow',
     'web': 'allow',
-    'edit': 'allow',
+    'edit': 'deny',
     'bash': 'deny',
     'mcp': 'deny',
     'call': 'deny',
     'delegate': 'deny',
     'ask': 'deny',
 }
+
+
+class MetricConfigError(ValueError):
+    pass
+
+
+def _default_permission(mode: str) -> dict:
+    permission = dict(DEFAULT_METRIC_PERMISSION)
+    permission['edit'] = 'allow' if mode == 'write' else 'deny'
+    return permission
 
 
 def now_stamp() -> str:
@@ -131,7 +142,14 @@ def _instrument_block(engine: Engine, baseline: dict | None) -> dict:
 
 def _settings_block(engine: Engine) -> dict:
     config = engine.config
+    mode = config.get('mode') or 'read'
+    permissions, allow, deny = merge_policy(config, mode)
     return {
+        'mode': mode,
+        'cap': mode_cap(config, mode),
+        'tool_permission': permissions,
+        'tools.allow': allow,
+        'tools.deny': deny,
         'compact_auto': bool(config.get('compact_auto', True)),
         'compact_at': config.get('compact_at'),
         'compact_before': config.get('compact_before'),
@@ -190,7 +208,9 @@ class MetricTask:
     probes: list[Probe] = field(default_factory=list)
     compact: dict = field(default_factory=dict)
     seed: int = 0
-    temperature: float | None = None
+    mode: str = 'read'
+    temperature: float = 0.0
+    system_prompt: str = ''
 
     @classmethod
     def from_dict(cls, data: dict, id: str | None = None) -> 'MetricTask':
@@ -208,7 +228,15 @@ class MetricTask:
         probes = [Probe.from_dict(item, index)
                   for index, item in enumerate(source.get('probes') or [])
                   if isinstance(item, dict)]
-        temperature = source.get('temperature')
+        mode = str(source.get('mode') or 'read').strip().lower()
+        if mode not in ('read', 'write'):
+            raise MetricConfigError(
+                f"metric task '{task_id}' has unknown mode '{mode}'")
+        try:
+            temperature = float(source.get('temperature', 0.0) or 0.0)
+        except (TypeError, ValueError):
+            raise MetricConfigError(
+                f"metric task '{task_id}' has invalid temperature")
         return cls(
             id=task_id,
             prompt=prompt,
@@ -222,7 +250,9 @@ class MetricTask:
             probes=probes,
             compact=dict(source.get('compact') or {}),
             seed=int(source.get('seed') or 0),
-            temperature=(None if temperature is None else float(temperature)),
+            mode=mode,
+            temperature=temperature,
+            system_prompt=str(source.get('system_prompt') or ''),
         )
 
     def to_dict(self) -> dict:
@@ -239,7 +269,9 @@ class MetricTask:
             'probes': [item.__dict__ for item in self.probes],
             'compact': self.compact,
             'seed': self.seed,
+            'mode': self.mode,
             'temperature': self.temperature,
+            'system_prompt': self.system_prompt,
         }
 
 
@@ -310,10 +342,13 @@ def _config_hash(provider: str, model: str, temperature: float,
 
 def _task_config(source: Config, task: MetricTask,
                  overrides: dict) -> dict:
-    permission = dict(DEFAULT_METRIC_PERMISSION)
+    mode = overrides.get('mode') or task.mode
+    permission = _default_permission(mode)
+    permission.update(source.get('tool_permission') or {})
     permission.update(task.tool_permission)
     deny = list(source.get('tools.deny') or [])
     deny.extend(task.tools_deny)
+    allow = list(source.get('tools.allow') or [])
     provider = overrides.get('provider') or ''
     model = overrides.get('model') or source.get('model') or ''
     if provider and model and '/' not in model:
@@ -322,14 +357,15 @@ def _task_config(source: Config, task: MetricTask,
     return {
         'model': model,
         'base_url': overrides.get('base_url') or source.get('base_url', ''),
-        'temperature': (task.temperature if task.temperature is not None
-                        else source.get('temperature', 0.7)),
+        'temperature': task.temperature,
         'max_tokens': source.get('max_tokens', 0),
         'tool_calling': True,
         'tool_permission': permission,
+        'access': source.get('access') or {},
+        'tools.allow': allow,
         'tools.deny': deny,
-        'system_prompt': source.get('system_prompt', ''),
-        'mode': source.get('mode', 'read'),
+        'system_prompt': task.system_prompt,
+        'mode': mode,
         'modes': source.get('modes') or {},
         'project_instructions': source.get('project_instructions', 'AGENTS.md'),
         'reasoning': source.get('reasoning', 'auto'),
@@ -340,6 +376,20 @@ def _task_config(source: Config, task: MetricTask,
         'context_window': compact.get('window', source.get('context_window', 0)),
         'cost.rates': source.get('cost.rates', {}),
     }
+
+
+def _check_task_permissions(task: MetricTask, config_data: dict) -> None:
+    mode = config_data.get('mode') or task.mode
+    if mode_cap(config_data, mode) != 'read':
+        return
+    read = read_keys(config_data)
+    for key in sorted(task.tool_permission or {}):
+        action = task.tool_permission[key]
+        requested = action is True or str(action).lower() in ('allow', 'ask')
+        if requested and key not in read:
+            raise MetricConfigError(
+                f"metric task '{task.id}' requests {key} "
+                f"but the effective mode cap is read")
 
 
 def _provision(worktree: Path, task: MetricTask, config_data: dict) -> None:
@@ -629,9 +679,8 @@ class _Recorder:
             reason = status
         agent_total = round(total_cost, 6)
         probe_total = round(self.probe_cost, 6)
-        temperature = (self.task.temperature
-                       if self.task.temperature is not None
-                       else float(engine.config.get('temperature', 0.0) or 0.0))
+        temperature = float(
+            engine.config.get('temperature', self.task.temperature) or 0.0)
         return MetricRecord(
             task_id=self.task.id,
             condition=self.condition,
@@ -674,11 +723,21 @@ class _Recorder:
 def run_task(task: MetricTask, source: Config | None = None,
              condition: str = 'single',
              overrides: dict | None = None,
-             provider=None) -> MetricRecord:
+             provider=None, mode: str | None = None) -> MetricRecord:
     source = source or Config()
-    overrides = overrides or {}
+    overrides = dict(overrides or {})
+    if mode is not None:
+        mode = str(mode).strip().lower()
+        if mode not in ('read', 'write'):
+            raise MetricConfigError(
+                f"metric task '{task.id}' has unknown mode '{mode}'")
+        overrides['mode'] = mode
+    if task.mode not in ('read', 'write'):
+        raise MetricConfigError(
+            f"metric task '{task.id}' has unknown mode '{task.mode}'")
     condition = condition if condition in ('single', 'multi') else 'single'
     config_data = _task_config(source, task, overrides)
+    _check_task_permissions(task, config_data)
     task_hash = content_hash(json.dumps(task.to_dict(), sort_keys=True))
     cwd = Path.cwd()
     with tempfile.TemporaryDirectory() as tmp:
@@ -805,12 +864,19 @@ def cmd_metrics(args) -> int:
     if getattr(args, 'base_url', None):
         overrides['base_url'] = args.base_url
     records = []
+    failed = False
     stamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
     out_dir = (Path(args.out) if getattr(args, 'out', None)
                else source.local_path.parent / 'metrics' / 'runs')
     for task in selected.values():
         for condition in conditions:
-            record = run_task(task, source, condition, overrides)
+            try:
+                record = run_task(task, source, condition, overrides,
+                                  mode=getattr(args, 'mode', None))
+            except MetricConfigError as e:
+                print(f'Error: {e}', file=sys.stderr)
+                failed = True
+                continue
             records.append(record)
             try:
                 record.write(out_dir / f'{task.id}_{condition}_{stamp}.json')
@@ -821,4 +887,4 @@ def cmd_metrics(args) -> int:
                                     indent=2) + '\n')
     else:
         sys.stdout.write(format_results(records) + '\n')
-    return 0
+    return 1 if failed else 0

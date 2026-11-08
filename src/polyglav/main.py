@@ -70,6 +70,8 @@ def _add_metrics_parser(sub):
     r.add_argument('--task', help='Task id or substring (default: all)')
     r.add_argument('--condition', default='single',
                    help='Comma-separated conditions: single, multi')
+    r.add_argument('--mode', choices=['read', 'write'], default=None,
+                   help='Override the task mode (default: task mode, normally read)')
     r.add_argument('--provider', help='Provider override')
     r.add_argument('--model', help='Model override')
     r.add_argument('--base-url', help='Base URL override')

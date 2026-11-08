@@ -174,6 +174,7 @@ polyglav metrics --path <project> run --condition single,multi --output json
 |------------------|------------------------------|-----------------------------------|
 | `--task`         |                              | Task id or substring (default: all) |
 | `--condition`    | `single`                     | Comma-separated conditions: `single`, `multi` |
+| `--mode`         | task mode (`read`)           | Override the task mode with `read` or `write` |
 | `--provider`     |                              | Provider override                 |
 | `--model`        |                              | Model override                    |
 | `--base-url`     |                              | Base URL override                 |
