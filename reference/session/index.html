@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -1816,7 +1816,7 @@
 <tr>
 <td><code>command</code></td>
 <td><code>text</code></td>
-<td>A slash command. <code>summary</code>, <code>compact_from</code>, and <code>compact_from_part</code> are set on a <code>/compact</code> record, which also carries <code>auto</code>, <code>reason</code>, <code>usage</code>, <code>context_before</code>, <code>context_after</code>, <code>rounds_summarized</code>, and <code>tokens_summarized</code></td>
+<td>A slash command. <code>summary</code>, <code>compact_from</code>, <code>compact_from_part</code>, <code>compaction_index</code>, <code>auto</code>, <code>reason</code>, <code>usage</code>, <code>context_before</code>, <code>context_after</code>, <code>rounds_summarized</code>, and <code>tokens_summarized</code> are set on a <code>/compact</code> record</td>
 </tr>
 <tr>
 <td><code>system</code></td>
@@ -1857,9 +1857,9 @@
 <span class="w">  </span><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"command"</span><span class="p">,</span><span class="w"> </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/model llama3.3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}]}</span>
 <span class="p">{</span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w"> </span><span class="nt">"parts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"command"</span><span class="p">,</span><span class="w"> </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/compact"</span><span class="p">,</span><span class="w"> </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Summary of the earlier conversation..."</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">"compact_from"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"compact_from_part"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}]}</span>
+<span class="w">   </span><span class="nt">"compact_from"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">"compact_from_part"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"compaction_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}]}</span>
 </code></pre></div>
-<p>A <code>command</code> part with a <code>summary</code> is a compaction record: <code>summary</code> holds the text, <code>compact_from</code> the turn <code>index</code>, and <code>compact_from_part</code> the part index in that turn where the kept portion starts. A missing <code>compact_from_part</code> or <code>0</code> means the whole boundary turn is kept. <code>auto</code> and <code>reason</code> say whether the threshold or <code>/compact</code> triggered it, <code>usage</code> is the summarization request usage, <code>context_before</code> and <code>context_after</code> are the estimated context sizes, and <code>rounds_summarized</code> and <code>tokens_summarized</code> describe the summarized input. The configured <code>system_prompt</code> and mode instruction are injected at request time, never stored in the log.</p>
+<p>A <code>command</code> part with a <code>summary</code> is a compaction record: <code>summary</code> holds the text, <code>compact_from</code> the turn <code>index</code>, and <code>compact_from_part</code> the part index in that turn where the kept portion starts. A missing <code>compact_from_part</code> or <code>0</code> means the whole boundary turn is kept. <code>compaction_index</code> numbers the compaction within the engine process, <code>auto</code> and <code>reason</code> say whether the threshold or <code>/compact</code> triggered it, <code>usage</code> is the summarization request usage, <code>context_before</code> and <code>context_after</code> are the estimated context sizes, and <code>rounds_summarized</code> and <code>tokens_summarized</code> describe the summarized input. The configured <code>system_prompt</code> and mode instruction are injected at request time, never stored in the log.</p>
 <h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
 <p>Turn-level failures are appended to the <code>errors</code> array, separate from the turn log:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">401</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unauthorized"</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-17T12:40:00+00:00"</span><span class="p">}</span>
@@ -1978,7 +1978,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

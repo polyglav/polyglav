@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -1920,9 +1920,11 @@ polyglav<span class="w"> </span>providers<span class="w"> </span>remove<span cla
 <p><code>connect</code> stores the connection in <code>providers.json</code> and sets the active provider and base URL. <code>probe</code> tests the stored endpoint. The key is never printed.</p>
 <h3 id="polyglav-models"><code>polyglav models</code><a class="headerlink" href="#polyglav-models" title="Permanent link">&para;</a></h3>
 <p>List configured models, or probe a provider's available models (mirrors <code>/models</code>).</p>
-<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>models<span class="w">                          </span><span class="c1"># approved-model history grouped by provider, `&gt;` marks the active model, `(key)` a stored key</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>models<span class="w">                          </span><span class="c1"># approved-model history grouped by provider, `&gt;` marks the active model, `(key)` a stored key, `(ctx=...)` the context budget</span>
 polyglav<span class="w"> </span>models<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>provider<span class="o">]</span><span class="w">          </span><span class="c1"># probe a provider's advertised models (default: current), exit 1 on failure</span>
+polyglav<span class="w"> </span>models<span class="w"> </span>context<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>&lt;tokens&gt;<span class="w">   </span><span class="c1"># set the context budget for a model, e.g. opencode-go/deepseek-v4.1-flash 1000000</span>
 </code></pre></div>
+<p>The context budget is used for relative compaction thresholds and display, not as a hard model limit. It is stored on the model entry in <code>models.json</code>.</p>
 <table>
 <thead>
 <tr>
@@ -2010,6 +2012,11 @@ polyglav<span class="w"> </span>metrics<span class="w"> </span>--path<span class
 <td><code>--condition</code></td>
 <td><code>single</code></td>
 <td>Comma-separated conditions: <code>single</code>, <code>multi</code></td>
+</tr>
+<tr>
+<td><code>--mode</code></td>
+<td>task mode (<code>read</code>)</td>
+<td>Override the task mode with <code>read</code> or <code>write</code></td>
 </tr>
 <tr>
 <td><code>--provider</code></td>
@@ -2327,7 +2334,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span>reload<span class=
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>

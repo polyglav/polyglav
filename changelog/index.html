@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -402,6 +402,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0520-2026-11-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.52.0 - 2026-11-08
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0510-2026-11-02" class="md-nav__link">
@@ -1725,6 +1736,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0520-2026-11-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.52.0 - 2026-11-08
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0510-2026-11-02" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2303,6 +2325,16 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0520-2026-11-08">v0.52.0 - 2026-11-08<a class="headerlink" href="#v0520-2026-11-08" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed metric read-mode edit preflight - the merged permission map is checked for <code>edit</code>, so a task that omits <code>tool_permission</code> no longer silently falls from <code>edit: allow</code> to the read cap. Other write keys remain task-explicit. Docs (<code>metrics.md</code>). Tests: <code>test_metrics.py</code></li>
+<li>Added metric task execution settings - metric tasks now carry <code>mode</code> (default <code>read</code>, with an explicit <code>--mode write</code> override), <code>temperature</code> (default <code>0.0</code>), and <code>system_prompt</code> (default empty), all task-only and never written to the project config. A task-level write permission under <code>read</code> fails before the run with a clear error, and <code>settings</code> records the effective mode, cap, permission map, and tool lists. Docs (<code>metrics.md</code>, <code>commands.md</code>). Tests: <code>test_metrics.py</code></li>
+<li>Fixed metric probe failures - a provider error during a snapshot probe is recorded on that probe instead of aborting the run. Tests: <code>test_metrics.py</code></li>
+<li>Added model context budget command - <code>polyglav models context &lt;ref&gt; &lt;tokens&gt;</code> and <code>/models context</code> set <code>context_window</code> on the model entry, and <code>polyglav models</code> shows <code>ctx=...</code>. The value is a context budget, not a hard model limit. Docs (<code>commands.md</code>, <code>providers.md</code>, <code>config.md</code>, <code>metrics.md</code>). Tests: <code>test_commands.py</code>, <code>polyglav-core-providers/tests/test_cli.py</code></li>
+<li>Added metric tool paths and patch artifacts - tool calls now carry <code>path</code>, capped <code>arguments</code>, and <code>arguments_truncated</code>, and edit outputs land in <code>artifacts.patches</code> with bytes and lines. Docs (<code>metrics.md</code>). Tests: <code>test_metrics.py</code></li>
+<li>Added metric instrument fingerprint - records <code>version</code>, <code>package_version</code>, best-effort <code>commit</code>, <code>source_hash</code>, <code>system_prompt_hash</code>, <code>tools_hash</code>, <code>python</code>, <code>platform</code>, and a <code>settings</code> block with the context budget and compaction thresholds. The prompt hash covers the sent blocks in order, and the tool hash covers ordered names and descriptions. Docs (<code>metrics.md</code>, <code>config.md</code>, <code>AGENTS.md</code>). Tests: <code>test_metrics.py</code></li>
+<li>Added snapshot probes - probes run against frozen context snapshots at baseline, after each turn, around each compaction (<code>compaction_before</code>/<code>compaction_after</code>), and at the end, without adding a session turn. Probe usage and cost are reported separately from agent cost, and <code>chat_nonstreaming</code> now returns usage. Docs (<code>metrics.md</code>, <code>session.md</code>). Tests: <code>test_metrics.py</code>, <code>test_engine_observer.py</code>, <code>test_providers.py</code></li>
+</ul>
 <h2 id="v0510-2026-11-02">v0.51.0 - 2026-11-02<a class="headerlink" href="#v0510-2026-11-02" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added metrics command - <code>polyglav metrics list</code> discovers task files under <code>.polyglav/metrics</code> and the global config, and <code>polyglav metrics run</code> writes JSON records under <code>.polyglav/metrics/runs</code>. Docs (<code>commands.md</code>, <code>index.md</code>, <code>testing.md</code>)</li>
@@ -3070,7 +3102,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.top", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
