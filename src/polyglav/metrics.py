@@ -526,7 +526,10 @@ class _Recorder:
                 f'{original or "probe"}:probe:{probe.id}:{phase}:'
                 f'{after_turn}:{compaction_index}')
         try:
-            result = provider.chat_nonstreaming(messages, tools=None)
+            try:
+                result = provider.chat_nonstreaming(messages, tools=None)
+            except Exception as e:
+                result = {'error': {'code': 0, 'message': str(e)}}
         finally:
             if had_session:
                 provider.session_id = original

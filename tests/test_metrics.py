@@ -274,6 +274,18 @@ class TestRunTask(unittest.TestCase):
         self.assertEqual(record.settings['context_window'], 1000000)
         self.assertEqual(record.settings['compact_keep'], 1)
 
+    def test_probe_error_is_recorded(self):
+        provider = self._provider([_answer('alpha', 10)])
+        provider.chat_nonstreaming.side_effect = [
+            RuntimeError('probe failed'),
+            _probe_answer('alpha', 20),
+        ]
+        record = run_task(self._task(), self.source, 'single', provider=provider)
+        self.assertEqual(len(record.probes), 2)
+        self.assertFalse(record.probes[0]['correct'])
+        self.assertEqual(record.probes[0]['error']['message'], 'probe failed')
+        self.assertTrue(record.probes[1]['correct'])
+
     def test_system_prompt_hash_tracks_config(self):
         task = self._task(probes=[])
         first = run_task(task, self.source, 'single',
