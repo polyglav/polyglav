@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.53.0
+
+- Added visible and hidden thinking scopes - `summary` shows `✓ Thought Ns` while hiding the reasoning text, `normal` and onboarding default to it, and `off` emits no line at all. Docs (`config.md`). Tests: `test_verbosity.py`
+
 ## v0.52.0 - 2026-11-08
 
 - Fixed metric read-mode edit preflight - the merged permission map is checked for `edit`, so a task that omits `tool_permission` no longer silently falls from `edit: allow` to the read cap. Other write keys remain task-explicit. Docs (`metrics.md`). Tests: `test_metrics.py`

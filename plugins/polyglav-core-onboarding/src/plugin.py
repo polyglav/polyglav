@@ -13,7 +13,7 @@ WELCOME = ("Welcome to Polyglav.\n"
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
 PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
-PROMPT_REASONING = 'Reasoning (off/assistant/agent/all) [off]: '
+PROMPT_REASONING = 'Reasoning (off/summary/assistant/agent/all) [summary]: '
 PROMPT_OUTPUT_SCOPE = 'Sub-run output (off/assistant/agent/all) [agent]: '
 PROMPT_TOOL_STATS = 'Show tool time and tokens? [y/N] '
 PROMPT_STATUS = 'Show live time and approximate tokens? [Y/n] '
@@ -292,10 +292,10 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
     _say('Describe this project and the assistant (optional).')
     purpose = _ask(ask, PROMPT_PURPOSE)
     persona = _ask(ask, PROMPT_PERSONA)
-    reasoning = _ask(ask, PROMPT_REASONING, 'off').lower()
-    if reasoning not in ('off', 'assistant', 'agent', 'all'):
-        _warn(chat, f'Unknown reasoning scope "{reasoning}", keeping off.')
-        reasoning = 'off'
+    reasoning = _ask(ask, PROMPT_REASONING, 'summary').lower()
+    if reasoning not in ('off', 'summary', 'assistant', 'agent', 'all'):
+        _warn(chat, f'Unknown reasoning scope "{reasoning}", keeping summary.')
+        reasoning = 'summary'
     output_scope = _ask(ask, PROMPT_OUTPUT_SCOPE, 'agent').lower()
     if output_scope not in ('off', 'assistant', 'agent', 'all'):
         _warn(chat, f'Unknown output scope "{output_scope}", keeping agent.')

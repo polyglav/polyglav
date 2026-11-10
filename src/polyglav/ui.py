@@ -38,6 +38,20 @@ ITALIC_GRAY = '\033[3;90m'
 RESET = '\033[0m'
 
 
+def format_tokens(value) -> str:
+    try:
+        number = int(value or 0)
+    except (TypeError, ValueError):
+        number = 0
+    if number >= 1_000_000:
+        text = f'{number / 1_000_000:.1f}M'
+        return text.replace('.0M', 'M')
+    if number >= 1_000:
+        text = f'{number / 1_000:.1f}k'
+        return text.replace('.0k', 'k')
+    return str(number)
+
+
 def colors_enabled() -> bool:
     if os.environ.get('NO_COLOR'):
         return False
@@ -51,6 +65,8 @@ def supports_256() -> bool:
 
 
 ORANGE = '\033[38;5;208m' if supports_256() else '\033[33m'
+TEAL = '\033[38;5;38m' if supports_256() else '\033[36m'
+BRIGHT_BLUE = '\033[94m'
 
 
 def glyph_map(config) -> dict:
@@ -64,6 +80,11 @@ def glyph(config, key: str, default: str) -> str:
     return str(glyph_map(config).get(key, default))
 
 _ANSI_RE = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
+_VERDICT_RE = re.compile(r'^\s*(?:[-*]\s+)?(?:\*\*)?VERDICT\s*:', re.I)
+
+
+def is_internal_verdict_line(line: str) -> bool:
+    return bool(_VERDICT_RE.match(str(line or '')))
 
 
 class TeeStream:
@@ -139,6 +160,19 @@ def _timed_input(prompt: str, timeout: float, hidden: bool = False) -> str | Non
     return input(prompt)
 
 
+def _key_input(prompt: str, timeout: float, choices: tuple, default: str = 'y',
+               echo: bool = True) -> str | None:
+    tty_file = _open_tty()
+    if tty_file is None:
+        if not _stdin_ready(timeout):
+            return None
+        answer = input(prompt).strip().lower()
+        if not answer:
+            return ''
+        return answer
+    return _key_input_fd(prompt, timeout, choices, default, echo, tty_file)
+
+
 def _select_option(text: str, options: list) -> str | None:
     if not options:
         return None
@@ -157,11 +191,54 @@ def _select_option(text: str, options: list) -> str | None:
     return None
 
 
-def _hidden_input(prompt: str, timeout: float) -> str | None:
+def _key_input_fd(prompt: str, timeout: float, choices: tuple, default: str,
+                  echo: bool, tty_file) -> str | None:
+    import termios
+    import tty
+    fd = tty_file.fileno()
+    try:
+        attrs = termios.tcgetattr(fd)
+    except (termios.error, OSError, ValueError):
+        tty_file.close()
+        if not _stdin_ready(timeout):
+            return None
+        return input(prompt)
+    decided = False
+    try:
+        tty.setcbreak(fd)
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+        while True:
+            key = _read_key(fd, timeout)
+            if key is None:
+                return None
+            if key in ('\r', '\n'):
+                decided = True
+                return ''
+            if key == '\x03':
+                raise KeyboardInterrupt
+            normalized = key.lower()
+            if normalized in choices:
+                if echo:
+                    sys.stdout.write(key)
+                decided = True
+                return normalized
+            if echo:
+                sys.stdout.write(key)
+            return key
+    finally:
+        termios.tcsetattr(fd, termios.TCSAFLUSH, attrs)
+        tty_file.close()
+        if decided:
+            sys.stdout.write('\n')
+        sys.stdout.flush()
+
+
+def _hidden_input(prompt: str, timeout: float, mask: bool = False) -> str | None:
     tty_file = _open_tty()
     if tty_file is None:
         return _hidden_input_stdin(prompt, timeout)
-    return _hidden_input_fd(prompt, timeout, tty_file)
+    return _hidden_input_fd(prompt, timeout, tty_file, mask=mask)
 
 
 def _hidden_input_stdin(prompt: str, timeout: float) -> str | None:
@@ -179,10 +256,10 @@ def _hidden_input_stdin(prompt: str, timeout: float) -> str | None:
         if not _stdin_ready(timeout):
             return None
         return input(prompt)
-    sys.stdout.write(prompt)
-    sys.stdout.flush()
     try:
         tty.setcbreak(fd)
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
         if not _stdin_ready(timeout):
             return None
         line = sys.stdin.readline()
@@ -195,7 +272,8 @@ def _hidden_input_stdin(prompt: str, timeout: float) -> str | None:
         sys.stdout.flush()
 
 
-def _hidden_input_fd(prompt: str, timeout: float, tty_file) -> str | None:
+def _hidden_input_fd(prompt: str, timeout: float, tty_file,
+                     mask: bool = False) -> str | None:
     import termios
     import tty
     fd = tty_file.fileno()
@@ -204,10 +282,12 @@ def _hidden_input_fd(prompt: str, timeout: float, tty_file) -> str | None:
     except (termios.error, OSError, ValueError):
         tty_file.close()
         return _hidden_input_stdin(prompt, timeout)
-    sys.stdout.write(prompt)
-    sys.stdout.flush()
+    prompted = False
     try:
         tty.setcbreak(fd)
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+        prompted = True
         chars = []
         while True:
             key = _read_key(fd, timeout)
@@ -217,11 +297,37 @@ def _hidden_input_fd(prompt: str, timeout: float, tty_file) -> str | None:
                 continue
             if key in ('\r', '\n'):
                 return ''.join(chars)
+            if key == '\x03':
+                raise KeyboardInterrupt
+            if key == '\x04':
+                if not chars:
+                    raise EOFError()
+                continue
+            if key in ('\x7f', '\b'):
+                if chars:
+                    chars.pop()
+                    if mask:
+                        sys.stdout.write('\b \b')
+                        sys.stdout.flush()
+                continue
+            if key == '\x15':
+                if chars:
+                    chars.clear()
+                    if mask:
+                        sys.stdout.write('\r\033[K' + prompt)
+                        sys.stdout.flush()
+                continue
+            if not key.isprintable():
+                continue
             chars.append(key)
+            if mask:
+                sys.stdout.write('*')
+                sys.stdout.flush()
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, attrs)
         tty_file.close()
-        sys.stdout.write('\n')
+        if prompted:
+            sys.stdout.write('\n')
         sys.stdout.flush()
 
 
@@ -288,7 +394,7 @@ def render_markdown(token: str, state: dict) -> list[tuple[str, str]]:
 
 def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
     scope = verbosity_level(config, 'thinking')
-    if scope == 'off':
+    if scope in ('off', 'summary'):
         return False
     if scope == 'all':
         return True
@@ -297,6 +403,10 @@ def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
     if scope == 'agent':
         return not sub_run or bool(role)
     return False
+
+
+def thought_marker_visible(config) -> bool:
+    return verbosity_level(config, 'thinking') != 'off'
 
 
 class StatusMetrics:
@@ -386,6 +496,12 @@ class NullUI:
     def confirm(self, name, label):
         return False
 
+    def confirm_text(self, prompt, default='y'):
+        return False
+
+    def secret(self, prompt):
+        return ''
+
     def ask(self, question, context='', options=None, origin=''):
         return None
 
@@ -405,10 +521,10 @@ class HeadlessUI:
             elif show_thought_duration is False:
                 thinking_level = 'off'
             else:
-                thinking_level = 'assistant'
+                thinking_level = 'summary'
         self.thinking_level = thinking_level
         self.footer_level = footer_level or 'summary'
-        self.show_thinking = thinking_level != 'off'
+        self.show_thinking = thinking_level not in ('off', 'summary')
         self.show_thought_duration = thinking_level != 'off'
 
     def token(self, text):
@@ -417,7 +533,7 @@ class HeadlessUI:
             sys.stdout.flush()
 
     def thinking(self, text):
-        if self.verbose and self.stream and self.thinking_level != 'off':
+        if self.verbose and self.stream and self.show_thinking:
             sys.stderr.write(text)
             sys.stderr.flush()
 
@@ -427,7 +543,7 @@ class HeadlessUI:
     def thinking_end(self, duration):
         if not (self.verbose and self.stream):
             return
-        if self.thinking_level != 'off':
+        if self.show_thought_duration:
             sys.stderr.write(f'✓ Thought {duration:.1f}s\n')
 
     def status_begin(self, label, name='', metrics=None):
@@ -450,8 +566,17 @@ class HeadlessUI:
 
     def sub_result(self, text, role=''):
         if self.verbose:
-            lines = str(text or '').splitlines() or ['']
-            first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])
+            lines = []
+            first = ''
+            for line in str(text or '').splitlines():
+                stripped = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', line)
+                if is_internal_verdict_line(stripped):
+                    continue
+                if not lines:
+                    first = stripped
+                lines.append(line)
+            if not lines:
+                return
             sys.stderr.write(f'↲ {first}\n')
             for line in lines[1:]:
                 sys.stderr.write(f'  {line}\n')
@@ -470,13 +595,15 @@ class HeadlessUI:
         if self.verbose:
             sys.stderr.write(f'[{name}: {value}]\n')
             for line in body:
-                sys.stderr.write(f'{line}\n')
+                if not is_internal_verdict_line(line):
+                    sys.stderr.write(f'{line}\n')
 
     def activity(self, glyph, verb, label, body):
         if self.verbose:
             sys.stderr.write(f'{glyph} {verb} {label}\n')
             for line in body:
-                sys.stderr.write(f'{line}\n')
+                if not is_internal_verdict_line(line):
+                    sys.stderr.write(f'{line}\n')
 
     def tool_error(self, msg):
         if self.verbose:
@@ -484,7 +611,10 @@ class HeadlessUI:
 
     def tool_error_result(self, output):
         if self.verbose:
-            sys.stderr.write(output.rstrip('\n') + '\n')
+            lines = [line for line in str(output or '').splitlines()
+                     if not is_internal_verdict_line(line)]
+            if lines:
+                sys.stderr.write('\n'.join(lines) + '\n')
 
     def tool_note(self, output):
         if self.verbose:
@@ -493,7 +623,10 @@ class HeadlessUI:
 
     def tool_result(self, output):
         if self.verbose:
-            sys.stderr.write(output.rstrip('\n') + '\n')
+            lines = [line for line in str(output or '').splitlines()
+                     if not is_internal_verdict_line(line)]
+            if lines:
+                sys.stderr.write('\n'.join(lines) + '\n')
 
     def tool_refine(self, old, new):
         if self.verbose:
@@ -519,6 +652,12 @@ class HeadlessUI:
 
     def confirm(self, name, label):
         return self.auto == 'allow'
+
+    def confirm_text(self, prompt, default='y'):
+        return self.auto == 'allow'
+
+    def secret(self, prompt):
+        return ''
 
     def ask(self, question, context='', options=None, origin=''):
         return None

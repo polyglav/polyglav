@@ -111,7 +111,7 @@ DEFAULT_CONFIG = {
 
 VERBOSITY_SCOPES = ('thinking', 'output', 'status', 'tools', 'footer')
 VERBOSITY_VALUES = {
-    'thinking': ('off', 'assistant', 'agent', 'all'),
+    'thinking': ('off', 'summary', 'assistant', 'agent', 'all'),
     'output': ('off', 'assistant', 'agent', 'all'),
     'status': ('off', 'on'),
     'tools': ('off', 'summary', 'full'),
@@ -121,7 +121,7 @@ VERBOSITY_LEVELS = ('off', 'assistant', 'agent', 'all', 'summary', 'full', 'on')
 VERBOSITY_PRESETS = {
     'quiet': {'thinking': 'off', 'output': 'off', 'status': 'off',
               'tools': 'off', 'footer': 'summary'},
-    'normal': {'thinking': 'off', 'output': 'agent', 'status': 'on',
+    'normal': {'thinking': 'summary', 'output': 'agent', 'status': 'on',
                'tools': 'summary', 'footer': 'summary'},
     'verbose': {'thinking': 'all', 'output': 'all', 'status': 'on',
                 'tools': 'full', 'footer': 'full'},
@@ -138,8 +138,8 @@ def verbosity_level(config, scope: str) -> str:
     value = value.strip().lower()
     if value in values:
         return value
-    if name == 'thinking' and value in ('summary', 'full'):
-        return 'off' if value == 'summary' else 'all'
+    if name == 'thinking' and value == 'full':
+        return 'all'
     if name == 'output' and value in ('summary', 'full'):
         return 'assistant' if value == 'summary' else 'all'
     preset = str(config.get('verbosity', 'normal') or 'normal').strip().lower()

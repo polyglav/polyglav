@@ -99,18 +99,21 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
 | `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
 | `verbosity.status`          | `"inherit"`            | Live status time and approximate tokens: `off`, `on`, or `inherit`      |
-| `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit`       |
+| `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `summary`, `assistant`, `agent`, `all`, or `inherit` |
 | `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 
-The reasoning and output scopes are cumulative:
+The reasoning scopes are:
 
-- `off` - no reasoning or sub-run output. The run's final status line and footer still print.
+- `off` - no reasoning output and no Thought line.
+- `summary` - a `✓ Thought <duration>` line, with the reasoning text hidden. This is the normal default.
 - `assistant` - the top-level assistant only.
 - `agent` - the assistant plus every role-bearing sub-run at any depth. Role-less `delegate` siblings are excluded.
 - `all` - the assistant plus every sub-run, including role-less siblings.
 
-`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool lines, and `full` adds execution time and round tokens. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options.
+The output scopes are `off`, `assistant`, `agent`, and `all` with the same role rules. `off` hides sub-run output but the run's final status line and footer still print.
+
+`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool lines, and `full` adds execution time and round tokens. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options. `/status` and `/context` report context, input, output, thinking, and request token counts.
 
 ### `modes`
 

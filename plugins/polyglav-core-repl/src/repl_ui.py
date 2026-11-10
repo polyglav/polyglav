@@ -5,9 +5,10 @@ import time
 
 from polyglav.config import verbosity_level
 from polyglav.ui import (
-    CYAN, DIM, GREEN, ITALIC_GRAY, MAGENTA, ORANGE, RED, RESET, YELLOW,
-    SPINNER_FRAMES, SPINNER_INTERVAL, colors_enabled, glyph, glyph_map,
-    reasoning_visible, render_markdown, _select_option, _timed_input,
+    BRIGHT_BLUE, CYAN, DIM, GREEN, ITALIC_GRAY, MAGENTA, ORANGE, RED, RESET,
+    YELLOW, SPINNER_FRAMES, SPINNER_INTERVAL, colors_enabled, glyph, glyph_map,
+    reasoning_visible, thought_marker_visible, render_markdown, _hidden_input,
+    _key_input, _select_option, _timed_input, is_internal_verdict_line,
 )
 
 
@@ -98,10 +99,10 @@ class ReplUI:
         return self.output_visible(role)
 
     def thinking_begin(self):
+        if not thought_marker_visible(self._loop.config):
+            return
         self.flush()
         self._ensure_newline()
-        if not self._thinking_visible():
-            return
         self._thinking_streamed = False
         self._start_spinner('Thinking')
 
@@ -190,9 +191,9 @@ class ReplUI:
             sys.stdout.flush()
 
     def thinking(self, text):
-        self.flush()
         if not self._thinking_visible():
             return
+        self.flush()
         if not self._thinking_streamed:
             self._stop_spinner()
             self._thinking_streamed = True
@@ -200,12 +201,13 @@ class ReplUI:
         self.content_newline = text.endswith('\n')
 
     def thinking_end(self, duration):
+        if not thought_marker_visible(self._loop.config):
+            return
         self.flush()
         self._stop_spinner()
         self._ensure_newline()
-        if self._thinking_visible():
-            mark = glyph(self._loop.config, 'done', '✓')
-            self._emit(f'{mark} Thought {duration:.1f}s', DIM)
+        mark = glyph(self._loop.config, 'done', '✓')
+        self._emit(f'{mark} Thought {duration:.1f}s', DIM)
         self.content_newline = True
 
     def warning(self, msg):
@@ -511,7 +513,7 @@ class SubRunUI:
         pass
 
     def thinking_end(self, duration):
-        if self._thinking_visible():
+        if self._enabled() and thought_marker_visible(self._loop.config):
             mark = glyph(self._loop.config, 'done', '✓')
             self._line(f'{mark} Thought {duration:.1f}s', DIM)
 

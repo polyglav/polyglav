@@ -42,14 +42,14 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/providers`             |                | List provider connections, alphabetical, with the active one marked and `(key)` when a key is stored, and `(custom)` for a provider with no built-in factory |
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
-| `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. Saved-session catalog operations live under `/sessions` |
+| `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. The summary shows message count and token context. Saved-session catalog operations live under `/sessions` |
 | `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
 | `/summary`              |                | Summarize the current session into `.polyglav/summaries/<session>.md` without trimming the provider context |
 | `/spawn`                |                | Launch, list, stop, or ask a scoped serve agent. `/spawn <name> <path>` launches one, `/spawn ask <name> <prompt>` delegates to it, `/spawn stop <name>` stops it, and `/spawn` lists agents |
-| `/status`               |                | Show the model, mode, current session, context, live runs, plugins, jobs, and fleet state |
+| `/status`               |                | Show the model, mode, current session, token context and window, current-turn and session token usage, live runs, plugins, jobs, and fleet state |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
-| `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). Prints `@ Thinking: <scope>` |
+| `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `summary`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). `summary` shows the Thought line and hides the text. Prints `@ Thinking: <scope>` |
 | `/verbosity`            | `/verbose`     | Show or set display scopes: `/verbosity`, `/verbosity <scope>`, `/verbosity <scope> <value>`, `/verbosity preset quiet\|normal\|verbose`, `/verbosity reset [scope]` |
 | `/todo`                 |                | Show or edit the current run's internal todo: `add <title>`, `start <id>`, `done <id>`, `block <id> [note]`, `remove <id>`, `list`. See [modes.md](modes.md) |
 | `/todos`                |                | List every stored todo, marking the current one. `/todos <id>` prints one by session id or name. See [modes.md](modes.md) |
