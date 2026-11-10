@@ -1367,7 +1367,7 @@
 <li><code>/modes --verbose</code> prints each mode's description. The defaults are <code>Assistance, chat, and planning tasks</code> and <code>Working tasks, tools, edits, commands, roles, and teams</code>.</li>
 <li>Any value other than <code>read</code> or <code>write</code> resolves to <code>read</code> and prints a warning.</li>
 </ul>
-<p>The submitted-line color signals the posture: cyan for <code>read</code>, orange for <code>write</code>. The live prompt is a plain <code>_</code>, and the line reprints in that color after Enter. The banner shows the current mode, for example <code>@ Read mode</code>.</p>
+<p>The submitted-line color signals the posture: teal for <code>read</code>, orange for <code>write</code>. The live prompt is a plain <code>&gt;</code>, and the line reprints in that color after Enter. The banner shows the current mode, for example <code>@ Read mode</code>.</p>
 <h2 id="plan-and-todo-bookkeeping">Plan and todo bookkeeping<a class="headerlink" href="#plan-and-todo-bookkeeping" title="Permanent link">&para;</a></h2>
 <p><code>plan_write</code> and <code>todo</code> use the <code>read</code> permission key. They write only <code>.polyglav/plans/</code> and <code>.polyglav/todos/</code>, never the workspace, so read can carry them without weakening the read cap.</p>
 <ul>

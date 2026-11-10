@@ -1588,14 +1588,19 @@
 <td>Show, get, set, or unset config values (<code>/config &lt;key&gt; &lt;value&gt;</code>, <code>/config unset &lt;key&gt;</code>, <code>/config --global &lt;key&gt; &lt;value&gt;</code> for a global line). The default listing is grouped by owner and alphabetical within each group, with <code>key</code>, <code>value</code>, and origin columns (<code>(default)</code>, <code>(global)</code>, or <code>(local)</code>) and hides descriptions. <code>/config &lt;key&gt;</code> shows the value, origin, default, and description, and <code>/config --verbose</code> (or <code>-v</code>) adds every default and description on an indented line. A value too long for the value column prints as an indented <code>value</code>/<code>source</code> block</td>
 </tr>
 <tr>
+<td><code>/connect</code></td>
+<td></td>
+<td>Connect a provider. <code>/connect</code> picks interactively from the known providers. <code>/connect &lt;name&gt;</code> presets a known provider's defaults and (re)enters its API key through hidden input. <code>/connect &lt;url&gt;</code> detects a known host or creates a named custom provider (derived from the host, or <code>/connect &lt;url&gt; &lt;name&gt;</code> to name it). Tests the connection before saving, stores the API key + base URL in global <code>providers.json</code>, and writes <code>base_url</code> into config. The model is picked separately with <code>/model</code></td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td></td>
+<td>Show context and token usage: message count, used context tokens, the context window and percentage when known, current-turn input/output/thinking/requests, and session totals</td>
+</tr>
+<tr>
 <td><code>/continue</code></td>
 <td></td>
 <td>Resume the last active paused turn, or <code>parent</code> or a run or session ID</td>
-</tr>
-<tr>
-<td><code>/connect</code></td>
-<td></td>
-<td>Connect a provider. <code>/connect</code> picks interactively from the known providers. <code>/connect &lt;name&gt;</code> presets a known provider's defaults and (re)enters its API key. <code>/connect &lt;url&gt;</code> detects a known host or creates a named custom provider (derived from the host, or <code>/connect &lt;url&gt; &lt;name&gt;</code> to name it). Tests the connection before saving, stores the API key + base URL in global <code>providers.json</code>, and writes the model ref or <code>base_url</code> into config. The model is picked separately with <code>/model</code></td>
 </tr>
 <tr>
 <td><code>/exit</code></td>
@@ -1640,7 +1645,7 @@
 <tr>
 <td><code>/model</code></td>
 <td></td>
-<td>Show or switch the active model. <code>/model &lt;name&gt;</code> sets it on the current provider. <code>/model &lt;provider&gt;/&lt;model&gt;</code> switches provider and model together, approving the model on confirm</td>
+<td>Show or switch the active model. <code>/model &lt;name&gt;</code> sets it on the current provider. <code>/model &lt;provider&gt;/&lt;model&gt;</code> switches provider and model together and approves the model immediately</td>
 </tr>
 <tr>
 <td><code>/models</code></td>
@@ -1705,7 +1710,7 @@
 <tr>
 <td><code>/session</code></td>
 <td></td>
-<td>Show or switch the active session: <code>/session new</code>, <code>/session load &lt;name&gt;</code>, <code>/session save</code>. Saved-session catalog operations live under <code>/sessions</code></td>
+<td>Show or switch the active session: <code>/session new</code>, <code>/session load &lt;name&gt;</code>, <code>/session save</code>. The summary shows message count and token context. Saved-session catalog operations live under <code>/sessions</code></td>
 </tr>
 <tr>
 <td><code>/sessions</code></td>
@@ -1730,7 +1735,7 @@
 <tr>
 <td><code>/status</code></td>
 <td></td>
-<td>Show the model, mode, current session, context, live runs, plugins, jobs, and fleet state</td>
+<td>Show the model, mode, current session, token context and window, current-turn and session token usage, live runs, plugins, jobs, and fleet state</td>
 </tr>
 <tr>
 <td><code>/teams</code></td>
@@ -1740,7 +1745,7 @@
 <tr>
 <td><code>/thinking</code></td>
 <td><code>/reasoning</code></td>
-<td>Show or set the reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, or <code>all</code> (<code>/thinking on</code> = <code>all</code>, <code>off</code> = <code>off</code>). Prints <code>@ Thinking: &lt;scope&gt;</code></td>
+<td>Show or set the reasoning scope: <code>off</code>, <code>summary</code>, <code>assistant</code>, <code>agent</code>, or <code>all</code> (<code>/thinking on</code> = <code>all</code>, <code>off</code> = <code>off</code>). <code>summary</code> shows the Thought line and hides the text. Prints <code>@ Thinking: &lt;scope&gt;</code></td>
 </tr>
 <tr>
 <td><code>/verbosity</code></td>

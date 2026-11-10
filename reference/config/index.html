@@ -1748,7 +1748,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>verbosity.thinking</code></td>
 <td><code>"inherit"</code></td>
-<td>Reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code></td>
+<td>Reasoning scope: <code>off</code>, <code>summary</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code></td>
 </tr>
 <tr>
 <td><code>verbosity.tools</code></td>
@@ -1762,14 +1762,16 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 </tr>
 </tbody>
 </table>
-<p>The reasoning and output scopes are cumulative:</p>
+<p>The reasoning scopes are:</p>
 <ul>
-<li><code>off</code> - no reasoning or sub-run output. The run's final status line and footer still print.</li>
+<li><code>off</code> - no reasoning output and no Thought line.</li>
+<li><code>summary</code> - a <code>✓ Thought &lt;duration&gt;</code> line, with the reasoning text hidden. This is the normal default.</li>
 <li><code>assistant</code> - the top-level assistant only.</li>
 <li><code>agent</code> - the assistant plus every role-bearing sub-run at any depth. Role-less <code>delegate</code> siblings are excluded.</li>
 <li><code>all</code> - the assistant plus every sub-run, including role-less siblings.</li>
 </ul>
-<p><code>verbosity.status</code> controls the live elapsed time and approximate token count on sub-run lines. <code>verbosity.tools</code> controls tool lines, and <code>full</code> adds execution time and round tokens. <code>verbosity.footer</code> controls the turn footer. <code>/verbosity</code> shows the effective values, defaults, and allowed options.</p>
+<p>The output scopes are <code>off</code>, <code>assistant</code>, <code>agent</code>, and <code>all</code> with the same role rules. <code>off</code> hides sub-run output but the run's final status line and footer still print.</p>
+<p><code>verbosity.status</code> controls the live elapsed time and approximate token count on sub-run lines. <code>verbosity.tools</code> controls tool lines, and <code>full</code> adds execution time and round tokens. <code>verbosity.footer</code> controls the turn footer. <code>/verbosity</code> shows the effective values, defaults, and allowed options. <code>/status</code> and <code>/context</code> report context, input, output, thinking, and request token counts.</p>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
 <p>There are two modes: <code>read</code> (default, described as <strong>plan</strong>) and <code>write</code> (described as <strong>work</strong>). <code>read</code> allows read-class permission keys plus the bookkeeping tools <code>plan_write</code> and <code>todo</code>, and denies every workspace write key. <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may set a <code>cap</code>, a description, an instruction block, and a submitted-line color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1779,7 +1781,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <span class="w">      </span><span class="nt">"cap"</span><span class="p">:</span><span class="w"> </span><span class="s2">"read"</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Assistance, chat, and planning tasks"</span><span class="p">,</span>
 <span class="w">      </span><span class="nt">"system_prompt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are in read mode, which is for assistant, chat, and planning tasks..."</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cyan"</span>
+<span class="w">      </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teal"</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="nt">"write"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nt">"cap"</span><span class="p">:</span><span class="w"> </span><span class="s2">"write"</span><span class="p">,</span>

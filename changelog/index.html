@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0530-2026-11-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.53.0 - 2026-11-10
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0520-2026-11-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1736,6 +1747,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0530-2026-11-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.53.0 - 2026-11-10
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0520-2026-11-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2325,6 +2347,17 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0530-2026-11-10">v0.53.0 - 2026-11-10<a class="headerlink" href="#v0530-2026-11-10" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added default ask option - the first option is marked <code>(default)</code> and Enter confirms it, while an ask with no options still cancels on Enter. Docs (<code>tools.md</code>). Tests: <code>test_ui.py</code>, <code>test_ask.py</code></li>
+<li>Added token context reporting - <code>/status</code> and the new <code>/context</code> command report context, input, output, thinking, requests, and session totals, and <code>/session</code> reports token context instead of characters. Docs (<code>commands.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Added core-rendered verdict suppression - internal <code>VERDICT:</code> lines are hidden when the core echoes a result, while model-streamed lines are kept. Docs (<code>tools.md</code>). Tests: <code>polyglav-core-repl</code></li>
+<li>Changed REPL accents - read mode uses 256-color 38, and call and delegate lines use bright blue. Docs (<code>config.md</code>). Tests: <code>test_repl_output.py</code></li>
+<li>Removed oversized argument placeholders - tool status and params no longer render <code>&lt;N chars&gt;</code>, and the tool-call spinner shows only the tool name. Docs (<code>tools.md</code>). Tests: <code>polyglav-core-repl</code></li>
+<li>Fixed secret input in onboarding and <code>/connect</code> - both use the shared hidden-input path, so the API key is masked, supports backspace, bypasses readline history, and restores the terminal. Docs (<code>providers.md</code>, <code>plugins.md</code>). Tests: <code>polyglav-core-onboarding</code>, <code>test_commands.py</code></li>
+<li>Changed confirm and model approval - tool confirms accept a single <code>y</code>/<code>n</code> with Enter for the default, a declined model approval prints nothing, and an explicit <code>/model &lt;ref&gt;</code> approves immediately. Docs (<code>providers.md</code>, <code>commands.md</code>). Tests: <code>polyglav-core-repl</code>, <code>test_commands.py</code></li>
+<li>Added visible and hidden thinking scopes - <code>summary</code> shows <code>✓ Thought Ns</code> while hiding the reasoning text, <code>normal</code> and onboarding default to it, and <code>off</code> emits no line at all. Docs (<code>config.md</code>). Tests: <code>test_verbosity.py</code></li>
+</ul>
 <h2 id="v0520-2026-11-08">v0.52.0 - 2026-11-08<a class="headerlink" href="#v0520-2026-11-08" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed metric read-mode edit preflight - the merged permission map is checked for <code>edit</code>, so a task that omits <code>tool_permission</code> no longer silently falls from <code>edit: allow</code> to the read cap. Other write keys remain task-explicit. Docs (<code>metrics.md</code>). Tests: <code>test_metrics.py</code></li>

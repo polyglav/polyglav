@@ -1312,7 +1312,7 @@
 </tr>
 <tr>
 <td><code>test_commands.py</code></td>
-<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under the tools section, mode-filtered listings), <code>/modes</code> list, <code>--verbose</code> descriptions, and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold + approval prompt), <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
+<td>Slash-command registration and <code>/help</code> output (aliases, subcommands, tools listed under the tools section, mode-filtered listings), <code>/modes</code> list, <code>--verbose</code> descriptions, and <code>&lt;name&gt;</code> instruction, <code>/connect</code> provider flow (interactive picker list/number/URL/bad number/stored-custom reconnect, named connect preset defaults + probe args, hidden stored-key keep/re-enter, unknown-name error, URL known-host + plugin default-URL match + custom name derivation + <code>[name]</code> override + bare hostname, probe-before-commit decline/accept, config <code>model</code> untouched), <code>/model</code> show/switch-touch (provider/model ref unfold and immediate explicit approval), <code>/context</code> and <code>/status</code> token reporting, <code>/session</code> token context, <code>/thinking</code> scopes including <code>summary</code>, <code>/config</code> listing (compact, key detail, <code>--verbose</code>) and scope flags (<code>--global</code>/<code>--local</code>, <code>-a</code>/<code>-r</code> scope), <code>/models</code> configured listing and <code>list</code> probe (key marker sourced from providers.json, provider filter, error/empty, configured-model note), <code>/provider</code> warn</td>
 </tr>
 <tr>
 <td><code>test_completion.py</code></td>
@@ -1380,7 +1380,7 @@
 </tr>
 <tr>
 <td><code>test_modes.py</code></td>
-<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), submitted-line color</td>
+<td>Mode resolution and policy merging: <code>read</code>/<code>write</code>, unknown fallback, instruction composition, access classification (<code>read_tools</code>, unknown-is-write, read cap), submitted-line color (teal read, orange write)</td>
 </tr>
 <tr>
 <td><code>test_delegate.py</code></td>
@@ -1424,7 +1424,7 @@
 </tr>
 <tr>
 <td><code>test_verbosity.py</code></td>
-<td>Verbosity resolution, presets, scoped overrides, invalid fallbacks, old-key migration, and rendering for thinking and output scopes (<code>off</code>/<code>assistant</code>/<code>agent</code>/<code>all</code>), status, tools, and footer</td>
+<td>Verbosity resolution, presets, scoped overrides, invalid fallbacks, old-key migration, and rendering for thinking and output scopes (<code>off</code>/<code>summary</code>/<code>assistant</code>/<code>agent</code>/<code>all</code>), status, tools, and footer</td>
 </tr>
 <tr>
 <td><code>test_call_target.py</code></td>
@@ -1512,7 +1512,7 @@
 </tr>
 <tr>
 <td><code>test_tool_registry.py</code></td>
-<td>Tool registration metadata, schema, refine flags, note-result predicates, <code>_config</code> pass-through, activity params strings, fs tool glyphs (<code>* List</code> / <code>* Grep</code>), <code>permission_fn</code> storage + <code>resolver_for</code>, <code>write_actions</code> storage + <code>write_action_keys</code></td>
+<td>Tool registration metadata, schema, refine flags, note-result predicates, <code>_config</code> pass-through, activity params strings with oversized and multiline arguments omitted, fs tool glyphs (<code>* List</code> / <code>* Grep</code>), <code>permission_fn</code> storage + <code>resolver_for</code>, <code>write_actions</code> storage + <code>write_action_keys</code></td>
 </tr>
 <tr>
 <td><code>test_turns.py</code></td>
@@ -1528,7 +1528,7 @@
 </tr>
 <tr>
 <td><code>test_ui.py</code></td>
-<td>UI sinks: glyph activity lines, tool summary/hidden body, status oneliner fallback, headless verbose rendering, <code>✗</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner and <code>✓ Thought</code>, flat <code>↳ Call</code>/<code>✓ Worked</code> status, confirm <code>?</code> glyph at line start, confirm hidden input / re-raises KeyboardInterrupt / returns False on EOF, ask numbered block and <code>&gt;</code> prompt, number/letter/free-text selection, origin prefix, ask prompt layout (question on its own line, context before options), and verbosity levels, live status metrics, tool round tokens, and scoped output</td>
+<td>UI sinks: glyph activity lines, bright-blue call and delegate lines, tool summary/hidden body with oversized params omitted, status oneliner fallback, headless verbose rendering, <code>✗</code> tool-error lines, word-streaming buffering (boundary flush, tail flush, off-mode immediate writes, markdown across boundaries, flush before status/confirm), thinking spinner and <code>✓ Thought</code>, flat <code>↳ Call</code>/<code>✓ Worked</code> status, single-key confirm with Enter default and a silent decline, hidden confirm input, secret masked input, core-rendered <code>VERDICT:</code> hiding with model stream preserved, ask numbered block and <code>&gt;</code> prompt, number/letter/free-text selection, origin prefix, ask prompt layout (question on its own line, context before options), and verbosity levels, live status metrics, tool round tokens, and scoped output</td>
 </tr>
 </tbody>
 </table>
