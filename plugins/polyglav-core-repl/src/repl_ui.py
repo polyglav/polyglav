@@ -240,7 +240,8 @@ class ReplUI:
         self._emit(f'{mark} {name} {value}', DIM)
         if level == 'full':
             for line in body:
-                self._emit(line, DIM)
+                if not is_internal_verdict_line(line):
+                    self._emit(line, DIM)
         elif body:
             self._tool_output_hint()
 
@@ -260,7 +261,8 @@ class ReplUI:
         self._emit(f'{glyph} {verb} {label}', color)
         if level == 'full':
             for line in body:
-                self._emit(line, DIM)
+                if not is_internal_verdict_line(line):
+                    self._emit(line, DIM)
         elif body:
             self._tool_output_hint()
 
@@ -299,16 +301,26 @@ class ReplUI:
             self._tool_output_hint()
             return
         for line in output.splitlines():
-            self._emit(line, DIM)
+            if not is_internal_verdict_line(line):
+                self._emit(line, DIM)
 
     def sub_result(self, text, role: str = ''):
         if not self._output_visible(role):
             return
+        lines = []
+        first = ''
+        for line in str(text or '').splitlines():
+            stripped = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', line)
+            if is_internal_verdict_line(stripped):
+                continue
+            if not lines:
+                first = stripped
+            lines.append(line)
+        if not lines:
+            return
         self.flush()
         self._ensure_newline()
         mark = glyph(self._loop.config, 'return', '↲')
-        lines = str(text or '').splitlines() or ['']
-        first = re.sub(r'^\[(?:call|delegate)[^\]]*\]\s*', '', lines[0])
         self._emit(f'{mark} {first}', DIM)
         for line in lines[1:]:
             self._emit(f'  {line}', DIM)

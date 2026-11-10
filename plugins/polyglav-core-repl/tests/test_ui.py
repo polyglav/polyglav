@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 from tests.helpers import make_chat
 from polyglav.engine import Engine
-from polyglav.ui import HeadlessUI, DIM, GREEN, ITALIC_GRAY, RED, ORANGE, _hidden_input
+from polyglav.ui import (BRIGHT_BLUE, HeadlessUI, DIM, GREEN, ITALIC_GRAY,
+                         RED, ORANGE, _hidden_input)
 
 
 class TestGlyphActivityLines(unittest.TestCase):
@@ -35,6 +36,41 @@ class TestGlyphActivityLines(unittest.TestCase):
         value = out.getvalue()
         self.assertIn('→ Write a.md', value)
         self.assertNotIn('+ hi', value)
+
+    def test_call_activity_is_bright_blue(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.activity('↳', 'Call', 'writer', [])
+        self.assertIn(BRIGHT_BLUE, out.getvalue())
+
+    def test_delegate_activity_is_bright_blue(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.activity('↳', 'Delegate', 'writer', [])
+        self.assertIn(BRIGHT_BLUE, out.getvalue())
+
+    def test_large_params_are_omitted(self):
+        self.chat.config.set('verbosity.tools', 'full')
+        value = self._capture_status(
+            'plan_write', {'content': 'x' * 100, 'status': 'draft'})
+        self.assertNotIn('chars>', value)
+        self.assertNotIn('content=', value)
+        self.assertIn('status=draft', value)
+
+    def test_core_verdict_lines_are_hidden(self):
+        self.chat.config.set('verbosity.output', 'all')
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.sub_result('VERDICT: PASS\nok', role='writer')
+        value = out.getvalue()
+        self.assertNotIn('VERDICT', value)
+        self.assertIn('ok', value)
+
+    def test_model_stream_keeps_verdict(self):
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            self.chat._ui.token('VERDICT: PASS\n')
+        self.assertIn('VERDICT: PASS', out.getvalue())
 
     def test_headless_activity_renders_when_verbose(self):
         ui = HeadlessUI(auto='deny', verbose=True)

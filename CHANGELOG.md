@@ -2,6 +2,7 @@
 
 ## v0.53.0
 
+- Added core-rendered verdict suppression - internal `VERDICT:` lines are hidden when the core echoes a result, while model-streamed lines are kept. Docs (`tools.md`). Tests: `polyglav-core-repl`
 - Changed REPL accents - read mode uses 256-color 38, and call and delegate lines use bright blue. Docs (`config.md`). Tests: `test_repl_output.py`
 - Removed oversized argument placeholders - tool status and params no longer render `<N chars>`, and the tool-call spinner shows only the tool name. Docs (`tools.md`). Tests: `polyglav-core-repl`
 - Fixed secret input in onboarding and `/connect` - both use the shared hidden-input path, so the API key is masked, supports backspace, bypasses readline history, and restores the terminal. Docs (`providers.md`, `plugins.md`). Tests: `polyglav-core-onboarding`, `test_commands.py`
