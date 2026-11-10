@@ -346,7 +346,6 @@ class Engine:
             self._provider_error = (
                 f'Model "{provider_name}/{model}" is not approved. Approve it '
                 f'with /model {provider_name}/{model}, --model, or --approve-model.')
-            self.ui.info(f'[Error] {self._provider_error}')
             return
         if getattr(self, 'approve_models', False) and model:
             self.models.put(provider_name, model)

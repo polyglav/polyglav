@@ -195,6 +195,41 @@ def _cache_models(chat, provider, models):
     cache[provider] = list(models)
 
 
+def _secret(chat, prompt):
+    ui = getattr(chat, '_ui', None)
+    reader = getattr(ui, 'secret', None)
+    if callable(reader):
+        try:
+            return str(reader(prompt) or '').strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return ''
+    try:
+        return input(prompt).strip()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return ''
+
+
+def _confirm(chat, prompt, default='y'):
+    ui = getattr(chat, '_ui', None)
+    reader = getattr(ui, 'confirm_text', None)
+    if callable(reader):
+        try:
+            return bool(reader(prompt, default=default))
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return False
+    try:
+        answer = input(prompt).strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+    if not answer:
+        return default == 'y'
+    return answer not in ('n', 'no')
+
+
 def _connect_key_prompt(chat, provider):
     stored = chat.providers.api_key_for(provider)
     if stored:
@@ -215,12 +250,7 @@ def _connect_save(chat, providers, provider, base_url, api_key):
     models = _models
     if not ok:
         print(f'  {RED}✗ Connection test failed: {msg}{RESET}')
-        try:
-            answer = input('  Save anyway? [Y/n] ').strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return
-        if answer in ('n', 'no'):
+        if not _confirm(chat, '  Save anyway? [Y/n] ', 'y'):
             print('  Connection not saved - run /connect again with corrected values')
             return
     chat.providers.put(provider, base_url, api_key)
@@ -384,14 +414,13 @@ def register_commands(commands):
         ref = chat.unfold_ref(arg)
         if ref is not None:
             provider, _, model = ref
-            if chat._ensure_model_approved(provider, model):
-                chat.config.set('model', f'{provider}/{model}')
-                chat._reinit_provider()
-                print(f'{DIM}@ Model: {provider}/{model}{RESET}')
-            else:
-                print(f'{RED}✗ Model not approved: {provider}/{model}{RESET}')
+            chat.models.put(provider, model)
+            chat.config.set('model', f'{provider}/{model}')
+            chat._reinit_provider()
+            print(f'{DIM}@ Model: {provider}/{model}{RESET}')
             return
         provider, _, _ = _target(chat)
+        chat.models.put(provider, arg)
         chat.config.set('model', f'{provider}/{arg}')
         chat._reinit_provider()
         provider, _, model = _target(chat)

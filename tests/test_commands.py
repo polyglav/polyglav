@@ -611,21 +611,16 @@ class TestModelCommand(unittest.TestCase):
         self.assertEqual(after.get('provider'), before.get('provider'))
         self.assertEqual(after.get('base_url'), before.get('base_url'))
 
-    def test_model_ref_unapproved_prompts_and_approves(self):
+    def test_model_ref_approves_explicitly(self):
         self.chat.approve_models = False
         self.chat.providers.put('opencode-go',
                                 'https://opencode.ai/zen/go/v1', 'k')
-        with patch('builtins.input', return_value='y'):
+        with patch('builtins.input', side_effect=AssertionError(
+                'explicit model must not prompt')):
             output = self._dispatch('/model opencode-go/deepseek-v4-flash')
         self.assertIn('@ Model: opencode-go/deepseek-v4-flash', output)
         self.assertIsNotNone(
             self.chat.models.find('opencode-go', 'deepseek-v4-flash'))
-
-    def test_model_ref_declined_prompt(self):
-        self.chat.approve_models = False
-        with patch('builtins.input', return_value='n'):
-            output = self._dispatch('/model opencode-go/deepseek-v4-flash')
-        self.assertIn('Model not approved', output)
 
     def test_model_bare_shows_current(self):
         output = self._dispatch('/model')

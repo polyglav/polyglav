@@ -135,7 +135,7 @@ Tool results are sent to the model verbatim, up to the `tool_max_result_chars` c
 
 Every tool call is gated by `ToolPolicy` (`src/polyglav/tools/policy.py`), the single permission resolution point. The loop routes through it, so never special-case tool names for permission logic.
 
-Actions are `allow` (no prompt), `ask` (Y/n confirm in the loop), or `deny` (tool filtered from the provider schema and refused on direct calls).
+Actions are `allow` (no prompt), `ask` (single-key Y/n confirm in the loop, with Enter accepting the default), or `deny` (tool filtered from the provider schema and refused on direct calls). A declined confirm prints nothing.
 
 Every resolution and its outcome (granted / declined / denied) is recorded to the session `permissions` array as an append-only audit trail. See [session.md](session.md).
 

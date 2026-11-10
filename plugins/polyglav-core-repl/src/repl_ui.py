@@ -372,7 +372,8 @@ class ReplUI:
         try:
             while True:
                 try:
-                    answer = _timed_input(prompt, timeout, hidden=hidden)
+                    answer = _key_input(prompt, timeout, ('y', 'n'),
+                                        default='y', echo=not hidden)
                 except EOFError:
                     sys.stdout.write('\n')
                     return False
@@ -389,11 +390,40 @@ class ReplUI:
                     self._emit(f'{done} approved', DIM)
                     return True
                 if normalized in ('n', 'no'):
-                    self._emit(f'{done} declined', DIM)
                     return False
                 self._emit(f'{mark} please answer y or n', YELLOW)
         finally:
             self._prompting.clear()
+
+    def confirm_text(self, prompt, default='y'):
+        timeout = self._confirm_timeout()
+        try:
+            answer = _key_input(prompt, timeout, ('y', 'n'),
+                                default=default, echo=True)
+        except (EOFError, KeyboardInterrupt):
+            sys.stdout.write('\n')
+            return False
+        if answer is None:
+            return False
+        normalized = answer.strip().lower()
+        if normalized == '':
+            return default == 'y'
+        if normalized in ('y', 'yes'):
+            return True
+        if normalized in ('n', 'no'):
+            return False
+        return False
+
+    def secret(self, prompt):
+        try:
+            value = _hidden_input(prompt, 0.0, mask=True)
+        except EOFError:
+            sys.stdout.write('\n')
+            return ''
+        except KeyboardInterrupt:
+            sys.stdout.write('\n')
+            raise
+        return str(value or '')
 
     def _confirm_timeout(self) -> float:
         loop = getattr(self, '_loop', None)
@@ -599,6 +629,12 @@ class SubRunUI:
 
     def confirm(self, name, label):
         return False
+
+    def confirm_text(self, prompt, default='y'):
+        return False
+
+    def secret(self, prompt):
+        return ''
 
     def ask(self, question, context='', options=None, origin=''):
         return self.parent.ask(question, context=context, options=options,

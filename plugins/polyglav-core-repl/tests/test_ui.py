@@ -255,11 +255,11 @@ class TestThinkingSpinner(unittest.TestCase):
     def test_confirm_sets_prompting_during_input(self):
         seen = []
 
-        def fake_input(prompt, timeout, hidden=False):
+        def fake_input(prompt, timeout, choices, default='y', echo=True):
             seen.append(self.chat._ui._prompting.is_set())
             return 'y'
 
-        with patch('polyglav_core_repl_ui._timed_input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=fake_input):
             with patch('sys.stdout', new=io.StringIO()):
                 self.assertTrue(self.chat._ui.confirm('x', 'probe'))
         self.assertEqual(seen, [True])
@@ -437,13 +437,13 @@ class TestWordStreaming(unittest.TestCase):
         self.assertLess(value.index('par'), value.index('→ Write a.md'))
 
     def test_confirm_flushes_pending_word(self):
-        def fake_input(prompt):
+        def fake_input(prompt, *args, **kwargs):
             sys.stdout.write(prompt)
             return 'n'
 
         def run():
             self.ui.token('par')
-            with patch('polyglav.ui.input', side_effect=fake_input):
+            with patch('polyglav_core_repl_ui._key_input', side_effect=fake_input):
                 self.ui.confirm('write_file', 'write_file a.md')
         value = self._capture(run)
         self.assertIn('par', value)
@@ -451,36 +451,30 @@ class TestWordStreaming(unittest.TestCase):
         self.assertLess(value.index('par'), value.index('write_file a.md'))
 
     def test_confirm_question_marks_start_of_line(self):
-        def fake_input(prompt):
+        def fake_input(prompt, *args, **kwargs):
             sys.stdout.write(prompt)
             return 'n'
 
         def run():
-            with patch('polyglav.ui.input', side_effect=fake_input):
+            with patch('polyglav_core_repl_ui._key_input', side_effect=fake_input):
                 self.ui.confirm('write_file', 'write_file a.md')
         value = self._capture(run)
         self.assertIn('? write_file a.md - approve? [Y/n]', value)
         self.assertNotIn('  ? ', value)
 
     def test_confirm_default_yes_on_empty(self):
-        def fake_input(prompt):
-            return ''
-        with patch('polyglav.ui.input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._key_input', return_value=''):
             self.assertTrue(self.ui.confirm('write_file', 'write_file a.md'))
 
     def test_confirm_no_on_n(self):
-        def fake_input(prompt):
-            return 'n'
-        with patch('polyglav.ui.input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._key_input', return_value='n'):
             self.assertFalse(self.ui.confirm('write_file', 'write_file a.md'))
 
     def test_confirm_hidden_input(self):
         self.chat.config.set('hide_confirm_input', True)
-        with patch('polyglav.ui._hidden_input', return_value='y') as hidden:
-            with patch('polyglav.ui.input', side_effect=AssertionError(
-                    'visible input used')):
-                self.assertTrue(self.ui.confirm('write_file', 'write_file a.md'))
-        hidden.assert_called_once()
+        with patch('polyglav_core_repl_ui._key_input', return_value='y') as keyed:
+            self.assertTrue(self.ui.confirm('write_file', 'write_file a.md'))
+        self.assertFalse(keyed.call_args.kwargs['echo'])
 
     def test_ask_uses_visible_input(self):
         self.chat.config.set('hide_confirm_input', True)
@@ -490,18 +484,12 @@ class TestWordStreaming(unittest.TestCase):
                 self.assertEqual(self.ui.ask('q'), 'answer')
 
     def test_confirm_raises_on_keyboard_interrupt(self):
-        def fake_input(prompt):
-            raise KeyboardInterrupt()
-
-        with patch('polyglav.ui.input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=KeyboardInterrupt):
             with self.assertRaises(KeyboardInterrupt):
                 self.ui.confirm('write_file', 'write_file a.md')
 
     def test_confirm_returns_false_on_eof(self):
-        def fake_input(prompt):
-            raise EOFError()
-
-        with patch('polyglav.ui.input', side_effect=fake_input):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=EOFError):
             self.assertFalse(self.ui.confirm('write_file', 'write_file a.md'))
 
 
@@ -521,7 +509,7 @@ class TestLinePrompts(unittest.TestCase):
         return out.getvalue()
 
     def _confirm(self, answers, label='write_file a.md'):
-        with patch('polyglav.ui.input', side_effect=list(answers)):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=list(answers)):
             return self.ui.confirm('write_file', label)
 
     def test_confirm_y_approves(self):
@@ -543,12 +531,12 @@ class TestLinePrompts(unittest.TestCase):
         self.assertFalse(self._confirm(['maybe', 'n']))
 
     def test_confirm_question_marks_start_of_line(self):
-        def fake_input(prompt):
+        def fake_input(prompt, *args, **kwargs):
             sys.stdout.write(prompt)
             return 'n'
 
         def run():
-            with patch('polyglav.ui.input', side_effect=fake_input):
+            with patch('polyglav_core_repl_ui._key_input', side_effect=fake_input):
                 self.ui.confirm('write_file', 'write_file a.md')
         value = self._capture(run)
         self.assertIn('? write_file a.md - approve? [Y/n]', value)
@@ -556,30 +544,47 @@ class TestLinePrompts(unittest.TestCase):
 
     def test_confirm_hidden_input(self):
         self.chat.config.set('hide_confirm_input', True)
-        with patch('polyglav.ui._hidden_input', return_value='y') as hidden:
-            with patch('polyglav.ui.input', side_effect=AssertionError(
-                    'visible input used')):
-                self.assertTrue(self.ui.confirm('write_file', 'write_file a.md'))
-        hidden.assert_called_once()
+        with patch('polyglav_core_repl_ui._key_input', return_value='y') as keyed:
+            self.assertTrue(self.ui.confirm('write_file', 'write_file a.md'))
+        self.assertFalse(keyed.call_args.kwargs['echo'])
 
     def test_confirm_timeout_denies(self):
         self.chat.config.set('hide_confirm_input', False)
         self.chat.config.set('confirm_timeout', 2)
-        with patch('polyglav.ui.select.select', return_value=([], [], [])):
-            with patch('polyglav.ui.input', side_effect=AssertionError(
-                    'input must not be called on timeout')):
-                value = self._capture(
-                    lambda: self.ui.confirm('write_file', 'write_file a.md'))
+        with patch('polyglav_core_repl_ui._key_input', return_value=None):
+            value = self._capture(
+                lambda: self.ui.confirm('write_file', 'write_file a.md'))
         self.assertIn('no answer in 2s, denied', value)
 
     def test_confirm_eof_denies(self):
-        with patch('polyglav.ui.input', side_effect=EOFError):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=EOFError):
             self.assertFalse(self.ui.confirm('write_file', 'write_file a.md'))
 
     def test_confirm_keyboard_interrupt_reraises(self):
-        with patch('polyglav.ui.input', side_effect=KeyboardInterrupt):
+        with patch('polyglav_core_repl_ui._key_input', side_effect=KeyboardInterrupt):
             with self.assertRaises(KeyboardInterrupt):
                 self.ui.confirm('write_file', 'write_file a.md')
+
+    def test_confirm_decline_prints_nothing(self):
+        with patch('polyglav_core_repl_ui._key_input', return_value='n'):
+            value = self._capture(
+                lambda: self.ui.confirm('write_file', 'write_file a.md'))
+        self.assertNotIn('declined', value)
+
+    def test_confirm_text_uses_single_key(self):
+        with patch('polyglav_core_repl_ui._key_input', return_value='') as keyed:
+            self.assertTrue(self.ui.confirm_text('Continue? [Y/n] ', 'y'))
+        self.assertTrue(keyed.call_args.kwargs.get('echo'))
+
+    def test_confirm_text_declines_on_n(self):
+        with patch('polyglav_core_repl_ui._key_input', return_value='n'):
+            self.assertFalse(self.ui.confirm_text('Continue? [Y/n] ', 'y'))
+
+    def test_secret_masks_input(self):
+        with patch('polyglav_core_repl_ui._hidden_input',
+                   return_value='key-123') as hidden:
+            self.assertEqual(self.ui.secret('API key: '), 'key-123')
+        self.assertTrue(hidden.call_args.kwargs['mask'])
 
     def test_ask_digit_returns_option_text(self):
         with patch('polyglav.ui.input', return_value='2'):

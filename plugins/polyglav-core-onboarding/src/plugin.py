@@ -91,6 +91,18 @@ def _secret(secret, prompt: str, default: str = '') -> str:
 
 def _warn(chat, message: str) -> None:
     ui = getattr(chat, '_ui', None)
+def _confirm(chat, ask, prompt: str, default: str = 'y') -> bool:
+    ui = getattr(chat, '_ui', None)
+    reader = getattr(ui, 'confirm_text', None)
+    try:
+        if callable(reader):
+            return bool(reader(prompt, default=default))
+        return _ask(ask, prompt, default).lower() not in ('n', 'no')
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+
+
     if ui is not None and hasattr(ui, 'warning'):
         ui.warning(message)
     else:
@@ -221,7 +233,7 @@ def _provider_setup(chat, ask, secret):
         base_url=base_url, api_key=api_key, provider=provider)
     if not ok:
         _warn(chat, f'Connection test failed: {message}')
-        if _ask(ask, PROMPT_SAVE_ANYWAY, 'y').lower() in ('n', 'no'):
+        if not _confirm(chat, ask, PROMPT_SAVE_ANYWAY, 'y'):
             _warn(chat, 'Provider not saved.')
             return None
 
