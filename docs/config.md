@@ -127,7 +127,7 @@ There are two modes: `read` (default, described as **plan**) and `write` (descri
       "cap": "read",
       "description": "Assistance, chat, and planning tasks",
       "system_prompt": "You are in read mode, which is for assistant, chat, and planning tasks...",
-      "color": "cyan"
+      "color": "teal"
     },
     "write": {
       "cap": "write",

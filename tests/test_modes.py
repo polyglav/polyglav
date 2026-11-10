@@ -265,11 +265,11 @@ class TestModeColor(unittest.TestCase):
         finally:
             config._tmp.cleanup()
 
-    def test_read_mode_is_cyan(self):
+    def test_read_mode_is_teal(self):
         config = make_config({'mode': 'read'})
         try:
             mode, _ = resolve_mode(config)
-            self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['teal'])
         finally:
             config._tmp.cleanup()
 
@@ -284,7 +284,7 @@ class TestModeColor(unittest.TestCase):
         finally:
             config._tmp.cleanup()
 
-    def test_read_only_mode_defaults_cyan(self):
+    def test_read_only_mode_defaults_teal(self):
         config = make_config({
             'mode': 'write',
             'modes': {'write': {'tool_permission': {'edit': 'deny',
@@ -293,7 +293,7 @@ class TestModeColor(unittest.TestCase):
         })
         try:
             mode, _ = resolve_mode(config)
-            self.assertEqual(mode_color(mode), PROMPT_COLORS['cyan'])
+            self.assertEqual(mode_color(mode), PROMPT_COLORS['teal'])
         finally:
             config._tmp.cleanup()
 

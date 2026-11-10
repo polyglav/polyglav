@@ -113,7 +113,7 @@ class ReplUI:
         self._status_name = (name or text).rstrip('.').strip()
         self._status_metrics = metrics
         mark = glyph(self._loop.config, 'enter', '↳')
-        self._emit(f'{mark} {text}', DIM)
+        self._emit(f'{mark} {text}', BRIGHT_BLUE)
         self._start_spinner(text)
 
     def status_end(self, note: str = '', ok: bool = True):
@@ -251,7 +251,12 @@ class ReplUI:
             return
         self.flush()
         self._ensure_newline()
-        color = GREEN if glyph == '$' else DIM
+        if verb in ('Call', 'Delegate'):
+            color = BRIGHT_BLUE
+        elif glyph == '$' or verb == 'Run':
+            color = GREEN
+        else:
+            color = DIM
         self._emit(f'{glyph} {verb} {label}', color)
         if level == 'full':
             for line in body:

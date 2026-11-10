@@ -2,7 +2,7 @@ import io
 import unittest
 from unittest.mock import MagicMock, patch
 
-from polyglav.ui import CYAN, MAGENTA, ORANGE
+from polyglav.ui import MAGENTA, ORANGE, TEAL
 from tests.helpers import chat_module, make_chat
 
 _chat = chat_module()
@@ -135,7 +135,7 @@ class TestReplInput(unittest.TestCase):
 
     def test_chat_input_reprinted_in_mode_color(self):
         output = self._run(['hello', EOFError])
-        self.assertIn(f'\001{CYAN}\002> hello\001\033[0m\002', output)
+        self.assertIn(f'\001{TEAL}\002> hello\001\033[0m\002', output)
 
     def test_live_prompt_uses_mode_color(self):
         prompt = self.chat._prompt()
@@ -218,7 +218,7 @@ class TestOutputLog(unittest.TestCase):
         worktree = self._run({'output_log': True, 'output_log_ansi': True},
                              lines=('hello', EOFError))
         log = next((worktree / '.polyglav' / 'output').glob('*.txt'))
-        self.assertIn(f'\001{CYAN}\002> hello\001\033[0m\002',
+        self.assertIn(f'\001{TEAL}\002> hello\001\033[0m\002',
                       log.read_text())
 
     def test_output_log_reprints_colored_command_input(self):

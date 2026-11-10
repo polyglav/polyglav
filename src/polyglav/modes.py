@@ -1,12 +1,13 @@
 from typing import NamedTuple
 
 from .config import Config
-from .ui import CYAN, ORANGE, colors_enabled
+from .ui import CYAN, ORANGE, TEAL, colors_enabled
 
 
 PROMPT_COLORS = {
     'cyan': CYAN,
     'orange': ORANGE,
+    'teal': TEAL,
 }
 
 DEFAULT_PROMPT_COLOR = 'orange'
@@ -66,9 +67,9 @@ def mode_color(spec: ModeSpec) -> str:
     if name in PROMPT_COLORS:
         return PROMPT_COLORS[name]
     permissions = spec.permissions or {}
-    if (permissions.get('edit') == 'deny'
-            and permissions.get('bash') == 'deny'):
-        return PROMPT_COLORS['cyan']
+    if (spec.name == 'read' or (permissions.get('edit') == 'deny'
+                                and permissions.get('bash') == 'deny')):
+        return PROMPT_COLORS['teal']
     return PROMPT_COLORS[DEFAULT_PROMPT_COLOR]
 
 

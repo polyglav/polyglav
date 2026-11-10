@@ -40,7 +40,7 @@ DEFAULT_CONFIG = {
                 'for write mode when the work needs tools, edits, commands, or '
                 'roles.'
             ),
-            'color': 'cyan',
+            'color': 'teal',
         },
         'write': {
             'cap': 'write',
