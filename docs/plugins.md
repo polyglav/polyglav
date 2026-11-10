@@ -137,7 +137,7 @@ The bundled `polyglav-core-web` registers `services['search']` with `search(quer
 
 ### Startup
 
-`register_startup(hooks)` appends a `callable(chat)` that the REPL runs once when it starts, after plugins load, after the banner, and before the first prompt. It is the first-run hook: the bundled `polyglav-core-onboarding` plugin uses it to detect an unconfigured project, connect a provider, pick a model and mode, ask about the project purpose, assistant, and output log, then write the local config. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only `ChatLoop` runs startup hooks, so headless `run`/`serve` engines never prompt.
+`register_startup(hooks)` appends a `callable(chat)` that the REPL runs once when it starts, after plugins load, after the banner, and before the first prompt. It is the first-run hook: the bundled `polyglav-core-onboarding` plugin uses it to detect an unconfigured project, connect a provider, pick a model and mode, ask about the project purpose, assistant, and output log, then write the local config. API keys are entered through hidden input. A hook that raises is swallowed so one plugin cannot stop the REPL from starting. Only `ChatLoop` runs startup hooks, so headless `run`/`serve` engines never prompt.
 
 ### Lazy dependencies
 

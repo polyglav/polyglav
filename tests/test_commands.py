@@ -390,8 +390,15 @@ class TestConnectCommand(unittest.TestCase):
             if inputs is None:
                 self.chat.registry.dispatch(line)
             else:
-                with patch('builtins.input', side_effect=inputs):
-                    self.chat.registry.dispatch(line)
+                values = iter(inputs)
+
+                def answer(*_args, **_kwargs):
+                    return next(values)
+
+                with patch('builtins.input', side_effect=answer):
+                    with patch('polyglav_core_repl_ui._hidden_input', side_effect=answer):
+                        with patch('polyglav_core_repl_ui._key_input', side_effect=answer):
+                            self.chat.registry.dispatch(line)
         return out.getvalue()
 
     def test_connect_pick_lists_providers(self):
@@ -434,10 +441,10 @@ class TestConnectCommand(unittest.TestCase):
         self.chat.providers.put('ollama', 'https://api.ollama.com', 'old-key')
         with patch.object(self.chat, 'check_connection',
                           return_value=(True, 'ok', [])):
-            with patch('builtins.input',
-                       side_effect=['new-key']) as inp:
+            with patch('polyglav_core_repl_ui._hidden_input',
+                       return_value='new-key') as hidden:
                 output = self._dispatch('/connect ollama')
-        inp.assert_called_once_with('  API key [<stored>]: ')
+        self.assertEqual(hidden.call_args.args[0], '  API key [<stored>]: ')
         self.assertEqual(self.chat.providers.api_key_for('ollama'), 'new-key')
         self.assertIn('Updated provider "ollama"', output)
 

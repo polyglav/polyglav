@@ -90,6 +90,22 @@ class FakeChat:
         self.reinitialized = True
 
 
+class FakeUI:
+    def __init__(self, secret='ui-key', confirm=True):
+        self.secret_value = secret
+        self.confirm_value = confirm
+        self.secret_prompts = []
+        self.confirm_prompts = []
+
+    def secret(self, prompt):
+        self.secret_prompts.append(prompt)
+        return self.secret_value
+
+    def confirm_text(self, prompt, default='y'):
+        self.confirm_prompts.append((prompt, default))
+        return self.confirm_value
+
+
 class TestOnboarding(unittest.TestCase):
 
     def setUp(self):
@@ -122,6 +138,21 @@ class TestOnboarding(unittest.TestCase):
         prompt = plugin.compose_prompt('a CLI', 'You are Assistant.')
         self.assertIn('confirm the design', prompt)
         self.assertIn('hierarchical', prompt.lower())
+
+    def test_secret_prefers_ui_reader(self):
+        chat = self._chat()
+        chat._ui = FakeUI(secret='ui-key')
+        value = plugin._secret(chat, lambda _: 'fallback', 'API key: ')
+        self.assertEqual(value, 'ui-key')
+        self.assertEqual(chat._ui.secret_prompts, ['API key: '])
+
+    def test_confirm_prefers_ui_reader(self):
+        chat = self._chat()
+        chat._ui = FakeUI(confirm=False)
+        self.assertFalse(plugin._confirm(
+            chat, self._answers(**{}), plugin.PROMPT_SAVE_ANYWAY, 'y'))
+        self.assertEqual(chat._ui.confirm_prompts,
+                         [(plugin.PROMPT_SAVE_ANYWAY, 'y')])
 
     def test_should_run_without_config(self):
         self.assertTrue(plugin.should_run(self._chat()))

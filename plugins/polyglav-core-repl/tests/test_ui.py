@@ -711,6 +711,27 @@ class TestLinePrompts(unittest.TestCase):
                                 self.assertEqual(
                                     _hidden_input('? ', 0.0), 'y')
 
+    def test_hidden_input_masks_and_edits(self):
+        class _FakeTTY:
+            def fileno(self):
+                return 0
+
+            def close(self):
+                pass
+
+        out = io.StringIO()
+        with patch('polyglav.ui._open_tty', return_value=_FakeTTY()):
+            with patch('termios.tcgetattr',
+                       return_value=[0, 0, 0, 0, 0, 0, []]):
+                with patch('termios.tcsetattr'):
+                    with patch('tty.setcbreak'):
+                        with patch('polyglav.ui._read_key',
+                                   side_effect=['a', 'b', '\x7f', 'c', '\r']):
+                            with patch('sys.stdout', new=out):
+                                value = _hidden_input('key: ', 0.0, mask=True)
+        self.assertEqual(value, 'ac')
+        self.assertIn('*', out.getvalue())
+
 
 class TestReplColors(unittest.TestCase):
 

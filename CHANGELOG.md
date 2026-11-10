@@ -2,6 +2,7 @@
 
 ## v0.53.0
 
+- Fixed secret input in onboarding and `/connect` - both use the shared hidden-input path, so the API key is masked, supports backspace, bypasses readline history, and restores the terminal. Docs (`providers.md`, `plugins.md`). Tests: `polyglav-core-onboarding`, `test_commands.py`
 - Changed confirm and model approval - tool confirms accept a single `y`/`n` with Enter for the default, a declined model approval prints nothing, and an explicit `/model <ref>` approves immediately. Docs (`providers.md`, `commands.md`). Tests: `polyglav-core-repl`, `test_commands.py`
 - Added visible and hidden thinking scopes - `summary` shows `✓ Thought Ns` while hiding the reasoning text, `normal` and onboarding default to it, and `off` emits no line at all. Docs (`config.md`). Tests: `test_verbosity.py`
 

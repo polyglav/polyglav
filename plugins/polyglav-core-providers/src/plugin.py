@@ -233,8 +233,8 @@ def _confirm(chat, prompt, default='y'):
 def _connect_key_prompt(chat, provider):
     stored = chat.providers.api_key_for(provider)
     if stored:
-        return input('  API key [<stored>]: ').strip() or stored
-    return input('  API key (leave empty to skip): ').strip()
+        return _secret(chat, '  API key [<stored>]: ') or stored
+    return _secret(chat, '  API key (leave empty to skip): ')
 
 
 def _connect_save(chat, providers, provider, base_url, api_key):
@@ -424,7 +424,6 @@ def register_commands(commands):
         chat.config.set('model', f'{provider}/{arg}')
         chat._reinit_provider()
         provider, _, model = _target(chat)
-        chat.models.put(provider, model)
         print(f'{DIM}@ Model: {provider}/{model}{RESET}')
 
     @commands.register(

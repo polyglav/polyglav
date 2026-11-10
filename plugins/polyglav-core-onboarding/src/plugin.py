@@ -78,15 +78,29 @@ def _ask(ask, prompt: str, default: str = '') -> str:
     return str(answer).strip() or default
 
 
-def _secret(secret, prompt: str, default: str = '') -> str:
+def _secret(chat, secret, prompt: str, default: str = '') -> str:
+    ui = getattr(chat, '_ui', None)
+    reader = getattr(ui, 'secret', None)
     try:
-        answer = secret(prompt)
+        answer = reader(prompt) if callable(reader) else secret(prompt)
     except (EOFError, KeyboardInterrupt):
         print()
         return default
     if answer is None:
         return default
     return str(answer).strip() or default
+
+
+def _confirm(chat, ask, prompt: str, default: str = 'y') -> bool:
+    ui = getattr(chat, '_ui', None)
+    reader = getattr(ui, 'confirm_text', None)
+    try:
+        if callable(reader):
+            return bool(reader(prompt, default=default))
+        return _ask(ask, prompt, default).lower() not in ('n', 'no')
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
 
 
 def _warn(chat, message: str) -> None:
@@ -226,7 +240,9 @@ def _provider_setup(chat, ask, secret):
         _say('Leave it empty to skip this provider for now.')
     prompt = (PROMPT_KEY.format(default='stored') if stored
               else PROMPT_KEY_EMPTY)
-    api_key = _secret(secret, prompt, stored)
+    api_key = _secret(chat, secret, prompt, stored)
+    if not api_key and not stored:
+        _say('No API key entered.')
 
     models = []
     ok, message, models = chat.check_connection(
