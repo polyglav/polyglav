@@ -465,7 +465,8 @@ class ReplUI:
             for line in str(context).splitlines():
                 self._emit(f'  {line}')
         for i, opt in enumerate(options, 1):
-            self._emit(f'  {i}) {opt}')
+            suffix = '  (default)' if i == 1 else ''
+            self._emit(f'  {i}) {opt}{suffix}')
         prompt = '> '
         try:
             answer = _timed_input(prompt, timeout)
@@ -482,7 +483,7 @@ class ReplUI:
             return None
         text = answer.strip()
         if not text:
-            return None
+            return options[0] if options else None
         selected = _select_option(text, options)
         if selected is not None:
             return selected

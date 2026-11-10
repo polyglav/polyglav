@@ -636,9 +636,13 @@ class TestLinePrompts(unittest.TestCase):
             answer = self.ui.ask('which?', options=['a', 'b'])
         self.assertEqual(answer, 'my own answer')
 
-    def test_ask_enter_returns_none(self):
+    def test_ask_enter_selects_first_option(self):
         with patch('polyglav.ui.input', return_value=''):
-            self.assertIsNone(self.ui.ask('which?', options=['a', 'b']))
+            self.assertEqual(self.ui.ask('which?', options=['a', 'b']), 'a')
+
+    def test_ask_enter_without_options_returns_none(self):
+        with patch('polyglav.ui.input', return_value=''):
+            self.assertIsNone(self.ui.ask('which?'))
 
     def test_ask_timeout_returns_none(self):
         self.chat.config.set('confirm_timeout', 2)
@@ -652,8 +656,9 @@ class TestLinePrompts(unittest.TestCase):
             value = self._capture(
                 lambda: self.ui.ask('which?', options=['a', 'b']))
         self.assertIn('? which?', value)
-        self.assertIn('  1) a', value)
+        self.assertIn('  1) a  (default)', value)
         self.assertIn('  2) b', value)
+        self.assertNotIn('  2) b  (default)', value)
         self.assertNotIn('(a) a', value)
 
     def test_ask_letter_returns_option_text(self):

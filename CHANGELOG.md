@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.53.0
+## v0.53.0 - 2026-11-10
 
+- Added default ask option - the first option is marked `(default)` and Enter confirms it, while an ask with no options still cancels on Enter. Docs (`tools.md`). Tests: `test_ui.py`, `test_ask.py`
 - Added token context reporting - `/status` and the new `/context` command report context, input, output, thinking, requests, and session totals, and `/session` reports token context instead of characters. Docs (`commands.md`). Tests: `test_commands.py`
 - Added core-rendered verdict suppression - internal `VERDICT:` lines are hidden when the core echoes a result, while model-streamed lines are kept. Docs (`tools.md`). Tests: `polyglav-core-repl`
 - Changed REPL accents - read mode uses 256-color 38, and call and delegate lines use bright blue. Docs (`config.md`). Tests: `test_repl_output.py`

@@ -122,6 +122,17 @@ class TestAskTool(unittest.TestCase):
         self.assertIn('[granted]', out)
         self.assertTrue(ask.called)
 
+    def test_permission_ask_enter_selects_approve_once(self):
+        self.chat.current_session.mode = 'write'
+        self.chat._init_tooling()
+        with patch('builtins.input', return_value=''):
+            with patch('sys.stdout', new=io.StringIO()) as buf:
+                out = self.chat._run_tool('ask', {
+                    'question': 'may I use the catalog?', 'kind': 'permission',
+                    'permission': 'catalog'})
+        self.assertIn('[granted]', out)
+        self.assertIn('Approve once  (default)', buf.getvalue())
+
     def test_read_mode_catalog_ask_offers_mode_switch(self):
         self.chat._init_tooling()
         with patch.object(self.chat._ask_ui, 'ask',
