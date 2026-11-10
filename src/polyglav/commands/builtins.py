@@ -7,7 +7,7 @@ from .. import get_version
 from ..config import (VERBOSITY_PRESETS, VERBOSITY_SCOPES, VERBOSITY_VALUES,
                        verbosity_level)
 from ..config_service import ConfigError, ConfigService
-from ..ui import DIM, RED, RESET
+from ..ui import DIM, RED, RESET, format_tokens
 
 SUB_INDENT = 4
 
@@ -17,6 +17,25 @@ def _command_label(name, aliases):
     if aliases:
         label += ', /' + ', /'.join(aliases)
     return label
+
+
+def _context_text(tokens: int, window: int) -> str:
+    if window > 0:
+        percent = round(tokens * 100 / window)
+        return f'{format_tokens(tokens)} / {format_tokens(window)} tokens ({percent}%)'
+    return f'{format_tokens(tokens)} tokens'
+
+
+def _usage_text(usage: dict) -> str:
+    parts = []
+    for key, label in (('prompt_tokens', 'in'),
+                       ('completion_tokens', 'out'),
+                       ('reasoning_tokens', 'thinking'),
+                       ('requests', 'requests')):
+        value = usage.get(key)
+        if isinstance(value, int) and value > 0:
+            parts.append(f'{label} {value:,}')
+    return ' · '.join(parts)
 
 
 def _render_commands(registry, names, chat=None):
@@ -137,7 +156,7 @@ def register_builtins(registry):
     def status_cmd(_=None):
         from ..modes import mode_name
         polyglav_dir = chat.config.local_path.parent
-        n, chars = chat._context_size()
+        report = chat.context_report()
         mode = mode_name(chat.config, chat.current_session.mode or None)
         print(f'{DIM}@ Status{RESET}')
         provider, _, model = chat.model_target()
@@ -145,7 +164,13 @@ def register_builtins(registry):
         print(f'  mode:     {mode}')
         print(f'  session:  {chat.current_session.session_name} '
               f'({len(chat.current_session.turns)} turns, '
-              f'{chat._human_chars(chars)} context)')
+              f'ctx {_context_text(report["tokens"], report["window"])})')
+        turn_usage = _usage_text(report['turn'])
+        if turn_usage:
+            print(f'  turn:     {turn_usage}')
+        session_usage = _usage_text(report['session'])
+        if session_usage:
+            print(f'  tokens:   {session_usage}')
         runs = chat.runs.runs()
         active = [r for r in runs if r.status == 'running']
         print(f'  runs:     {len(runs)} total, {len(active)} active')
@@ -176,6 +201,25 @@ def register_builtins(registry):
                 print(f'  fleet:    {len(state)} agents, {running} running')
             except (OSError, json.JSONDecodeError):
                 print('  fleet:    unreadable fleet.state.json')
+
+    @registry.register('context', description='Show context and token usage')
+    def context_cmd(_=None):
+        report = chat.context_report()
+        print(f'{DIM}@ Context{RESET}')
+        print(f'  messages: {report["messages"]}')
+        print(f'  used:     {report["tokens"]:,} tokens')
+        window = report['window']
+        if window > 0:
+            percent = round(report['tokens'] * 100 / window)
+            print(f'  window:   {window:,} tokens ({percent}%)')
+        else:
+            print('  window:   unknown - set with /models context <ref> <tokens>')
+        turn_usage = _usage_text(report['turn'])
+        if turn_usage:
+            print(f'  turn:     {turn_usage}')
+        session_usage = _usage_text(report['session'])
+        if session_usage:
+            print(f'  session:  {session_usage}')
 
     @registry.register('new', description='Start a new session')
     def new_cmd(_=None):
@@ -425,9 +469,10 @@ def register_builtins(registry):
         action = parts[0] if parts else ''
 
         if not action:
-            n, chars = chat._context_size()
+            report = chat.context_report()
             print(f'Current session: {chat.current_session.session_name} '
-                  f'({n} messages · {chat._human_chars(chars)} context)')
+                  f'({report["messages"]} messages · '
+                  f'ctx {_context_text(report["tokens"], report["window"])})')
             return
 
         if action == 'new':
@@ -440,9 +485,9 @@ def register_builtins(registry):
             s = chat.sessions.load(name)
             if s:
                 chat.current_session = s
-                n, chars = chat._context_size()
-                print(f'Loaded session: {name} - {n} messages · '
-                      f'{chat._human_chars(chars)} context')
+                report = chat.context_report()
+                print(f'Loaded session: {name} - {report["messages"]} messages · '
+                      f'ctx {_context_text(report["tokens"], report["window"])}')
                 chat.preview_session(name, session=s)
                 chat.current_session.add_command(f'/session load {name}')
                 try:

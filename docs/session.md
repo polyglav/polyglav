@@ -48,7 +48,7 @@ The active session is handled by `/session` (like `/model` for the model). The c
 |---------|---------|
 | `/history [N\|N-O\|-O\|N-\|all] [session:<name> ...] [--thoughts [all]] [--tree]` | Numbered turn index of the active session (default last 10), with an optional dim thinking excerpt and a whole-tree view |
 | `/print [N\|N-O\|-O\|N-\|N.M] [session:<name> ...] [--full] [--tree]` | Reprint a turn in full, or only its m-th part, capped per part at 4000 characters. `--tree` renders the whole run tree |
-| `/session` | Show the active session (name, provider-context message count, context size) |
+| `/session` | Show the active session (name, provider-context message count, context tokens and window) |
 | `/session new <name>` | Create and switch to a new session |
 | `/session load <name>` | Load a session (with compaction offer if it has a summary) |
 | `/session save` | Save the current session |

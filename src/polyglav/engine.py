@@ -1922,6 +1922,39 @@ class Engine:
         counts['context'] = self._context_tokens(usage)
         return counts
 
+    def turn_usage(self, turn: dict | None = None) -> dict:
+        target = turn or self.current_session.open_turn()
+        if target is None:
+            turns = self.current_session.turns
+            target = turns[-1] if turns else {}
+        usage = target.get('usage') if isinstance(target, dict) else None
+        return dict(usage) if isinstance(usage, dict) else {}
+
+    def session_usage(self) -> dict:
+        totals = {'prompt_tokens': 0, 'completion_tokens': 0,
+                  'reasoning_tokens': 0, 'total_tokens': 0, 'requests': 0}
+        for turn in self.current_session.turns:
+            usage = turn.get('usage') if isinstance(turn, dict) else None
+            if not isinstance(usage, dict):
+                continue
+            for key in totals:
+                value = usage.get(key)
+                if isinstance(value, int) and value > 0:
+                    totals[key] += value
+        return totals
+
+    def context_report(self) -> dict:
+        messages, chars = self._context_size()
+        usage = self.turn_usage()
+        return {
+            'messages': messages,
+            'chars': chars,
+            'tokens': self._context_tokens(usage),
+            'window': self._context_window(),
+            'turn': usage,
+            'session': self.session_usage(),
+        }
+
     def _tree_tokens(self, usage: dict | None = None) -> int:
         total = 0
         if isinstance(usage, dict):

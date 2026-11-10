@@ -100,7 +100,7 @@ class TestToolCommand(unittest.TestCase):
     def test_session_no_args_shows_current(self):
         output = self._dispatch('/session')
         self.assertIn('Current session:', output)
-        self.assertIn('context', output)
+        self.assertIn('ctx ', output)
 
     def test_sessions_no_args_lists(self):
         s = self.chat.sessions.create('saved1')
@@ -134,7 +134,7 @@ class TestToolCommand(unittest.TestCase):
         with patch('builtins.input', return_value='n'):
             output = self._dispatch('/session load saved2')
         self.assertIn('messages', output)
-        self.assertIn('context', output)
+        self.assertIn('ctx ', output)
 
     def test_session_load_not_found(self):
         output = self._dispatch('/session load nosuch')
@@ -338,6 +338,24 @@ class TestCommandSurface(unittest.TestCase):
         self.assertIn('ollama/test-model', text)
         self.assertIn('session:', text)
         self.assertIn('runs:', text)
+        self.assertIn('ctx ', text)
+
+    def test_context_reports_tokens(self):
+        self.chat.current_session.start_turn()
+        self.chat.current_session.end_turn(
+            'ok',
+            usage={'prompt_tokens': 1000, 'completion_tokens': 200,
+                   'reasoning_tokens': 50, 'total_tokens': 1200,
+                   'requests': 2},
+            context_tokens=1000)
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/context')
+        text = out.getvalue()
+        self.assertIn('@ Context', text)
+        self.assertIn('messages:', text)
+        self.assertIn('used:     1,000 tokens', text)
+        self.assertIn('turn:     in 1,000', text)
+        self.assertIn('session:  in 1,000', text)
 
     def _pause_turn(self):
         self.chat.current_session.add_user('paused prompt')
