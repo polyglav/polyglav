@@ -245,13 +245,15 @@ class TestToolRegistry(unittest.TestCase):
             self.registry.activity('read_doc', {'file': 'a.py', 'limit': 5}),
             ('←', 'Read', 'a.py', 'limit=5'))
 
-    def test_params_str_compacts_large_and_multiline_values(self):
+    def test_params_str_omits_large_and_multiline_values(self):
         params = self.registry.params_str(
             'write_doc', {'path': 'a.md', 'content': 'x' * 100})
-        self.assertIn('content=<100 chars>', params)
+        self.assertNotIn('content', params)
+        self.assertNotIn('chars>', params)
         params = self.registry.params_str(
             'write_doc', {'path': 'a.md', 'content': 'a\nb'})
-        self.assertIn('content=<3 chars>', params)
+        self.assertNotIn('content', params)
+        self.assertNotIn('chars>', params)
 
     def test_activity_per_tool_override(self):
         self.assertEqual(self.registry.activity('glob_files', {'pattern': '**/*.py'}),

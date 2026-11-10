@@ -242,7 +242,7 @@ class ToolRegistry:
         for k, v in ordered:
             text = str(v)
             if '\n' in text or len(text) > 60:
-                text = f'<{len(text)} chars>'
+                continue
             parts.append(f'{k}={text}')
         return ', '.join(parts)
 

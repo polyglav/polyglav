@@ -227,8 +227,7 @@ class ReplUI:
         if verbosity_level(self._loop.config, 'tools') == 'off':
             return
         self.flush()
-        label = f'{name} {chars:,} chars'
-        self._start_spinner(label)
+        self._start_spinner(str(name))
 
     def tool_status(self, name, value, body):
         self._stop_spinner()

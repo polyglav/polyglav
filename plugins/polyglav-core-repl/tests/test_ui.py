@@ -167,8 +167,7 @@ class TestThinkingSpinner(unittest.TestCase):
     def test_tool_call_progress_updates_spinner(self):
         self.chat._ui.tool_call_progress('plan_write', 1234)
         self.assertIsNotNone(self.chat._ui._spinner_thread)
-        self.assertEqual(self.chat._ui._spinner_label,
-                         'plan_write 1,234 chars')
+        self.assertEqual(self.chat._ui._spinner_label, 'plan_write')
         self.chat._ui._stop_spinner()
 
     def test_word_buffer_flushes_long_token(self):
