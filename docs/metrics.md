@@ -74,7 +74,8 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
   "goal_evidence": ["e1"],
   "rounds": [
     {"turn": 1, "round": 1, "ctx_tokens": 12000,
-     "input_tokens": 10000, "cache_read_tokens": 2000,
+     "input_tokens": 12000, "cache_read_tokens": 2000,
+     "cache_reported": true,
      "completion_tokens": 500, "status": "tool_calls", "cost": 0.01,
      "context_blocks": [
        {"kind": "tool", "turn": 1, "part": 4, "tokens": 800, "evidence_ids": ["e1"]}
@@ -147,7 +148,7 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
 
 The record carries the fields the metrics need:
 
-- `rounds` carries `ctx_tokens` (input plus cache-read tokens), `input_tokens`, `cache_read_tokens`, `completion_tokens`, `status`, `cost`, and the per-request `context_blocks` with `kind`, `turn`, `part`, `tokens`, and the matched `evidence_ids`.
+- `rounds` carries `ctx_tokens` (the total input context, which equals `prompt_tokens` when usage is present), `input_tokens` (the same total), `cache_read_tokens` (the cached subset of `input_tokens`), `cache_reported`, `completion_tokens`, `status`, `cost`, and the per-request `context_blocks` with `kind`, `turn`, `part`, `tokens`, and the matched `evidence_ids`.
 - `tool_calls` and `edits` carry `turn`, `result_tokens`, `evidence_ids`, and `content_hash`. Tool calls also carry `path`, the parsed `arguments`, and `arguments_truncated` when the arguments exceed 2000 characters. `result_tokens` and block tokens use the same chars/4 counter for every run.
 - `compactions` carries the boundary, `compaction_index`, the automatic or manual reason, the summarization usage, and the context size before and after.
 - `probes` carries `phase`, `after_turn`, `compaction_index`, `ctx_tokens`, `usage`, `cost`, `correct`, `checkpoint`, and the raw answer for re-scoring. `compaction_before` and `compaction_after` share an index.
@@ -156,6 +157,8 @@ The record carries the fields the metrics need:
 - `instrument` identifies the build: `version`, `package_version`, best-effort `commit`, always-present `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, and `platform`. Without `.git`, `commit` is empty and `source_hash` plus `package_version` identify the installed source. `system_prompt_hash` hashes the sent blocks in order (`summary`, `instructions`, `system`, `plan`, `todo`), and `tools_hash` hashes the ordered tool names and descriptions.
 - `settings` records the run's effective configuration: `mode`, `cap`, `tool_permission`, `tools.allow`, `tools.deny`, `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`. `tool_permission` is the map after the mode cap, so a permissive environment policy under `read` shows the write keys as `deny`.
 - `artifacts.patches` stores every edit output with `turn`, `round`, `path`, the `patch` text, `bytes`, and `lines`, so `R1` and diff size can be computed without re-reading the session.
+
+OpenAI-compatible usage reports `prompt_tokens` as the total input, with cache reads included as `prompt_tokens_details.cached_tokens`. `cache_reported` separates a reported zero from a provider that omits the field. The convention was verified against the `opencode-go` DeepSeek endpoint, where a warm request reported `prompt_tokens` 4036 with `cached_tokens` 3840. A native provider that reports input and cache reads separately must normalize them in the provider layer before they reach the instrument.
 
 The instrument does not compute CRR, CEF, GSD, CTx, or PER. It writes the inputs: `goal_evidence` and the probe oracle come from the task description, and the context composition comes from the engine observer. `GSD` compares `baseline` with `final`; `GSD_c` compares `compaction_before` with `compaction_after` at the same `compaction_index`.
 

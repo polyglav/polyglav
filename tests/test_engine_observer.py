@@ -36,7 +36,8 @@ class TestObserver(unittest.TestCase):
                             for b in starts[0]['context_blocks']))
         self.assertEqual(ends[0]['input_tokens'], 10)
         self.assertEqual(ends[0]['cache_read_tokens'], 3)
-        self.assertEqual(ends[0]['ctx_tokens'], 13)
+        self.assertTrue(ends[0]['cache_reported'])
+        self.assertEqual(ends[0]['ctx_tokens'], 10)
         self.assertEqual(ends[0]['status'], 'done')
 
     def test_tool_end_event_and_result_tokens(self):

@@ -14,18 +14,34 @@ def normalise_rates(rates: dict | None) -> dict:
     return out
 
 
-def token_parts(usage: dict | None) -> dict:
+def cached_tokens(usage: dict | None) -> int:
     usage = usage if isinstance(usage, dict) else {}
-    cached = 0
     details = usage.get('prompt_tokens_details')
     if isinstance(details, dict) and isinstance(details.get('cached_tokens'), int):
-        cached = details['cached_tokens']
-    elif isinstance(usage.get('cached_tokens'), int):
-        cached = usage['cached_tokens']
+        return details['cached_tokens']
+    if isinstance(usage.get('cached_tokens'), int):
+        return usage['cached_tokens']
+    if isinstance(usage.get('prompt_cache_hit_tokens'), int):
+        return usage['prompt_cache_hit_tokens']
+    return 0
+
+
+def cache_reported(usage: dict | None) -> bool:
+    usage = usage if isinstance(usage, dict) else {}
+    details = usage.get('prompt_tokens_details')
+    if isinstance(details, dict) and isinstance(details.get('cached_tokens'), int):
+        return True
+    if isinstance(usage.get('cached_tokens'), int):
+        return True
+    return isinstance(usage.get('prompt_cache_hit_tokens'), int)
+
+
+def token_parts(usage: dict | None) -> dict:
+    usage = usage if isinstance(usage, dict) else {}
     return {
         'input': int(usage.get('prompt_tokens') or 0),
         'output': int(usage.get('completion_tokens') or 0),
-        'cache_read': cached,
+        'cache_read': cached_tokens(usage),
     }
 
 

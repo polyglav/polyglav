@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 from .config import Config, config_bool, verbosity_level
+from .cost import cache_reported, cached_tokens
 from .runs import Run, RunRegistry
 from .sessions.manager import SessionManager, coded_session_name
 from .sessions import turns
@@ -1052,11 +1053,7 @@ class Engine:
                         usage = request_usage or {}
                         prompt = usage.get('prompt_tokens')
                         prompt = prompt if isinstance(prompt, int) else 0
-                        details = usage.get('prompt_tokens_details') or {}
-                        cached = details.get('cached_tokens')
-                        if not isinstance(cached, int):
-                            cached = usage.get('cached_tokens')
-                        cached = cached if isinstance(cached, int) else 0
+                        cached = cached_tokens(usage)
                         completion = usage.get('completion_tokens')
                         completion = completion if isinstance(completion, int) else 0
                         request_status = (
@@ -1071,8 +1068,9 @@ class Engine:
                             'usage': request_usage,
                             'input_tokens': prompt,
                             'cache_read_tokens': cached,
+                            'cache_reported': cache_reported(usage),
                             'completion_tokens': completion,
-                            'ctx_tokens': prompt + cached,
+                            'ctx_tokens': self._context_tokens(request_usage),
                         })
                     if aborted:
                         break

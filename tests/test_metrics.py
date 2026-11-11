@@ -156,6 +156,22 @@ class TestRunTask(unittest.TestCase):
             for item in record.rounds
             for block in item['context_blocks']))
 
+    def test_round_context_excludes_cache_reads(self):
+        provider = self._provider([[
+            {'type': 'token', 'content': 'alpha'},
+            {'type': 'done', 'reason': 'stop',
+             'usage': {'prompt_tokens': 100, 'completion_tokens': 2,
+                       'prompt_tokens_details': {'cached_tokens': 40}}},
+        ]])
+        record = run_task(self._task(probes=[]), self.source, 'single',
+                          provider=provider)
+        self.assertEqual(record.rounds[0]['ctx_tokens'], 100)
+        self.assertEqual(record.rounds[0]['input_tokens'], 100)
+        self.assertEqual(record.rounds[0]['cache_read_tokens'], 40)
+        self.assertTrue(record.rounds[0]['cache_reported'])
+        self.assertEqual(record.cost['input'], 100)
+        self.assertEqual(record.cost['cache_read'], 40)
+
     def test_edit_stores_path_and_patch(self):
         task = self._task(
             prompt='Edit a.txt.',

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.54.0
+
+- Fixed metric context token count - `ctx_tokens` now carries the provider's total `prompt_tokens`, so cache reads are no longer added twice. `cache_read_tokens` is a subset of `input_tokens`, `cache_reported` separates a reported zero from a missing field, and the shared cache helper also reads DeepSeek's `prompt_cache_hit_tokens`. Docs (`metrics.md`). Tests: `test_cost.py`, `test_engine_observer.py`, `test_metrics.py`
+
 ## v0.53.0 - 2026-11-10
 
 - Added default ask option - the first option is marked `(default)` and Enter confirms it, while an ask with no options still cancels on Enter. Docs (`tools.md`). Tests: `test_ui.py`, `test_ask.py`

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from . import get_version
 from .config import Config
-from .cost import estimate_cost, rates_from_config, token_parts
+from .cost import cached_tokens, estimate_cost, rates_from_config, token_parts
 from .engine import Engine
 from .modes import merge_policy, mode_cap, read_keys
 from .ui import HeadlessUI
@@ -475,6 +475,7 @@ class _Recorder:
             current.update({
                 'input_tokens': event.get('input_tokens', 0),
                 'cache_read_tokens': event.get('cache_read_tokens', 0),
+                'cache_reported': bool(event.get('cache_reported')),
                 'completion_tokens': event.get('completion_tokens', 0),
                 'ctx_tokens': event.get('ctx_tokens',
                                         current.get('ctx_tokens', 0)),
@@ -599,13 +600,9 @@ class _Recorder:
         if isinstance(usage, dict):
             prompt = usage.get('prompt_tokens')
             prompt = prompt if isinstance(prompt, int) else 0
-            details = usage.get('prompt_tokens_details') or {}
-            cached = details.get('cached_tokens')
-            if not isinstance(cached, int):
-                cached = usage.get('cached_tokens')
-            cached = cached if isinstance(cached, int) else 0
+            cached = cached_tokens(usage)
             if prompt or cached:
-                return prompt + cached
+                return prompt or cached
         chars = sum(len(m.get('content') or '') for m in messages)
         return max(1, chars // 4)
 
