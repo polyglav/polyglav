@@ -171,6 +171,12 @@ class TestRunTask(unittest.TestCase):
         self.assertTrue(record.rounds[0]['cache_reported'])
         self.assertEqual(record.cost['input'], 100)
         self.assertEqual(record.cost['cache_read'], 40)
+        self.assertTrue(record.rounds[0]['started_at'])
+        self.assertTrue(record.rounds[0]['ended_at'])
+        self.assertGreaterEqual(record.rounds[0]['at'], 0.0)
+        self.assertGreaterEqual(record.rounds[0]['duration'], 0.0)
+        self.assertIn('.', record.started_at)
+        self.assertIn('.', record.ended_at)
 
     def test_edit_stores_path_and_patch(self):
         task = self._task(

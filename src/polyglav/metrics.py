@@ -8,6 +8,7 @@ import platform
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from importlib import metadata
@@ -44,7 +45,7 @@ def _default_permission(mode: str) -> dict:
 
 
 def now_stamp() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec='seconds')
+    return datetime.now(timezone.utc).isoformat(timespec='milliseconds')
 
 
 def tokens_for(text: str) -> int:
@@ -418,6 +419,7 @@ class _Recorder:
         self.task_hash = task_hash
         self.engine = engine
         self.started_at = now_stamp()
+        self._mono_start = time.monotonic()
         self.rounds: list[dict] = []
         self.tool_calls: list[dict] = []
         self.edits: list[dict] = []
@@ -435,6 +437,11 @@ class _Recorder:
         self._round: dict | None = None
         self._pending_before: dict | None = None
         self._compaction_pairs: list[dict] = []
+
+    def _offset(self, value) -> float:
+        if not isinstance(value, (int, float)):
+            return 0.0
+        return round(value - self._mono_start, 3)
 
     def _snapshot(self) -> dict:
         return copy.deepcopy(self.engine.context_snapshot())
@@ -463,6 +470,8 @@ class _Recorder:
                 'ctx_tokens': event.get('ctx_tokens', 0),
                 'context_blocks': self._blocks(
                     event.get('context_blocks') or []),
+                'started_at': event.get('started_at', ''),
+                'at': self._offset(event.get('started_mono')),
             }
         elif kind == 'request_end':
             current = self._round or {
@@ -470,6 +479,8 @@ class _Recorder:
                 'round': event.get('round', 0),
                 'ctx_tokens': 0,
                 'context_blocks': [],
+                'started_at': '',
+                'at': 0.0,
             }
             usage = event.get('usage')
             current.update({
@@ -479,6 +490,8 @@ class _Recorder:
                 'completion_tokens': event.get('completion_tokens', 0),
                 'ctx_tokens': event.get('ctx_tokens',
                                         current.get('ctx_tokens', 0)),
+                'ended_at': event.get('ended_at', ''),
+                'duration': event.get('duration', 0.0),
                 'status': event.get('status', ''),
                 'finish_reason': event.get('finish_reason', ''),
                 'usage': usage,

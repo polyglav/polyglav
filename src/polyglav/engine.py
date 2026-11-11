@@ -90,6 +90,10 @@ def _sub_session_name(parent: str, sessions_dir: Path) -> str:
     return coded_session_name('sub', parent, sessions_dir=sessions_dir)
 
 
+def _stamp() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec='milliseconds')
+
+
 class Engine:
     def __init__(self, config: Config, ui=None, plugin_manager=None,
                  provider=None, approve_models: bool = False,
@@ -931,6 +935,8 @@ class Engine:
                     turn = self.current_session.open_turn()
                     turn_index = turn.get('index', 0) if turn else 0
                     request_usage = None
+                    request_started = time.monotonic()
+                    request_started_at = _stamp()
                     if self._has_observers():
                         self._emit({
                             'type': 'request_start',
@@ -938,6 +944,8 @@ class Engine:
                             'round': round_number,
                             'ctx_tokens': self._context_tokens(),
                             'context_blocks': self._provider_blocks(),
+                            'started_at': request_started_at,
+                            'started_mono': request_started,
                         })
                     s_content = ''
                     s_thinking = ''
@@ -1050,6 +1058,7 @@ class Engine:
                         status = 'error'
                         aborted = True
                     if self._has_observers():
+                        request_ended = time.monotonic()
                         usage = request_usage or {}
                         prompt = usage.get('prompt_tokens')
                         prompt = prompt if isinstance(prompt, int) else 0
@@ -1071,6 +1080,12 @@ class Engine:
                             'cache_reported': cache_reported(usage),
                             'completion_tokens': completion,
                             'ctx_tokens': self._context_tokens(request_usage),
+                            'started_at': request_started_at,
+                            'started_mono': request_started,
+                            'ended_at': _stamp(),
+                            'ended_mono': request_ended,
+                            'duration': round(max(
+                                0.0, request_ended - request_started), 3),
                         })
                     if aborted:
                         break

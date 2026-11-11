@@ -39,6 +39,12 @@ class TestObserver(unittest.TestCase):
         self.assertTrue(ends[0]['cache_reported'])
         self.assertEqual(ends[0]['ctx_tokens'], 10)
         self.assertEqual(ends[0]['status'], 'done')
+        self.assertTrue(starts[0]['started_at'])
+        self.assertEqual(ends[0]['started_at'], starts[0]['started_at'])
+        self.assertTrue(ends[0]['ended_at'])
+        self.assertGreaterEqual(ends[0]['ended_mono'],
+                                starts[0]['started_mono'])
+        self.assertGreaterEqual(ends[0]['duration'], 0.0)
 
     def test_tool_end_event_and_result_tokens(self):
         self._run([
