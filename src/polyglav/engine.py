@@ -1575,6 +1575,10 @@ class Engine:
             observers.append(fn)
 
     def _emit(self, event: dict) -> None:
+        event.setdefault('role', getattr(self, 'role', ''))
+        event.setdefault('sub', getattr(self, '_sub_run', False))
+        event.setdefault('session',
+                         getattr(self.current_session, 'session_id', ''))
         for fn in list(getattr(self, '_observers', [])):
             try:
                 fn(event)

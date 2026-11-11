@@ -3,7 +3,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from tests.helpers import make_chat
+from tests.helpers import make_chat, seed_roles
 
 
 class TestObserver(unittest.TestCase):
@@ -45,6 +45,12 @@ class TestObserver(unittest.TestCase):
         self.assertGreaterEqual(ends[0]['ended_mono'],
                                 starts[0]['started_mono'])
         self.assertGreaterEqual(ends[0]['duration'], 0.0)
+        self.assertEqual(starts[0]['role'], '')
+        self.assertFalse(starts[0]['sub'])
+        self.assertEqual(starts[0]['session'],
+                         self.chat.current_session.session_id)
+        self.assertEqual(ends[0]['role'], '')
+        self.assertFalse(ends[0]['sub'])
 
     def test_tool_end_event_and_result_tokens(self):
         self._run([
@@ -124,6 +130,25 @@ class TestObserver(unittest.TestCase):
     def test_subagent_inherits_observers(self):
         sub = self.chat._new_sub_engine('', task='x')
         self.assertIn(self.events.append, sub._observers)
+
+    def test_named_subagent_events_carry_role(self):
+        seed_roles(self.chat, 'reviewer')
+        sub = self.chat._new_sub_engine('reviewer', task='x')
+        sub.provider.chat.side_effect = [[
+            {'type': 'token', 'content': 'hi'},
+            {'type': 'done', 'reason': 'stop',
+             'usage': {'prompt_tokens': 5, 'completion_tokens': 1}},
+        ]]
+        with patch('sys.stdout', new=io.StringIO()):
+            sub.chat('inside')
+        starts = [e for e in self.events if e['type'] == 'request_start']
+        ends = [e for e in self.events if e['type'] == 'request_end']
+        self.assertEqual(starts[-1]['role'], 'reviewer')
+        self.assertTrue(starts[-1]['sub'])
+        self.assertEqual(starts[-1]['session'],
+                         sub.current_session.session_id)
+        self.assertEqual(ends[-1]['role'], 'reviewer')
+        self.assertTrue(ends[-1]['sub'])
 
 
 if __name__ == '__main__':

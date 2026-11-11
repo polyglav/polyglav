@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 
 from polyglav import get_version
 from polyglav.config import Config
-from polyglav.metrics import (Evidence, MetricConfigError, MetricTask, Probe,
-                              cmd_metrics, content_hash, discover_tasks,
-                              format_results, match_evidence, probe_correct,
-                              run_task)
+from polyglav.metrics import (_Recorder, Evidence, MetricConfigError,
+                              MetricTask, Probe, cmd_metrics, content_hash,
+                              discover_tasks, format_results, match_evidence,
+                              probe_correct, run_task)
 
 
 def _tool_round(name, path, usage=10):
@@ -84,6 +84,66 @@ class TestModel(unittest.TestCase):
         probe = Probe('p', 'q', canonical=['alpha', 'beta'])
         self.assertTrue(probe_correct('The ALPHA value', probe))
         self.assertFalse(probe_correct('gamma', probe))
+
+
+class TestRecorder(unittest.TestCase):
+
+    def _recorder(self):
+        engine = MagicMock()
+        engine.context_snapshot.return_value = {
+            'messages': [], 'blocks': [], 'tokens': 0}
+        recorder = _Recorder(MetricTask(id='t', prompt='p'), 'single',
+                             {}, '', engine)
+        recorder._mono_start = 100.0
+        return recorder
+
+    def _start(self, **kwargs):
+        event = {
+            'type': 'request_start', 'turn': 1, 'round': 1,
+            'ctx_tokens': 10, 'context_blocks': [],
+            'role': '', 'sub': False, 'session': 'main',
+            'started_at': '2026-11-11T10:00:00.000+00:00',
+            'started_mono': 101.0,
+        }
+        event.update(kwargs)
+        return event
+
+    def _end(self, **kwargs):
+        event = {
+            'type': 'request_end', 'turn': 1, 'round': 1,
+            'status': 'done', 'finish_reason': 'stop', 'usage': None,
+            'input_tokens': 10, 'cache_read_tokens': 0,
+            'cache_reported': False, 'completion_tokens': 1,
+            'ctx_tokens': 10,
+            'ended_at': '2026-11-11T10:00:01.000+00:00',
+            'duration': 1.0,
+            'role': '', 'sub': False, 'session': 'main',
+        }
+        event.update(kwargs)
+        return event
+
+    def test_round_attribution_and_counts(self):
+        recorder = self._recorder()
+        recorder.observe(self._start())
+        recorder.observe(self._end())
+        recorder.observe(self._start(
+            turn=2, round=1, role='reviewer', sub=True,
+            session='sub1', started_mono=103.0))
+        recorder.observe(self._end(
+            turn=2, round=1, role='reviewer', sub=True,
+            session='sub1'))
+        self.assertEqual(len(recorder.rounds), 2)
+        self.assertEqual(recorder.main_rounds, 1)
+        self.assertEqual(recorder.sub_rounds, 1)
+        self.assertEqual(recorder.rounds[0]['role'], '')
+        self.assertFalse(recorder.rounds[0]['sub'])
+        self.assertEqual(recorder.rounds[0]['at'], 1.0)
+        self.assertEqual(recorder.rounds[1]['role'], 'reviewer')
+        self.assertTrue(recorder.rounds[1]['sub'])
+        self.assertEqual(recorder.rounds[1]['session'], 'sub1')
+        self.assertEqual(recorder.rounds[1]['at'], 3.0)
+        self.assertEqual(recorder.rounds[1]['started_at'],
+                         '2026-11-11T10:00:00.000+00:00')
 
 
 class TestRunTask(unittest.TestCase):
@@ -177,6 +237,11 @@ class TestRunTask(unittest.TestCase):
         self.assertGreaterEqual(record.rounds[0]['duration'], 0.0)
         self.assertIn('.', record.started_at)
         self.assertIn('.', record.ended_at)
+        self.assertEqual(record.rounds[0]['role'], '')
+        self.assertFalse(record.rounds[0]['sub'])
+        self.assertTrue(record.rounds[0]['session'])
+        self.assertGreaterEqual(record.run_end['main_rounds'], 1)
+        self.assertEqual(record.run_end['sub_rounds'], 0)
 
     def test_edit_stores_path_and_patch(self):
         task = self._task(

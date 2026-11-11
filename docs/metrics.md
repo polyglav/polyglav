@@ -70,10 +70,14 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
 {
   "task_id": "read-and-edit",
   "condition": "single",
-  "run_end": {"reason": "completed", "status": "ok", "turns": 3, "main_turns": 1, "rounds": 14, "main_rounds": 12},
+  "run_end": {"reason": "completed", "status": "ok", "turns": 3,
+              "main_turns": 1, "rounds": 14, "main_rounds": 12,
+              "sub_rounds": 2},
   "goal_evidence": ["e1"],
   "rounds": [
-    {"turn": 1, "round": 1, "ctx_tokens": 12000,
+    {"turn": 1, "round": 1, "role": "", "sub": false,
+     "session": "a1b2c3d4",
+     "ctx_tokens": 12000,
      "input_tokens": 12000, "cache_read_tokens": 2000,
      "cache_reported": true,
      "started_at": "2026-11-11T10:00:00.000+00:00",
@@ -151,11 +155,11 @@ Each run writes `.polyglav/metrics/runs/<task>_<condition>_<stamp>.json` and pri
 
 The record carries the fields the metrics need:
 
-- `rounds` carries `ctx_tokens` (the total input context, which equals `prompt_tokens` when usage is present), `input_tokens` (the same total), `cache_read_tokens` (the cached subset of `input_tokens`), `cache_reported`, `completion_tokens`, `status`, `cost`, `started_at`, `ended_at`, `at`, `duration`, and the per-request `context_blocks` with `kind`, `turn`, `part`, `tokens`, and the matched `evidence_ids`.
+- `rounds` carries `turn`, `round`, `role`, `sub`, `session`, `ctx_tokens` (the total input context, which equals `prompt_tokens` when usage is present), `input_tokens` (the same total), `cache_read_tokens` (the cached subset of `input_tokens`), `cache_reported`, `completion_tokens`, `status`, `cost`, `started_at`, `ended_at`, `at`, `duration`, and the per-request `context_blocks` with `kind`, `turn`, `part`, `tokens`, and the matched `evidence_ids`.
 - `tool_calls` and `edits` carry `turn`, `result_tokens`, `evidence_ids`, and `content_hash`. Tool calls also carry `path`, the parsed `arguments`, and `arguments_truncated` when the arguments exceed 2000 characters. `result_tokens` and block tokens use the same chars/4 counter for every run.
 - `compactions` carries the boundary, `compaction_index`, the automatic or manual reason, the summarization usage, and the context size before and after.
 - `probes` carries `phase`, `after_turn`, `compaction_index`, `ctx_tokens`, `usage`, `cost`, `correct`, `checkpoint`, and the raw answer for re-scoring. `compaction_before` and `compaction_after` share an index.
-- `run_end` carries the status and reason, so a run that stops early is distinguishable from one that completes.
+- `run_end` carries the status and reason, `rounds`, `main_rounds` for root rounds, and `sub_rounds` for delegated rounds, so a run that stops early is distinguishable from one that completes and a team run separates root work from role work.
 - `cost` aggregates the per-round and summarization usage through `cost.rates`. `cost.total` is the agent cost, `cost.probe` is the measurement cost, and `cost.total_including_probe` is the sum. `KJE` uses `cost.total`, not the probe share.
 - `instrument` identifies the build: `version`, `package_version`, best-effort `commit`, always-present `source_hash`, `system_prompt_hash`, `tools_hash`, `python`, and `platform`. Without `.git`, `commit` is empty and `source_hash` plus `package_version` identify the installed source. `system_prompt_hash` hashes the sent blocks in order (`summary`, `instructions`, `system`, `plan`, `todo`), and `tools_hash` hashes the ordered tool names and descriptions.
 - `settings` records the run's effective configuration: `mode`, `cap`, `tool_permission`, `tools.allow`, `tools.deny`, `compact_auto`, `compact_at`, `compact_before`, `compact_keep`, `context_window`, `temperature`, and `max_tokens`. `tool_permission` is the map after the mode cap, so a permissive environment policy under `read` shows the write keys as `deny`.
@@ -164,6 +168,8 @@ The record carries the fields the metrics need:
 OpenAI-compatible usage reports `prompt_tokens` as the total input, with cache reads included as `prompt_tokens_details.cached_tokens`. `cache_reported` separates a reported zero from a provider that omits the field. The convention was verified against the `opencode-go` DeepSeek endpoint, where a warm request reported `prompt_tokens` 4036 with `cached_tokens` 3840. A native provider that reports input and cache reads separately must normalize them in the provider layer before they reach the instrument.
 
 `started_at` and `ended_at` are millisecond UTC stamps. `at` is the monotonic start offset in seconds from the recorder start, and `duration` is the request time. The idle gap before a round is `at - (previous.at + previous.duration)`, so a cache expiry can be separated from a compression effect.
+
+Observer events carry `role`, `sub`, and `session` from `Engine._emit`. The root has an empty `role` with `sub: false`. A delegated role has its role name with `sub: true`, and a role-less sibling has an empty `role` with `sub: true`. `session` separates two sibling runs. Compaction records copy those event fields.
 
 The instrument does not compute CRR, CEF, GSD, CTx, or PER. It writes the inputs: `goal_evidence` and the probe oracle come from the task description, and the context composition comes from the engine observer. `GSD` compares `baseline` with `final`; `GSD_c` compares `compaction_before` with `compaction_after` at the same `compaction_index`.
 

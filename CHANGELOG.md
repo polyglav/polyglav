@@ -1,7 +1,8 @@
 # Changelog
 
-## v0.54.0
+## v0.54.0 - 2026-11-11
 
+- Added per-agent round attribution - observer events carry `role`, `sub`, and `session`, each round records them, `main_rounds` counts only root rounds, and `sub_rounds` counts delegated rounds. Docs (`metrics.md`). Tests: `test_engine_observer.py`, `test_metrics.py`
 - Added per-round request timestamps - each round records millisecond UTC `started_at` and `ended_at`, a monotonic `at` offset, and `duration`, so idle gaps between requests are measurable. Record timestamps now use milliseconds. Docs (`metrics.md`). Tests: `test_engine_observer.py`, `test_metrics.py`
 - Fixed metric context token count - `ctx_tokens` now carries the provider's total `prompt_tokens`, so cache reads are no longer added twice. `cache_read_tokens` is a subset of `input_tokens`, `cache_reported` separates a reported zero from a missing field, and the shared cache helper also reads DeepSeek's `prompt_cache_hit_tokens`. Docs (`metrics.md`). Tests: `test_cost.py`, `test_engine_observer.py`, `test_metrics.py`
 

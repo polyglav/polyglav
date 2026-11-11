@@ -429,6 +429,7 @@ class _Recorder:
         self.statuses: list[str] = []
         self.last_result = None
         self.main_rounds = 0
+        self.sub_rounds = 0
         self.baseline: dict | None = None
         self.turn_snapshots: list[dict] = []
         self.final_snapshot: dict | None = None
@@ -467,6 +468,9 @@ class _Recorder:
             self._round = {
                 'turn': event.get('turn', 0),
                 'round': event.get('round', 0),
+                'role': event.get('role', ''),
+                'sub': bool(event.get('sub')),
+                'session': event.get('session', ''),
                 'ctx_tokens': event.get('ctx_tokens', 0),
                 'context_blocks': self._blocks(
                     event.get('context_blocks') or []),
@@ -477,6 +481,9 @@ class _Recorder:
             current = self._round or {
                 'turn': event.get('turn', 0),
                 'round': event.get('round', 0),
+                'role': event.get('role', ''),
+                'sub': bool(event.get('sub')),
+                'session': event.get('session', ''),
                 'ctx_tokens': 0,
                 'context_blocks': [],
                 'started_at': '',
@@ -497,7 +504,10 @@ class _Recorder:
                 'usage': usage,
                 'cost': estimate_cost(usage, self.rates),
             })
-            self.main_rounds += 1
+            if current.get('sub'):
+                self.sub_rounds += 1
+            else:
+                self.main_rounds += 1
             self.rounds.append(current)
             self._round = None
         elif kind == 'tool_end':
@@ -716,6 +726,7 @@ class _Recorder:
                 'main_turns': len(self.statuses),
                 'rounds': len(self.rounds),
                 'main_rounds': self.main_rounds,
+                'sub_rounds': self.sub_rounds,
             },
             goal_evidence=list(self.task.goal_evidence),
             rounds=self.rounds,
