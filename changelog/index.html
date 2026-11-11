@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0540-2026-11-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.54.0 - 2026-11-11
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0530-2026-11-10" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1747,6 +1758,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0540-2026-11-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.54.0 - 2026-11-11
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0530-2026-11-10" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2347,6 +2369,12 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0540-2026-11-11">v0.54.0 - 2026-11-11<a class="headerlink" href="#v0540-2026-11-11" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Added per-agent round attribution - observer events carry <code>role</code>, <code>sub</code>, and <code>session</code>, each round records them, <code>main_rounds</code> counts only root rounds, and <code>sub_rounds</code> counts delegated rounds. Docs (<code>metrics.md</code>). Tests: <code>test_engine_observer.py</code>, <code>test_metrics.py</code></li>
+<li>Added per-round request timestamps - each round records millisecond UTC <code>started_at</code> and <code>ended_at</code>, a monotonic <code>at</code> offset, and <code>duration</code>, so idle gaps between requests are measurable. Record timestamps now use milliseconds. Docs (<code>metrics.md</code>). Tests: <code>test_engine_observer.py</code>, <code>test_metrics.py</code></li>
+<li>Fixed metric context token count - <code>ctx_tokens</code> now carries the provider's total <code>prompt_tokens</code>, so cache reads are no longer added twice. <code>cache_read_tokens</code> is a subset of <code>input_tokens</code>, <code>cache_reported</code> separates a reported zero from a missing field, and the shared cache helper also reads DeepSeek's <code>prompt_cache_hit_tokens</code>. Docs (<code>metrics.md</code>). Tests: <code>test_cost.py</code>, <code>test_engine_observer.py</code>, <code>test_metrics.py</code></li>
+</ul>
 <h2 id="v0530-2026-11-10">v0.53.0 - 2026-11-10<a class="headerlink" href="#v0530-2026-11-10" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added default ask option - the first option is marked <code>(default)</code> and Enter confirms it, while an ask with no options still cancels on Enter. Docs (<code>tools.md</code>). Tests: <code>test_ui.py</code>, <code>test_ask.py</code></li>

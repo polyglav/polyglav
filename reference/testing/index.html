@@ -1344,7 +1344,7 @@
 </tr>
 <tr>
 <td><code>test_engine_observer.py</code></td>
-<td>Engine observer hooks: request start/end with context blocks and ctx tokens, tool end with full output and result tokens, compaction events, <code>deny_tools=['*']</code> schema filtering and refusal, <code>context_snapshot</code>, and sub-engine observer inheritance</td>
+<td>Engine observer hooks: request start/end with context blocks, ctx tokens, timestamps, and agent fields, tool end with full output and result tokens, compaction events, <code>deny_tools=['*']</code> schema filtering and refusal, <code>context_snapshot</code>, and sub-engine observer inheritance with role attribution</td>
 </tr>
 <tr>
 <td><code>polyglav-core-eval/tests/test_eval.py</code></td>
@@ -1372,7 +1372,7 @@
 </tr>
 <tr>
 <td><code>test_metrics.py</code></td>
-<td>Metric runs: task model and execution settings (<code>mode</code>, <code>temperature</code>, <code>system_prompt</code>), permission preflight, discovery, evidence matching, content hashing, probe scoring, single and multi conditions, tool/edit/context records, compaction events, cost aggregation, table output, and the list command</td>
+<td>Metric runs: task model and execution settings (<code>mode</code>, <code>temperature</code>, <code>system_prompt</code>), permission preflight, discovery, evidence matching, content hashing, probe scoring, single and multi conditions, tool/edit/context records, per-round timestamps, per-agent round attribution and main/sub round counts, compaction events, cost aggregation, table output, and the list command</td>
 </tr>
 <tr>
 <td><code>test_models.py</code></td>
