@@ -36,9 +36,23 @@
 - Standalone binary build - Pi-style release script producing a single executable (contentious for a zero-dep Python package)
 - Opt-in telemetry contracts - vendor-neutral event schema (OpenCode, Pi `@earendil-works/pi-telemetry`). Decide whether it fits the no-telemetry stance
 - Plugin registry / marketplace - discoverable plugin sharing (OpenClaw ClawHub analogue). PyPI entry-point source is a prerequisite
+- Session encryption at rest - key a session log with a passphrase or OS keystore so a disk copy is not readable, weighed against losing grep and export over the logs
+- API TLS and client certificates - terminate TLS in the server for deployments without a reverse proxy, so the JSON API is never reachable over plaintext
 
 ## Open
 
+- [ ] Exec allowlist hardening - reject backtick, `$(`, `${`, and `>`/`<` anywhere in a `run_command`, tokenize each chained segment with `shlex.split`, match prefixes on token boundaries so `pytestx` no longer satisfies `pytest`, and deny on a tokenizer error instead of passing
+- [ ] Resolver fail-closed - `ToolPolicy.action` keeps "no opinion" and "raised" apart, so a resolver that only denies cannot become an allow through an exception, with the exec allowlist as the first caller and tests for `call`, `git_commit`, and `run_command`
+- [ ] Shell policy honesty - document in `config.md` and `security.md` that `exec_allow` filters sloppy commands and is not a privilege boundary, naming interpreters (`python -c`), `git -c`, `find -exec`, `xargs`, and `tar` as residual execution until the sandboxed exec lands
+- [ ] Session file modes - `0700` on the sessions directory and `0600` on session and tool-log files, with a POSIX-guarded chmod on new writes and a mode assertion test
+- [ ] `run_command` cwd scoping - declare `cwd` as `path_arg` so a directory outside the worktree escalates to `ask` like the file tools instead of running silently
+- [ ] Serve token auth - `--token`, `POLYGLAV_TOKEN`, and `serve.token` gate every route except `/health` with a constant-time compare, and a non-loopback bind without a token refuses to start unless `serve.allow_unauthenticated` is set
+- [ ] Deploy hardening - propagate the token through the entrypoint and fleet spawn, add the `POLYGLAV_TOKEN` row and the unauthenticated-API warning to `deploy.md`, and state that a publish without the `127.0.0.1:` prefix exposes the agent
+- [ ] Webhook report signature - optional HMAC over the report body with `report.webhook_secret` and a timestamp header, and `https` only for a non-loopback receiver
+- [ ] Session retention - `/sessions prune --older-than N` and `polyglav sessions prune --older-than N [--dry-run] [--yes]`, skipping the current session, reporting count and bytes, with a retention note in `security.md`
+- [ ] CI static checks - a `ruff` job, a typecheck that starts on `engine.py` and widens, and a coverage report, with dev tooling kept outside the runtime stdlib rule in `AGENTS.md` and `testing.md`
+- [ ] Config stability promise - document a deprecation policy for config keys and the session format ahead of 1.0, so a deployment is not throwaway work
+- [ ] README audit wording - replace "Nothing to audit" with the supply-chain claim the line actually makes
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default
 - [ ] Apple FM native tool streaming - drop the relay once the SDK can emit tool calls from `stream_response`, keeping the same provider contract and removing the opt-in flag
 - [ ] `apple-fm` chat provider - `BaseProvider` subclass named `apple-fm` with model `on-device` and base URL `local://apple-fm`, streaming cumulative SDK snapshots as deltas, trimming the prompt to the 4096-token window, ignoring `tools` and `reasoning`, mapping `temperature` and `max_tokens` to `GenerationOptions`, and answering `_fetch_models`, `list_models`, and `check_connection` from `is_available()`
