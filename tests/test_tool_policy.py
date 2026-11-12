@@ -162,6 +162,34 @@ class TestToolPolicy(unittest.TestCase):
         self.assertEqual(p.action('delegate', 'delegate',
                                   args={'role': 'x'}), 'ask')
 
+    def test_resolver_error_denies(self):
+        p = self.policy(permissions={'bash': 'allow'},
+                        resolvers={'run_command': self._boom})
+        self.assertEqual(p.action('run_command', 'bash',
+                                  args={'command': 'pytest'}), 'deny')
+
+    def test_resolver_error_denies_against_ask(self):
+        p = self.policy(permissions={'delegate': 'ask'},
+                        resolvers={'delegate': self._boom})
+        self.assertEqual(p.action('delegate', 'delegate', args={'role': 'x'}),
+                         'deny')
+
+    def test_resolver_none_defers_to_category(self):
+        p = self.policy(permissions={'bash': 'allow'},
+                        resolvers={'run_command': lambda args: None})
+        self.assertEqual(p.action('run_command', 'bash',
+                                  args={'command': 'pytest'}), 'allow')
+
+    def test_resolver_none_keeps_error_free_deny(self):
+        p = self.policy(permissions={'bash': 'deny'},
+                        resolvers={'run_command': lambda args: None})
+        self.assertEqual(p.action('run_command', 'bash',
+                                  args={'command': 'pytest'}), 'deny')
+
+    @staticmethod
+    def _boom(args):
+        raise ValueError('resolver failure')
+
     def test_allowed_ignores_resolver(self):
         p = self.policy(permissions={'delegate': 'ask'},
                         resolvers={'delegate': lambda args: 'deny'})

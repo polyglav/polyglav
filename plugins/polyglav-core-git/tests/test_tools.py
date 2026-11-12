@@ -201,6 +201,14 @@ class TestGitTools(unittest.TestCase):
         self.assertEqual(gated.action('git_commit', 'vcs'), 'ask')
         self.assertEqual(gated.action('git_commit', 'vcs', args={}), 'ask')
 
+    def test_resolver_error_denies_git_commit(self):
+        def boom(args):
+            raise RuntimeError('vcs lookup failed')
+        policy = ToolPolicy(
+            permissions={'vcs': 'allow'}, resolvers={'git_commit': boom})
+        self.assertEqual(
+            policy.action('git_commit', 'vcs', args={'message': 'x'}), 'deny')
+
     def test_aliases_registered(self):
         for alias in ('git_status', 'git_diff', 'git_log', 'git_branch',
                       'git_show', 'commit'):

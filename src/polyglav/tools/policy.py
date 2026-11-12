@@ -93,9 +93,10 @@ class ToolPolicy:
                 try:
                     resolved = resolver(args)
                 except Exception:
-                    resolved = None
-                if resolved in ('allow', 'ask', 'deny'):
-                    action = resolved
+                    action = 'deny'
+                else:
+                    if resolved in ('allow', 'ask', 'deny'):
+                        action = resolved
         if self._mode_denies(permission_key):
             return 'deny'
         if action == 'allow' and path and self._outside_worktree(path):

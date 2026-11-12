@@ -1,6 +1,7 @@
 import unittest
 
 from polyglav.role_model import Role
+from polyglav.tools.policy import ToolPolicy
 from tests.helpers import team_module
 
 _teams = team_module()
@@ -51,6 +52,26 @@ class TestCallTarget(unittest.TestCase):
     def test_call_unknown_target(self):
         out = self.chat._run_tool('call', {'target': 'ghost', 'task': 'x'})
         self.assertIn('disabled by tool policy', out)
+
+    def test_call_resolver_through_policy(self):
+        resolver = self.chat._tool_registry.resolver_for('call')
+        policy = ToolPolicy(permissions={'call': 'allow'},
+                            resolvers={'call': resolver})
+        self.assertEqual(
+            policy.action('call', 'call',
+                          args={'target': 'writer', 'task': 'x'}), 'allow')
+        self.assertEqual(
+            policy.action('call', 'call',
+                          args={'target': 'ghost', 'task': 'x'}), 'deny')
+
+    def test_call_resolver_error_denies(self):
+        def boom(args):
+            raise RuntimeError('role registry lookup failed')
+
+        policy = ToolPolicy(permissions={'call': 'allow'},
+                            resolvers={'call': boom})
+        self.assertEqual(
+            policy.action('call', 'call', args={'target': 'writer'}), 'deny')
 
     def test_call_schema_uses_target(self):
         entry = self.chat._tool_registry.info('call')

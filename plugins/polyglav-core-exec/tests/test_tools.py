@@ -214,6 +214,19 @@ class TestExecTools(unittest.TestCase):
             {'command': 'git status'}, {'exec_allow': ['git ']})
         self.assertIsNone(out)
 
+    def test_resolver_error_denies_run_command(self):
+        from polyglav.tools.policy import ToolPolicy
+
+        def boom(args):
+            raise RuntimeError('allowlist lookup failed')
+
+        policy = ToolPolicy(
+            permissions={'bash': 'allow'},
+            resolvers={'run_command': boom})
+        self.assertEqual(
+            policy.action('run_command', 'bash', args={'command': 'pytest'}),
+            'deny')
+
 
 if __name__ == '__main__':
     unittest.main()
