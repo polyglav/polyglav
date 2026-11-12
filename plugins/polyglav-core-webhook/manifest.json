@@ -16,6 +16,10 @@
       "report.webhook": {
         "default": "",
         "description": "URL a completed job run is POSTed to"
+      },
+      "report.webhook_secret": {
+        "default": "",
+        "description": "Shared secret that signs the report with an HMAC-SHA256 X-Polyglav-Signature header"
       }
     }
   }
