@@ -995,6 +995,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#static-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#test-coverage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1221,6 +1232,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#static-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#test-coverage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1281,6 +1303,15 @@
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>tests.test_tool_calling
 </code></pre></div>
 <p>Run tests before committing changes to verify core logic isn't broken.</p>
+<h2 id="static-checks">Static checks<a class="headerlink" href="#static-checks" title="Permanent link">&para;</a></h2>
+<p>The runtime stays stdlib only. Linting, type checking, and coverage are development tooling, installed through the <code>dev</code> extra and never imported by the package:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev]"</span>
+ruff<span class="w"> </span>check<span class="w"> </span>src<span class="w"> </span>plugins<span class="w"> </span>tests
+mypy<span class="w"> </span>src/polyglav/config.py<span class="w"> </span>src/polyglav/tool_log.py<span class="w"> </span>src/polyglav/tools/policy.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/polyglav/sessions/private.py<span class="w"> </span>src/polyglav/sessions/manager.py
+coverage<span class="w"> </span>run<span class="w"> </span>--source<span class="o">=</span>src/polyglav<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>tests<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>coverage<span class="w"> </span>report
+</code></pre></div>
+<p>CI runs all four. The ruff selection is deliberately narrow (<code>E9</code>, <code>F63</code>, <code>F7</code>, <code>F82</code>), so it fails on syntax errors and undefined or unused names rather than on style. The type check runs over a fixed allowlist of clean modules and widens as modules are cleaned, with <code>src/polyglav/engine.py</code> as the target. Coverage is reported without a threshold until the baseline is known.</p>
 <h2 id="test-coverage">Test coverage<a class="headerlink" href="#test-coverage" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

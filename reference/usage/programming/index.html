@@ -1821,7 +1821,7 @@ git<span class="w"> </span>-C<span class="w"> </span>~/polyglav-agents/workspace
 </tr>
 </tbody>
 </table>
-<p>Shipped since this guide was written: a read-only <code>git</code> tool plus gated <code>git_commit</code> (status/diff/log/commit as gated tools instead of <code>run_command</code>), <code>code_test</code>/<code>code_check</code> wrappers plus optional <code>code_lint</code>/<code>code_format</code> from <code>polyglav-core-quality</code>, the <code>run_command</code> command allowlist (<code>exec_allow</code>) replacing role-separation-plus-<code>tools.allow</code> for scoped shell, and the per-worktree instructions file (<code>project_instructions</code>, default <code>AGENTS.md</code>) auto-loaded into every agent's system prompt.</p>
+<p>Shipped since this guide was written: a read-only <code>git</code> tool plus gated <code>git_commit</code> (status/diff/log/commit as gated tools instead of <code>run_command</code>), <code>code_test</code>/<code>code_check</code> wrappers plus optional <code>code_lint</code>/<code>code_format</code> from <code>polyglav-core-quality</code>, the <code>run_command</code> command allowlist (<code>exec_allow</code>) as a guardrail for scoped shell rather than a boundary (see <a href="../../security/">security.md</a>), and the per-worktree instructions file (<code>project_instructions</code>, default <code>AGENTS.md</code>) auto-loaded into every agent's system prompt.</p>
 
 
 

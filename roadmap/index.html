@@ -361,6 +361,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#security-hardening-and-honest-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security hardening and honest boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1417,6 +1428,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#security-hardening-and-honest-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security hardening and honest boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#self-development-team-enablement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1672,6 +1694,29 @@
 <li>Effort: S &lt; M &lt; L</li>
 <li>Provides: the capability the task delivers</li>
 </ul>
+<h2 id="security-hardening-and-honest-boundaries">Security hardening and honest boundaries<a class="headerlink" href="#security-hardening-and-honest-boundaries" title="Permanent link">&para;</a></h2>
+<p>The shell allowlist, the JSON API, and the session store are where a local-first tool meets hostile input. The cheap gaps now fail closed, and the documentation no longer claims a boundary that only the exec sandbox can deliver. What remains is the static-check widening that those checks depend on.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mypy widening - clean up the 48 findings in <code>engine.py</code>, move it into the allowlist, and widen module by module</td>
+<td>M</td>
+<td>a typecheck that covers the core</td>
+</tr>
+<tr>
+<td>Ruff rule widening - the unused-import, redefined-while-unused, and nested-<code>with</code> tiers</td>
+<td>S-M</td>
+<td>a linter that catches more than syntax</td>
+</tr>
+</tbody>
+</table>
 <h2 id="self-development-team-enablement">Self-development team enablement<a class="headerlink" href="#self-development-team-enablement" title="Permanent link">&para;</a></h2>
 <p>The selfdev teams run unattended, land their work, and can be reattached from the REPL. Runs are sequential, and the REPL can pause or resume one. The rest closes the gaps between the project catalogs and the described workflow.</p>
 <table>

@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0550-2026-11-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.55.0 - 2026-11-12
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0540-2026-11-11" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1758,6 +1769,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0550-2026-11-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.55.0 - 2026-11-12
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0540-2026-11-11" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2369,6 +2391,18 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0550-2026-11-12">v0.55.0 - 2026-11-12<a class="headerlink" href="#v0550-2026-11-12" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed exec allowlist bypasses - <code>exec_allow</code> tokenizes each chained segment and matches prefixes on token boundaries, so <code>pytest</code> no longer admits <code>pytestx</code> or <code>python3</code>, rejects backticks, <code>$(</code>, <code>${</code>, <code>&gt;</code> and <code>&lt;</code> anywhere in a command, and denies when a segment cannot be tokenized. Docs (<code>config.md</code>, <code>tools.md</code>). Tests: <code>polyglav-core-exec</code></li>
+<li>Fixed resolver fail-open - a <code>permission_fn</code> that raises now denies the call instead of deferring to the category action, so a deny-only resolver cannot become an allow through an error. Docs (<code>tools.md</code>, <code>config.md</code>). Tests: <code>test_tool_policy.py</code>, <code>test_call_target.py</code>, <code>polyglav-core-git</code>, <code>polyglav-core-exec</code></li>
+<li>Fixed session file permissions - the sessions directory is created <code>0700</code> and session, tool-log, summary, and error files are written <code>0600</code> through a shared private-file helper, so another local user cannot read an agent's log. Docs (<code>session.md</code>, <code>security.md</code>). Tests: <code>test_session_io.py</code>, <code>test_tool_log.py</code></li>
+<li>Added run command worktree escalation - <code>run_command</code> declares <code>cwd</code> as its path argument, so a directory outside the worktree turns an <code>allow</code> into <code>ask</code> like the file tools instead of running silently. Docs (<code>tools.md</code>, <code>security.md</code>). Tests: <code>polyglav-core-exec</code></li>
+<li>Added serve token auth - <code>--token</code>, <code>POLYGLAV_TOKEN</code>, and <code>serve.token</code> gate every route except <code>/health</code> and <code>/version</code> through a constant-time compare, and a non-loopback bind without a token refuses to start unless <code>serve.allow_unauthenticated</code> is set. Docs (<code>api.md</code>, <code>config.md</code>, <code>security.md</code>). Tests: <code>polyglav-core-serve</code></li>
+<li>Added deploy token propagation - the container entrypoint forwards <code>POLYGLAV_TOKEN</code> and the new <code>POLYGLAV_ALLOW_UNAUTHENTICATED</code> escape hatch, the Compose example requires the token, the fleet supervisor passes it to child agents and to <code>fleet ask</code>, and <code>deploy.md</code> warns that an unpublished loopback prefix is the only thing between a port and code execution. Docs (<code>deploy.md</code>, <code>fleet.md</code>). Tests: <code>polyglav-core-serve</code>, <code>polyglav-core-fleet</code></li>
+<li>Added webhook report signature - <code>report.webhook_secret</code> signs the report body with HMAC-SHA256 over <code>&lt;timestamp&gt;.&lt;body&gt;</code>, sent as <code>X-Polyglav-Timestamp</code> and <code>X-Polyglav-Signature</code>, and a non-loopback <code>http://</code> receiver is refused. Docs (<code>config.md</code>, <code>jobs.md</code>). Tests: <code>polyglav-core-webhook</code></li>
+<li>Added session retention - <code>/sessions prune --older-than &lt;days&gt;</code> and <code>polyglav sessions prune --older-than &lt;days&gt; [--dry-run] [--yes]</code> delete sessions past the threshold with their tool logs and summaries, always keep the current session, and report count and bytes. Deleting a session now also removes its summary. Docs (<code>session.md</code>, <code>commands.md</code>, <code>security.md</code>). Tests: <code>test_session_io.py</code>, <code>polyglav-core-sessions</code></li>
+<li>Added CI static checks - a <code>ruff</code> job over <code>src</code>, <code>plugins</code>, and <code>tests</code>, a <code>mypy</code> allowlist that starts on the clean core modules, and a coverage report, all through a <code>dev</code> extra so the runtime stays stdlib only. The first run found and this commit fixes three undefined names: a broken <code>_warn</code> in the onboarding plugin that dropped every warning, and a <code>self</code> reference in a static MCP transport helper. Docs (<code>testing.md</code>, <code>AGENTS.md</code>). Tests: <code>polyglav-core-onboarding</code>, <code>polyglav-core-mcp</code></li>
+</ul>
 <h2 id="v0540-2026-11-11">v0.54.0 - 2026-11-11<a class="headerlink" href="#v0540-2026-11-11" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added per-agent round attribution - observer events carry <code>role</code>, <code>sub</code>, and <code>session</code>, each round records them, <code>main_rounds</code> counts only root rounds, and <code>sub_rounds</code> counts delegated rounds. Docs (<code>metrics.md</code>). Tests: <code>test_engine_observer.py</code>, <code>test_metrics.py</code></li>

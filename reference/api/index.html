@@ -508,6 +508,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#post-chat" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1210,6 +1221,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#post-chat" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1276,6 +1298,14 @@
 <span class="c1"># polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /health, GET /version)</span>
 </code></pre></div>
 <p>All responses are JSON with <code>Content-Type: application/json</code>.</p>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p><code>polyglav serve</code> refuses to bind a non-loopback host without a token. Supply it with <code>--token</code>, <code>POLYGLAV_TOKEN</code>, or <code>serve.token</code> in config. Every route except <code>/health</code> and <code>/version</code> requires <code>Authorization: Bearer &lt;token&gt;</code>, and a missing or wrong token returns <code>401</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">16</span><span class="k">)</span>
+polyglav<span class="w"> </span>serve<span class="w"> </span>--token<span class="w"> </span><span class="s2">"</span><span class="nv">$TOKEN</span><span class="s2">"</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span><span class="w"> </span>localhost:8787/chat<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"prompt": "Hi"}'</span>
+</code></pre></div>
+<p><code>--allow-unauthenticated</code> (or <code>serve.allow_unauthenticated</code>) permits a non-loopback bind without a token. Use it only for a container that publishes its ports on <code>127.0.0.1</code>, where the container-internal bind has to be <code>0.0.0.0</code> and nothing leaves the host. <code>/health</code> stays open so a monitor can poll it without credentials.</p>
 <h2 id="post-chat">POST /chat<a class="headerlink" href="#post-chat" title="Permanent link">&para;</a></h2>
 <p>Runs one agent turn on the same engine as the REPL and CLI. Request body:</p>
 <table>

@@ -899,6 +899,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#shell-policy-is-not-a-sandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell policy is not a sandbox
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#audit-trail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1342,6 +1353,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#shell-policy-is-not-a-sandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell policy is not a sandbox
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#audit-trail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1438,9 +1460,9 @@
 <li>Name-level <code>tools.deny</code> and the <code>tools.allow</code> allowlist. A <code>deny</code> here wins outright.</li>
 <li>The category action from <code>tool_permission</code> (<code>bash</code> / <code>call</code> / <code>delegate</code> / <code>edit</code> / <code>list</code> / <code>read</code> / <code>vcs</code> / <code>web</code>). A <code>deny</code> here is final and skips the resolver.</li>
 <li>A per-invocation resolver (<code>permission_fn</code>) that runs after the category action and overrides a non-<code>deny</code> one from the tool's current arguments, or returns <code>None</code> to defer to it. For example <code>call</code> resolves per target: a configured role uses its own <code>tool_permission</code> and a role outside the registry is denied (see <a href="../roles/">roles.md</a>), and <code>git_commit</code> defers to <code>vcs</code> except for <code>all=true</code>, which asks.</li>
-<li>Worktree escalation: <code>read</code> / <code>list</code> / <code>write</code> tools on paths outside the worktree escalate <code>allow</code> to <code>ask</code>.</li>
+<li>Worktree escalation: <code>read</code> / <code>list</code> / <code>write</code> tools on paths outside the worktree escalate <code>allow</code> to <code>ask</code>, and <code>run_command</code> does the same through its <code>cwd</code> argument.</li>
 </ol>
-<p>The worktree is the directory holding the local <code>.polyglav/</code>, which is the launch directory or <code>--path</code>. A <code>file_read</code> / <code>list_dir</code> / <code>file_write</code> / <code>glob</code> / <code>grep</code> on a path outside it escalates to <code>ask</code>, so an agent cannot silently reach files beyond its scope. Launching from <code>~</code> makes home the worktree, so subdirectories do not escalate. Launch inside the project or pass <code>--path</code> for project-scoped prompting.</p>
+<p>The worktree is the directory holding the local <code>.polyglav/</code>, which is the launch directory or <code>--path</code>. A <code>file_read</code> / <code>list_dir</code> / <code>file_write</code> / <code>glob</code> / <code>grep</code> on a path outside it escalates to <code>ask</code>, and <code>run_command</code> does the same for a <code>cwd</code> outside it, so an agent cannot silently reach files or run work beyond its scope. Launching from <code>~</code> makes home the worktree, so subdirectories do not escalate. Launch inside the project or pass <code>--path</code> for project-scoped prompting.</p>
 <p><code>bash</code> defaults to <code>ask</code>, so every <code>run_command</code> confirms unless <code>tool_permission.bash = "allow"</code> is set explicitly. <code>call</code> defaults to <code>allow</code>, refined per invocation by the target role's own permission (a role may set <code>call: "ask"</code> to confirm). <code>delegate</code> is the read-class sibling and keeps its own <code>delegate</code> key.</p>
 <p>The <code>ask</code> tool is the explicit user-in-the-loop channel: it pauses the run and poses a question to the user at the terminal. It is the only tool that deliberately talks to a person. In headless mode there is no terminal, so <code>ask</code> returns an error result and the run continues without pausing. Agents that must not ask can be stripped of the tool with <code>tools.deny: ["ask"]</code>. The question and answer are persisted in the asking session's log, so what was asked and decided stays on the record.</p>
 <p><code>ask(kind="permission", permission=...)</code> is the escalation channel for a tool a sub-agent is not allowed to use. In <code>read</code> mode a write-category request is redirected to a mode switch. In <code>write</code> mode the request is routed by <code>ask_policy.permission</code> (<code>auto</code> = the caller decides, <code>user</code> = the user, <code>deny</code> = disabled) and can never exceed the mode-derived ceiling. An approved request creates a one-shot grant on the asking sub-agent, consumed by the next matching call. The user may grant <code>always</code> for the rest of that sub-agent's run, the caller only ever grants <code>once</code>. Grants are not inherited by grandchildren, and each grant and its use is recorded in the session <code>permissions</code> audit array.</p>
@@ -1452,11 +1474,16 @@
 <p>The mode (<a href="../modes/">modes.md</a>) is the outermost bound. <code>read</code> (default) allows only read-class permission keys and denies every write-class key, so write, exec, commit, MCP, and delegation tools are filtered from the provider schema and refused on direct calls. <code>write</code> leaves write keys to <code>tool_permission</code>, still bounded by each key's action. Access is classified by permission key in config <code>access.read_tools</code>, and any key not listed (including a new plugin key) defaults write, so read mode is fail-closed. The cap is applied last, after grants and per-invocation resolvers, so a grant cannot widen past it. The active mode is stored on the session and recorded on each turn, so the posture in effect for every turn is auditable. An unknown <code>mode</code> value falls back to <code>read</code> with a warning.</p>
 <h2 id="config-driven-surface">Config-driven surface<a class="headerlink" href="#config-driven-surface" title="Permanent link">&para;</a></h2>
 <p>The model only sees tools whose schema passes policy filtering (<code>tools.allow</code> / <code>tools.deny</code> / <code>tool_permission</code>), and plugin activation is an explicit <code>plugins</code> list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each <code>allow</code> / <code>ask</code> / <code>deny</code> resolution and its outcome) are recorded in the session <code>permissions</code> array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content is summarized in the session while the full section stays in the sidecar log.</p>
+<h2 id="shell-policy-is-not-a-sandbox">Shell policy is not a sandbox<a class="headerlink" href="#shell-policy-is-not-a-sandbox" title="Permanent link">&para;</a></h2>
+<p><code>run_command</code> runs through a shell with the user's privileges. Two controls bound it: the <code>bash</code> permission key (<code>ask</code> by default) and the optional <code>exec_allow</code> prefix list. Neither is an isolation boundary.</p>
+<p><code>exec_allow</code> filters commands a careless model should not run. It splits chained segments, matches prefixes on token boundaries, and rejects substitution and redirection. It cannot contain a prefix that is itself a way to run anything: <code>python -c</code>, <code>sh -c</code>, <code>git -c</code>, <code>find -exec</code>, <code>xargs</code>, <code>tar</code> with an execution option, and any interpreter pointed at a script inside the worktree all execute arbitrary code while matching an innocuous prefix. Treat the list as a guardrail against sloppiness, not as a permission boundary, and do not rely on it in a run that has no operator watching.</p>
+<p>The control that holds today is the mode plus the category action. <code>read</code> denies exec outright. <code>write</code> with <code>bash: ask</code> confirms every command. A headless run auto-denies <code>ask</code>, so an unattended agent needs <code>bash: allow</code> to run anything at all, and that is exactly the configuration where <code>exec_allow</code> is the only filter left. Namespace or container isolation for <code>run_command</code> is the planned boundary (see <a href="../TODO.md">TODO.md</a>).</p>
 <h2 id="audit-trail">Audit trail<a class="headerlink" href="#audit-trail" title="Permanent link">&para;</a></h2>
 <p>Sessions are complete, append-only logs: every message, tool call with arguments and result, reasoning, and error is recorded with timestamps. Compaction only trims the provider context, never the log, so any action can be reconstructed later. See <a href="../session/">session.md</a>. For enterprise deployments this is the base for compliance and forensics, with central aggregation and tamper-evidence as additive hardening (see <a href="use-cases/enterprise.md">use-cases/enterprise.md</a>).</p>
 <h2 id="data-posture">Data posture<a class="headerlink" href="#data-posture" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Local-first</strong> - config and session logs live on your disk. All provider traffic is outbound. No external telemetry or logging service holds enterprise data.</li>
+<li><strong>Session logs</strong> - written in plain text by design, so they stay greppable and exportable. The sessions directory is <code>0700</code> and each log is <code>0600</code>, so another local user cannot read what an agent has read. Nothing expires automatically: <code>/sessions prune --older-than &lt;days&gt;</code> and <code>polyglav sessions prune</code> delete old logs and their summaries on request, which is the deletion half of a retention policy. Encryption at rest is a backlog idea that would cost full-text search over the logs.</li>
 <li><strong>Zero dependencies</strong> - the core is Python stdlib only, so there is no supply chain to audit and no lockfile churn. Plugins may add third-party deps, imported lazily and only when the plugin is used.</li>
 <li><strong>API keys</strong> - stored in the global provider registry (<code>~/.config/polyglav/providers.json</code>, one key per provider, written <code>0600</code> when it holds keys), never in config or a session log by hand. Keep keys out of repositories.</li>
 </ul>
@@ -1479,7 +1506,11 @@
 </tr>
 <tr>
 <td>Shell</td>
-<td><code>run_command</code> gated by <code>bash: ask</code> by default, headless auto-deny</td>
+<td><code>run_command</code> gated by <code>bash: ask</code> by default, headless auto-deny, optional <code>exec_allow</code> guardrail, no isolation</td>
+</tr>
+<tr>
+<td>HTTP API</td>
+<td>Bearer token on every route except <code>/health</code> and <code>/version</code>, non-loopback bind refused without one, <code>serve.allow_unauthenticated</code> as the documented opt-out</td>
 </tr>
 <tr>
 <td>Delegation</td>
@@ -1495,7 +1526,7 @@
 </tr>
 <tr>
 <td>Session data</td>
-<td>Append-only local logs, local file ownership</td>
+<td>Append-only local logs, <code>0600</code> files in a <code>0700</code> directory</td>
 </tr>
 <tr>
 <td>Model</td>
@@ -1504,7 +1535,7 @@
 </tbody>
 </table>
 <h2 id="planned-hardening">Planned hardening<a class="headerlink" href="#planned-hardening" title="Permanent link">&para;</a></h2>
-<p>Sandboxed exec (namespace/container isolation for <code>run_command</code>) and per-plugin virtualenv isolation are planned future work (see <a href="../TODO.md">TODO.md</a> and <a href="../plugins/">plugins.md</a>).</p>
+<p>Sandboxed exec (namespace/container isolation for <code>run_command</code>) and per-plugin virtualenv isolation are planned future work (see <a href="../TODO.md">TODO.md</a> and <a href="../plugins/">plugins.md</a>). The sandbox is what turns shell policy into a boundary. Until it lands, <code>exec_allow</code> stays a guardrail and the <code>bash</code> action stays the operative control.</p>
 
 
 

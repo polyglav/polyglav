@@ -916,6 +916,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exporting-to-markdown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1381,6 +1392,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exporting-to-markdown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1533,7 +1555,7 @@
 <h2 id="jsonl-storage">JSONL storage<a class="headerlink" href="#jsonl-storage" title="Permanent link">&para;</a></h2>
 <p>Set <code>session.storage = "jsonl"</code> to write append-only <code>.polyglav/sessions/&lt;name&gt;.jsonl</code> files beside the JSON store. Each line is a <code>meta</code> or <code>turn</code> event, the last event per turn wins on load, and JSON stays the export and import format. The default remains <code>json</code>.</p>
 <h2 id="where-sessions-live">Where sessions live<a class="headerlink" href="#where-sessions-live" title="Permanent link">&para;</a></h2>
-<p>Each session is one JSON file: <code>.polyglav/sessions/&lt;name&gt;.json</code>, next to the local <code>.polyglav/config.json</code>.</p>
+<p>Each session is one JSON file: <code>.polyglav/sessions/&lt;name&gt;.json</code>, next to the local <code>.polyglav/config.json</code>. The sessions directory is created <code>0700</code> and every session, tool-log, and error file is written <code>0600</code>, so the logs stay readable only to the owner. Files written by an earlier version keep their old mode until they are rewritten, and <code>chmod -R go-rwx .polyglav</code> closes that gap in one step.</p>
 <p>Names are explicit (<code>/session new &lt;name&gt;</code>, <code>/session load &lt;name&gt;</code>) or auto-generated as <code>ses_&lt;timestamp&gt;_&lt;id&gt;</code>, e.g. <code>ses_20260817_120000_ab12cd</code>. The <code>&lt;id&gt;</code> is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).</p>
 <p>Session files carry a kind prefix so the kinds stay distinguishable at a glance:</p>
 <table>
@@ -1622,9 +1644,16 @@
 <td><code>/sessions import &lt;file&gt; [name] [--force]</code></td>
 <td>Import a session from a JSON export</td>
 </tr>
+<tr>
+<td><code>/sessions prune --older-than &lt;days&gt; [--dry-run]</code></td>
+<td>Delete sessions not updated in that many days, with their tool logs and summaries. The current session is always kept</td>
+</tr>
 </tbody>
 </table>
 <p>The current session auto-saves after every turn and command, so nothing is lost on exit.</p>
+<h2 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h2>
+<p>Sessions are kept until you delete them. There is no background timer and no automatic expiry, because losing a log to a timer is worse than keeping it. <code>/sessions delete &lt;name&gt;</code> removes one session, and <code>/sessions prune --older-than &lt;days&gt;</code> removes every session whose <code>updated_at</code> is older than the threshold, together with its <code>.tools.log</code> sidecar and summary. The current session is always kept. The headless form is <code>polyglav sessions prune --older-than &lt;days&gt; [--dry-run] [--yes]</code>, and it is a dry run unless <code>--yes</code> is passed. The removal reports the session count and the bytes freed.</p>
+<p>This is the deletion half of a data-protection story. The other half is encryption at rest, which is a backlog idea: it would cost full-text search over the logs, so it follows retention rather than replacing it.</p>
 <p><code>/history</code> lists the active session's turns as a numbered index, one line per turn: <code>#&lt;index&gt;  [&lt;status&gt;]  &lt;duration&gt;  &lt;tool count&gt;  &lt;prompt&gt;</code>. The index is the turn's absolute <code>index</code>, so a turn can be named later regardless of the listing limit. <code>/history 3</code> shows the last three turns, <code>/history all</code> every turn, and <code>--thoughts</code> adds a dim first-line excerpt of the turn's thinking (<code>--thoughts all</code> prints the full thinking text). <code>/history session:&lt;name&gt;</code> reads another saved session without changing the current session. <code>--tree</code> lists the root and every sub-run with its depth.</p>
 <p><code>/print &lt;n&gt;</code> reprints the turn with that absolute index: the full turn metadata block (<code>#index</code>, status, duration, tool count, <code>started</code>/<code>ended</code>, model, provider, mode, reasoning, with empty values shown as <code>-</code>, so even a command turn is self-describing), then each part: the user prompt, thinking (dim), every tool call with <code>input</code> JSON, <code>output</code>, <code>is_error</code>, and <code>analysis</code>, the answer, command records (a compaction summary included), and system notes. <code>/print &lt;n&gt;.&lt;m&gt;</code> prints only the m-th part of turn n. Each part's text is capped at 4000 characters with <code>... (N more chars, use --full)</code> appended, and <code>--full</code> removes the cap. <code>/print</code> takes the same <code>session:&lt;name&gt;</code> selector as <code>/history</code>, so it can read another saved session without changing the current session. <code>--tree</code> renders the whole run tree.</p>
 <h2 id="exporting-to-markdown">Exporting to Markdown<a class="headerlink" href="#exporting-to-markdown" title="Permanent link">&para;</a></h2>

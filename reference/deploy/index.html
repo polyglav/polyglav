@@ -1288,9 +1288,10 @@
 <li><strong>Single interactive agent</strong> - install with pipx and run the REPL, <code>polyglav run</code>, or <code>polyglav serve</code> by hand. See <a href="../INSTALL.md">INSTALL.md</a>.</li>
 <li><strong>Supervised fleet or always-on server</strong> - this page. Build the image from the repo's <code>Dockerfile</code> and run one container per agent with <code>docker-compose.yml.example</code>.</li>
 </ul>
-<p>The Docker templates live at the repo root (<code>Dockerfile</code>, <code>polyglav-entrypoint.sh</code>, <code>docker-compose.yml.example</code>) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always <code>polyglav serve</code> pointed at a folder inside the container. The folder holds <code>.polyglav/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes sessions under <code>.polyglav/sessions/</code>. Mount that folder into the container and the agent keeps its state across restarts.</p>
+<p>The Docker templates live at the repo root (<code>Dockerfile</code>, <code>polyglav-entrypoint.sh</code>, <code>docker-compose.yml.example</code>) and work as-is. Per-agent values (the project path, the port, the API key, and the API token) are configured on your machine, never in the templates. A deployed agent is always <code>polyglav serve</code> pointed at a folder inside the container. The folder holds <code>.polyglav/config.json</code> (provider, model, system prompt, tool permissions, plugins) and writes sessions under <code>.polyglav/sessions/</code>. Mount that folder into the container and the agent keeps its state across restarts.</p>
+<p><strong>The API has no authentication of its own beyond a bearer token, and that token is the only thing between a reachable port and code execution in the container.</strong> Set <code>POLYGLAV_TOKEN</code>, publish the port on <code>127.0.0.1</code> (the <code>-p 127.0.0.1:8781:8781</code> form, never a bare <code>-p 8781:8781</code>), and let a reverse proxy add anything more. A non-loopback bind without a token refuses to start.</p>
 <h2 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h2>
-<p>The image runs <code>polyglav serve</code> and takes three environment variables:</p>
+<p>The image runs <code>polyglav serve</code> and takes five environment variables:</p>
 <table>
 <thead>
 <tr>
@@ -1303,7 +1304,7 @@
 <tr>
 <td><code>POLYGLAV_HOST</code></td>
 <td><code>0.0.0.0</code></td>
-<td>Bind address</td>
+<td>Bind address inside the container</td>
 </tr>
 <tr>
 <td><code>POLYGLAV_PORT</code></td>
@@ -1315,6 +1316,16 @@
 <td>(unset)</td>
 <td>Project path the agent is scoped to. When set, the server uses <code>--path</code> and reads <code>.polyglav/config.json</code> from that directory</td>
 </tr>
+<tr>
+<td><code>POLYGLAV_TOKEN</code></td>
+<td>(unset)</td>
+<td>Bearer token required on every route except <code>/health</code>. Required for the <code>0.0.0.0</code> bind the image uses</td>
+</tr>
+<tr>
+<td><code>POLYGLAV_ALLOW_UNAUTHENTICATED</code></td>
+<td>(unset)</td>
+<td>Skip the token requirement for a container published on loopback only. Documented escape hatch, not a default</td>
+</tr>
 </tbody>
 </table>
 <p>Build the image from the repo root:</p>
@@ -1324,6 +1335,7 @@
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>docs-agent<span class="w"> </span>-p<span class="w"> </span><span class="m">127</span>.0.0.1:8781:8781<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-e<span class="w"> </span><span class="nv">POLYGLAV_PORT</span><span class="o">=</span><span class="m">8781</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-e<span class="w"> </span><span class="nv">POLYGLAV_PATH</span><span class="o">=</span>/srv/docs<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">POLYGLAV_TOKEN</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">16</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/agents/docs:/srv/docs"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>polyglav
 </code></pre></div>
@@ -1337,13 +1349,17 @@
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">POLYGLAV_PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8781</span>
 <span class="w">      </span><span class="nt">POLYGLAV_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/srv/docs</span>
+<span class="w">      </span><span class="nt">POLYGLAV_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POLYGLAV_TOKEN:?set POLYGLAV_TOKEN before starting the fleet}</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./agents/docs:/srv/docs</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"127.0.0.1:8781:8781"</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
 </code></pre></div>
-<p>Ports publish on <code>127.0.0.1</code> so the JSON API stays host-local behind your reverse proxy. Containers run as root. Add <code>user: "1000:1000"</code> (your uid) to a service if you want agent-written files in the mounted folders owned by you. Add an agent by copying a service block and changing the name, port, and volume. Bring the fleet up:</p>
+<p>Export the token before <code>docker compose up</code>, so Compose substitutes it and both services share one credential:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">POLYGLAV_TOKEN</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">16</span><span class="k">)</span><span class="s2">"</span>
+</code></pre></div>
+<p>Ports publish on <code>127.0.0.1</code> so the JSON API stays host-local behind your reverse proxy, which is also where any stronger authentication belongs. Containers run as root. Add <code>user: "1000:1000"</code> (your uid) to a service if you want agent-written files in the mounted folders owned by you. Add an agent by copying a service block and changing the name, port, volume, and token. Bring the fleet up:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 <p>Compose's <code>restart: unless-stopped</code> restarts a dead agent. See <a href="../usage/programming/">docs/usage/programming.md</a> for a full role-based programming fleet built on this template.</p>

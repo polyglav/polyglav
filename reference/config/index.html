@@ -592,6 +592,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1288,6 +1299,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#schema" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1433,6 +1455,16 @@
 <li><strong>Local</strong> - <code>.polyglav/config.json</code> in the project path (project overrides).</li>
 </ol>
 <p>Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the <strong>local</strong> file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (<code>~/.config/polyglav/providers.json</code>), managed through <code>/connect</code> (see <a href="#model-registry-not-config">Models</a>).</p>
+<h2 id="stability">Stability<a class="headerlink" href="#stability" title="Permanent link">&para;</a></h2>
+<p>Config keys and the session format freeze at 1.0. Until then a deployment should still survive upgrades, so the rules going forward are:</p>
+<ul>
+<li>An unknown key is stored as written and ignored, never fatal. A config written by a newer version still loads in an older one.</li>
+<li>A removed key is ignored rather than fatal, and a removed tool or plugin leaves its keys inert.</li>
+<li>The session format only grows. A new field is optional on read, and a removed field is ignored.</li>
+<li>A rename, removal, or shape change is announced in <code>CHANGELOG.md</code> under the version that introduces it, together with its migration step, so the upgrade is a documented one-liner rather than a discovery.</li>
+<li>At 1.0 the key set current at that point is frozen: later changes get the same announcement, and a key is not removed in a patch release.</li>
+</ul>
+<p>Files written before the turn format (flat <code>messages</code>) and before the session-name rename are the documented exception: they are left untouched and no longer load.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># inspect in the REPL (alphabetical, key/value/source columns)</span>
 /config
 <span class="c1"># one key with its description and default</span>
@@ -1663,12 +1695,27 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>report.webhook</code></td>
 <td><code>""</code></td>
-<td>URL the bundled <code>polyglav-core-webhook</code> report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. See <a href="../jobs/#report-back">jobs.md</a></td>
+<td>URL the bundled <code>polyglav-core-webhook</code> report connector POSTs a completed job run to (JSON). Empty = no out-of-band report. Plaintext <code>http://</code> is refused for a non-loopback host. See <a href="../jobs/#report-back">jobs.md</a></td>
+</tr>
+<tr>
+<td><code>report.webhook_secret</code></td>
+<td><code>""</code></td>
+<td>Shared secret for the report connector. When set, the POST carries <code>X-Polyglav-Timestamp</code> and <code>X-Polyglav-Signature: sha256=&lt;hmac&gt;</code> over <code>&lt;timestamp&gt;.&lt;body&gt;</code>, so the receiver can authenticate the sender and reject a replay</td>
 </tr>
 <tr>
 <td><code>search_results</code></td>
 <td><code>10</code></td>
 <td>Number of search results to fetch (owned by <code>polyglav-core-web</code>)</td>
+</tr>
+<tr>
+<td><code>serve.allow_unauthenticated</code></td>
+<td><code>false</code></td>
+<td>Allow <code>polyglav serve</code> to bind a non-loopback host without a token. Only for a container published on loopback. See <a href="../api/#authentication">api.md</a></td>
+</tr>
+<tr>
+<td><code>serve.token</code></td>
+<td><code>""</code></td>
+<td>Bearer token required on every serve route except <code>/health</code> and <code>/version</code> (owned by <code>polyglav-core-serve</code>, also <code>POLYGLAV_TOKEN</code> and <code>--token</code>). A non-loopback bind without one refuses to start</td>
 </tr>
 <tr>
 <td><code>show_version</code></td>
@@ -1846,13 +1893,14 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <p>A role that sets <code>grant_permission</code> may delegate categories it does not use itself. For example, a supervisor with <code>edit</code>/<code>bash</code> denied for itself but allowed in its ceiling can hand them to an <code>implementer</code> while never running them, as long as the session is in <code>write</code> mode.</p>
 <p>An approved permission request creates a one-shot grant on the asking sub-agent (<code>once</code>), consumed by the next matching call. The user may grant <code>always</code>, reusable for the rest of that sub-agent's run. Grants are never inherited by grandchildren and are recorded in the session <code>permissions</code> audit array.</p>
 <h3 id="exec_allow-command-allowlist-for-run_command"><code>exec_allow</code> - command allowlist for <code>run_command</code><a class="headerlink" href="#exec_allow-command-allowlist-for-run_command" title="Permanent link">&para;</a></h3>
-<p><code>exec_allow</code> (list, default <code>[]</code>, declared by <code>polyglav-core-exec</code>) restricts <code>run_command</code> to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the <code>bash</code> action applies to every command). When set:</p>
+<p><code>exec_allow</code> (list, default <code>[]</code>, declared by <code>polyglav-core-exec</code>) restricts <code>run_command</code> to commands whose leading tokens match an allowed prefix. Empty or unset means unrestricted (the <code>bash</code> action applies to every command). When set:</p>
 <ul>
 <li>Commands split into chained segments over the shell chaining operators. Every segment must start with an allowed prefix (e.g. <code>pytest -q &amp;&amp; ruff check .</code> needs both <code>pytest</code> and <code>ruff</code>).</li>
-<li>Shell-script forms are rejected outright: multi-line commands and heredocs (<code>&lt;&lt;</code>) always return <code>deny</code>.</li>
+<li>Matching is token-based, not textual. Each segment is tokenized and must begin with exactly the prefix tokens, so <code>pytest</code> does not admit <code>pytestx</code> and <code>python</code> does not admit <code>python3</code>. A multi-token prefix like <code>python -m unittest</code> matches only that module invocation.</li>
+<li>Substitution and redirection are rejected outright: a command containing a backtick, <code>$(</code>, <code>${</code>, <code>&gt;</code> or <code>&lt;</code> always returns <code>deny</code>, as do multi-line commands and any segment that fails tokenization (for example unbalanced quotes). Output redirection such as <code>2&gt;&amp;1</code> is therefore not available in allowlist mode.</li>
 <li>A matching command falls through to the normal <code>bash</code> action (<code>ask</code> by default, <code>allow</code>/<code>deny</code> per config). A non-matching command is <code>deny</code>.</li>
 </ul>
-<p>The check runs through the per-invocation policy resolver and a <code>_config</code> resolver argument, so it composes with modes, name-level <code>tools.deny</code>/<code>tools.allow</code>, and the worktree escalation. <code>exec_allow</code> gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.</p>
+<p>The check runs through the per-invocation policy resolver and a <code>_config</code> resolver argument, so it composes with modes, name-level <code>tools.deny</code>/<code>tools.allow</code>, and the worktree escalation. <code>exec_allow</code> is a guardrail that keeps a coding agent on tests, linters, and git, not a privilege boundary. Prefixes that execute what you point them at (<code>python</code>, <code>sh</code>, <code>git -c</code>, <code>find -exec</code>, <code>xargs</code>, <code>tar</code>) stay execution primitives, and only the sandboxed exec from the roadmap is a boundary. A resolver failure denies the call. See <a href="../security/">security.md</a> for the control model.</p>
 <h2 id="model-registry-not-config">Model registry (not config)<a class="headerlink" href="#model-registry-not-config" title="Permanent link">&para;</a></h2>
 <p>Two global files live separately from config in <code>~/.config/polyglav/</code>. Neither is part of the config merge: <code>/config</code> never lists or writes them, and neither has a local scope.</p>
 <h3 id="provider-registry-providersjson">Provider registry (<code>providers.json</code>)<a class="headerlink" href="#provider-registry-providersjson" title="Permanent link">&para;</a></h3>

@@ -1412,10 +1412,11 @@ polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="
 <span class="w">  </span><span class="nt">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"polyglav-core-fs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-exec"</span><span class="p">,</span><span class="w"> </span><span class="s2">"polyglav-core-doc-agent"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Launch it, and peers talk to it over the same <code>POST /chat</code> API used everywhere:</p>
+<p>Launch it, and peers talk to it over the same <code>POST /chat</code> API used everywhere. A loopback bind needs no token, and a token is required the moment the bind leaves loopback:</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve<span class="w"> </span>--path<span class="w"> </span>agents/docs<span class="w"> </span>--port<span class="w"> </span><span class="m">8781</span><span class="w"> </span><span class="p">&amp;</span>
 curl<span class="w"> </span>localhost:8781/chat<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"prompt": "What does spec-42.pdf say?", "session": "docs-pool"}'</span>
 </code></pre></div>
+<p>With <code>--token</code> (or <code>POLYGLAV_TOKEN</code>) set, add the header: <code>-H "Authorization: Bearer $POLYGLAV_TOKEN"</code>. The fleet supervisor forwards <code>POLYGLAV_TOKEN</code> to every child it spawns and sends it on <code>fleet ask</code>.</p>
 <h2 id="spawning-from-the-repl">Spawning from the REPL<a class="headerlink" href="#spawning-from-the-repl" title="Permanent link">&para;</a></h2>
 <p>With <code>polyglav-core-fleet</code> enabled, <code>/spawn</code> starts and supervises one scoped agent without leaving the REPL. It writes the agent into the worktree fleet manifest, starts <code>polyglav serve</code> on a free port, and waits for <code>GET /health</code>.</p>
 <div class="highlight"><pre><span></span><code>/spawn docs-agent ../docs
