@@ -128,7 +128,7 @@ Polyglav/
 - No tool-name special-casing in the loop. Use registration metadata instead
 - `BaseProvider.chat()` is a generator yielding events: `thinking`, `token`, `tool_calls`, `error`, `done`
 - `BaseProvider` uses OpenAI-compatible `/v1/chat/completions` format
-- Config: global (`~/.config/polyglav/config.json`) > local (`.polyglav/config.json`) merge, local wins
+- Config: global (`~/.config/polyglav/config.json`) > local (`.polyglav/config.json`) merge, local wins. Unknown keys are stored and ignored, and the stability rules are in `docs/config.md`
 - Sessions stored as `.polyglav/sessions/<name>.json`
 - Slash commands registered via `@registry.register()` decorator
 - Tools registered via `@tool_registry.register()` decorator (OpenAI function calling format)

@@ -7,6 +7,18 @@ Config is a single JSON object read from two files and merged per key, with proj
 
 Every process merges them in memory. The merge descends into nested objects, so a local nested object overrides only the keys it names and keeps the default (or global) values for the rest. Lists and scalars replace wholesale, they never merge. Nothing is distributed to folders. Writes default to the **local** file and hold only the keys you selected, so a save never re-writes the merged config. API keys live outside the config, in the global provider registry (`~/.config/polyglav/providers.json`), managed through `/connect` (see [Models](#model-registry-not-config)).
 
+## Stability
+
+Config keys and the session format freeze at 1.0. Until then a deployment should still survive upgrades, so the rules going forward are:
+
+- An unknown key is stored as written and ignored, never fatal. A config written by a newer version still loads in an older one.
+- A removed key is ignored rather than fatal, and a removed tool or plugin leaves its keys inert.
+- The session format only grows. A new field is optional on read, and a removed field is ignored.
+- A rename, removal, or shape change is announced in `CHANGELOG.md` under the version that introduces it, together with its migration step, so the upgrade is a documented one-liner rather than a discovery.
+- At 1.0 the key set current at that point is frozen: later changes get the same announcement, and a key is not removed in a patch release.
+
+Files written before the turn format (flat `messages`) and before the session-name rename are the documented exception: they are left untouched and no longer load.
+
 ```bash
 # inspect in the REPL (alphabetical, key/value/source columns)
 /config
