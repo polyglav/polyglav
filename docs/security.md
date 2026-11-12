@@ -74,6 +74,7 @@ Tool results and fetched content are untrusted input returned to the model. Defe
 |-------|---------|
 | Filesystem | Worktree-scoped `allow`/`ask`/`deny`, escalation outside the worktree |
 | Shell | `run_command` gated by `bash: ask` by default, headless auto-deny, optional `exec_allow` guardrail, no isolation |
+| HTTP API | Bearer token on every route except `/health` and `/version`, non-loopback bind refused without one, `serve.allow_unauthenticated` as the documented opt-out |
 | Delegation | Per-target per-invocation resolution (`call: allow` default, set `ask` per role, non-registry roles denied), read-class `delegate` sibling, sub-agents auto-deny `ask` and share only the caller's carve, own `sub_*` session logs |
 | Network | Explicit tools (`web_search`, `web_fetch`), `web` permission |
 | Provider context | Policy-filtered tool schema, argument cleaning, bounded tool results |

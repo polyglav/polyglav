@@ -8,6 +8,16 @@
   "provides": {
     "tools": [],
     "providers": [],
-    "commands": []
+    "commands": [],
+    "config": {
+      "serve.token": {
+        "default": "",
+        "description": "Bearer token required on every serve route except /health and /version. A non-loopback bind without one refuses to start"
+      },
+      "serve.allow_unauthenticated": {
+        "default": false,
+        "description": "Allow a non-loopback bind without a token. Use only for a container published on loopback"
+      }
+    }
   }
 }

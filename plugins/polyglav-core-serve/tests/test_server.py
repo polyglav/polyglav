@@ -87,5 +87,145 @@ class TestServer(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 404)
 
 
+class TestServerAuth(unittest.TestCase):
+
+    def setUp(self):
+        self.engine = make_engine()
+        self.engine.provider.chat.return_value = [
+            {'type': 'token', 'content': 'server answer'},
+            {'type': 'done', 'reason': 'stop'},
+        ]
+        self.server = HeadlessServer(('127.0.0.1', 0), ChatHandler,
+                                     engine=self.engine, token='s3cret')
+        self.port = self.server.server_address[1]
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.engine._tmp.cleanup()
+
+    def _post(self, path, body, token=''):
+        headers = {'Content-Type': 'application/json'}
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
+        req = Request(f'http://127.0.0.1:{self.port}{path}',
+                      data=json.dumps(body).encode('utf-8'),
+                      headers=headers, method='POST')
+        with urlopen(req) as resp:
+            return resp.status, json.loads(resp.read())
+
+    def _get(self, path, token=''):
+        headers = {'Authorization': f'Bearer {token}'} if token else {}
+        req = Request(f'http://127.0.0.1:{self.port}{path}', headers=headers)
+        with urlopen(req) as resp:
+            return resp.status, json.loads(resp.read())
+
+    def test_chat_requires_token(self):
+        with self.assertRaises(HTTPError) as ctx:
+            self._post('/chat', {'prompt': 'hello'})
+        self.assertEqual(ctx.exception.code, 401)
+
+    def test_chat_with_token(self):
+        status, data = self._post('/chat', {'prompt': 'hello'}, token='s3cret')
+        self.assertEqual(status, 200)
+        self.assertEqual(data['content'], 'server answer')
+
+    def test_chat_with_wrong_token(self):
+        with self.assertRaises(HTTPError) as ctx:
+            self._post('/chat', {'prompt': 'hello'}, token='nope')
+        self.assertEqual(ctx.exception.code, 401)
+
+    def test_chat_with_non_bearer_scheme(self):
+        req = Request(f'http://127.0.0.1:{self.port}/chat',
+                      data=json.dumps({'prompt': 'hello'}).encode('utf-8'),
+                      headers={'Content-Type': 'application/json',
+                               'Authorization': 'Token s3cret'}, method='POST')
+        with self.assertRaises(HTTPError) as ctx:
+            urlopen(req)
+        self.assertEqual(ctx.exception.code, 401)
+
+    def test_cancel_requires_token(self):
+        with self.assertRaises(HTTPError) as ctx:
+            self._post('/cancel', {})
+        self.assertEqual(ctx.exception.code, 401)
+
+    def test_sessions_requires_token(self):
+        with self.assertRaises(HTTPError) as ctx:
+            self._get('/sessions')
+        self.assertEqual(ctx.exception.code, 401)
+
+    def test_sessions_with_token(self):
+        status, data = self._get('/sessions', token='s3cret')
+        self.assertEqual(status, 200)
+        self.assertIn('sessions', data)
+
+    def test_health_stays_open(self):
+        status, data = self._get('/health')
+        self.assertEqual(status, 200)
+        self.assertEqual(data, {'status': 'ok'})
+
+    def test_version_stays_open(self):
+        status, data = self._get('/version')
+        self.assertEqual(status, 200)
+        self.assertIn('version', data)
+
+
+class TestServerBindPolicy(unittest.TestCase):
+
+    def _args(self, host, token=None, allow=False):
+        class Args:
+            pass
+        args = Args()
+        args.host = host
+        args.port = 0
+        args.path = None
+        args.mode = None
+        if token is not None:
+            args.token = token
+        if allow:
+            args.allow_unauthenticated = True
+        return args
+
+    def test_non_loopback_without_token_refuses(self):
+        args = self._args('0.0.0.0')
+        self.assertEqual(_server._run(args), 2)
+
+    def test_loopback_without_token_is_allowed(self):
+        args = self._args('127.0.0.1')
+        self.assertFalse(_server._allow_unauthenticated(args, _FakeConfig()))
+        self.assertEqual(_server._resolve_token(args, _FakeConfig()), '')
+
+    def test_resolve_token_from_environment(self):
+        import os
+        from unittest.mock import patch
+        args = self._args('127.0.0.1')
+        with patch.dict(os.environ, {'POLYGLAV_TOKEN': 'env-token'}):
+            self.assertEqual(_server._resolve_token(args, _FakeConfig()), 'env-token')
+
+    def test_resolve_token_from_config(self):
+        args = self._args('127.0.0.1')
+        config = _FakeConfig({'serve.token': 'cfg-token'})
+        self.assertEqual(_server._resolve_token(args, config), 'cfg-token')
+
+    def test_allow_unauthenticated_flag(self):
+        args = self._args('0.0.0.0', allow=True)
+        self.assertTrue(_server._allow_unauthenticated(args, _FakeConfig()))
+
+    def test_allow_unauthenticated_config(self):
+        args = self._args('0.0.0.0')
+        config = _FakeConfig({'serve.allow_unauthenticated': True})
+        self.assertTrue(_server._allow_unauthenticated(args, config))
+
+
+class _FakeConfig:
+    def __init__(self, values=None):
+        self.values = values or {}
+
+    def get(self, key, default=None):
+        return self.values.get(key, default)
+
+
 if __name__ == '__main__':
     unittest.main()

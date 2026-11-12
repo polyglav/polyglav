@@ -9,6 +9,19 @@ polyglav serve
 
 All responses are JSON with `Content-Type: application/json`.
 
+## Authentication
+
+`polyglav serve` refuses to bind a non-loopback host without a token. Supply it with `--token`, `POLYGLAV_TOKEN`, or `serve.token` in config. Every route except `/health` and `/version` requires `Authorization: Bearer <token>`, and a missing or wrong token returns `401`.
+
+```bash
+TOKEN=$(openssl rand -hex 16)
+polyglav serve --token "$TOKEN"
+curl -H "Authorization: Bearer $TOKEN" localhost:8787/chat -X POST \
+  -H 'Content-Type: application/json' -d '{"prompt": "Hi"}'
+```
+
+`--allow-unauthenticated` (or `serve.allow_unauthenticated`) permits a non-loopback bind without a token. Use it only for a container that publishes its ports on `127.0.0.1`, where the container-internal bind has to be `0.0.0.0` and nothing leaves the host. `/health` stays open so a monitor can poll it without credentials.
+
 ## POST /chat
 
 Runs one agent turn on the same engine as the REPL and CLI. Request body:
