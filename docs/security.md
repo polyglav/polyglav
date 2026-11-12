@@ -41,6 +41,14 @@ The mode ([modes.md](modes.md)) is the outermost bound. `read` (default) allows 
 
 The model only sees tools whose schema passes policy filtering (`tools.allow` / `tools.deny` / `tool_permission`), and plugin activation is an explicit `plugins` list. The surface area (providers, tools, plugins, permissions) is configuration, not convention. Tool status lines are ephemeral UI, never persisted to session files. Permission decisions (each `allow` / `ask` / `deny` resolution and its outcome) are recorded in the session `permissions` array as an audit trail. Gaps against a full audit trail: session files are not hash-chained or tamper-evident (append-only by convention, not by construction), tool-result content is summarized in the session while the full section stays in the sidecar log.
 
+## Shell policy is not a sandbox
+
+`run_command` runs through a shell with the user's privileges. Two controls bound it: the `bash` permission key (`ask` by default) and the optional `exec_allow` prefix list. Neither is an isolation boundary.
+
+`exec_allow` filters commands a careless model should not run. It splits chained segments, matches prefixes on token boundaries, and rejects substitution and redirection. It cannot contain a prefix that is itself a way to run anything: `python -c`, `sh -c`, `git -c`, `find -exec`, `xargs`, `tar` with an execution option, and any interpreter pointed at a script inside the worktree all execute arbitrary code while matching an innocuous prefix. Treat the list as a guardrail against sloppiness, not as a permission boundary, and do not rely on it in a run that has no operator watching.
+
+The control that holds today is the mode plus the category action. `read` denies exec outright. `write` with `bash: ask` confirms every command. A headless run auto-denies `ask`, so an unattended agent needs `bash: allow` to run anything at all, and that is exactly the configuration where `exec_allow` is the only filter left. Namespace or container isolation for `run_command` is the planned boundary (see [TODO.md](../TODO.md)).
+
 ## Audit trail
 
 Sessions are complete, append-only logs: every message, tool call with arguments and result, reasoning, and error is recorded with timestamps. Compaction only trims the provider context, never the log, so any action can be reconstructed later. See [session.md](session.md). For enterprise deployments this is the base for compliance and forensics, with central aggregation and tamper-evidence as additive hardening (see [use-cases/enterprise.md](use-cases/enterprise.md)).
@@ -64,7 +72,7 @@ Tool results and fetched content are untrusted input returned to the model. Defe
 | Asset | Control |
 |-------|---------|
 | Filesystem | Worktree-scoped `allow`/`ask`/`deny`, escalation outside the worktree |
-| Shell | `run_command` gated by `bash: ask` by default, headless auto-deny |
+| Shell | `run_command` gated by `bash: ask` by default, headless auto-deny, optional `exec_allow` guardrail, no isolation |
 | Delegation | Per-target per-invocation resolution (`call: allow` default, set `ask` per role, non-registry roles denied), read-class `delegate` sibling, sub-agents auto-deny `ask` and share only the caller's carve, own `sub_*` session logs |
 | Network | Explicit tools (`web_search`, `web_fetch`), `web` permission |
 | Provider context | Policy-filtered tool schema, argument cleaning, bounded tool results |
@@ -73,4 +81,4 @@ Tool results and fetched content are untrusted input returned to the model. Defe
 
 ## Planned hardening
 
-Sandboxed exec (namespace/container isolation for `run_command`) and per-plugin virtualenv isolation are planned future work (see [TODO.md](../TODO.md) and [plugins.md](plugins.md)).
+Sandboxed exec (namespace/container isolation for `run_command`) and per-plugin virtualenv isolation are planned future work (see [TODO.md](../TODO.md) and [plugins.md](plugins.md)). The sandbox is what turns shell policy into a boundary. Until it lands, `exec_allow` stays a guardrail and the `bash` action stays the operative control.
