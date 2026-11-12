@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -46,13 +47,13 @@ class TestSessionIoLog(unittest.TestCase):
         session = self.sm.create('clean')
         session.add_user('hello')
         self.sm.save(session)
-        with patch('polyglav.sessions.manager.json.dump') as dump:
+        with patch('polyglav.sessions.private.write_text') as write:
             self.sm.save(session)
-        dump.assert_not_called()
+        write.assert_not_called()
         session.add_user('again')
-        with patch('polyglav.sessions.manager.json.dump') as dump:
+        with patch('polyglav.sessions.private.write_text') as write:
             self.sm.save(session)
-        dump.assert_called_once()
+        write.assert_called_once()
 
     def test_read_missing_file_not_logged(self):
         self.assertIsNone(self.sm.read('nope'))
@@ -77,6 +78,32 @@ class TestSessionIoLog(unittest.TestCase):
         (self.sm.sessions_dir / 'broken.json').write_text('{')
         self.sm.read('broken')
         self.assertNotIn('errors', self.sm.list())
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX file modes')
+    def test_sessions_directory_is_private(self):
+        mode = (self.sm.sessions_dir.stat().st_mode & 0o777)
+        self.assertEqual(mode, 0o700)
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX file modes')
+    def test_session_file_is_private(self):
+        session = self.sm.create('private')
+        session.add_user('hello')
+        self.sm.save(session)
+        path = self.sm.sessions_dir / 'private.json'
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX file modes')
+    def test_errors_log_is_private(self):
+        (self.sm.sessions_dir / 'broken.json').write_text('{not json')
+        self.sm.read('broken')
+        path = self.sm.sessions_dir / 'errors.log'
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX file modes')
+    def test_summary_file_is_private(self):
+        path = self.sm.write_summary('private', 'summary text')
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(path.parent.stat().st_mode & 0o777, 0o700)
 
 
 if __name__ == '__main__':

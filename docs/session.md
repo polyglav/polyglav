@@ -16,7 +16,7 @@ Set `session.storage = "jsonl"` to write append-only `.polyglav/sessions/<name>.
 
 ## Where sessions live
 
-Each session is one JSON file: `.polyglav/sessions/<name>.json`, next to the local `.polyglav/config.json`.
+Each session is one JSON file: `.polyglav/sessions/<name>.json`, next to the local `.polyglav/config.json`. The sessions directory is created `0700` and every session, tool-log, and error file is written `0600`, so the logs stay readable only to the owner. Files written by an earlier version keep their old mode until they are rewritten, and `chmod -R go-rwx .polyglav` closes that gap in one step.
 
 Names are explicit (`/session new <name>`, `/session load <name>`) or auto-generated as `ses_<timestamp>_<id>`, e.g. `ses_20260817_120000_ab12cd`. The `<id>` is a six-character base36 hash minted at creation and embedded in the name, so an auto session is fully named from the start (no prompt-slug rename).
 

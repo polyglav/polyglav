@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -44,6 +45,12 @@ class TestToolLog(unittest.TestCase):
         manager.save(session)
         self.assertTrue(manager.delete('s1'))
         self.assertFalse((self.sessions / 's1.tools.log').exists())
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX file modes')
+    def test_tool_log_file_is_private(self):
+        tool_log.append(self.sessions, 's1', 1, 0, 'a', 'one')
+        path = self.sessions / 's1.tools.log'
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 
     def test_missing_ref(self):
         self.assertIsNone(tool_log.resolve(

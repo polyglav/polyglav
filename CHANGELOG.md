@@ -4,6 +4,7 @@
 
 - Fixed exec allowlist bypasses - `exec_allow` tokenizes each chained segment and matches prefixes on token boundaries, so `pytest` no longer admits `pytestx` or `python3`, rejects backticks, `$(`, `${`, `>` and `<` anywhere in a command, and denies when a segment cannot be tokenized. Docs (`config.md`, `tools.md`). Tests: `polyglav-core-exec`
 - Fixed resolver fail-open - a `permission_fn` that raises now denies the call instead of deferring to the category action, so a deny-only resolver cannot become an allow through an error. Docs (`tools.md`, `config.md`). Tests: `test_tool_policy.py`, `test_call_target.py`, `polyglav-core-git`, `polyglav-core-exec`
+- Fixed session file permissions - the sessions directory is created `0700` and session, tool-log, summary, and error files are written `0600` through a shared private-file helper, so another local user cannot read an agent's log. Docs (`session.md`, `security.md`). Tests: `test_session_io.py`, `test_tool_log.py`
 
 ## v0.54.0 - 2026-11-11
 

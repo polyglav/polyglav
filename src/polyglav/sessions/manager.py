@@ -8,7 +8,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from .. import get_version
-from . import turns
+from . import private, turns
 
 _BASE36 = '0123456789abcdefghijklmnopqrstuvwxyz'
 SESSION_ID_LEN = 6
@@ -306,6 +306,7 @@ class SessionManager:
         self.storage = str(storage or 'json').strip().lower()
         self.store = store
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
+        private.chmod(self.sessions_dir, private.DIR_MODE)
         self.current: Session | None = None
 
     def create(self, session_name: str | None = None, role: str = '',
@@ -430,10 +431,10 @@ class SessionManager:
         if not events and path.exists():
             session._dirty = False
             return
+        text = ''.join(json.dumps(event, separators=(',', ':')) + '\n'
+                       for event in events)
         try:
-            with open(path, 'a') as f:
-                for event in events:
-                    f.write(json.dumps(event, separators=(',', ':')) + '\n')
+            private.append_text(path, text)
             session._saved_meta = meta_key
             session._saved_turns = len(turns_list)
             session._dirty = False
@@ -451,8 +452,7 @@ class SessionManager:
         path = self.sessions_dir / f'{s.session_name}.json'
         tmp = path.with_suffix('.json.tmp')
         try:
-            with open(tmp, 'w') as f:
-                json.dump(s.to_dict(), f, separators=(',', ':'))
+            private.write_text(tmp, json.dumps(s.to_dict(), separators=(',', ':')))
             tmp.replace(path)
         except OSError as e:
             try:
@@ -468,16 +468,15 @@ class SessionManager:
 
     def write_summary(self, session_name: str, text: str) -> Path:
         path = self.summary_path(session_name)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text if text.endswith('\n') else text + '\n')
+        private.mkdir(path.parent)
+        private.write_text(path, text if text.endswith('\n') else text + '\n')
         return path
 
     def _log_io(self, action: str, name: str, detail) -> None:
         ts = datetime.now(timezone.utc).isoformat(timespec='seconds')
         line = f'{ts}\t{action}\t{name}\t{detail}\n'
         try:
-            with open(self.sessions_dir / 'errors.log', 'a') as f:
-                f.write(line)
+            private.append_text(self.sessions_dir / 'errors.log', line)
         except OSError:
             pass
 
@@ -497,8 +496,7 @@ class SessionManager:
         path = self.sessions_dir / f'{s.session_name}.json'
         tmp = path.with_suffix('.json.tmp')
         try:
-            with open(tmp, 'w') as f:
-                json.dump(s.to_dict(), f, separators=(',', ':'))
+            private.write_text(tmp, json.dumps(s.to_dict(), separators=(',', ':')))
             tmp.replace(path)
             s._dirty = False
         except OSError as e:

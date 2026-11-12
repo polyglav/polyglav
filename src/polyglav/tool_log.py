@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .sessions import private
+
 
 def worktree(sessions_dir: Path) -> Path:
     return Path(sessions_dir).parent.parent
@@ -42,19 +44,18 @@ def summarize(text: str, limit: int = 200) -> str:
 def append(sessions_dir: Path, session: str, turn: int, part: int,
            name: str, text: str) -> dict:
     path = path_for(sessions_dir, session)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    private.mkdir(path.parent)
     start = _line_count(path) + 1
     body = str(text or '')
     lines = body.count('\n') + (0 if body.endswith('\n') else 1)
     stamp = datetime.now(timezone.utc).isoformat(timespec='seconds')
     header = (f'# turn {turn} part {part} {name} {stamp} '
               f'{len(body.encode("utf-8"))} bytes')
-    with open(path, 'a', encoding='utf-8') as f:
-        f.write(header + '\n')
-        f.write(body)
-        if not body.endswith('\n'):
-            f.write('\n')
-        f.write('---\n\n')
+    chunk = header + '\n' + body
+    if not chunk.endswith('\n'):
+        chunk += '\n'
+    chunk += '---\n\n'
+    private.append_text(path, chunk)
     end = start + 1 + lines + 1
     ref = f'{_relative(path, sessions_dir)}#L{start}-L{end}'
     return {

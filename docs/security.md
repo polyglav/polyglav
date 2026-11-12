@@ -56,6 +56,7 @@ Sessions are complete, append-only logs: every message, tool call with arguments
 ## Data posture
 
 - **Local-first** - config and session logs live on your disk. All provider traffic is outbound. No external telemetry or logging service holds enterprise data.
+- **Session logs** - written in plain text by design, so they stay greppable and exportable. The sessions directory is `0700` and each log is `0600`, so another local user cannot read what an agent has read. There is no automatic retention, and encryption at rest is a backlog idea that would cost full-text search over the logs.
 - **Zero dependencies** - the core is Python stdlib only, so there is no supply chain to audit and no lockfile churn. Plugins may add third-party deps, imported lazily and only when the plugin is used.
 - **API keys** - stored in the global provider registry (`~/.config/polyglav/providers.json`, one key per provider, written `0600` when it holds keys), never in config or a session log by hand. Keep keys out of repositories.
 
@@ -76,7 +77,7 @@ Tool results and fetched content are untrusted input returned to the model. Defe
 | Delegation | Per-target per-invocation resolution (`call: allow` default, set `ask` per role, non-registry roles denied), read-class `delegate` sibling, sub-agents auto-deny `ask` and share only the caller's carve, own `sub_*` session logs |
 | Network | Explicit tools (`web_search`, `web_fetch`), `web` permission |
 | Provider context | Policy-filtered tool schema, argument cleaning, bounded tool results |
-| Session data | Append-only local logs, local file ownership |
+| Session data | Append-only local logs, `0600` files in a `0700` directory |
 | Model | Config-driven provider/model selection, no autonomous self-modification |
 
 ## Planned hardening
