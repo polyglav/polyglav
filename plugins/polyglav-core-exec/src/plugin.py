@@ -10,6 +10,7 @@ MAX_TIMEOUT = 600
 DEFAULT_TIMEOUT = 30
 
 _CHAIN_SPLIT = re.compile(r'(&&|\|\||;|\||&)')
+_BLOCKED_MARKERS = ('`', '$(', '${', '>', '<', '\r', '\n')
 
 
 def _clamp_timeout(timeout) -> int:
@@ -24,13 +25,32 @@ def _chain_segments(command: str) -> list[str]:
     return [p.strip() for p in parts if p.strip() and p.strip() not in ('&&', '||', ';', '|', '&')]
 
 
+def _tokens(text: str) -> list[str] | None:
+    try:
+        return shlex.split(text)
+    except ValueError:
+        return None
+
+
+def _prefix_tokens(prefix: str) -> list[str]:
+    return _tokens(str(prefix).strip()) or []
+
+
+def _matches_prefix(tokens: list[str], wanted: list[str]) -> bool:
+    return bool(wanted) and tokens[:len(wanted)] == wanted
+
+
 def _command_allowed(command: str, allowlist: list[str]) -> bool:
     if not allowlist:
         return True
-    if '\n' in command or '\r' in command or '<<' in command:
+    if any(marker in command for marker in _BLOCKED_MARKERS):
         return False
+    prefixes = [_prefix_tokens(prefix) for prefix in allowlist if prefix]
     for seg in _chain_segments(command):
-        if not any(seg.startswith(prefix) for prefix in allowlist if prefix):
+        tokens = _tokens(seg)
+        if not tokens:
+            return False
+        if not any(_matches_prefix(tokens, wanted) for wanted in prefixes):
             return False
     return True
 

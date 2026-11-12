@@ -14,7 +14,7 @@
     "config": {
       "exec_allow": {
         "default": [],
-        "description": "Commands allowed for run_command, matched by prefix"
+        "description": "Commands allowed for run_command, matched by leading tokens"
       }
     }
   }

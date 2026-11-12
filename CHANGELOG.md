@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.55.0
+
+- Fixed exec allowlist bypasses - `exec_allow` tokenizes each chained segment and matches prefixes on token boundaries, so `pytest` no longer admits `pytestx` or `python3`, rejects backticks, `$(`, `${`, `>` and `<` anywhere in a command, and denies when a segment cannot be tokenized. Docs (`config.md`, `tools.md`). Tests: `polyglav-core-exec`
+
 ## v0.54.0 - 2026-11-11
 
 - Added per-agent round attribution - observer events carry `role`, `sub`, and `session`, each round records them, `main_rounds` counts only root rounds, and `sub_rounds` counts delegated rounds. Docs (`metrics.md`). Tests: `test_engine_observer.py`, `test_metrics.py`

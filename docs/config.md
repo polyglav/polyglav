@@ -212,13 +212,14 @@ An approved permission request creates a one-shot grant on the asking sub-agent 
 
 ### `exec_allow` - command allowlist for `run_command`
 
-`exec_allow` (list, default `[]`, declared by `polyglav-core-exec`) restricts `run_command` to commands whose first token matches an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
+`exec_allow` (list, default `[]`, declared by `polyglav-core-exec`) restricts `run_command` to commands whose leading tokens match an allowed prefix. Empty or unset means unrestricted (the `bash` action applies to every command). When set:
 
 - Commands split into chained segments over the shell chaining operators. Every segment must start with an allowed prefix (e.g. `pytest -q && ruff check .` needs both `pytest` and `ruff`).
-- Shell-script forms are rejected outright: multi-line commands and heredocs (`<<`) always return `deny`.
+- Matching is token-based, not textual. Each segment is tokenized and must begin with exactly the prefix tokens, so `pytest` does not admit `pytestx` and `python` does not admit `python3`. A multi-token prefix like `python -m unittest` matches only that module invocation.
+- Substitution and redirection are rejected outright: a command containing a backtick, `$(`, `${`, `>` or `<` always returns `deny`, as do multi-line commands and any segment that fails tokenization (for example unbalanced quotes). Output redirection such as `2>&1` is therefore not available in allowlist mode.
 - A matching command falls through to the normal `bash` action (`ask` by default, `allow`/`deny` per config). A non-matching command is `deny`.
 
-The check runs through the per-invocation policy resolver and a `_config` resolver argument, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `exec_allow` gives a coding agent a safe default set (tests, linters, git) without opening up arbitrary shell.
+The check runs through the per-invocation policy resolver and a `_config` resolver argument, so it composes with modes, name-level `tools.deny`/`tools.allow`, and the worktree escalation. `exec_allow` is a guardrail that keeps a coding agent on tests, linters, and git, not a privilege boundary. Prefixes that execute what you point them at (`python`, `sh`, `git -c`, `find -exec`, `xargs`, `tar`) stay execution primitives, and only the sandboxed exec from the roadmap is a boundary. A resolver failure denies the call. See [security.md](security.md) for the control model.
 
 ## Model registry (not config)
 

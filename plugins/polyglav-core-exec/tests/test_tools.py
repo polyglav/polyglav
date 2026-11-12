@@ -152,6 +152,68 @@ class TestExecTools(unittest.TestCase):
             {'exec_allow': ['pytest', 'ruff']})
         self.assertIsNone(out)
 
+    def test_exec_allow_rejects_backtick_substitution(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git log `id`'}, {'exec_allow': ['git']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_dollar_substitution(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git diff -- $(id)'}, {'exec_allow': ['git']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_dollar_brace(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git log ${HOME}'}, {'exec_allow': ['git']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_output_redirect(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git status > /tmp/pwn'}, {'exec_allow': ['git']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_input_redirect(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git log < /etc/shadow'}, {'exec_allow': ['git']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_fd_duplication(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'pytest -q 2>&1'}, {'exec_allow': ['pytest']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_prefix_respects_token_boundary(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'pytestx --run evil'}, {'exec_allow': ['pytest']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_prefix_respects_token_boundary_for_interpreters(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'python3 -c "import os"'}, {'exec_allow': ['python']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_multi_token_prefix(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'python -m unittest discover tests'},
+            {'exec_allow': ['python -m unittest']})
+        self.assertIsNone(out)
+
+    def test_exec_allow_multi_token_prefix_denies_other_module(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'python -m pip install evil'},
+            {'exec_allow': ['python -m unittest']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_rejects_unbalanced_quotes(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'pytest "unbalanced'}, {'exec_allow': ['pytest']})
+        self.assertEqual(out, 'deny')
+
+    def test_exec_allow_trailing_space_prefix(self):
+        out = exec_plugin._run_command_permission(
+            {'command': 'git status'}, {'exec_allow': ['git ']})
+        self.assertIsNone(out)
+
 
 if __name__ == '__main__':
     unittest.main()

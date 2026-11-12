@@ -171,7 +171,7 @@ Tool behavior is controlled by config keys (see [config.md](config.md) for the f
 | `tool_calling` | `true` | Enable OpenAI-compatible function calling |
 | `tool_max_result_chars` | `100000` | Cap every tool result at N chars (`0` = unlimited) |
 | `tool_permission` | *(see config.md)* | Category actions - `read`/`list`/`edit`/`bash`/`web`/`mcp` -> `allow`/`ask`/`deny` |
-| `exec_allow` | `[]` | `run_command` allowlist owned by `polyglav-core-exec` - every chained segment must start with an allowed prefix, heredocs/multi-line rejected (see [config.md](config.md)) |
+| `exec_allow` | `[]` | `run_command` allowlist owned by `polyglav-core-exec` - token-matched prefix per chained segment, with substitution, redirection, heredocs, and multi-line commands rejected (see [config.md](config.md)) |
 | `tools.allow` | `[]` | Name-level allowlist. When non-empty, only these tools are callable |
 | `tools.deny` | `[]` | Name-level deny list (takes precedence over allow) |
 | `tool_output_log` | `true` | Append tool results to the session sidecar with line-range refs |
