@@ -105,18 +105,6 @@ def _confirm(chat, ask, prompt: str, default: str = 'y') -> bool:
 
 def _warn(chat, message: str) -> None:
     ui = getattr(chat, '_ui', None)
-def _confirm(chat, ask, prompt: str, default: str = 'y') -> bool:
-    ui = getattr(chat, '_ui', None)
-    reader = getattr(ui, 'confirm_text', None)
-    try:
-        if callable(reader):
-            return bool(reader(prompt, default=default))
-        return _ask(ask, prompt, default).lower() not in ('n', 'no')
-    except (EOFError, KeyboardInterrupt):
-        print()
-        return False
-
-
     if ui is not None and hasattr(ui, 'warning'):
         ui.warning(message)
     else:

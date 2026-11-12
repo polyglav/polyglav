@@ -20,6 +20,20 @@ python -m unittest tests.test_tool_calling
 
 Run tests before committing changes to verify core logic isn't broken.
 
+## Static checks
+
+The runtime stays stdlib only. Linting, type checking, and coverage are development tooling, installed through the `dev` extra and never imported by the package:
+
+```bash
+pip install -e ".[dev]"
+ruff check src plugins tests
+mypy src/polyglav/config.py src/polyglav/tool_log.py src/polyglav/tools/policy.py \
+  src/polyglav/sessions/private.py src/polyglav/sessions/manager.py
+coverage run --source=src/polyglav -m unittest discover tests && coverage report
+```
+
+CI runs all four. The ruff selection is deliberately narrow (`E9`, `F63`, `F7`, `F82`), so it fails on syntax errors and undefined or unused names rather than on style. The type check runs over a fixed allowlist of clean modules and widens as modules are cleaned, with `src/polyglav/engine.py` as the target. Coverage is reported without a threshold until the baseline is known.
+
 ## Test coverage
 
 | File | Covers |

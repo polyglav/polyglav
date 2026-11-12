@@ -123,9 +123,12 @@ class Session:
             self._touch()
 
     def add_part(self, part: dict) -> dict:
-        if self._open is None:
+        current = self._open
+        if current is None:
             self.start_turn()
-        turns.add_part(self._open, part)
+            current = self._open
+        if current is not None:
+            turns.add_part(current, part)
         self._touch()
         return part
 
@@ -310,6 +313,9 @@ def session_from_document(data: dict) -> Session:
     flat.setdefault('errors', data.get('errors', []))
     flat.setdefault('permissions', data.get('permissions', []))
     return Session.from_dict(flat)
+
+
+TreeNodes = list[tuple[int, Session]]
 
 
 class SessionManager:
@@ -526,7 +532,7 @@ class SessionManager:
         names.update(p.stem for p in self.sessions_dir.glob('*.jsonl'))
         return sorted(names)
 
-    def tree(self, session_name: str) -> list[tuple[int, Session]]:
+    def tree(self, session_name: str) -> TreeNodes:
         root = self.read(session_name)
         if root is None:
             return []

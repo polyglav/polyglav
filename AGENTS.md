@@ -114,7 +114,7 @@ Polyglav/
 ## Conventions
 
 ### Code Style
-- No external dependencies, stdlib only. Plugins may opt into third-party deps via their manifest, but the core never depends on them
+- No external dependencies, stdlib only. Plugins may opt into third-party deps via their manifest, but the core never depends on them. Development tooling (linter, typechecker, coverage) lives in the `dev` extra and is never imported at runtime
 - No comments in code
 - Type hints required for all function signatures
 - Use `from __future__ import annotations` if needed for `|` syntax
@@ -224,6 +224,8 @@ PYTHONPATH=$PWD/src python -m unittest discover tests
 ```
 
 Single-file runs use the same prefix (`PYTHONPATH=$PWD/src python -m unittest tests.test_turns`). The per-file coverage map is in `docs/testing.md`.
+
+`pip install -e ".[dev]"` adds the static checks that CI runs: `ruff check src plugins tests`, a `mypy` allowlist that starts with the clean core modules and widens toward `engine.py`, and `coverage report`. The runtime stays stdlib only, so the dev extra is tooling, never an import.
 
 Test incrementally. Before each commit run only the tests for the code just changed, as a single file or single class. After the last commit of a series, run the full suite (`discover tests`) and fix anything it finds.
 

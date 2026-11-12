@@ -21,3 +21,47 @@ jobs:
         run: pip install -e .
       - name: Run tests
         run: python -m unittest discover tests
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dev tooling
+        run: pip install -e ".[dev]"
+      - name: Ruff
+        run: ruff check src plugins tests
+
+  types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dev tooling
+        run: pip install -e ".[dev]"
+      - name: Mypy
+        run: >
+          mypy
+          src/polyglav/config.py
+          src/polyglav/tool_log.py
+          src/polyglav/tools/policy.py
+          src/polyglav/sessions/private.py
+          src/polyglav/sessions/manager.py
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dev tooling
+        run: pip install -e ".[dev]"
+      - name: Measure coverage
+        run: coverage run --source=src/polyglav -m unittest discover tests
+      - name: Report coverage
+        run: coverage report

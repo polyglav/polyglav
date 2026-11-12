@@ -16,6 +16,9 @@ keywords = ["ai", "ai-agents", "api", "assistant", "cli", "cloud", "local", "pyt
 [project.scripts]
 polyglav = "polyglav.main:main"
 
+[project.optional-dependencies]
+dev = ["coverage", "mypy", "ruff"]
+
 [project.urls]
 Repository = "https://github.com/polyglav/polyglav"
 Issues = "https://github.com/polyglav/polyglav/issues"
@@ -37,3 +40,14 @@ packages = [
 [tool.setuptools.package-data]
 "polyglav" = ["*.json"]
 "polyglav.plugins.bundled" = ["*/*.json", "*/src/*.py", "*/tests/*.py"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82"]
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true

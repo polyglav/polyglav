@@ -108,7 +108,8 @@ class HttpTransport:
             err = parsed['error']
             raise jsonrpc.MCPError(err.get('code', 0), err.get('message', 'MCP error'),
                                    err.get('data'))
-        raise TransportError(f'MCP server returned HTTP {status}: {self._short(message, "")}')
+        raise TransportError(
+            f'MCP server returned HTTP {status}: {HttpTransport._short(message, "")}')
 
     def notify(self, method: str, params: dict | None = None,
                modern: bool = True, version: str = jsonrpc.MODERN_VERSION):
