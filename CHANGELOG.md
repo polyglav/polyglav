@@ -7,6 +7,7 @@
 - Fixed session file permissions - the sessions directory is created `0700` and session, tool-log, summary, and error files are written `0600` through a shared private-file helper, so another local user cannot read an agent's log. Docs (`session.md`, `security.md`). Tests: `test_session_io.py`, `test_tool_log.py`
 - Added run command worktree escalation - `run_command` declares `cwd` as its path argument, so a directory outside the worktree turns an `allow` into `ask` like the file tools instead of running silently. Docs (`tools.md`, `security.md`). Tests: `polyglav-core-exec`
 - Added serve token auth - `--token`, `POLYGLAV_TOKEN`, and `serve.token` gate every route except `/health` and `/version` through a constant-time compare, and a non-loopback bind without a token refuses to start unless `serve.allow_unauthenticated` is set. Docs (`api.md`, `config.md`, `security.md`). Tests: `polyglav-core-serve`
+- Added deploy token propagation - the container entrypoint forwards `POLYGLAV_TOKEN` and the new `POLYGLAV_ALLOW_UNAUTHENTICATED` escape hatch, the Compose example requires the token, the fleet supervisor passes it to child agents and to `fleet ask`, and `deploy.md` warns that an unpublished loopback prefix is the only thing between a port and code execution. Docs (`deploy.md`, `fleet.md`). Tests: `polyglav-core-serve`, `polyglav-core-fleet`
 
 ## v0.54.0 - 2026-11-11
 

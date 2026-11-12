@@ -5,17 +5,21 @@ You can run `polyglav serve` directly, but a fleet of agents is best supervised 
 - **Single interactive agent** - install with pipx and run the REPL, `polyglav run`, or `polyglav serve` by hand. See [INSTALL.md](../INSTALL.md).
 - **Supervised fleet or always-on server** - this page. Build the image from the repo's `Dockerfile` and run one container per agent with `docker-compose.yml.example`.
 
-The Docker templates live at the repo root (`Dockerfile`, `polyglav-entrypoint.sh`, `docker-compose.yml.example`) and work as-is. Per-agent values (the project path, the port, and the API key) are configured on your machine, never in the templates. A deployed agent is always `polyglav serve` pointed at a folder inside the container. The folder holds `.polyglav/config.json` (provider, model, system prompt, tool permissions, plugins) and writes sessions under `.polyglav/sessions/`. Mount that folder into the container and the agent keeps its state across restarts.
+The Docker templates live at the repo root (`Dockerfile`, `polyglav-entrypoint.sh`, `docker-compose.yml.example`) and work as-is. Per-agent values (the project path, the port, the API key, and the API token) are configured on your machine, never in the templates. A deployed agent is always `polyglav serve` pointed at a folder inside the container. The folder holds `.polyglav/config.json` (provider, model, system prompt, tool permissions, plugins) and writes sessions under `.polyglav/sessions/`. Mount that folder into the container and the agent keeps its state across restarts.
+
+**The API has no authentication of its own beyond a bearer token, and that token is the only thing between a reachable port and code execution in the container.** Set `POLYGLAV_TOKEN`, publish the port on `127.0.0.1` (the `-p 127.0.0.1:8781:8781` form, never a bare `-p 8781:8781`), and let a reverse proxy add anything more. A non-loopback bind without a token refuses to start.
 
 ## Docker
 
-The image runs `polyglav serve` and takes three environment variables:
+The image runs `polyglav serve` and takes five environment variables:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `POLYGLAV_HOST` | `0.0.0.0` | Bind address |
+| `POLYGLAV_HOST` | `0.0.0.0` | Bind address inside the container |
 | `POLYGLAV_PORT` | `8787` | Bind port |
 | `POLYGLAV_PATH` | (unset) | Project path the agent is scoped to. When set, the server uses `--path` and reads `.polyglav/config.json` from that directory |
+| `POLYGLAV_TOKEN` | (unset) | Bearer token required on every route except `/health`. Required for the `0.0.0.0` bind the image uses |
+| `POLYGLAV_ALLOW_UNAUTHENTICATED` | (unset) | Skip the token requirement for a container published on loopback only. Documented escape hatch, not a default |
 
 Build the image from the repo root:
 
@@ -29,6 +33,7 @@ docker build -t polyglav .
 docker run -d --name docs-agent -p 127.0.0.1:8781:8781 \
   -e POLYGLAV_PORT=8781 \
   -e POLYGLAV_PATH=/srv/docs \
+  -e POLYGLAV_TOKEN="$(openssl rand -hex 16)" \
   -v "$PWD/agents/docs:/srv/docs" \
   polyglav
 ```
@@ -47,6 +52,7 @@ services:
     environment:
       POLYGLAV_PORT: 8781
       POLYGLAV_PATH: /srv/docs
+      POLYGLAV_TOKEN: ${POLYGLAV_TOKEN:?set POLYGLAV_TOKEN before starting the fleet}
     volumes:
       - ./agents/docs:/srv/docs
     ports:
@@ -54,7 +60,13 @@ services:
     restart: unless-stopped
 ```
 
-Ports publish on `127.0.0.1` so the JSON API stays host-local behind your reverse proxy. Containers run as root. Add `user: "1000:1000"` (your uid) to a service if you want agent-written files in the mounted folders owned by you. Add an agent by copying a service block and changing the name, port, and volume. Bring the fleet up:
+Export the token before `docker compose up`, so Compose substitutes it and both services share one credential:
+
+```bash
+export POLYGLAV_TOKEN="$(openssl rand -hex 16)"
+```
+
+Ports publish on `127.0.0.1` so the JSON API stays host-local behind your reverse proxy, which is also where any stronger authentication belongs. Containers run as root. Add `user: "1000:1000"` (your uid) to a service if you want agent-written files in the mounted folders owned by you. Add an agent by copying a service block and changing the name, port, volume, and token. Bring the fleet up:
 
 ```bash
 docker compose up -d

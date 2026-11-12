@@ -35,6 +35,10 @@ BACKOFF_MAX = 60.0
 HEALTH_TIMEOUT = 2.0
 UNHEALTHY_THRESHOLD = 2
 
+
+def _fleet_token() -> str:
+    return str(os.environ.get('POLYGLAV_TOKEN', '') or '').strip()
+
 STARTING = 'starting'
 RUNNING = 'running'
 HEALTHY = 'healthy'
@@ -350,11 +354,15 @@ class FleetController:
     def _command(self, agent: AgentDef, port: int) -> list[str]:
         if agent.command:
             return list(agent.command)
-        return [
+        cmd = [
             sys.executable, '-m', 'polyglav', 'serve',
             '--host', '127.0.0.1', '--port', str(port),
             '--path', str(self.agent_dir(agent)),
         ]
+        token = _fleet_token()
+        if token:
+            cmd += ['--token', token]
+        return cmd
 
     def spawn(self, agent: AgentDef, port: int) -> subprocess.Popen:
         agent_dir = self.agent_dir(agent)
@@ -619,9 +627,11 @@ class FleetController:
             return f'Agent is not running: {name}'
         url = f'http://127.0.0.1:{st.port}/chat'
         payload = json.dumps({'prompt': prompt}).encode('utf-8')
-        request = urllib.request.Request(
-            url, data=payload,
-            headers={'Content-Type': 'application/json'})
+        headers = {'Content-Type': 'application/json'}
+        token = _fleet_token()
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
+        request = urllib.request.Request(url, data=payload, headers=headers)
         try:
             with urllib.request.urlopen(request, timeout=300) as resp:
                 data = json.loads(resp.read().decode('utf-8'))

@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import signal
 import socket
 import subprocess
@@ -144,8 +145,35 @@ class TestHealthProbe(unittest.TestCase):
         self.assertIn('port', err)
 
 
-class TestManifestAndState(unittest.TestCase):
+class TestFleetToken(unittest.TestCase):
 
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.controller = FleetController(self.root)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_command_without_token(self):
+        agent = AgentDef(name='a', dir=str(self.root / 'a'))
+        cmd = self.controller._command(agent, 8781)
+        self.assertNotIn('--token', cmd)
+        self.assertIn('127.0.0.1', cmd)
+
+    def test_command_with_token(self):
+        agent = AgentDef(name='a', dir=str(self.root / 'a'))
+        with patch.dict(os.environ, {'POLYGLAV_TOKEN': 'fleet-token'}):
+            cmd = self.controller._command(agent, 8781)
+        self.assertIn('--token', cmd)
+        self.assertEqual(cmd[cmd.index('--token') + 1], 'fleet-token')
+
+    def test_fleet_token_empty_by_default(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(_fleet._fleet_token(), '')
+
+
+class TestManifestAndState(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)

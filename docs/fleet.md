@@ -47,12 +47,14 @@ A minimal agent config (`.polyglav/config.json` in its own directory):
 }
 ```
 
-Launch it, and peers talk to it over the same `POST /chat` API used everywhere:
+Launch it, and peers talk to it over the same `POST /chat` API used everywhere. A loopback bind needs no token, and a token is required the moment the bind leaves loopback:
 
 ```bash
 polyglav serve --path agents/docs --port 8781 &
 curl localhost:8781/chat -X POST -d '{"prompt": "What does spec-42.pdf say?", "session": "docs-pool"}'
 ```
+
+With `--token` (or `POLYGLAV_TOKEN`) set, add the header: `-H "Authorization: Bearer $POLYGLAV_TOKEN"`. The fleet supervisor forwards `POLYGLAV_TOKEN` to every child it spawns and sends it on `fleet ask`.
 
 ## Spawning from the REPL
 
