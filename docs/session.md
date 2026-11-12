@@ -57,8 +57,15 @@ The active session is handled by `/session` (like `/model` for the model). The c
 | `/sessions delete <name>` | Delete a session |
 | `/sessions export <name> [out] [--json] [--tree]` | Export a session (or its run tree) to Markdown (or JSON) |
 | `/sessions import <file> [name] [--force]` | Import a session from a JSON export |
+| `/sessions prune --older-than <days> [--dry-run]` | Delete sessions not updated in that many days, with their tool logs and summaries. The current session is always kept |
 
 The current session auto-saves after every turn and command, so nothing is lost on exit.
+
+## Retention
+
+Sessions are kept until you delete them. There is no background timer and no automatic expiry, because losing a log to a timer is worse than keeping it. `/sessions delete <name>` removes one session, and `/sessions prune --older-than <days>` removes every session whose `updated_at` is older than the threshold, together with its `.tools.log` sidecar and summary. The current session is always kept. The headless form is `polyglav sessions prune --older-than <days> [--dry-run] [--yes]`, and it is a dry run unless `--yes` is passed. The removal reports the session count and the bytes freed.
+
+This is the deletion half of a data-protection story. The other half is encryption at rest, which is a backlog idea: it would cost full-text search over the logs, so it follows retention rather than replacing it.
 
 `/history` lists the active session's turns as a numbered index, one line per turn: `#<index>  [<status>]  <duration>  <tool count>  <prompt>`. The index is the turn's absolute `index`, so a turn can be named later regardless of the listing limit. `/history 3` shows the last three turns, `/history all` every turn, and `--thoughts` adds a dim first-line excerpt of the turn's thinking (`--thoughts all` prints the full thinking text). `/history session:<name>` reads another saved session without changing the current session. `--tree` lists the root and every sub-run with its depth.
 

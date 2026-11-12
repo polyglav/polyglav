@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from polyglav.sessions.manager import SessionManager
@@ -104,6 +105,55 @@ class TestSessionIoLog(unittest.TestCase):
         path = self.sm.write_summary('private', 'summary text')
         self.assertEqual(path.stat().st_mode & 0o777, 0o600)
         self.assertEqual(path.parent.stat().st_mode & 0o777, 0o700)
+
+    def _aged_session(self, name, days):
+        session = self.sm.create(name)
+        session.add_user('hello')
+        stamp = (datetime.now(timezone.utc) - timedelta(days=days))
+        session.updated_at = stamp.isoformat(timespec='seconds')
+        self.sm.save(session)
+        self.sm.current = None
+        return session
+
+    def test_prune_dry_run_deletes_nothing(self):
+        self._aged_session('old', 40)
+        result = self.sm.prune(30, dry_run=True)
+        self.assertEqual(result['removed'], 1)
+        self.assertEqual(result['sessions'], ['old'])
+        self.assertTrue(result['dry_run'])
+        self.assertTrue((self.sm.sessions_dir / 'old.json').exists())
+
+    def test_prune_removes_old_sessions(self):
+        self._aged_session('old', 40)
+        self._aged_session('fresh', 1)
+        result = self.sm.prune(30)
+        self.assertEqual(result['removed'], 1)
+        self.assertEqual(result['sessions'], ['old'])
+        self.assertFalse((self.sm.sessions_dir / 'old.json').exists())
+        self.assertTrue((self.sm.sessions_dir / 'fresh.json').exists())
+
+    def test_prune_removes_tool_log_and_summary(self):
+        self._aged_session('old', 40)
+        (self.sm.sessions_dir / 'old.tools.log').write_text('x')
+        self.sm.write_summary('old', 'summary')
+        self.sm.prune(30)
+        self.assertFalse((self.sm.sessions_dir / 'old.tools.log').exists())
+        self.assertFalse(self.sm.summary_path('old').exists())
+
+    def test_prune_keeps_current_session(self):
+        self.sm.current = self._aged_session('current', 40)
+        result = self.sm.prune(30)
+        self.assertEqual(result['removed'], 0)
+        self.assertTrue((self.sm.sessions_dir / 'current.json').exists())
+
+    def test_prune_counts_bytes(self):
+        self._aged_session('old', 40)
+        result = self.sm.prune(30)
+        self.assertGreater(result['bytes'], 0)
+
+    def test_prune_rejects_non_integer_age(self):
+        with self.assertRaises(ValueError):
+            self.sm.prune('soon')
 
 
 if __name__ == '__main__':

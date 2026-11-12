@@ -56,7 +56,7 @@ Sessions are complete, append-only logs: every message, tool call with arguments
 ## Data posture
 
 - **Local-first** - config and session logs live on your disk. All provider traffic is outbound. No external telemetry or logging service holds enterprise data.
-- **Session logs** - written in plain text by design, so they stay greppable and exportable. The sessions directory is `0700` and each log is `0600`, so another local user cannot read what an agent has read. There is no automatic retention, and encryption at rest is a backlog idea that would cost full-text search over the logs.
+- **Session logs** - written in plain text by design, so they stay greppable and exportable. The sessions directory is `0700` and each log is `0600`, so another local user cannot read what an agent has read. Nothing expires automatically: `/sessions prune --older-than <days>` and `polyglav sessions prune` delete old logs and their summaries on request, which is the deletion half of a retention policy. Encryption at rest is a backlog idea that would cost full-text search over the logs.
 - **Zero dependencies** - the core is Python stdlib only, so there is no supply chain to audit and no lockfile churn. Plugins may add third-party deps, imported lazily and only when the plugin is used.
 - **API keys** - stored in the global provider registry (`~/.config/polyglav/providers.json`, one key per provider, written `0600` when it holds keys), never in config or a session log by hand. Keep keys out of repositories.
 

@@ -44,7 +44,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/role`                 |                | Show the active run's role and session. See [roles.md](roles.md) |
 | `/roles`                |                | Manage roles: `list` (`list <tag>` filters), `new <name> [prompt]`, `remove <name>`, `show <name>`. See [roles.md](roles.md) |
 | `/session`              |                | Show or switch the active session: `/session new`, `/session load <name>`, `/session save`. The summary shows message count and token context. Saved-session catalog operations live under `/sessions` |
-| `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview` (see [session.md](session.md)) |
+| `/sessions`             |                | Manage the saved-session catalog: `delete`, `export <name> [out] [--json] [--tree]`, `import <file> [name] [--force]`, `list` (roots only), `preview`, `prune --older-than <days> [--dry-run]` (see [session.md](session.md)) |
 | `/skills`               |                | Manage skills: `list`, `new <name>`, `remove <name>`, `show <name>`. See [skills.md](skills.md) |
 | `/summary`              |                | Summarize the current session into `.polyglav/summaries/<session>.md` without trimming the provider context |
 | `/spawn`                |                | Launch, list, stop, or ask a scoped serve agent. `/spawn <name> <path>` launches one, `/spawn ask <name> <prompt>` delegates to it, `/spawn stop <name>` stops it, and `/spawn` lists agents |

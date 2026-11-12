@@ -197,6 +197,7 @@ def register_commands(commands):
         ('list', 'List saved sessions'),
         ('preview', 'Show a structural preview of a session'),
         ('delete', 'Delete a session'),
+        ('prune', 'Delete sessions older than N days'),
         ('export', 'Export a session to Markdown or JSON'),
         ('import', 'Import a session from a JSON export'),
     ])
@@ -232,6 +233,38 @@ def register_commands(commands):
                 print(f'Deleted session: {name}')
             else:
                 print(f'Session not found: {name}')
+        elif action == 'prune':
+            tokens = arg.strip().split()[1:]
+            days = ''
+            dry_run = '--dry-run' in tokens
+            skip_next = False
+            for index, token in enumerate(tokens):
+                if skip_next:
+                    skip_next = False
+                    continue
+                if token == '--older-than':
+                    days = tokens[index + 1] if index + 1 < len(tokens) else ''
+                    skip_next = True
+                elif token.startswith('--older-than='):
+                    days = token.split('=', 1)[1]
+                elif not token.startswith('-'):
+                    days = token
+            if not days:
+                print('Usage: /sessions prune --older-than <days> [--dry-run]')
+                return
+            try:
+                result = chat.sessions.prune(int(days), dry_run=dry_run)
+            except ValueError:
+                print('Usage: /sessions prune --older-than <days> [--dry-run]')
+                return
+            verb = 'Would delete' if dry_run else 'Deleted'
+            print(f'{verb} {result["removed"]} session(s) older than '
+                  f'{result["older_than_days"]} day(s), '
+                  f'{result["bytes"]} bytes')
+            for name in result['sessions']:
+                print(f'  {name}')
+            if result['removed'] and not dry_run:
+                print('Removed: session files, tool logs, and summaries')
         elif action == 'export':
             tree = '--tree' in arg.split()
             tokens = [t for t in arg.strip().split()[1:]
@@ -450,12 +483,36 @@ def cmd_import(args) -> int:
     return 0
 
 
+def cmd_prune(args) -> int:
+    from polyglav.sessions.manager import SessionManager
+    config = Config(path=getattr(args, 'path', None))
+    sessions = SessionManager(config.local_path.parent / 'sessions')
+    dry_run = bool(getattr(args, 'dry_run', False)) or not bool(getattr(args, 'yes', False))
+    try:
+        result = sessions.prune(int(args.older_than), dry_run=dry_run)
+    except ValueError:
+        print('--older-than must be an integer number of days', file=sys.stderr)
+        return 1
+    verb = 'Would delete' if dry_run else 'Deleted'
+    print(f'{verb} {result["removed"]} session(s) older than '
+          f'{result["older_than_days"]} day(s), {result["bytes"]} bytes')
+    for name in result['sessions']:
+        print(f'  {name}')
+    if dry_run and result['removed']:
+        print('Re-run with --yes to delete them')
+    return 0
+
+
 def _run_export(args):
     return cmd_export(args)
 
 
 def _run_import(args):
     return cmd_import(args)
+
+
+def _run_prune(args):
+    return cmd_prune(args)
 
 
 def register_cli(cli):
@@ -479,3 +536,14 @@ def register_cli(cli):
     p.add_argument('--path', default=argparse.SUPPRESS,
                    help='Project path (default: current directory)')
     p.set_defaults(func=_run_import)
+    p = cli.add_parser('prune',
+                       help='Delete sessions older than N days')
+    p.add_argument('--older-than', type=int, required=True,
+                   help='Delete sessions not updated in this many days')
+    p.add_argument('--dry-run', action='store_true',
+                   help='List what would be deleted')
+    p.add_argument('--yes', action='store_true',
+                   help='Delete without the dry run')
+    p.add_argument('--path', default=argparse.SUPPRESS,
+                   help='Project path (default: current directory)')
+    p.set_defaults(func=_run_prune)

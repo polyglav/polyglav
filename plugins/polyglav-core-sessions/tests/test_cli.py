@@ -18,6 +18,7 @@ _sessions_plugin = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_sessions_plugin)
 cmd_export = _sessions_plugin.cmd_export
 cmd_import = _sessions_plugin.cmd_import
+cmd_prune = _sessions_plugin.cmd_prune
 
 
 class TestCliExport(unittest.TestCase):
@@ -158,3 +159,68 @@ class TestCliImport(unittest.TestCase):
                        '--path', self.path])
         self.assertEqual(rc, 0)
         self.assertIn('Imported session', out.getvalue())
+
+
+class TestCliPrune(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = self.tmp.name
+        self.sessions = Path(self.path) / '.polyglav' / 'sessions'
+        self.sessions.mkdir(parents=True, exist_ok=True)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def _write(self, name, days):
+        from datetime import datetime, timedelta, timezone
+        s = Session(name)
+        s.add_user('hello')
+        s.end_turn('ok')
+        s.updated_at = (datetime.now(timezone.utc)
+                        - timedelta(days=days)).isoformat(timespec='seconds')
+        with open(self.sessions / f'{name}.json', 'w') as f:
+            json.dump(s.to_dict(), f)
+
+    def _args(self, **kw):
+        base = dict(older_than=30, dry_run=False, yes=True, path=self.path)
+        base.update(kw)
+        return SimpleNamespace(**base)
+
+    def _capture(self, args):
+        out = io.StringIO()
+        err = io.StringIO()
+        with patch('sys.stdout', new=out), patch('sys.stderr', new=err):
+            rc = cmd_prune(args)
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_prune_dry_run_by_default(self):
+        self._write('old', 40)
+        rc, out, _ = self._capture(self._args(yes=False))
+        self.assertEqual(rc, 0)
+        self.assertIn('Would delete', out)
+        self.assertIn('--yes', out)
+        self.assertTrue((self.sessions / 'old.json').exists())
+
+    def test_prune_with_yes_deletes(self):
+        self._write('old', 40)
+        rc, out, _ = self._capture(self._args())
+        self.assertEqual(rc, 0)
+        self.assertIn('Deleted', out)
+        self.assertFalse((self.sessions / 'old.json').exists())
+
+    def test_prune_keeps_recent(self):
+        self._write('fresh', 1)
+        rc, out, _ = self._capture(self._args())
+        self.assertEqual(rc, 0)
+        self.assertIn('Deleted 0 session(s)', out)
+        self.assertTrue((self.sessions / 'fresh.json').exists())
+
+    def test_prune_main_dispatch(self):
+        self._write('old', 40)
+        out = io.StringIO()
+        with patch('sys.stdout', new=out):
+            rc = main(['prune', '--older-than', '30', '--yes',
+                       '--path', self.path])
+        self.assertEqual(rc, 0)
+        self.assertIn('Deleted 1 session(s)', out.getvalue())

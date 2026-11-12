@@ -61,7 +61,7 @@ class TestToolCommand(unittest.TestCase):
         rows = [line.strip().split()[0] for line in output.splitlines()
                 if line.startswith('    ') and line.strip()]
         self.assertEqual(rows, sorted(rows))
-        self.assertEqual(rows, ['delete', 'export', 'import', 'list', 'preview'])
+        self.assertEqual(rows, ['delete', 'export', 'import', 'list', 'preview', 'prune'])
 
     def test_help_lists_tools(self):
         self.chat.config.set('mode', 'write')

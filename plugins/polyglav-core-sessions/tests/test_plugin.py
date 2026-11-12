@@ -39,7 +39,17 @@ class TestSessionsPlugin(unittest.TestCase):
         plugin.register_cli(cli)
         self.assertIn('export', cli.names())
         self.assertIn('import', cli.names())
+        self.assertIn('prune', cli.names())
         export = parser.parse_args(['export', 'one'])
         imported = parser.parse_args(['import', 'one.json'])
+        pruned = parser.parse_args(['prune', '--older-than', '30'])
         self.assertTrue(callable(export.func))
         self.assertTrue(callable(imported.func))
+        self.assertTrue(callable(pruned.func))
+
+    def test_prune_subcommand_listed(self):
+        chat = MagicMock()
+        registry = CommandRegistry(chat)
+        plugin.register_commands(registry)
+        names = [name for name, _ in registry.meta['sessions']['subcommands']]
+        self.assertIn('prune', names)

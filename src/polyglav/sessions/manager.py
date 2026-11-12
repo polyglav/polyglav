@@ -46,6 +46,19 @@ def session_id_from_name(session_name: str) -> str:
     return match.group(1) if match else ''
 
 
+def _parse_stamp(value: str) -> datetime | None:
+    text = str(value or '').strip()
+    if not text:
+        return None
+    try:
+        stamp = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    return stamp
+
+
 class Session:
     def __init__(self, session_name: str, turns_list: list | None = None,
                  errors: list | None = None,
@@ -541,6 +554,37 @@ class SessionManager:
         walk(root, 0)
         return out
 
+    def prune(self, older_than_days: int, dry_run: bool = False,
+              keep: str | None = None) -> dict:
+        try:
+            days = max(0, int(older_than_days))
+        except (TypeError, ValueError):
+            raise ValueError('older_than_days must be an integer')
+        now = datetime.now(timezone.utc)
+        keep_name = keep or (self.current.session_name if self.current else '')
+        removed: list[str] = []
+        freed = 0
+        for name in self.list():
+            if name == keep_name:
+                continue
+            session = self.read(name)
+            if session is None:
+                continue
+            stamp = _parse_stamp(session.updated_at or session.created_at)
+            if stamp is None:
+                continue
+            if (now - stamp).total_seconds() < days * 86400:
+                continue
+            paths = [self.sessions_dir / f'{name}{suffix}'
+                     for suffix in ('.json', '.jsonl', '.tools.log')]
+            paths.append(self.summary_path(name))
+            freed += sum(p.stat().st_size for p in paths if p.exists())
+            removed.append(name)
+            if not dry_run:
+                self.delete(name)
+        return {'removed': len(removed), 'bytes': freed, 'sessions': removed,
+                'dry_run': dry_run, 'older_than_days': days}
+
     def delete(self, session_name: str) -> bool:
         found = bool(self.store.delete(session_name)) if self.store else False
         for suffix in ('.json', '.jsonl'):
@@ -551,6 +595,10 @@ class SessionManager:
         if found:
             try:
                 (self.sessions_dir / f'{session_name}.tools.log').unlink()
+            except OSError:
+                pass
+            try:
+                self.summary_path(session_name).unlink()
             except OSError:
                 pass
             return True
