@@ -100,6 +100,7 @@ def register_tools(registry):
         category='exec',
         permission='bash',
         key_arg='command',
+        path_arg='cwd',
         short='Run a shell command',
         echo=True,
         aliases=['bash', 'exec'],

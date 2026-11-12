@@ -15,9 +15,9 @@ Resolution precedence (see [tools.md](tools.md) for the full flow):
 1. Name-level `tools.deny` and the `tools.allow` allowlist. A `deny` here wins outright.
 2. The category action from `tool_permission` (`bash` / `call` / `delegate` / `edit` / `list` / `read` / `vcs` / `web`). A `deny` here is final and skips the resolver.
 3. A per-invocation resolver (`permission_fn`) that runs after the category action and overrides a non-`deny` one from the tool's current arguments, or returns `None` to defer to it. For example `call` resolves per target: a configured role uses its own `tool_permission` and a role outside the registry is denied (see [roles.md](roles.md)), and `git_commit` defers to `vcs` except for `all=true`, which asks.
-4. Worktree escalation: `read` / `list` / `write` tools on paths outside the worktree escalate `allow` to `ask`.
+4. Worktree escalation: `read` / `list` / `write` tools on paths outside the worktree escalate `allow` to `ask`, and `run_command` does the same through its `cwd` argument.
 
-The worktree is the directory holding the local `.polyglav/`, which is the launch directory or `--path`. A `file_read` / `list_dir` / `file_write` / `glob` / `grep` on a path outside it escalates to `ask`, so an agent cannot silently reach files beyond its scope. Launching from `~` makes home the worktree, so subdirectories do not escalate. Launch inside the project or pass `--path` for project-scoped prompting.
+The worktree is the directory holding the local `.polyglav/`, which is the launch directory or `--path`. A `file_read` / `list_dir` / `file_write` / `glob` / `grep` on a path outside it escalates to `ask`, and `run_command` does the same for a `cwd` outside it, so an agent cannot silently reach files or run work beyond its scope. Launching from `~` makes home the worktree, so subdirectories do not escalate. Launch inside the project or pass `--path` for project-scoped prompting.
 
 `bash` defaults to `ask`, so every `run_command` confirms unless `tool_permission.bash = "allow"` is set explicitly. `call` defaults to `allow`, refined per invocation by the target role's own permission (a role may set `call: "ask"` to confirm). `delegate` is the read-class sibling and keeps its own `delegate` key.
 

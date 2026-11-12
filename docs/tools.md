@@ -27,7 +27,7 @@ The built-in web and machine tools ship as bundled plugins, loaded out of the bo
 | `grep` | polyglav-core-fs | `search` | `read` | Regex content search (`file:line:` results, alias `find`) |
 | `list_dir` | polyglav-core-fs | `read` | `list` | List a directory (`depth` for trees, alias `ls`) |
 | `plan_write` | core | `read` | `read` | Write or revise the internal plan under `plan.dir`, and attach it to the session |
-| `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `exec_allow` |
+| `run_command` | polyglav-core-exec | `exec` | `bash` | Run a shell command with timeout (aliases `bash`, `exec`). Restricted by `exec_allow`, and a `cwd` outside the worktree escalates to `ask` |
 | `todo` | core | `todo` | `read` | Track the current work in `.polyglav/todos/<session>.json` (`add`, `start`, `done`, `block`, `remove`, `list`, `show`) |
 | `web_fetch` | polyglav-core-web | `read` | `read` | Fetch a page by URL or by `web_search` result `id` (aliases `open`, `fetch_page`) |
 | `web_search` | polyglav-core-web | `search` | `web` | Web search (aliases `search`, `web`) |
@@ -144,7 +144,7 @@ Resolution precedence:
 1. **Name-level** - `tools.deny` (always denied) and `tools.allow` (when non-empty, it is an allowlist, so everything else is denied).
 2. **Category action** - the `tool_permission.<key>` action for the tool's `permission` key. `deny` here is final, skips the resolver, and filters the tool from the provider schema and from tool listings, not just direct calls.
 3. **Per-invocation resolver** - a tool may declare a `permission_fn` that overrides a non-`deny` base action from its current arguments, and returning `None` defers to the category action. It fails closed: a resolver that raises denies the call instead of deferring. It is skipped when the base action is `deny` and when no arguments are available, so schema filtering (`allowed()`) keeps the tool visible for `ask`/`allow` categories. `call` resolves per target: a configured role uses its own `callable` action (default `allow`), a role outside the registry is `deny`. A sequential team asks when any stage asks and is denied when any stage is denied. A hierarchical team uses the manager's `tool_permission.call` action and requires the manager and every member to be callable. `tool_permission.call` controls whether a run may initiate a call, while `callable` controls whether it may be a target. `git_commit` defers to the `vcs` category except for `all=true`, which asks.
-4. **Worktree escalation** - `read` / `list` / `write` tools pointing outside the project worktree escalate from `allow` to `ask`.
+4. **Worktree escalation** - `read` / `list` / `write` tools pointing outside the project worktree escalate from `allow` to `ask`, and `run_command` does the same through its `cwd` argument.
 
 The mode ([modes.md](modes.md)) is the outermost bound, applied last, after grants and per-invocation resolvers. `read` (default) denies every permission key not listed in config `access.read_tools`, so write, exec, commit, MCP, and delegation tools are filtered from the schema and refused on direct calls. `write` leaves write keys to `tool_permission`, still bounded by each key's action. A mode may also set `system_prompt`/`color` and append `tools.deny` or replace `tools.allow` in its spec. An unknown `mode` falls back to `read`. Switch with `/mode <name>` in the REPL or `--mode <name>` on `polyglav run` / `polyglav serve`.
 

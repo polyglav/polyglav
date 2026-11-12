@@ -86,7 +86,7 @@ class TestExecTools(unittest.TestCase):
 
     def test_metadata_registered(self):
         self.assertEqual(self.registry.permission_for('run_command'), 'bash')
-        self.assertEqual(self.registry.path_arg_for('run_command'), None)
+        self.assertEqual(self.registry.path_arg_for('run_command'), 'cwd')
         self.assertEqual(self.registry.key_arg_for('run_command'), 'command')
         self.assertTrue(self.registry.echo_for('run_command'))
         self.assertEqual(self.registry.resolver_for('run_command'),
@@ -226,6 +226,21 @@ class TestExecTools(unittest.TestCase):
         self.assertEqual(
             policy.action('run_command', 'bash', args={'command': 'pytest'}),
             'deny')
+
+    def test_cwd_outside_worktree_escalates_to_ask(self):
+        from polyglav.tools.policy import ToolPolicy
+
+        outside = self.root.parent / 'elsewhere'
+        policy = ToolPolicy(
+            permissions={'bash': 'allow'},
+            worktree=self.root,
+            resolvers={'run_command': exec_plugin._run_command_permission})
+        self.assertEqual(
+            policy.action('run_command', 'bash', str(self.root),
+                          {'command': 'pytest', 'cwd': str(self.root)}), 'allow')
+        self.assertEqual(
+            policy.action('run_command', 'bash', str(outside),
+                          {'command': 'pytest', 'cwd': str(outside)}), 'ask')
 
 
 if __name__ == '__main__':
