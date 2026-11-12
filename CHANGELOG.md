@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.55.0
+## v0.55.0 - 2026-11-12
 
 - Fixed exec allowlist bypasses - `exec_allow` tokenizes each chained segment and matches prefixes on token boundaries, so `pytest` no longer admits `pytestx` or `python3`, rejects backticks, `$(`, `${`, `>` and `<` anywhere in a command, and denies when a segment cannot be tokenized. Docs (`config.md`, `tools.md`). Tests: `polyglav-core-exec`
 - Fixed resolver fail-open - a `permission_fn` that raises now denies the call instead of deferring to the category action, so a deny-only resolver cannot become an allow through an error. Docs (`tools.md`, `config.md`). Tests: `test_tool_policy.py`, `test_call_target.py`, `polyglav-core-git`, `polyglav-core-exec`

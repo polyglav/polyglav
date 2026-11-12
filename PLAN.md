@@ -11,20 +11,12 @@ Finished tasks are removed from this file and live in detail under the matching 
 
 ## Security hardening and honest boundaries
 
-The shell allowlist, the JSON API, and the session store are where a local-first tool meets hostile input. This package makes the cheap gaps fail closed and removes the documentation claims that do not hold until the exec sandbox lands.
+The shell allowlist, the JSON API, and the session store are where a local-first tool meets hostile input. The cheap gaps now fail closed, and the documentation no longer claims a boundary that only the exec sandbox can deliver. What remains is the static-check widening that those checks depend on.
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Exec allowlist hardening - substitution, redirection, token-boundary matching, and a deny on tokenizer errors | S | a filter that cannot be walked past with a backtick |
-| Resolver fail-closed - a raised resolver denies instead of reading as "no opinion" | S | deny rules that cannot fail open |
-| Shell policy honesty - `exec_allow` documented as a guardrail, with the interpreter prefixes named | S | a boundary claim that matches the code |
-| `run_command` cwd scoping - a directory outside the worktree escalates to `ask` | S | one worktree rule for file and shell tools |
-| Session file modes - `0700` directory and `0600` files | S | logs unreadable to other local users |
-| Serve token auth - a bearer token on every route except `/health`, and no non-loopback start without one | M | an API that is not open code execution |
-| Deploy hardening - token propagation, the warning, and an `https` webhook receiver | S-M | a container path that fails closed |
-| Webhook report signature - optional HMAC over the report body | S | a receiver that can trust the sender |
-| Session retention - `/sessions prune --older-than N` plus a CLI, skipping the current session | S-M | a deletion policy that matches the logs |
-| CI static checks - `ruff`, a typecheck starting on `engine.py`, and a coverage report | M | a second pair of eyes on 20.500 lines |
+| Mypy widening - clean up the 48 findings in `engine.py`, move it into the allowlist, and widen module by module | M | a typecheck that covers the core |
+| Ruff rule widening - the unused-import, redefined-while-unused, and nested-`with` tiers | S-M | a linter that catches more than syntax |
 
 ## Self-development team enablement
 
@@ -240,15 +232,6 @@ Durable, auditable workflows over plant and business data.
 | Time-series, inference, optimisation tools - anomaly/forecast, `model_infer`, scheduling | M | plant analytics |
 | SCADA control + reporting - registers, Markdown/PDF/BI push | M | plant control + reporting |
 | Onboarding wizard, RBAC, queue scaling - MES/data-source setup, roles, concurrency | M | enterprise readiness |
-
-## Stability and outward claims
-
-A pre-1.0 tool with a moving configuration is throwaway work for every operator. This package answers that with a written promise and a corrected claim.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Config stability promise - a deprecation policy for config keys and the session format, frozen at 1.0 | S | deployments that are not throwaway work |
-| README audit wording - the supply-chain claim instead of "nothing to audit" | S | a claim that survives a reading |
 
 ## Release & community
 
