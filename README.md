@@ -21,8 +21,8 @@ Polyglav is an AI agent that lives in your terminal. You describe an outcome onc
 - **It actually gets work done** - it reads and writes files, searches the web, runs commands, edits code, and commits, all behind permissions you control.
 - **Grows with you** - reusable roles and skills, scheduled jobs that run a supervisor for many agents at once.
 - **Your machine, your keys** - config and complete session logs stay on your disk. Bring your own provider key, or run fully local.
-- **Safe by default** - every tool is permission controlled. Anything outside your project asks first, and every action is on the record.
-- **Zero dependencies** - pure Python standard library. Nothing to audit, no supply chain, no lockfile churn.
+- **Safe by default** - every tool is permission controlled. Anything outside your project asks first, the HTTP API needs a token, and every action is on the record.
+- **Zero dependencies** - pure Python standard library. No dependency supply chain to audit, no lockfile churn, and the code that runs is the code in this repository.
 - **At home in the terminal** - a fast streaming REPL with a plain input prompt, a color-coded submitted line, dimmed thinking, hidden tool bodies, command completion, and history. No browser and no account.
 - **Many providers, any model** - Ollama, OpenAI, Groq, Anthropic, OpenCode, or any OpenAI-compatible endpoint, picked automatically from the address.
 
