@@ -323,6 +323,33 @@ class TestCheckConnection(unittest.TestCase):
         self.assertTrue(ok)
         self.assertIn('2 models available', msg)
 
+    def test_model_limits_parsed(self):
+        class _H(BaseHTTPRequestHandler):
+            def do_GET(self):
+                body = json.dumps({'data': [
+                    {'id': 'm1', 'limit': {'context': 1000000,
+                                           'output': 384000}},
+                    {'id': 'm2'},
+                ]}).encode()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            def log_message(self, *args):
+                pass
+        base, server = self._run_server(_H)
+        try:
+            provider = self._provider(base)
+            provider.list_models()
+        finally:
+            server.shutdown()
+            server.server_close()
+        self.assertEqual(provider.model_limits['m1'],
+                         {'context': 1000000, 'output': 384000})
+        self.assertEqual(provider.model_limits['m2'],
+                         {'context': 0, 'output': 0})
+
     def test_check_connection_no_models(self):
         class _H(BaseHTTPRequestHandler):
             def do_GET(self):

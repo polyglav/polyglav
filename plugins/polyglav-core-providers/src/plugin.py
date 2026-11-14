@@ -3,10 +3,22 @@ from polyglav.providers.base import OpenAICompatibleProvider
 from polyglav.ui import DIM, RED, RESET
 
 
-def _render_models(models, provider, base_url):
+def _render_models(models, provider, base_url, limits=None):
     print(f'{len(models)} models available from {provider} ({base_url}):')
+    limits = limits or {}
     for m in models:
-        print(f'  - {m}')
+        info = limits.get(m) or {}
+        context = int(info.get('context') or 0)
+        output = int(info.get('output') or 0)
+        detail = ''
+        if context or output:
+            parts = []
+            if context:
+                parts.append(f'ctx={_format_tokens(context)}')
+            if output:
+                parts.append(f'out={_format_tokens(output)}')
+            detail = f' ({", ".join(parts)})'
+        print(f'  - {m}{detail}')
 
 
 def _target(chat):
@@ -82,14 +94,22 @@ def _render_known_models(chat):
             active = '>' if _active_model(chat, e) else ' '
             key = ' (key)' if chat.providers.api_key_for(e.provider) else ''
             budget = getattr(e, 'context_window', 0) or 0
-            ctx = f' (ctx={_format_tokens(budget)})' if budget else ''
+            output = getattr(e, 'max_output', 0) or 0
+            limits = ''
+            if budget or output:
+                parts = []
+                if budget:
+                    parts.append(f'ctx={_format_tokens(budget)}')
+                if output:
+                    parts.append(f'out={_format_tokens(output)}')
+                limits = f' ({", ".join(parts)})'
             if e.last_error:
                 status = '  (failed)'
             elif not e.ok_at:
                 status = '  (unused)'
             else:
                 status = ''
-            print(f'  {active} {e.model}{key}{ctx}{status}')
+            print(f'  {active} {e.model}{key}{limits}{status}')
 
 
 def _format_tokens(value: int) -> str:
@@ -122,7 +142,9 @@ def _render_online_models(chat, provider_arg):
         print(f'No models listed from {provider} ({base_url})')
         return
     _cache_models(chat, provider, models)
-    _render_models(models, provider, base_url)
+    limits = (chat.model_limits_for(provider)
+              if hasattr(chat, 'model_limits_for') else {})
+    _render_models(models, provider, base_url, limits)
     model = target_model
     if model and model not in models:
         print(f'  (configured model "{model}" not in the model list)')

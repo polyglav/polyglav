@@ -115,6 +115,7 @@ class Engine:
         self._compaction_seq = 0
         self._turn_deny_tools: set[str] = set()
         self._last_summary_usage: dict | None = None
+        self._model_limits: dict[str, dict[str, dict]] = {}
         self._ask_ui = ui if getattr(ui, 'interactive', False) else None
         self._owns_provider = provider is None
         if plugin_manager is None:
@@ -354,6 +355,7 @@ class Engine:
             return
         if getattr(self, 'approve_models', False) and model:
             self.models.put(provider_name, model)
+        self._apply_model_limits(provider_name, model)
         self._provider_error = None
         if base_url != self.config.get('base_url'):
             self.config.apply('base_url', base_url)
@@ -379,6 +381,36 @@ class Engine:
         if getattr(self, '_owns_provider', False):
             provider.session_id = self.current_session.session_id
 
+    def model_limits_for(self, provider: str) -> dict[str, dict]:
+        return dict(getattr(self, '_model_limits', {}).get(provider, {}))
+
+    def _cache_model_limits(self, provider: str, probe) -> None:
+        limits = getattr(probe, 'model_limits', None)
+        if isinstance(limits, dict):
+            all_limits = getattr(self, '_model_limits', None)
+            if all_limits is None:
+                all_limits = self._model_limits = {}
+            all_limits[provider] = {
+                str(name): dict(value)
+                for name, value in limits.items()
+                if isinstance(value, dict)
+            }
+
+    def _apply_model_limits(self, provider: str, model: str) -> None:
+        if not model:
+            return
+        entry = self.models.find(provider, model)
+        if entry is None:
+            return
+        limits = getattr(self, '_model_limits', {}).get(
+            provider, {}).get(model) or {}
+        context = int(limits.get('context') or 0)
+        output = int(limits.get('output') or 0)
+        if context > 0 and int(entry.context_window or 0) == 0:
+            self.models.set_context_window(provider, model, context)
+        if output > 0 and int(entry.max_output or 0) == 0:
+            self.models.set_max_output(provider, model, output)
+
     def check_connection(self, base_url: str | None = None, api_key: str | None = None,
                          model: str | None = None,
                          provider: str | None = None) -> tuple[bool, str, list[str]]:
@@ -396,8 +428,10 @@ class Engine:
             return False, f'No provider registered for "{provider}"', []
         probe = factory(base_url=base_url, api_key=api_key, model=model)
         models, error = probe._fetch_models()
+        self._cache_model_limits(provider, probe)
         if error:
             return False, error, []
+        self._apply_model_limits(provider, model)
         return True, _connection_message(models, model), models
 
     def list_models(self, provider: str | None = None,
@@ -416,7 +450,11 @@ class Engine:
         if factory is None:
             return [], f'No provider registered for "{provider}"'
         probe = factory(base_url=base_url, api_key=api_key, model=model)
-        return probe._fetch_models()
+        models, error = probe._fetch_models()
+        self._cache_model_limits(provider, probe)
+        if not error:
+            self._apply_model_limits(provider, model)
+        return models, error
 
     def tool_log_path(self) -> Path:
         return tool_log.path_for(self.sessions.sessions_dir,

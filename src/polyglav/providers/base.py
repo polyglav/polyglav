@@ -47,6 +47,7 @@ class OpenAICompatibleProvider(BaseProvider):
         if not kwargs.get('model'):
             kwargs['model'] = self.DEFAULT_MODEL
         super().__init__(**kwargs)
+        self.model_limits: dict[str, dict] = {}
 
     def _headers(self):
         headers = {'Content-Type': 'application/json',
@@ -223,6 +224,7 @@ class OpenAICompatibleProvider(BaseProvider):
         return True, _connection_message(models, self.model)
 
     def _fetch_models(self) -> tuple[list[str], str | None]:
+        self.model_limits = {}
         base = self.base_url.rstrip('/')
         url = f'{base}/v1/models' if not base.endswith('/v1') else f'{base}/models'
         req = urllib.request.Request(url, headers=self._headers())
@@ -236,7 +238,30 @@ class OpenAICompatibleProvider(BaseProvider):
             return [], f'Network error: {e.reason}'
         except Exception as e:
             return [], str(e)
-        return [m['id'] for m in data.get('data', []) if isinstance(m, dict) and 'id' in m], None
+        models: list[str] = []
+        for entry in data.get('data', []):
+            if not isinstance(entry, dict) or 'id' not in entry:
+                continue
+            model_id = entry['id']
+            models.append(model_id)
+            self.model_limits[model_id] = _model_limits(entry)
+        return models, None
+
+
+def _limit_int(value) -> int:
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _model_limits(entry: dict) -> dict:
+    limit = entry.get('limit') if isinstance(entry.get('limit'), dict) else {}
+    context = (limit.get('context') or entry.get('context_length')
+               or entry.get('max_model_len')
+               or entry.get('max_context_length'))
+    output = limit.get('output') or entry.get('max_output_tokens')
+    return {'context': _limit_int(context), 'output': _limit_int(output)}
 
 
 def _connection_message(models: list[str], model: str) -> str:

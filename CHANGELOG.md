@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Added provider model limits - the `/v1/models` probe records `limit.context` and `limit.output` on the model entry, the engine applies them when the model is selected, and `/models` and `polyglav models` show both budgets. Docs (`config.md`, `providers.md`, `commands.md`). Tests: `test_providers.py`, `test_engine.py`, `polyglav-core-providers`
 - Changed confirm prompt color - the one-line tool confirm uses the same orange as other questions. Docs (`architecture.md`). Tests: `polyglav-core-repl`
 - Fixed thought status ordering - thinking ends on the first tool-call delta, so `✓ Thought` prints before the tool spinner starts. Tests: `test_tool_calling.py`
 - Fixed spinner line clearing - the spinner saves and restores the cursor and clears its line region on stop, so a newline during an animated line leaves no stale label or blank line. Output stops the spinner before writing. Tests: `polyglav-core-repl`

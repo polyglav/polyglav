@@ -67,7 +67,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `compact_before`            | `3`                    | Rounds of headroom used to project the next context size before the limit |
 | `compact_keep`              | `1`                    | Rounds to keep when compacting the provider context                    |
 | `confirm_timeout`           | `0`                    | Seconds a REPL confirm/ask prompt waits for input before auto-denying (`0` = wait forever). Applies at any depth |
-| `context_window`            | `0`                    | Context budget in tokens, used for relative compaction thresholds and display. It is not a hard model limit. `0` = unknown, so a relative `compact_at` is skipped. A model entry can carry its own value |
+| `context_window`            | `0`                    | Context budget in tokens, used for relative compaction thresholds and display. It is not a hard model limit. `0` = unknown, so a relative `compact_at` is skipped. A model entry can carry its own value, and a provider that reports `limit.context` fills it automatically |
 | `cost.rates`                | `{}`                   | Cost model for metric records: USD per 1M tokens, keyed by `provider/model`, then `provider`, then `default` (`{"input": .., "output": .., "cache_read": ..}`). `cache_read` is a subset of the prompt tokens, and a `0` cache rate charges cached tokens at the input rate |
 | `delegate_depth`            | `1`                    | Maximum nested `delegate` siblings. `0` = unlimited. A sibling cannot spawn another until the user raises this. See [modes.md](modes.md) |
 | `glyphs`                    | `{}`                   | Glyph overrides by meaning (`read`, `write`, `search`, `exec`, `ask`, `todo`, `call`, `delegate`, `enter`, `return`, `warning`, `question`, `default`, `spinner`), or `"ascii"` for the ASCII preset. No runtime detection |
@@ -262,7 +262,7 @@ Two global files live separately from config in `~/.config/polyglav/`. Neither i
 
 ### Model registry (`models.json`)
 
-`~/.config/polyglav/models.json` is the history of approved models. Entries are `{provider, model, added_at, last_used}` with no API keys (those live in `providers.json`). It records every model you connect or switch to, so `/models` shows what has been used per provider with `>` marking the active one. The active model still comes from `config.model`.
+`~/.config/polyglav/models.json` is the history of approved models. Entries are `{provider, model, added_at, last_used}` with optional `context_window` and `max_output` limits and no API keys (those live in `providers.json`). It records every model you connect or switch to, so `/models` shows what has been used per provider with `>` marking the active one. The active model still comes from `config.model`.
 
 - `/connect` records the model for the connection it just saved.
 - `/models` shows approved models grouped by provider, the active one marked `>`, plus `(key)` when that provider has a stored key. Each entry carries `ok_at` (last successful run) and `last_error` (last failure), so `/models` marks a model `(unused)` when it never completed a run and `(failed)` when its last run errored.

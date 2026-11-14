@@ -15,7 +15,6 @@ Provider model metadata drives the context budget and output cap when it is avai
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Provider model limits - read `limit.context` and `limit.output` and persist them on the model entry | M | provider-driven limits |
 | Context window command - add `/context window <tokens>` and update the unknown-window hint | S | a direct budget command |
 | Max tokens from model limit - use the model output limit when `max_tokens` is not explicit | S | a correct output cap |
 | Onboarding output defaults - tool stats and the terminal output file default to yes | S | useful first-run output |

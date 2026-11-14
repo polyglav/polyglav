@@ -483,6 +483,26 @@ class TestEngineCheckConnection(unittest.TestCase):
         _f.captured = captured
         return _f
 
+    def test_model_limits_apply_to_entry(self):
+        self.engine.models.put('ollama', 'test-model')
+        self.engine._model_limits = {
+            'ollama': {'test-model': {'context': 1000000, 'output': 384000}}}
+        self.engine._apply_model_limits('ollama', 'test-model')
+        entry = self.engine.models.find('ollama', 'test-model')
+        self.assertEqual(entry.context_window, 1000000)
+        self.assertEqual(entry.max_output, 384000)
+
+    def test_model_limits_keep_explicit_values(self):
+        self.engine.models.put('ollama', 'test-model')
+        self.engine.models.set_context_window('ollama', 'test-model', 8192)
+        self.engine.models.set_max_output('ollama', 'test-model', 4096)
+        self.engine._model_limits = {
+            'ollama': {'test-model': {'context': 1000000, 'output': 384000}}}
+        self.engine._apply_model_limits('ollama', 'test-model')
+        entry = self.engine.models.find('ollama', 'test-model')
+        self.assertEqual(entry.context_window, 8192)
+        self.assertEqual(entry.max_output, 4096)
+
     def test_check_connection_resolves_and_probes(self):
         factory = self._factory(['m1', 'm2'])
         with patch('polyglav.providers.PROVIDERS', {'ollama': factory}):

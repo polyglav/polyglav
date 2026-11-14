@@ -20,6 +20,7 @@ class ModelEntry:
     ok_at: str = ''
     last_error: str = ''
     context_window: int = 0
+    max_output: int = 0
 
     @classmethod
     def from_dict(cls, d: dict) -> 'ModelEntry':
@@ -31,6 +32,7 @@ class ModelEntry:
             ok_at=d.get('ok_at', ''),
             last_error=d.get('last_error', ''),
             context_window=d.get('context_window', 0),
+            max_output=d.get('max_output', 0),
         )
 
 
@@ -109,6 +111,18 @@ class ModelRegistry:
             entry.context_window = max(0, int(tokens))
         except (TypeError, ValueError):
             entry.context_window = 0
+        self._save()
+        return entry
+
+    def set_max_output(self, provider: str, model: str,
+                       tokens: int) -> ModelEntry | None:
+        entry = self.find(provider, model)
+        if entry is None:
+            return None
+        try:
+            entry.max_output = max(0, int(tokens))
+        except (TypeError, ValueError):
+            entry.max_output = 0
         self._save()
         return entry
 

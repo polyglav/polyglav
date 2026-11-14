@@ -43,7 +43,6 @@
 
 - [ ] Onboarding output defaults - default tool stats and the terminal output file to yes
 - [ ] Multiline paste input - close blocks only on the closing delimiter, preserve trailing spaces, and enable bracketed paste
-- [ ] Provider model limits - read `limit.context` and `limit.output` from the provider model list and persist them on the model entry
 - [ ] Context window command - add `/context window <tokens>` and point the unknown-window hint at it
 - [ ] Max tokens from model limit - resolve max_tokens from the model output limit when the config value is not explicit
 - [ ] Skill version archive - store each skill revision with a version, timestamp, and hash under `.polyglav/skills/.versions`

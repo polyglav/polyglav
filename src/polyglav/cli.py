@@ -88,8 +88,14 @@ def cmd_models(args) -> int:
                 active = '>' if (e.provider == provider and e.model == model) else ' '
                 key = ' (key)' if engine.providers.api_key_for(e.provider) else ''
                 budget = getattr(e, 'context_window', 0) or 0
-                ctx = f' (ctx={_format_tokens(budget)})' if budget else ''
-                print(f'  {active} {e.model}{key}{ctx}')
+                output = getattr(e, 'max_output', 0) or 0
+                parts = []
+                if budget:
+                    parts.append(f'ctx={_format_tokens(budget)}')
+                if output:
+                    parts.append(f'out={_format_tokens(output)}')
+                limits = f' ({", ".join(parts)})' if parts else ''
+                print(f'  {active} {e.model}{key}{limits}')
         return 0
     target_provider, target_url, target_model = engine.model_target()
     provider = (getattr(args, 'provider', '') or '').strip() or target_provider
@@ -107,8 +113,18 @@ def cmd_models(args) -> int:
         print(f'No models listed from {provider} ({base_url})')
         return 0
     print(f'{len(models)} models available from {provider} ({base_url}):')
+    limits = engine.model_limits_for(provider)
     for m in models:
-        print(f'  - {m}')
+        info = limits.get(m) or {}
+        context = int(info.get('context') or 0)
+        output = int(info.get('output') or 0)
+        parts = []
+        if context:
+            parts.append(f'ctx={_format_tokens(context)}')
+        if output:
+            parts.append(f'out={_format_tokens(output)}')
+        detail = f' ({", ".join(parts)})' if parts else ''
+        print(f'  - {m}{detail}')
     return 0
 
 
