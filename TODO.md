@@ -41,7 +41,6 @@
 
 ## Open
 
-- [ ] Onboarding output defaults - default tool stats and the terminal output file to yes
 - [ ] Multiline paste input - close blocks only on the closing delimiter, preserve trailing spaces, and enable bracketed paste
 - [ ] Skill version archive - store each skill revision with a version, timestamp, and hash under `.polyglav/skills/.versions`
 - [ ] Skill version commands - add `/skills versions`, `/skills restore`, and `/skills diff`

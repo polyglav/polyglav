@@ -12,10 +12,10 @@ WELCOME = ("Welcome to Polyglav.\n"
            "Press Enter to accept any default.")
 PROMPT_PURPOSE = 'What is this project for? '
 PROMPT_PERSONA = 'How should the assistant introduce itself and work? '
-PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [y/N] '
+PROMPT_OUTPUT = 'Create a file with everything printed to the terminal? [Y/n] '
 PROMPT_REASONING = 'Reasoning (off/assistant/agent/all) [off]: '
 PROMPT_OUTPUT_SCOPE = 'Sub-run output (off/assistant/agent/all) [agent]: '
-PROMPT_TOOL_STATS = 'Show tool time and tokens? [y/N] '
+PROMPT_TOOL_STATS = 'Show tool time and tokens? [Y/n] '
 PROMPT_STATUS = 'Show live time and approximate tokens? [Y/n] '
 PROMPT_PROVIDER = 'Provider [{default}]: '
 PROMPT_BASE_URL = 'Base URL [{default}]: '
@@ -316,9 +316,9 @@ def run(chat, force: bool = False, ask=input, secret=getpass.getpass) -> bool:
     if output_scope not in ('off', 'assistant', 'agent', 'all'):
         _warn(chat, f'Unknown output scope "{output_scope}", keeping agent.')
         output_scope = 'agent'
-    tool_stats = _ask(ask, PROMPT_TOOL_STATS, 'n').lower().startswith('y')
+    tool_stats = _ask(ask, PROMPT_TOOL_STATS, 'y').lower().startswith('y')
     live_status = _ask(ask, PROMPT_STATUS, 'y').lower().startswith('y')
-    output = _ask(ask, PROMPT_OUTPUT, 'n')
+    output = _ask(ask, PROMPT_OUTPUT, 'y')
 
     config = chat.config
     config.set('system_prompt', compose_prompt(purpose, persona), scope='local')

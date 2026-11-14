@@ -177,7 +177,7 @@ class TestOnboarding(unittest.TestCase):
         self.assertTrue(self.config.get('output_log'))
         self.assertEqual(self.config.get('verbosity.thinking'), 'off')
         self.assertEqual(self.config.get('verbosity.output'), 'agent')
-        self.assertEqual(self.config.get('verbosity.tools'), 'summary')
+        self.assertEqual(self.config.get('verbosity.tools'), 'full')
         self.assertEqual(self.config.get('verbosity.status'), 'on')
         self.assertIn('widget assistant', self.config.get('system_prompt'))
         self.assertTrue(self.config.local_path.exists())
@@ -337,7 +337,7 @@ class TestOnboarding(unittest.TestCase):
         self.assertIn('\n1. ollama', text)
         self.assertIn('\n1. model-a', text)
 
-    def test_run_output_log_default_off(self):
+    def test_run_output_log_default_on(self):
         chat = self._chat()
         answers = self._answers(**{
             plugin.PROMPT_PROVIDER.format(default='ollama'): '1',
@@ -349,7 +349,7 @@ class TestOnboarding(unittest.TestCase):
             plugin.PROMPT_OUTPUT: '',
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
-        self.assertFalse(self.config.get('output_log'))
+        self.assertTrue(self.config.get('output_log'))
 
     def test_run_skips_when_configured(self):
         self.config.local_path.parent.mkdir(parents=True, exist_ok=True)
