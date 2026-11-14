@@ -15,7 +15,6 @@ The REPL must always show that an action happened, even when text and bodies are
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Always-on tool status - one activity line per call, with `off` mapped to `summary` | S | no silent tool calls |
 | Per-tool token counts - each tool line shows its own result tokens | S | honest per-call cost |
 | Concise done footer - caller-only `✓ Done ... (N tokens)`, context in `/status` and `/context`, and per-sub-run footers | S | per-scope token reporting |
 | Animated status cleanup - clear spinner residue and blank lines | S | stable animated output |

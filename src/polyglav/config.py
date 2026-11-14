@@ -114,13 +114,13 @@ VERBOSITY_VALUES = {
     'thinking': ('off', 'assistant', 'agent', 'all'),
     'output': ('off', 'assistant', 'agent', 'all'),
     'status': ('off', 'on'),
-    'tools': ('off', 'summary', 'full'),
+    'tools': ('summary', 'full'),
     'footer': ('off', 'summary', 'full'),
 }
 VERBOSITY_LEVELS = ('off', 'assistant', 'agent', 'all', 'summary', 'full', 'on')
 VERBOSITY_PRESETS = {
     'quiet': {'thinking': 'off', 'output': 'off', 'status': 'off',
-              'tools': 'off', 'footer': 'summary'},
+              'tools': 'summary', 'footer': 'summary'},
     'normal': {'thinking': 'off', 'output': 'agent', 'status': 'on',
                'tools': 'summary', 'footer': 'summary'},
     'verbose': {'thinking': 'all', 'output': 'all', 'status': 'on',
@@ -138,6 +138,8 @@ def verbosity_level(config, scope: str) -> str:
     value = value.strip().lower()
     if value in values:
         return value
+    if name == 'tools' and value == 'off':
+        return 'summary'
     if name == 'thinking' and value == 'summary':
         return 'off'
     if name == 'thinking' and value == 'full':
@@ -206,7 +208,7 @@ CONFIG_CHOICES = {
     'verbosity.thinking': ('off', 'assistant', 'agent', 'all', 'inherit'),
     'verbosity.output': ('off', 'assistant', 'agent', 'all', 'inherit'),
     'verbosity.status': ('off', 'on', 'inherit'),
-    'verbosity.tools': ('off', 'summary', 'full', 'inherit'),
+    'verbosity.tools': ('summary', 'full', 'inherit'),
     'verbosity.footer': ('off', 'summary', 'full', 'inherit'),
     'word_streaming': ('true', 'false'),
 }

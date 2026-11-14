@@ -15,7 +15,7 @@ class TestVerbosityResolution(unittest.TestCase):
         self.assertEqual(verbosity_level(quiet, 'thinking'), 'off')
         self.assertEqual(verbosity_level(quiet, 'output'), 'off')
         self.assertEqual(verbosity_level(quiet, 'status'), 'off')
-        self.assertEqual(verbosity_level(quiet, 'tools'), 'off')
+        self.assertEqual(verbosity_level(quiet, 'tools'), 'summary')
         normal = {'verbosity': 'normal'}
         self.assertEqual(verbosity_level(normal, 'thinking'), 'off')
         self.assertEqual(verbosity_level(normal, 'output'), 'agent')
@@ -41,7 +41,7 @@ class TestVerbosityResolution(unittest.TestCase):
         self.assertEqual(verbosity_level(config, 'tools'), 'summary')
         self.assertEqual(verbosity_level(config, 'unknown'), 'summary')
         self.assertEqual(verbosity_level(None, 'thinking'), 'off')
-        self.assertEqual(verbosity_level(None, 'tools'), 'off')
+        self.assertEqual(verbosity_level(None, 'tools'), 'summary')
 
     def test_old_thinking_values_are_normalized(self):
         self.assertEqual(
@@ -129,16 +129,16 @@ class TestVerbosityRendering(unittest.TestCase):
         self.chat.config.set('verbosity.tools', 'off')
         value = self._capture(lambda: (
             self.ui.activity('→', 'Write', 'a.md', ['+ body']),
-            self.ui.tool_result('output')))
-        self.assertNotIn('→', value)
+            self.ui.tool_result('RESULT_BODY')))
+        self.assertIn('→ Write a.md', value)
         self.assertNotIn('+ body', value)
-        self.assertNotIn('output', value)
+        self.assertNotIn('RESULT_BODY', value)
+        self.assertIn('/print', value)
         self.chat.config.set('verbosity.tools', 'summary')
         value = self._capture(
             lambda: self.ui.activity('→', 'Write', 'a.md', ['+ body']))
         self.assertIn('→ Write a.md', value)
         self.assertNotIn('+ body', value)
-        self.assertIn('/print', value)
         self.chat.config.set('verbosity.tools', 'full')
         value = self._capture(lambda: (
             self.ui.activity('→', 'Write', 'a.md', ['+ body']),

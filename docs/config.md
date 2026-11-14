@@ -115,7 +115,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
 | `verbosity.status`          | `"inherit"`            | Live status time and approximate tokens: `off`, `on`, or `inherit`      |
 | `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit`. `off` hides the text but keeps the `✓ Thought` marker |
-| `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
+| `verbosity.tools`           | `"inherit"`            | Tool detail: `summary`, `full`, or `inherit`. Legacy `off` maps to `summary` |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 
 The reasoning scopes are:
@@ -128,7 +128,7 @@ The reasoning scopes are:
 
 The output scopes are `off`, `assistant`, `agent`, and `all` with the same role rules. `off` hides sub-run output but the run's final status line and footer still print.
 
-`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool lines, and `full` adds execution time and round tokens. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options. `/status` and `/context` report context, input, output, thinking, and request token counts.
+`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool detail, and `full` adds execution time and round tokens. Tool lines always print, and legacy `off` maps to `summary`. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options. `/status` and `/context` report context, input, output, thinking, and request token counts.
 
 ### `modes`
 
