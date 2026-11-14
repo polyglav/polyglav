@@ -404,6 +404,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0560" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.56.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0550-2026-11-12" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1769,6 +1780,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0560" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.56.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0550-2026-11-12" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2391,6 +2413,22 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0560">v0.56.0<a class="headerlink" href="#v0560" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fixed multiline block input - a block closes only on its delimiter, so a blank line inside a pasted block is kept, trailing spaces survive, and GNU readline enables bracketed paste. Docs (<code>testing.md</code>). Tests: <code>polyglav-core-repl</code></li>
+<li>Changed onboarding defaults - tool stats and the terminal output file default to yes, so a first run keeps full tool detail and a terminal transcript. Docs (<code>config.md</code>). Tests: <code>polyglav-core-onboarding</code></li>
+<li>Changed max tokens to model limit - when <code>max_tokens</code> is left at its default, the provider's <code>limit.output</code> from the model entry sets the cap, while an explicit global or local value still wins. The truncation warning and metric settings use the effective cap. Docs (<code>config.md</code>, <code>providers.md</code>). Tests: <code>test_engine.py</code>, <code>test_agent_loop.py</code>, <code>test_metrics.py</code></li>
+<li>Added context window command - <code>/context window &lt;tokens&gt;</code> sets the active model's budget, <code>/context window</code> shows it, <code>0</code> clears it, and the unknown-window hint points at the command. Docs (<code>commands.md</code>, <code>config.md</code>). Tests: <code>test_commands.py</code></li>
+<li>Added provider model limits - the <code>/v1/models</code> probe records <code>limit.context</code> and <code>limit.output</code> on the model entry, the engine applies them when the model is selected, and <code>/models</code> and <code>polyglav models</code> show both budgets. Docs (<code>config.md</code>, <code>providers.md</code>, <code>commands.md</code>). Tests: <code>test_providers.py</code>, <code>test_engine.py</code>, <code>polyglav-core-providers</code></li>
+<li>Changed confirm prompt color - the one-line tool confirm uses the same orange as other questions. Docs (<code>architecture.md</code>). Tests: <code>polyglav-core-repl</code></li>
+<li>Fixed thought status ordering - thinking ends on the first tool-call delta, so <code>✓ Thought</code> prints before the tool spinner starts. Tests: <code>test_tool_calling.py</code></li>
+<li>Fixed spinner line clearing - the spinner saves and restores the cursor and clears its line region on stop, so a newline during an animated line leaves no stale label or blank line. Output stops the spinner before writing. Tests: <code>polyglav-core-repl</code></li>
+<li>Changed done footer tokens - the footer reports the caller's own turn tokens as <code>✓ Done 1.2s (3,456 tokens)</code>, context stays in <code>/status</code> and <code>/context</code>, and each sub-agent reports its own usage. The tree rollup is gone. Docs (<code>config.md</code>). Tests: <code>test_verbosity.py</code>, <code>polyglav-core-repl</code></li>
+<li>Added per-tool token counts - each activity line reports the tool's own result token estimate instead of the request total, and the round usage suffix is gone. Docs (<code>tools.md</code>, <code>config.md</code>). Tests: <code>test_engine.py</code>, <code>polyglav-core-repl</code></li>
+<li>Changed tool status visibility - every tool call prints its activity line, the quiet preset keeps tool summaries, and legacy <code>verbosity.tools = off</code> maps to <code>summary</code> instead of hiding the call. Docs (<code>config.md</code>, <code>tools.md</code>). Tests: <code>test_verbosity.py</code></li>
+<li>Added thought marker minimum - the REPL prints <code>✓ Thought</code> even when reasoning text is off, so a reasoning phase never disappears from the status output. Docs (<code>commands.md</code>, <code>config.md</code>). Tests: <code>test_verbosity.py</code>, <code>polyglav-core-repl</code>, <code>test_tool_calling.py</code></li>
+<li>Removed summary reasoning scope - reasoning is off by default, <code>off</code> hides the thinking text, and legacy <code>summary</code> values fall back to <code>off</code>. Docs (<code>commands.md</code>, <code>config.md</code>). Tests: <code>test_verbosity.py</code>, <code>test_commands.py</code>, <code>polyglav-core-onboarding</code></li>
+</ul>
 <h2 id="v0550-2026-11-12">v0.55.0 - 2026-11-12<a class="headerlink" href="#v0550-2026-11-12" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Fixed exec allowlist bypasses - <code>exec_allow</code> tokenizes each chained segment and matches prefixes on token boundaries, so <code>pytest</code> no longer admits <code>pytestx</code> or <code>python3</code>, rejects backticks, <code>$(</code>, <code>${</code>, <code>&gt;</code> and <code>&lt;</code> anywhere in a command, and denies when a segment cannot be tokenized. Docs (<code>config.md</code>, <code>tools.md</code>). Tests: <code>polyglav-core-exec</code></li>

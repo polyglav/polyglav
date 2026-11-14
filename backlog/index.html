@@ -1245,6 +1245,11 @@
 </ul>
 <h2 id="open">Open<a class="headerlink" href="#open" title="Permanent link">&para;</a></h2>
 <ul>
+<li>[ ] Skill version archive - store each skill revision with a version, timestamp, and hash under <code>.polyglav/skills/.versions</code></li>
+<li>[ ] Skill version commands - add <code>/skills versions</code>, <code>/skills restore</code>, and <code>/skills diff</code></li>
+<li>[ ] Learn command - draft a skill from a verified session and save it locally or globally</li>
+<li>[ ] Skill promotion - copy a local skill to <code>~/.config/polyglav/skills</code> with its source and timestamp</li>
+<li>[ ] Skill auto-enhancement - after a verified run, a gated conclusion stage writes or patches local skills only</li>
 <li>[ ] Mypy widening - clean up the 48 findings in <code>src/polyglav/engine.py</code> and move the module into the CI allowlist, then widen module by module until the core is covered. <code>Optional</code> narrowing dominates the list</li>
 <li>[ ] Ruff rule widening - the narrow <code>E9</code>/<code>F63</code>/<code>F7</code>/<code>F82</code> selection passes, and the next tiers are real debt: 45 unused imports, 27 redefined-while-unused, 7 unused variables, 43 nested <code>with</code> statements, and 3 implicit string concatenations in collection literals</li>
 <li>[ ] Apple FM tool relay - give the <code>apple-fm</code> provider tool calling without core changes. Register one relay <code>fm.Tool</code> per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a <code>tool_calls</code> event, then re-ask with the real tool result folded into the prompt. Needs an <code>apple_fm_tools</code> config flag, costs one extra generation per tool round, and forces non-streaming <code>respond()</code> for every turn, so it stays off by default</li>

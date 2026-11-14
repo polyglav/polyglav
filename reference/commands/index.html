@@ -1595,7 +1595,7 @@
 <tr>
 <td><code>/context</code></td>
 <td></td>
-<td>Show context and token usage: message count, used context tokens, the context window and percentage when known, current-turn input/output/thinking/requests, and session totals</td>
+<td>Show context and token usage: message count, used context tokens, the context window and percentage when known, current-turn input/output/thinking/requests, and session totals. <code>/context window [tokens]</code> shows or sets the active model's context window, and <code>0</code> clears it</td>
 </tr>
 <tr>
 <td><code>/continue</code></td>
@@ -1745,7 +1745,7 @@
 <tr>
 <td><code>/thinking</code></td>
 <td><code>/reasoning</code></td>
-<td>Show or set the reasoning scope: <code>off</code>, <code>summary</code>, <code>assistant</code>, <code>agent</code>, or <code>all</code> (<code>/thinking on</code> = <code>all</code>, <code>off</code> = <code>off</code>). <code>summary</code> shows the Thought line and hides the text. Prints <code>@ Thinking: &lt;scope&gt;</code></td>
+<td>Show or set the reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, or <code>all</code> (<code>/thinking on</code> = <code>all</code>, <code>off</code> = <code>off</code>). <code>off</code> hides the reasoning text but still prints the <code>✓ Thought</code> marker. Prints <code>@ Thinking: &lt;scope&gt;</code></td>
 </tr>
 <tr>
 <td><code>/verbosity</code></td>
@@ -1925,7 +1925,7 @@ polyglav<span class="w"> </span>providers<span class="w"> </span>remove<span cla
 <p><code>connect</code> stores the connection in <code>providers.json</code> and sets the active provider and base URL. <code>probe</code> tests the stored endpoint. The key is never printed.</p>
 <h3 id="polyglav-models"><code>polyglav models</code><a class="headerlink" href="#polyglav-models" title="Permanent link">&para;</a></h3>
 <p>List configured models, or probe a provider's available models (mirrors <code>/models</code>).</p>
-<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>models<span class="w">                          </span><span class="c1"># approved-model history grouped by provider, `&gt;` marks the active model, `(key)` a stored key, `(ctx=...)` the context budget</span>
+<div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>models<span class="w">                          </span><span class="c1"># approved-model history grouped by provider, `&gt;` marks the active model, `(key)` a stored key, `(ctx=..., out=...)` the provider budgets</span>
 polyglav<span class="w"> </span>models<span class="w"> </span>list<span class="w"> </span><span class="o">[</span>provider<span class="o">]</span><span class="w">          </span><span class="c1"># probe a provider's advertised models (default: current), exit 1 on failure</span>
 polyglav<span class="w"> </span>models<span class="w"> </span>context<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>&lt;tokens&gt;<span class="w">   </span><span class="c1"># set the context budget for a model, e.g. opencode-go/deepseek-v4.1-flash 1000000</span>
 </code></pre></div>

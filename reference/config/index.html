@@ -1560,7 +1560,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>context_window</code></td>
 <td><code>0</code></td>
-<td>Context budget in tokens, used for relative compaction thresholds and display. It is not a hard model limit. <code>0</code> = unknown, so a relative <code>compact_at</code> is skipped. A model entry can carry its own value</td>
+<td>Context budget in tokens, used for relative compaction thresholds and display. It is not a hard model limit. <code>0</code> = unknown, so a relative <code>compact_at</code> is skipped. A model entry can carry its own value, and a provider that reports <code>limit.context</code> fills it automatically. Set it with <code>/context window &lt;tokens&gt;</code> or <code>/models context &lt;ref&gt; &lt;tokens&gt;</code></td>
 </tr>
 <tr>
 <td><code>cost.rates</code></td>
@@ -1605,7 +1605,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>max_tokens</code></td>
 <td><code>8192</code></td>
-<td>Output token cap sent to the provider. <code>0</code> = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults</td>
+<td>Output token cap sent to the provider. <code>0</code> = unset (provider default applies, e.g. Ollama caps at 2048). When left at the default and the model entry has a provider <code>limit.output</code>, that limit is used. An explicit global or local value wins</td>
 </tr>
 <tr>
 <td><code>mcp.servers</code></td>
@@ -1645,7 +1645,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>output_log</code></td>
 <td><code>false</code></td>
-<td>Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. Off by default, and the onboarding asks about it (default off)</td>
+<td>Write everything the REPL prints to a file, plain text (ANSI stripped), so a mis-rendered line can be inspected later. Spinner repaints are skipped. The config default is off, and onboarding defaults it on</td>
 </tr>
 <tr>
 <td><code>output_log_ansi</code></td>
@@ -1795,12 +1795,12 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <tr>
 <td><code>verbosity.thinking</code></td>
 <td><code>"inherit"</code></td>
-<td>Reasoning scope: <code>off</code>, <code>summary</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code></td>
+<td>Reasoning scope: <code>off</code>, <code>assistant</code>, <code>agent</code>, <code>all</code>, or <code>inherit</code>. <code>off</code> hides the text but keeps the <code>✓ Thought</code> marker</td>
 </tr>
 <tr>
 <td><code>verbosity.tools</code></td>
 <td><code>"inherit"</code></td>
-<td>Tool detail: <code>off</code>, <code>summary</code>, <code>full</code>, or <code>inherit</code></td>
+<td>Tool detail: <code>summary</code>, <code>full</code>, or <code>inherit</code>. Legacy <code>off</code> maps to <code>summary</code></td>
 </tr>
 <tr>
 <td><code>word_streaming</code></td>
@@ -1818,7 +1818,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li><code>all</code> - the assistant plus every sub-run, including role-less siblings.</li>
 </ul>
 <p>The output scopes are <code>off</code>, <code>assistant</code>, <code>agent</code>, and <code>all</code> with the same role rules. <code>off</code> hides sub-run output but the run's final status line and footer still print.</p>
-<p><code>verbosity.status</code> controls the live elapsed time and approximate token count on sub-run lines. <code>verbosity.tools</code> controls tool lines, and <code>full</code> adds execution time and round tokens. <code>verbosity.footer</code> controls the turn footer. <code>/verbosity</code> shows the effective values, defaults, and allowed options. <code>/status</code> and <code>/context</code> report context, input, output, thinking, and request token counts.</p>
+<p><code>verbosity.status</code> controls the live elapsed time and approximate token count on sub-run lines. <code>verbosity.tools</code> controls tool detail, and <code>full</code> adds execution time and parameters. Every tool line shows its own result token estimate, and legacy <code>off</code> maps to <code>summary</code>. <code>verbosity.footer</code> controls the turn footer, which shows the caller's own total tokens as <code>✓ Done 1.2s (3,456 tokens)</code>. Context size stays in <code>/status</code> and <code>/context</code>, and each sub-agent reports its own tokens when it returns. <code>/verbosity</code> shows the effective values, defaults, and allowed options. <code>/status</code> and <code>/context</code> report context, input, output, thinking, and request token counts.</p>
 <h3 id="modes"><code>modes</code><a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
 <p>There are two modes: <code>read</code> (default, described as <strong>plan</strong>) and <code>write</code> (described as <strong>work</strong>). <code>read</code> allows read-class permission keys plus the bookkeeping tools <code>plan_write</code> and <code>todo</code>, and denies every workspace write key. <code>write</code> leaves write keys to <code>tool_permission</code>. A mode may set a <code>cap</code>, a description, an instruction block, and a submitted-line color:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
@@ -1921,7 +1921,7 @@ polyglav<span class="w"> </span>config<span class="w"> </span><span class="nb">u
 <li>The engine resolves the active provider from the model ref and the provider entry. A manual <code>openai-compatible</code> entry in <code>providers.json</code> is the generic endpoint for a bare model or a custom OpenAI-compatible gateway. There is no <code>api_key</code> config key anymore, and <code>polyglav config set api_key</code> would store an unused ordinary value. Deleting a project config cannot lose the registry, which is global by design.</li>
 </ul>
 <h3 id="model-registry-modelsjson">Model registry (<code>models.json</code>)<a class="headerlink" href="#model-registry-modelsjson" title="Permanent link">&para;</a></h3>
-<p><code>~/.config/polyglav/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>
+<p><code>~/.config/polyglav/models.json</code> is the history of approved models. Entries are <code>{provider, model, added_at, last_used}</code> with optional <code>context_window</code> and <code>max_output</code> limits and no API keys (those live in <code>providers.json</code>). It records every model you connect or switch to, so <code>/models</code> shows what has been used per provider with <code>&gt;</code> marking the active one. The active model still comes from <code>config.model</code>.</p>
 <ul>
 <li><code>/connect</code> records the model for the connection it just saved.</li>
 <li><code>/models</code> shows approved models grouped by provider, the active one marked <code>&gt;</code>, plus <code>(key)</code> when that provider has a stored key. Each entry carries <code>ok_at</code> (last successful run) and <code>last_error</code> (last failure), so <code>/models</code> marks a model <code>(unused)</code> when it never completed a run and <code>(failed)</code> when its last run errored.</li>

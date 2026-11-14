@@ -394,6 +394,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#skill-versioning-and-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill versioning and learning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#role-boundaries-skills-and-project-knowledge" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1461,6 +1472,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#skill-versioning-and-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill versioning and learning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#role-boundaries-skills-and-project-knowledge" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1784,6 +1806,44 @@
 </tbody>
 </table>
 <p>The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.</p>
+<h2 id="skill-versioning-and-learning">Skill versioning and learning<a class="headerlink" href="#skill-versioning-and-learning" title="Permanent link">&para;</a></h2>
+<p>A finished run can leave a shareable procedure, not only role memory. Skills stay local by default, carry a version and timestamp, and move to global only on an explicit promotion.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Effort</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Skill version archive - version, timestamp, hash, and archived revisions under <code>.polyglav/skills/.versions</code></td>
+<td>M</td>
+<td>recoverable skills</td>
+</tr>
+<tr>
+<td>Skill version commands - <code>/skills versions</code>, <code>/skills restore</code>, and <code>/skills diff</code></td>
+<td>S</td>
+<td>inspect and roll back</td>
+</tr>
+<tr>
+<td>Learn command - draft a skill from a verified session and save it locally or globally</td>
+<td>M</td>
+<td>shareable procedures</td>
+</tr>
+<tr>
+<td>Skill promotion - copy a local skill to <code>~/.config/polyglav/skills</code> with source and timestamp</td>
+<td>S-M</td>
+<td>manual sharing</td>
+</tr>
+<tr>
+<td>Skill auto-enhancement - a gated conclusion stage writes or patches local skills only</td>
+<td>M</td>
+<td>a self-improvement loop</td>
+</tr>
+</tbody>
+</table>
 <h2 id="role-boundaries-skills-and-project-knowledge">Role boundaries, skills, and project knowledge<a class="headerlink" href="#role-boundaries-skills-and-project-knowledge" title="Permanent link">&para;</a></h2>
 <p>A role's file and folder access is a config rule, not a prompt, and a skill is tool or framework centered while the project description lives in <code>AGENTS.md</code>.</p>
 <table>
