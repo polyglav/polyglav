@@ -15,7 +15,6 @@ The REPL must always show that an action happened, even when text and bodies are
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Reasoning scope cleanup - remove `summary`, hide reasoning text at `off`, and default to `off` | S | less text, same signal |
 | Thought marker minimum - always print `✓ Thought` in the REPL, including at `off` | S | a visible reasoning trace |
 | Always-on tool status - one activity line per call, with `off` mapped to `summary` | S | no silent tool calls |
 | Per-tool token counts - each tool line shows its own result tokens | S | honest per-call cost |

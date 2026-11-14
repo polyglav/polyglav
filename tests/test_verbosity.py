@@ -17,7 +17,7 @@ class TestVerbosityResolution(unittest.TestCase):
         self.assertEqual(verbosity_level(quiet, 'status'), 'off')
         self.assertEqual(verbosity_level(quiet, 'tools'), 'off')
         normal = {'verbosity': 'normal'}
-        self.assertEqual(verbosity_level(normal, 'thinking'), 'summary')
+        self.assertEqual(verbosity_level(normal, 'thinking'), 'off')
         self.assertEqual(verbosity_level(normal, 'output'), 'agent')
         self.assertEqual(verbosity_level(normal, 'status'), 'on')
         self.assertEqual(verbosity_level(normal, 'tools'), 'summary')
@@ -46,7 +46,7 @@ class TestVerbosityResolution(unittest.TestCase):
     def test_old_thinking_values_are_normalized(self):
         self.assertEqual(
             verbosity_level({'verbosity.thinking': 'summary'}, 'thinking'),
-            'summary')
+            'off')
         self.assertEqual(
             verbosity_level({'verbosity.thinking': 'full'}, 'thinking'), 'all')
 
@@ -78,10 +78,10 @@ class TestVerbosityRendering(unittest.TestCase):
         value = self._thinking('off')
         self.assertEqual(value, '')
 
-    def test_thinking_summary_shows_marker_without_text(self):
-        value = self._thinking('summary')
+    def test_thinking_off_hides_text_and_marker(self):
+        value = self._thinking('off')
         self.assertNotIn('secret', value)
-        self.assertIn('✓ Thought 1.0s', value)
+        self.assertNotIn('✓ Thought', value)
 
     def test_thinking_assistant(self):
         value = self._thinking('assistant')

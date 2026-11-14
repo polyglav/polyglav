@@ -394,7 +394,7 @@ def render_markdown(token: str, state: dict) -> list[tuple[str, str]]:
 
 def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
     scope = verbosity_level(config, 'thinking')
-    if scope in ('off', 'summary'):
+    if scope == 'off':
         return False
     if scope == 'all':
         return True
@@ -521,10 +521,10 @@ class HeadlessUI:
             elif show_thought_duration is False:
                 thinking_level = 'off'
             else:
-                thinking_level = 'summary'
+                thinking_level = 'off'
         self.thinking_level = thinking_level
         self.footer_level = footer_level or 'summary'
-        self.show_thinking = thinking_level not in ('off', 'summary')
+        self.show_thinking = thinking_level != 'off'
         self.show_thought_duration = thinking_level != 'off'
 
     def token(self, text):

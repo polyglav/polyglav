@@ -892,17 +892,18 @@ class TestThinkingCommand(unittest.TestCase):
 
     def test_thinking_reports_current_state(self):
         output = self._dispatch('/thinking')
-        self.assertIn('@ Thinking: summary', output)
+        self.assertIn('@ Thinking: off', output)
 
     def test_thinking_off(self):
         output = self._dispatch('/thinking off')
         self.assertIn('@ Thinking: off', output)
         self.assertEqual(self.chat.config.get('verbosity.thinking'), 'off')
 
-    def test_thinking_summary(self):
+    def test_thinking_summary_is_rejected(self):
         output = self._dispatch('/thinking summary')
-        self.assertIn('@ Thinking: summary', output)
-        self.assertEqual(self.chat.config.get('verbosity.thinking'), 'summary')
+        self.assertIn('Usage: /thinking [off|assistant|agent|all]', output)
+        self.assertEqual(self.chat.config.get('verbosity.thinking'),
+                         'inherit')
 
     def test_thinking_on(self):
         output = self._dispatch('/thinking on')

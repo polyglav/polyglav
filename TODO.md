@@ -41,7 +41,6 @@
 
 ## Open
 
-- [ ] Reasoning scope cleanup - remove the summary scope, make off hide reasoning text, and default the normal preset and onboarding to off
 - [ ] Thought marker minimum - always print the `✓ Thought` marker in the REPL, including when reasoning text is hidden
 - [ ] Always-on tool status - print one activity line for every tool call, including when tools is off by mapping off to summary
 - [ ] Per-tool token counts - show each tool's own result tokens on its activity line instead of the round total

@@ -175,7 +175,7 @@ class TestOnboarding(unittest.TestCase):
         })
         self.assertTrue(plugin.run(chat, ask=answers, secret=lambda _: ''))
         self.assertTrue(self.config.get('output_log'))
-        self.assertEqual(self.config.get('verbosity.thinking'), 'summary')
+        self.assertEqual(self.config.get('verbosity.thinking'), 'off')
         self.assertEqual(self.config.get('verbosity.output'), 'agent')
         self.assertEqual(self.config.get('verbosity.tools'), 'summary')
         self.assertEqual(self.config.get('verbosity.status'), 'on')

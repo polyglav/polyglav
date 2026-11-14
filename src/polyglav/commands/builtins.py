@@ -289,12 +289,12 @@ def register_builtins(registry):
             new = 'all'
         elif arg in ('off', '0', 'false', 'no', 'hide'):
             new = 'off'
-        elif arg in ('summary', 'assistant', 'agent', 'all'):
+        elif arg in ('assistant', 'agent', 'all'):
             new = arg
         elif arg in ('', '?', 'status'):
             new = None
         else:
-            print('Usage: /thinking [off|summary|assistant|agent|all]'
+            print('Usage: /thinking [off|assistant|agent|all]'
                   f'  (current: {current})')
             return
         if new is None:

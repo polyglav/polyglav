@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.56.0
+
+- Removed summary reasoning scope - reasoning is off by default, `off` hides the thinking text, and legacy `summary` values fall back to `off`. Docs (`commands.md`, `config.md`). Tests: `test_verbosity.py`, `test_commands.py`, `polyglav-core-onboarding`
+
 ## v0.55.0 - 2026-11-12
 
 - Fixed exec allowlist bypasses - `exec_allow` tokenizes each chained segment and matches prefixes on token boundaries, so `pytest` no longer admits `pytestx` or `python3`, rejects backticks, `$(`, `${`, `>` and `<` anywhere in a command, and denies when a segment cannot be tokenized. Docs (`config.md`, `tools.md`). Tests: `polyglav-core-exec`
