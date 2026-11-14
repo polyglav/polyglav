@@ -365,7 +365,7 @@ class Engine:
             api_key=api_key,
             model=model,
             temperature=self.config.get('temperature'),
-            max_tokens=self.config.get('max_tokens'),
+            max_tokens=self._effective_max_tokens(provider_name, model),
             reasoning=self.config.get('reasoning'),
             session_id=self._current_session_id(),
         )
@@ -380,6 +380,23 @@ class Engine:
             return
         if getattr(self, '_owns_provider', False):
             provider.session_id = self.current_session.session_id
+
+    def _effective_max_tokens(self, provider: str, model: str) -> int:
+        try:
+            cap = int(self.config.get('max_tokens', 0) or 0)
+        except (TypeError, ValueError):
+            cap = 0
+        if self.config.origin('max_tokens') != 'default':
+            return cap
+        entry = self.models.find(provider, model)
+        if entry is not None:
+            try:
+                model_cap = int(entry.max_output or 0)
+            except (TypeError, ValueError):
+                model_cap = 0
+            if model_cap > 0:
+                return model_cap
+        return cap
 
     def model_limits_for(self, provider: str) -> dict[str, dict]:
         return dict(getattr(self, '_model_limits', {}).get(provider, {}))
@@ -1140,7 +1157,9 @@ class Engine:
                                 self.ui.info(f'(output truncated - continuing '
                                              f'{consumes}/{max_continues})')
                                 continue
-                            limit = self.config.get('max_tokens')
+                            provider_name, _, model_name = self.model_target()
+                            limit = self._effective_max_tokens(
+                                provider_name, model_name)
                             if limit > 0:
                                 msg = ('Assistant output truncated: max_tokens limit reached '
                                        f'({limit})')

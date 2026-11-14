@@ -76,7 +76,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `list_dir_max_entries`      | `200`                  | Cap entries `list_dir` returns (`... (showing first N of M entries)` appended). `0` = unlimited |
 | `markdown_streaming`        | `false`                | Basic markdown-aware streaming                                         |
 | `max_team_depth`            | `2`                    | Maximum nested team runs (a `call` stage that itself runs a team). `0` = unlimited. Cycles are refused regardless. See [teams.md](teams.md#the-team-tool) |
-| `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). The default overrides low provider defaults |
+| `max_tokens`                | `8192`                 | Output token cap sent to the provider. `0` = unset (provider default applies, e.g. Ollama caps at 2048). When left at the default and the model entry has a provider `limit.output`, that limit is used. An explicit global or local value wins |
 | `mcp.servers`               | `[]`                   | MCP client server definitions (owned by `polyglav-core-mcp`, see [mcp.md](mcp.md)) |
 | `mcp_server.allow_ask`      | `true`                 | When serving MCP, run `ask`-policy tools (deferred to the client) vs refuse them (owned by `polyglav-core-mcp`) |
 | `memory`                    | `true`                 | Enable bounded memory summaries under `.polyglav/memory/`: role memory injected into sub-agent prompts, team/job memory into briefs, each refreshed after a run. `false` disables every scope |

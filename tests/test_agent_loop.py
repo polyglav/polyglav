@@ -290,7 +290,7 @@ class TestAgentLoop(unittest.TestCase):
         self.assertEqual([p['text'] for p in self._parts('thinking')],
                          ['reasoned but did not answer'])
 
-    def test_context_size_printed_after_response(self):
+    def test_footer_without_usage_omits_tokens(self):
         self.chat.provider.chat.return_value = [
             {'type': 'token', 'content': 'Hello'},
             {'type': 'done', 'reason': 'stop'},
@@ -299,8 +299,8 @@ class TestAgentLoop(unittest.TestCase):
         with patch('sys.stdout', new=out):
             self.chat._agent_loop()
         value = out.getvalue()
-        self.assertIn('✓ Done 0.0s (', value)
-        self.assertIn('tokens', value)
+        self.assertIn('✓ Done 0.0s', value)
+        self.assertNotIn('tokens', value)
 
     def test_footer_uses_provider_usage(self):
         self.chat.provider.chat.return_value = [

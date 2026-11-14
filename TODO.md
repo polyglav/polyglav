@@ -43,7 +43,6 @@
 
 - [ ] Onboarding output defaults - default tool stats and the terminal output file to yes
 - [ ] Multiline paste input - close blocks only on the closing delimiter, preserve trailing spaces, and enable bracketed paste
-- [ ] Max tokens from model limit - resolve max_tokens from the model output limit when the config value is not explicit
 - [ ] Skill version archive - store each skill revision with a version, timestamp, and hash under `.polyglav/skills/.versions`
 - [ ] Skill version commands - add `/skills versions`, `/skills restore`, and `/skills diff`
 - [ ] Learn command - draft a skill from a verified session and save it locally or globally

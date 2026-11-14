@@ -144,6 +144,7 @@ def _instrument_block(engine: Engine, baseline: dict | None) -> dict:
 def _settings_block(engine: Engine) -> dict:
     config = engine.config
     mode = config.get('mode') or 'read'
+    provider, _, model = engine.model_target()
     permissions, allow, deny = merge_policy(config, mode)
     return {
         'mode': mode,
@@ -157,7 +158,7 @@ def _settings_block(engine: Engine) -> dict:
         'compact_keep': config.get('compact_keep'),
         'context_window': config.get('context_window'),
         'temperature': config.get('temperature'),
-        'max_tokens': config.get('max_tokens'),
+        'max_tokens': engine._effective_max_tokens(provider, model),
     }
 
 

@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from polyglav.config import Config
+from polyglav.config import DEFAULT_CONFIG, Config
 from polyglav.engine import Engine
 from polyglav.plugins.manager import PluginManager
 from polyglav.sessions.manager import SessionManager
@@ -482,6 +482,28 @@ class TestEngineCheckConnection(unittest.TestCase):
         _f.DEFAULT_MODEL = 'test-model'
         _f.captured = captured
         return _f
+
+    def test_effective_max_tokens_uses_model_limit(self):
+        self.engine.config.unset('max_tokens')
+        self.engine.models.put('ollama', 'test-model')
+        self.engine.models.set_max_output('ollama', 'test-model', 384000)
+        self.assertEqual(
+            self.engine._effective_max_tokens('ollama', 'test-model'),
+            384000)
+
+    def test_effective_max_tokens_keeps_explicit_config(self):
+        self.engine.models.put('ollama', 'test-model')
+        self.engine.models.set_max_output('ollama', 'test-model', 384000)
+        self.engine.config.set('max_tokens', 8192)
+        self.assertEqual(
+            self.engine._effective_max_tokens('ollama', 'test-model'), 8192)
+
+    def test_effective_max_tokens_defaults_without_model_limit(self):
+        self.engine.config.unset('max_tokens')
+        self.engine.models.put('ollama', 'test-model')
+        self.assertEqual(
+            self.engine._effective_max_tokens('ollama', 'test-model'),
+            DEFAULT_CONFIG['max_tokens'])
 
     def test_model_limits_apply_to_entry(self):
         self.engine.models.put('ollama', 'test-model')

@@ -15,7 +15,6 @@ Provider model metadata drives the context budget and output cap when it is avai
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Max tokens from model limit - use the model output limit when `max_tokens` is not explicit | S | a correct output cap |
 | Onboarding output defaults - tool stats and the terminal output file default to yes | S | useful first-run output |
 | Multiline paste input - close blocks only on the delimiter, preserve trailing spaces, and enable bracketed paste | S | reliable multiline input |
 

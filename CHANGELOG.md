@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Changed max tokens to model limit - when `max_tokens` is left at its default, the provider's `limit.output` from the model entry sets the cap, while an explicit global or local value still wins. The truncation warning and metric settings use the effective cap. Docs (`config.md`, `providers.md`). Tests: `test_engine.py`, `test_agent_loop.py`, `test_metrics.py`
 - Added context window command - `/context window <tokens>` sets the active model's budget, `/context window` shows it, `0` clears it, and the unknown-window hint points at the command. Docs (`commands.md`, `config.md`). Tests: `test_commands.py`
 - Added provider model limits - the `/v1/models` probe records `limit.context` and `limit.output` on the model entry, the engine applies them when the model is selected, and `/models` and `polyglav models` show both budgets. Docs (`config.md`, `providers.md`, `commands.md`). Tests: `test_providers.py`, `test_engine.py`, `polyglav-core-providers`
 - Changed confirm prompt color - the one-line tool confirm uses the same orange as other questions. Docs (`architecture.md`). Tests: `polyglav-core-repl`
