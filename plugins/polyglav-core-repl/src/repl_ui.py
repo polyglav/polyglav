@@ -370,7 +370,9 @@ class ReplUI:
         hidden = bool(self._loop.config.get('hide_confirm_input', False))
         mark = glyph(self._loop.config, 'question', '?')
         done = glyph(self._loop.config, 'done', '✓')
-        prompt = f'\001{DIM}\002{mark} {label} - approve? [Y/n] \001{RESET}\002'
+        question_color = ORANGE if colors_enabled() else ''
+        prompt = (f'\001{question_color}\002{mark} {label} - approve? '
+                  f'[Y/n] \001{RESET}\002')
         self._prompting.set()
         self._clear_spinner_line()
         try:

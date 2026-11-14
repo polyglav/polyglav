@@ -49,7 +49,7 @@ The loop renders through a `UISink`, an interface of methods the loop calls as e
 
 | Sink | Purpose |
 |------|---------|
-| `ReplUI` | Terminal REPL: ANSI streaming with a color language (teal read prompts, orange write prompts and asks, bright blue call/delegate lines, green exec, red errors, dim reasoning and output), optional markdown, single-key `[Y/n]` confirm prompts, footer stats |
+| `ReplUI` | Terminal REPL: ANSI streaming with a color language (teal read prompts, orange write prompts, asks, and confirm prompts, bright blue call/delegate lines, green exec, red errors, dim reasoning and output), optional markdown, single-key `[Y/n]` confirm prompts, footer stats |
 | `HeadlessUI` | `run` / `serve`: stderr diagnostics, auto-approve/deny confirm policy, never blocks on stdin |
 | `SubRunUI` | Forwards a visible sub-run into the caller under `verbosity.output` and `verbosity.thinking`, with indentation and role context |
 | `NullUI` | Silent, for tests and hidden sub-engines, whose output goes to their own session |

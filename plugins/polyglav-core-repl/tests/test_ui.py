@@ -495,6 +495,7 @@ class TestWordStreaming(unittest.TestCase):
                 self.ui.confirm('write_file', 'write_file a.md')
         value = self._capture(run)
         self.assertIn('? write_file a.md - approve? [Y/n]', value)
+        self.assertIn(ORANGE, value)
         self.assertNotIn('  ? ', value)
 
     def test_confirm_default_yes_on_empty(self):
@@ -575,6 +576,7 @@ class TestLinePrompts(unittest.TestCase):
                 self.ui.confirm('write_file', 'write_file a.md')
         value = self._capture(run)
         self.assertIn('? write_file a.md - approve? [Y/n]', value)
+        self.assertIn(ORANGE, value)
         self.assertNotIn('  ? ', value)
 
     def test_confirm_hidden_input(self):

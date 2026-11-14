@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Changed confirm prompt color - the one-line tool confirm uses the same orange as other questions. Docs (`architecture.md`). Tests: `polyglav-core-repl`
 - Fixed thought status ordering - thinking ends on the first tool-call delta, so `✓ Thought` prints before the tool spinner starts. Tests: `test_tool_calling.py`
 - Fixed spinner line clearing - the spinner saves and restores the cursor and clears its line region on stop, so a newline during an animated line leaves no stale label or blank line. Output stops the spinner before writing. Tests: `polyglav-core-repl`
 - Changed done footer tokens - the footer reports the caller's own turn tokens as `✓ Done 1.2s (3,456 tokens)`, context stays in `/status` and `/context`, and each sub-agent reports its own usage. The tree rollup is gone. Docs (`config.md`). Tests: `test_verbosity.py`, `polyglav-core-repl`

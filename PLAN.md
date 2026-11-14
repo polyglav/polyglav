@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live in detail under the matching 
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Reasoning and tool visibility
-
-The REPL must always show that an action happened, even when text and bodies are hidden, and must not leave stale animated lines. Reasoning keeps a marker, every tool call keeps a line with its own token count, and the footer reports the caller's own use.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Orange confirm prompts - color the one-line confirm prompt | S | consistent prompts |
-
 ## Provider limits and input defaults
 
 Provider model metadata drives the context budget and output cap when it is available, and first-run defaults and multiline paste stop interrupting work.
