@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Added thought marker minimum - the REPL prints `✓ Thought` even when reasoning text is off, so a reasoning phase never disappears from the status output. Docs (`commands.md`, `config.md`). Tests: `test_verbosity.py`, `polyglav-core-repl`, `test_tool_calling.py`
 - Removed summary reasoning scope - reasoning is off by default, `off` hides the thinking text, and legacy `summary` values fall back to `off`. Docs (`commands.md`, `config.md`). Tests: `test_verbosity.py`, `test_commands.py`, `polyglav-core-onboarding`
 
 ## v0.55.0 - 2026-11-12

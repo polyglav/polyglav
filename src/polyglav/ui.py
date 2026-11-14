@@ -406,7 +406,7 @@ def reasoning_visible(config, role: str = '', sub_run: bool = False) -> bool:
 
 
 def thought_marker_visible(config) -> bool:
-    return verbosity_level(config, 'thinking') != 'off'
+    return True
 
 
 class StatusMetrics:
@@ -525,7 +525,7 @@ class HeadlessUI:
         self.thinking_level = thinking_level
         self.footer_level = footer_level or 'summary'
         self.show_thinking = thinking_level != 'off'
-        self.show_thought_duration = thinking_level != 'off'
+        self.show_thought_duration = True
 
     def token(self, text):
         if self.stream:

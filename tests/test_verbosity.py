@@ -74,14 +74,10 @@ class TestVerbosityRendering(unittest.TestCase):
             self.ui.thinking_begin(), self.ui.thinking('secret'),
             self.ui.thinking_end(1.0)))
 
-    def test_thinking_off(self):
-        value = self._thinking('off')
-        self.assertEqual(value, '')
-
-    def test_thinking_off_hides_text_and_marker(self):
+    def test_thinking_off_shows_marker_without_text(self):
         value = self._thinking('off')
         self.assertNotIn('secret', value)
-        self.assertNotIn('✓ Thought', value)
+        self.assertIn('✓ Thought 1.0s', value)
 
     def test_thinking_assistant(self):
         value = self._thinking('assistant')

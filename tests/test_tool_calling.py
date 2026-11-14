@@ -137,7 +137,7 @@ class TestToolCalling(unittest.TestCase):
             self.chat._agent_loop()
         out = buf.getvalue()
         self.assertNotIn('secret reasoning', out)
-        self.assertNotIn('Thought', out)
+        self.assertIn('✓ Thought', out)
         self.assertIn('Visible', out)
         self.assertIn('Visible', out)
 

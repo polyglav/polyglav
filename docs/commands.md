@@ -50,7 +50,7 @@ Run `polyglav` and type `/` to tab-complete commands. Use `/help` or `/help <cmd
 | `/spawn`                |                | Launch, list, stop, or ask a scoped serve agent. `/spawn <name> <path>` launches one, `/spawn ask <name> <prompt>` delegates to it, `/spawn stop <name>` stops it, and `/spawn` lists agents |
 | `/status`               |                | Show the model, mode, current session, token context and window, current-turn and session token usage, live runs, plugins, jobs, and fleet state |
 | `/teams`                |                | Manage teams: `list` (`list <tag>` filters), `new <name> [description]`, `remove <name>`, `run <name> <task>`, `show <name>`. See [teams.md](teams.md) |
-| `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). `off` hides the reasoning text. Prints `@ Thinking: <scope>` |
+| `/thinking`             | `/reasoning`   | Show or set the reasoning scope: `off`, `assistant`, `agent`, or `all` (`/thinking on` = `all`, `off` = `off`). `off` hides the reasoning text but still prints the `✓ Thought` marker. Prints `@ Thinking: <scope>` |
 | `/verbosity`            | `/verbose`     | Show or set display scopes: `/verbosity`, `/verbosity <scope>`, `/verbosity <scope> <value>`, `/verbosity preset quiet\|normal\|verbose`, `/verbosity reset [scope]` |
 | `/todo`                 |                | Show or edit the current run's internal todo: `add <title>`, `start <id>`, `done <id>`, `block <id> [note]`, `remove <id>`, `list`. See [modes.md](modes.md) |
 | `/todos`                |                | List every stored todo, marking the current one. `/todos <id>` prints one by session id or name. See [modes.md](modes.md) |

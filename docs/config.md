@@ -114,7 +114,7 @@ Deleting a project's `.polyglav/config.json` reverts it to the global and built-
 | `verbosity.footer`          | `"inherit"`            | Footer detail: `off`, `summary`, `full`, or `inherit`                   |
 | `verbosity.output`          | `"inherit"`            | Sub-run output scope: `off`, `assistant`, `agent`, `all`, or `inherit`. Default `agent` |
 | `verbosity.status`          | `"inherit"`            | Live status time and approximate tokens: `off`, `on`, or `inherit`      |
-| `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit` |
+| `verbosity.thinking`        | `"inherit"`            | Reasoning scope: `off`, `assistant`, `agent`, `all`, or `inherit`. `off` hides the text but keeps the `✓ Thought` marker |
 | `verbosity.tools`           | `"inherit"`            | Tool detail: `off`, `summary`, `full`, or `inherit`                     |
 | `word_streaming`            | `true`                 | Buffer REPL output to word boundaries so words render fully formed (no mid-word pauses). `false` streams character-by-character |
 

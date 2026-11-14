@@ -346,12 +346,12 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertIn('✓ Thought 2.5s', value)
         self.assertNotIn('+ Thought', value)
 
-    def test_thinking_end_streamed_hides_thought_duration_when_off(self):
+    def test_thinking_end_shows_thought_duration_when_off(self):
         self.chat.config.set('verbosity.thinking', 'off')
         out = io.StringIO()
         with patch('sys.stdout', new=out):
             self.chat._ui.thinking_end(1.0)
-        self.assertNotIn('Thought', out.getvalue())
+        self.assertIn('✓ Thought 1.0s', out.getvalue())
 
 
 class TestEphemeralUI(unittest.TestCase):
