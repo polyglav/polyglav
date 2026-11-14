@@ -110,6 +110,29 @@ class TestToolCalling(unittest.TestCase):
         search_mock.assert_called_once_with('latest AI news')
         self.assertEqual(self._texts()[-1], 'Done.')
 
+    def test_thought_finishes_before_tool_spinner(self):
+        ui = unittest.mock.MagicMock()
+        self.chat._ui = ui
+        self.chat._ask_ui = ui
+        self.chat.provider.chat.side_effect = [
+            [{'type': 'thinking', 'content': 'reasoning...'},
+             {'type': 'tool_call_delta', 'name': 'web_search', 'chars': 5},
+             {'type': 'tool_calls', 'tool_calls': self._make_tool_call()}],
+            [
+                {'type': 'token', 'content': 'Done.'},
+                {'type': 'done', 'reason': 'stop'},
+            ],
+        ]
+        with patch.object(self._search_service(), 'search', return_value=[
+            {'title': 'T', 'url': 'http://x.com', 'snippet': 'S'}
+        ]):
+            self._run()
+        names = [call[0] for call in ui.method_calls]
+        self.assertIn('thinking_end', names)
+        self.assertIn('tool_call_progress', names)
+        self.assertLess(names.index('thinking_end'),
+                        names.index('tool_call_progress'))
+
     def test_shown_thinking_streams_and_summarizes(self):
         self.chat.config.data['verbosity.thinking'] = 'all'
         self.chat.provider.chat.side_effect = [

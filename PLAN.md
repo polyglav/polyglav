@@ -15,7 +15,6 @@ The REPL must always show that an action happened, even when text and bodies are
 
 | Task | Effort | Provides |
 |------|--------|----------|
-| Thought status ordering - finalize `✓ Thought` before the tool spinner | S | correct status order |
 | Orange confirm prompts - color the one-line confirm prompt | S | consistent prompts |
 
 ## Provider limits and input defaults

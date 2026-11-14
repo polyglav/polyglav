@@ -999,6 +999,7 @@ class Engine:
                                             feed_thinking(token)
                                             token = ''
                             elif t == 'tool_call_delta':
+                                end_thinking()
                                 self.ui.tool_call_progress(
                                     event.get('name', 'tool'),
                                     int(event.get('chars') or 0))
