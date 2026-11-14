@@ -9,14 +9,6 @@ Finished tasks are removed from this file and live in detail under the matching 
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
-## Provider limits and input defaults
-
-Provider model metadata drives the context budget and output cap when it is available, and first-run defaults and multiline paste stop interrupting work.
-
-| Task | Effort | Provides |
-|------|--------|----------|
-| Multiline paste input - close blocks only on the delimiter, preserve trailing spaces, and enable bracketed paste | S | reliable multiline input |
-
 ## Security hardening and honest boundaries
 
 The shell allowlist, the JSON API, and the session store are where a local-first tool meets hostile input. The cheap gaps now fail closed, and the documentation no longer claims a boundary that only the exec sandbox can deliver. What remains is the static-check widening that those checks depend on.

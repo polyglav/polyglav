@@ -79,13 +79,6 @@ def _strip_framing(text: str, delim: str) -> str:
             + text[last + len(delim):]).strip('\n')
 
 
-def _strip_open(text: str, delim: str) -> str:
-    idx = text.find(delim)
-    if idx == -1:
-        return text
-    return (text[:idx] + text[idx + len(delim):]).strip('\n')
-
-
 class ChatLoop(Engine):
     def __init__(self, config: Config, plugin_manager=None):
         ui = ReplUI(self)
@@ -133,6 +126,10 @@ class ChatLoop(Engine):
             readline.parse_and_bind('bind ^I rl_complete')
         else:
             readline.parse_and_bind('tab: complete')
+            try:
+                readline.parse_and_bind('set enable-bracketed-paste on')
+            except Exception:
+                pass
 
     def _completer(self, text: str, state: int) -> str | None:
         line = readline.get_line_buffer()
@@ -285,18 +282,13 @@ class ChatLoop(Engine):
         parts = [line]
         while True:
             try:
-                nxt = self._read_input(self._cont_prompt()).rstrip()
+                nxt = self._read_input(self._cont_prompt())
             except (EOFError, KeyboardInterrupt):
                 print()
                 return None
             parts.append(nxt)
-            stripped = nxt.strip()
-            if stripped == delim:
+            if nxt.strip() == delim:
                 composed = _strip_framing('\n'.join(parts), delim)
-                self._remember(composed)
-                return composed
-            if stripped == '':
-                composed = _strip_open('\n'.join(parts), delim)
                 self._remember(composed)
                 return composed
 

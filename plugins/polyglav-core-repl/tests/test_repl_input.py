@@ -117,9 +117,17 @@ class TestReplInput(unittest.TestCase):
         self._run(['what is """ x """?', EOFError])
         self.chat.chat.assert_called_once_with('what is """ x """?')
 
-    def test_blank_line_closes_block(self):
+    def test_blank_line_kept_in_block(self):
+        self._run(['"""', 'hello', '', 'world', '"""', EOFError])
+        self.chat.chat.assert_called_once_with('hello\n\nworld')
+
+    def test_block_without_delimiter_exits_on_eof(self):
         self._run(['"""', 'hello', '', EOFError])
-        self.chat.chat.assert_called_once_with('hello')
+        self.chat.chat.assert_not_called()
+
+    def test_block_preserves_trailing_spaces(self):
+        self._run(['"""', 'hello  ', 'world  ', '"""', EOFError])
+        self.chat.chat.assert_called_once_with('hello  \nworld  ')
 
     def test_delimiter_only_closes_at_line_start(self):
         self._run(['"""', 'a """ b', '"""', EOFError])

@@ -80,4 +80,6 @@ class TestCompletion(unittest.TestCase):
         with patch('polyglav_core_repl_chat.readline') as rl:
             rl.__doc__ = 'GNU readline'
             self.chat._setup_readline()
-            rl.parse_and_bind.assert_called_once_with('tab: complete')
+            rl.parse_and_bind.assert_any_call('tab: complete')
+            rl.parse_and_bind.assert_any_call(
+                'set enable-bracketed-paste on')
