@@ -222,14 +222,14 @@ class TestThinkingSpinner(unittest.TestCase):
                 self.chat, 'ask', {'question': 'Which?', 'kind': 'direction'})
         self.assertEqual(out.getvalue(), '')
 
-    def test_tool_full_shows_round_tokens(self):
+    def test_tool_status_shows_result_tokens(self):
         self.chat._init_tooling()
-        self.chat.config.set('verbosity.tools', 'full')
-        self.chat._round_usage = {'total_tokens': 1234}
+        self.chat.config.set('verbosity.tools', 'summary')
         from polyglav.engine import Engine
         out = io.StringIO()
         with patch('sys.stdout', new=out):
-            Engine._show_tool_status(self.chat, 'catalog', {'action': 'list'})
+            Engine._show_tool_status(
+                self.chat, 'catalog', {'action': 'list'}, tokens=1234)
         self.assertIn('1,234 tokens', out.getvalue())
 
     def test_status_off_hides_live_numbers(self):

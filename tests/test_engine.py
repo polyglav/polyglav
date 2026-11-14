@@ -347,6 +347,15 @@ class TestEngine(unittest.TestCase):
         self.engine._show_tool_status('run_command', {'command': 'ls', 'cwd': '/workspace'})
         self.assertEqual(ui.labels, ['$ Run ls'])
 
+    def test_show_tool_status_includes_result_tokens(self):
+        ui = _CaptureUI()
+        self.engine._init_tooling()
+        self.engine._ui = ui
+        self.engine.config.set('verbosity.tools', 'summary')
+        self.engine._show_tool_status(
+            'run_command', {'command': 'ls', 'cwd': '/workspace'}, tokens=1234)
+        self.assertEqual(ui.labels, ['$ Run ls (1,234 tokens)'])
+
     def test_confirm_label_includes_params(self):
         ui = _CaptureUI()
         self.engine._init_tooling()
@@ -361,11 +370,13 @@ class TestEngine(unittest.TestCase):
         self.engine._ui = ui
         out = self.engine._run_tool('read_file', {'path': '/definitely/not/here.txt'})
         self.assertIn('Error: file not found', out)
-        self.assertEqual(ui.labels, [
-            'confirm: read_file /definitely/not/here.txt',
-            '← Read /definitely/not/here.txt',
-            '! Error: file not found: /definitely/not/here.txt',
-        ])
+        self.assertEqual(ui.labels[0],
+                         'confirm: read_file /definitely/not/here.txt')
+        self.assertTrue(ui.labels[1].startswith(
+            '← Read /definitely/not/here.txt ('))
+        self.assertTrue(ui.labels[1].endswith(' tokens)'))
+        self.assertEqual(ui.labels[2],
+                         '! Error: file not found: /definitely/not/here.txt')
 
     def test_run_tool_error_always_renders(self):
         ui = _CaptureUI()
@@ -380,7 +391,9 @@ class TestEngine(unittest.TestCase):
         self.engine._init_tooling()
         self.engine._ui = ui
         self.engine._run_tool('run_command', {'command': 'echo hi'})
-        self.assertEqual(ui.labels, ['confirm: run_command echo hi', '$ Run echo hi'])
+        self.assertEqual(ui.labels[0], 'confirm: run_command echo hi')
+        self.assertTrue(ui.labels[1].startswith('$ Run echo hi ('))
+        self.assertTrue(ui.labels[1].endswith(' tokens)'))
         self.assertFalse(any(l.startswith('! ') for l in ui.labels))
 
     def test_run_tool_note_renders_soft_result(self):
@@ -391,10 +404,8 @@ class TestEngine(unittest.TestCase):
         empty.write_text('')
         out = self.engine._run_tool('read_file', {'path': str(empty)})
         self.assertIn('(empty file)', out)
-        self.assertEqual(ui.labels, [
-            f'← Read {empty}',
-            '[(empty file)]',
-        ])
+        self.assertTrue(ui.labels[0].startswith(f'← Read {empty} ('))
+        self.assertEqual(ui.labels[1], '[(empty file)]')
 
     def test_run_tool_no_note_for_normal_result(self):
         ui = _CaptureUI()

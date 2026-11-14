@@ -1199,7 +1199,6 @@ class Engine:
     def _execute_tool_calls(self, tcs: list[dict], thinking: str = '',
                             usage: dict | None = None) -> list[dict]:
         self.current_session.add_thinking(thinking)
-        self._round_usage = usage
         executed: list[dict] = []
         for index, tc in enumerate(tcs):
             name = tc['function']['name']
@@ -1220,7 +1219,7 @@ class Engine:
                 part['usage'] = dict(usage)
             tool_start = time.monotonic()
             output = self._run_tool(name, args)
-            result_tokens = max(1, len(output) // 4) if output else 0
+            result_tokens = self._result_tokens(output)
             refs = self._tool_registry.refs_for(name, args, output)
             if refs:
                 part['refs'] = refs
@@ -1374,8 +1373,9 @@ class Engine:
                                  granted_by=grant.get('origin'))
         else:
             self._log_permission(name, action, 'granted', path)
-        self._show_tool_status(name, args)
+        status = self._prepare_tool_status(name, args)
         result = registry.execute(name, args, config=self.config, echo=echo)
+        self._emit_tool_status(status, self._result_tokens(result))
         if result.startswith('Error'):
             self.ui.tool_error(result)
         elif registry.is_note_result(name, result):
@@ -1399,30 +1399,35 @@ class Engine:
             label = f'{label} [{params}]'
         return self.ui.confirm(name, label)
 
-    def _show_tool_status(self, name, arguments):
+    @staticmethod
+    def _result_tokens(output) -> int:
+        return max(1, len(output) // 4) if output else 0
+
+    def _prepare_tool_status(self, name, arguments):
         level = verbosity_level(self.config, 'tools')
         if level == 'off' or self._tool_registry.silent_for(name):
-            return
+            return None
         value, body = self._tool_registry.status_parts(name, arguments)
         activity = self._tool_registry.activity(
             name, arguments, glyphs=glyph_map(self.config))
+        return level, name, value, body, activity
+
+    def _emit_tool_status(self, status, tokens: int = 0) -> None:
+        if status is None:
+            return
+        level, name, value, body, activity = status
+        suffix = f' ({int(tokens):,} tokens)' if tokens else ''
         if activity is not None:
             glyph, verb, label, params = activity
             if params and level == 'full':
                 label = f'{label} [{params}]'
-            if level == 'full':
-                usage = getattr(self, '_round_usage', None) or {}
-                total = usage.get('total_tokens')
-                if total:
-                    label = f'{label} ({int(total):,} tokens)'
-            self.ui.activity(glyph, verb, label, body)
+            self.ui.activity(glyph, verb, f'{label}{suffix}', body)
         else:
-            if level == 'full':
-                usage = getattr(self, '_round_usage', None) or {}
-                total = usage.get('total_tokens')
-                if total:
-                    value = f'{value} ({int(total):,} tokens)'
-            self.ui.tool_status(name, value, body)
+            self.ui.tool_status(name, f'{value}{suffix}', body)
+
+    def _show_tool_status(self, name, arguments, tokens: int = 0):
+        self._emit_tool_status(
+            self._prepare_tool_status(name, arguments), tokens)
 
     def _refine_query(self, query: str) -> str:
         context_count = self.config.get('query_refine_context', 4)

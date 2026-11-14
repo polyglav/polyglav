@@ -41,7 +41,6 @@
 
 ## Open
 
-- [ ] Per-tool token counts - show each tool's own result tokens on its activity line instead of the round total
 - [ ] Concise done footer - print the caller's own turn tokens as `✓ Done ... (N tokens)`, keep context in `/status` and `/context`, and give each sub-agent its own footer
 - [ ] Animated status cleanup - clear the spinner line without stale text or blank lines
 - [ ] Thought status ordering - finalize `✓ Thought` before the tool spinner starts
