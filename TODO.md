@@ -41,6 +41,24 @@
 
 ## Open
 
+- [ ] Reasoning scope cleanup - remove the summary scope, make off hide reasoning text, and default the normal preset and onboarding to off
+- [ ] Thought marker minimum - always print the `✓ Thought` marker in the REPL, including when reasoning text is hidden
+- [ ] Always-on tool status - print one activity line for every tool call, including when tools is off by mapping off to summary
+- [ ] Per-tool token counts - show each tool's own result tokens on its activity line instead of the round total
+- [ ] Concise done footer - print the caller's own turn tokens as `✓ Done ... (N tokens)`, keep context in `/status` and `/context`, and give each sub-agent its own footer
+- [ ] Animated status cleanup - clear the spinner line without stale text or blank lines
+- [ ] Thought status ordering - finalize `✓ Thought` before the tool spinner starts
+- [ ] Onboarding output defaults - default tool stats and the terminal output file to yes
+- [ ] Multiline paste input - close blocks only on the closing delimiter, preserve trailing spaces, and enable bracketed paste
+- [ ] Orange confirm prompts - color the one-line tool confirm prompt like other questions
+- [ ] Provider model limits - read `limit.context` and `limit.output` from the provider model list and persist them on the model entry
+- [ ] Context window command - add `/context window <tokens>` and point the unknown-window hint at it
+- [ ] Max tokens from model limit - resolve max_tokens from the model output limit when the config value is not explicit
+- [ ] Skill version archive - store each skill revision with a version, timestamp, and hash under `.polyglav/skills/.versions`
+- [ ] Skill version commands - add `/skills versions`, `/skills restore`, and `/skills diff`
+- [ ] Learn command - draft a skill from a verified session and save it locally or globally
+- [ ] Skill promotion - copy a local skill to `~/.config/polyglav/skills` with its source and timestamp
+- [ ] Skill auto-enhancement - after a verified run, a gated conclusion stage writes or patches local skills only
 - [ ] Mypy widening - clean up the 48 findings in `src/polyglav/engine.py` and move the module into the CI allowlist, then widen module by module until the core is covered. `Optional` narrowing dominates the list
 - [ ] Ruff rule widening - the narrow `E9`/`F63`/`F7`/`F82` selection passes, and the next tiers are real debt: 45 unused imports, 27 redefined-while-unused, 7 unused variables, 43 nested `with` statements, and 3 implicit string concatenations in collection literals
 - [ ] Apple FM tool relay - give the `apple-fm` provider tool calling without core changes. Register one relay `fm.Tool` per advertised schema, record the requested call, return a placeholder, discard the SDK's follow-up text, emit the captured call as a `tool_calls` event, then re-ask with the real tool result folded into the prompt. Needs an `apple_fm_tools` config flag, costs one extra generation per tool round, and forces non-streaming `respond()` for every turn, so it stays off by default

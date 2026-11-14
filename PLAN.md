@@ -9,6 +9,33 @@ Finished tasks are removed from this file and live in detail under the matching 
 - Effort: S < M < L
 - Provides: the capability the task delivers
 
+## Reasoning and tool visibility
+
+The REPL must always show that an action happened, even when text and bodies are hidden, and must not leave stale animated lines. Reasoning keeps a marker, every tool call keeps a line with its own token count, and the footer reports the caller's own use.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Reasoning scope cleanup - remove `summary`, hide reasoning text at `off`, and default to `off` | S | less text, same signal |
+| Thought marker minimum - always print `✓ Thought` in the REPL, including at `off` | S | a visible reasoning trace |
+| Always-on tool status - one activity line per call, with `off` mapped to `summary` | S | no silent tool calls |
+| Per-tool token counts - each tool line shows its own result tokens | S | honest per-call cost |
+| Concise done footer - caller-only `✓ Done ... (N tokens)`, context in `/status` and `/context`, and per-sub-run footers | S | per-scope token reporting |
+| Animated status cleanup - clear spinner residue and blank lines | S | stable animated output |
+| Thought status ordering - finalize `✓ Thought` before the tool spinner | S | correct status order |
+| Orange confirm prompts - color the one-line confirm prompt | S | consistent prompts |
+
+## Provider limits and input defaults
+
+Provider model metadata drives the context budget and output cap when it is available, and first-run defaults and multiline paste stop interrupting work.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Provider model limits - read `limit.context` and `limit.output` and persist them on the model entry | M | provider-driven limits |
+| Context window command - add `/context window <tokens>` and update the unknown-window hint | S | a direct budget command |
+| Max tokens from model limit - use the model output limit when `max_tokens` is not explicit | S | a correct output cap |
+| Onboarding output defaults - tool stats and the terminal output file default to yes | S | useful first-run output |
+| Multiline paste input - close blocks only on the delimiter, preserve trailing spaces, and enable bracketed paste | S | reliable multiline input |
+
 ## Security hardening and honest boundaries
 
 The shell allowlist, the JSON API, and the session store are where a local-first tool meets hostile input. The cheap gaps now fail closed, and the documentation no longer claims a boundary that only the exec sandbox can deliver. What remains is the static-check widening that those checks depend on.
@@ -41,6 +68,18 @@ A delegated role remembers the user's instructions across runs, long role instru
 | Memory references and self-improvement - bounded summaries point at full artifacts, and a conclusion stage distills finished runs into role memory and skills | M | recall and self-improvement |
 
 The modes-first redesign removed root roles, so root-role memory folded into role memory for delegated roles. The remaining work is a refresh path for that memory (the conclusion stage), otherwise an updated memory file is not re-injected until the next run.
+
+## Skill versioning and learning
+
+A finished run can leave a shareable procedure, not only role memory. Skills stay local by default, carry a version and timestamp, and move to global only on an explicit promotion.
+
+| Task | Effort | Provides |
+|------|--------|----------|
+| Skill version archive - version, timestamp, hash, and archived revisions under `.polyglav/skills/.versions` | M | recoverable skills |
+| Skill version commands - `/skills versions`, `/skills restore`, and `/skills diff` | S | inspect and roll back |
+| Learn command - draft a skill from a verified session and save it locally or globally | M | shareable procedures |
+| Skill promotion - copy a local skill to `~/.config/polyglav/skills` with source and timestamp | S-M | manual sharing |
+| Skill auto-enhancement - a gated conclusion stage writes or patches local skills only | M | a self-improvement loop |
 
 ## Role boundaries, skills, and project knowledge
 
