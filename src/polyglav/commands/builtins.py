@@ -202,8 +202,39 @@ def register_builtins(registry):
             except (OSError, json.JSONDecodeError):
                 print('  fleet:    unreadable fleet.state.json')
 
-    @registry.register('context', description='Show context and token usage')
-    def context_cmd(_=None):
+    @registry.register(
+        'context', description='Show context and token usage',
+        subcommands=[('window [tokens]', 'Show or set the context window')])
+    def context_cmd(arg=''):
+        arg = arg.strip()
+        if arg == 'window' or arg.startswith('window '):
+            parts = arg.split(maxsplit=1)
+            provider, _, model = chat.model_target()
+            if len(parts) == 1:
+                window = chat.context_report()['window']
+                if window > 0:
+                    print(f'{DIM}@ Context window: {window:,} tokens '
+                          f'({provider}/{model}){RESET}')
+                else:
+                    print(f'{DIM}@ Context window: unknown ({provider}/{model})'
+                          f'{RESET}')
+                return
+            try:
+                tokens = int(parts[1].strip())
+            except ValueError:
+                print('Usage: /context window <tokens>')
+                return
+            if tokens < 0:
+                print('Usage: /context window <tokens>')
+                return
+            if chat.models.find(provider, model) is None:
+                chat.models.put(provider, model)
+            chat.models.set_context_window(provider, model, tokens)
+            if tokens:
+                print(f'{provider}/{model}: context window {tokens:,} tokens')
+            else:
+                print(f'{provider}/{model}: context window cleared')
+            return
         report = chat.context_report()
         print(f'{DIM}@ Context{RESET}')
         print(f'  messages: {report["messages"]}')
@@ -213,7 +244,7 @@ def register_builtins(registry):
             percent = round(report['tokens'] * 100 / window)
             print(f'  window:   {window:,} tokens ({percent}%)')
         else:
-            print('  window:   unknown - set with /models context <ref> <tokens>')
+            print('  window:   unknown - set with /context window <tokens>')
         turn_usage = _usage_text(report['turn'])
         if turn_usage:
             print(f'  turn:     {turn_usage}')

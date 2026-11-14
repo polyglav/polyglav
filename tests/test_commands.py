@@ -357,6 +357,35 @@ class TestCommandSurface(unittest.TestCase):
         self.assertIn('turn:     in 1,000', text)
         self.assertIn('session:  in 1,000', text)
 
+    def test_context_window_sets_budget(self):
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/context window 1000000')
+        self.assertIn('context window 1,000,000 tokens', out.getvalue())
+        entry = self.chat.models.find('ollama', 'test-model')
+        self.assertEqual(entry.context_window, 1000000)
+
+    def test_context_window_shows_budget(self):
+        self.chat.models.put('ollama', 'test-model')
+        self.chat.models.set_context_window('ollama', 'test-model', 8192)
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/context window')
+        self.assertIn('@ Context window: 8,192 tokens (ollama/test-model)',
+                      out.getvalue())
+
+    def test_context_window_clears_budget(self):
+        self.chat.models.put('ollama', 'test-model')
+        self.chat.models.set_context_window('ollama', 'test-model', 8192)
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/context window 0')
+        self.assertIn('context window cleared', out.getvalue())
+        entry = self.chat.models.find('ollama', 'test-model')
+        self.assertEqual(entry.context_window, 0)
+
+    def test_context_unknown_hint_uses_context_window(self):
+        with patch('sys.stdout', new=io.StringIO()) as out:
+            self.chat.registry.dispatch('/context')
+        self.assertIn('set with /context window <tokens>', out.getvalue())
+
     def _pause_turn(self):
         self.chat.current_session.add_user('paused prompt')
         turn = self.chat.current_session.open_turn()

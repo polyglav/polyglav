@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Added context window command - `/context window <tokens>` sets the active model's budget, `/context window` shows it, `0` clears it, and the unknown-window hint points at the command. Docs (`commands.md`, `config.md`). Tests: `test_commands.py`
 - Added provider model limits - the `/v1/models` probe records `limit.context` and `limit.output` on the model entry, the engine applies them when the model is selected, and `/models` and `polyglav models` show both budgets. Docs (`config.md`, `providers.md`, `commands.md`). Tests: `test_providers.py`, `test_engine.py`, `polyglav-core-providers`
 - Changed confirm prompt color - the one-line tool confirm uses the same orange as other questions. Docs (`architecture.md`). Tests: `polyglav-core-repl`
 - Fixed thought status ordering - thinking ends on the first tool-call delta, so `✓ Thought` prints before the tool spinner starts. Tests: `test_tool_calling.py`
