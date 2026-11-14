@@ -250,6 +250,9 @@ class ChatLoop(Engine):
         return line
 
     def _read_input(self, prompt: str) -> str:
+        stop = getattr(self._ui, '_stop_spinner', None)
+        if callable(stop):
+            stop()
         try:
             return input(prompt)
         finally:

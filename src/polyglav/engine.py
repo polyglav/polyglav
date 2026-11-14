@@ -1374,7 +1374,8 @@ class Engine:
             self._log_permission(name, action, 'granted', path)
         status = self._prepare_tool_status(name, args)
         result = registry.execute(name, args, config=self.config, echo=echo)
-        self._emit_tool_status(status, self._result_tokens(result))
+        self._show_tool_status(
+            name, args, self._result_tokens(result), status=status)
         if result.startswith('Error'):
             self.ui.tool_error(result)
         elif registry.is_note_result(name, result):
@@ -1424,9 +1425,11 @@ class Engine:
         else:
             self.ui.tool_status(name, f'{value}{suffix}', body)
 
-    def _show_tool_status(self, name, arguments, tokens: int = 0):
+    def _show_tool_status(self, name, arguments, tokens: int = 0,
+                          status=None):
         self._emit_tool_status(
-            self._prepare_tool_status(name, arguments), tokens)
+            status if status is not None
+            else self._prepare_tool_status(name, arguments), tokens)
 
     def _refine_query(self, query: str) -> str:
         context_count = self.config.get('query_refine_context', 4)

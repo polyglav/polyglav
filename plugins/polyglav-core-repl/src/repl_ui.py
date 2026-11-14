@@ -31,6 +31,7 @@ class ReplUI:
         self._hints_shown: set[str] = set()
 
     def _write(self, text, ansi=''):
+        self._stop_spinner()
         if ansi:
             sys.stdout.write(f'\001{ansi}\002{text}\001\033[0m\002')
         else:
@@ -44,6 +45,7 @@ class ReplUI:
             sys.stdout.flush()
 
     def _ensure_newline(self):
+        self._stop_spinner()
         if not self.content_newline:
             sys.stdout.write('\n')
             sys.stdout.flush()
@@ -149,7 +151,8 @@ class ReplUI:
             with self._spinner_lock:
                 if self._spinner_stop.is_set():
                     break
-                sys.stdout.write(f'\r\033[K{frame} {self._spinner_text()}')
+                sys.stdout.write(
+                    f'\0338\r\033[K{frame} {self._spinner_text()}')
                 sys.stdout.flush()
             time.sleep(SPINNER_INTERVAL)
 
@@ -161,10 +164,7 @@ class ReplUI:
         return label
 
     def _clear_spinner_line(self):
-        if self._spinner_thread is not None and self._spinner_thread.is_alive():
-            with self._spinner_lock:
-                sys.stdout.write('\r\033[K')
-                sys.stdout.flush()
+        self._stop_spinner()
 
     def _start_spinner(self, label: str | None = None):
         if self._spinner_thread is not None and self._spinner_thread.is_alive():
@@ -175,6 +175,8 @@ class ReplUI:
             self._spinner_label = label
         self._spinner_stop.clear()
         self._spinner_frame = 0
+        sys.stdout.write('\0337')
+        sys.stdout.flush()
         self._spinner_thread = threading.Thread(
             target=self._spinner_run, name='polyglav-spinner', daemon=True)
         self._spinner_thread.start()
@@ -187,7 +189,7 @@ class ReplUI:
         self._spinner_thread.join(timeout=0.5)
         self._spinner_thread = None
         with self._spinner_lock:
-            sys.stdout.write('\r\033[K')
+            sys.stdout.write('\0338\r\033[J')
             sys.stdout.flush()
 
     def thinking(self, text):
@@ -224,9 +226,8 @@ class ReplUI:
         self._emit(text, RED)
 
     def tool_call_progress(self, name, chars):
-        if verbosity_level(self._loop.config, 'tools') == 'off':
-            return
         self.flush()
+        self._ensure_newline()
         self._start_spinner(str(name))
 
     def tool_status(self, name, value, body):

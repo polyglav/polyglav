@@ -2,6 +2,7 @@
 
 ## v0.56.0
 
+- Fixed spinner line clearing - the spinner saves and restores the cursor and clears its line region on stop, so a newline during an animated line leaves no stale label or blank line. Output stops the spinner before writing. Tests: `polyglav-core-repl`
 - Changed done footer tokens - the footer reports the caller's own turn tokens as `✓ Done 1.2s (3,456 tokens)`, context stays in `/status` and `/context`, and each sub-agent reports its own usage. The tree rollup is gone. Docs (`config.md`). Tests: `test_verbosity.py`, `polyglav-core-repl`
 - Added per-tool token counts - each activity line reports the tool's own result token estimate instead of the request total, and the round usage suffix is gone. Docs (`tools.md`, `config.md`). Tests: `test_engine.py`, `polyglav-core-repl`
 - Changed tool status visibility - every tool call prints its activity line, the quiet preset keeps tool summaries, and legacy `verbosity.tools = off` maps to `summary` instead of hiding the call. Docs (`config.md`, `tools.md`). Tests: `test_verbosity.py`

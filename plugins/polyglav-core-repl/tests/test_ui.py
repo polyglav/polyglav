@@ -167,7 +167,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertFalse(thread.is_alive())
         self.assertIsNone(self.chat._ui._spinner_thread)
         value = out.getvalue()
-        self.assertIn('\r\033[K', value)
+        self.assertIn('\0338\r\033[J', value)
         self.assertIn('✓ Thought 2.5s', value)
 
     def test_thinking_end_without_spinner_is_clean(self):
@@ -191,7 +191,7 @@ class TestThinkingSpinner(unittest.TestCase):
         self.assertFalse(thread.is_alive())
         self.assertIsNone(self.chat._ui._spinner_thread)
         self.assertIn('↳ Delegating to writer', out.getvalue())
-        self.assertIn('\r\033[K', out.getvalue())
+        self.assertIn('\0338\r\033[J', out.getvalue())
 
     def test_status_metrics_label(self):
         from polyglav.ui import StatusMetrics

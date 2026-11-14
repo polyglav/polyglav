@@ -41,7 +41,6 @@
 
 ## Open
 
-- [ ] Animated status cleanup - clear the spinner line without stale text or blank lines
 - [ ] Thought status ordering - finalize `✓ Thought` before the tool spinner starts
 - [ ] Onboarding output defaults - default tool stats and the terminal output file to yes
 - [ ] Multiline paste input - close blocks only on the closing delimiter, preserve trailing spaces, and enable bracketed paste
