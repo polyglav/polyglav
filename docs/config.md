@@ -128,7 +128,7 @@ The reasoning scopes are:
 
 The output scopes are `off`, `assistant`, `agent`, and `all` with the same role rules. `off` hides sub-run output but the run's final status line and footer still print.
 
-`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool detail, and `full` adds execution time and parameters. Every tool line shows its own result token estimate, and legacy `off` maps to `summary`. `verbosity.footer` controls the turn footer. `/verbosity` shows the effective values, defaults, and allowed options. `/status` and `/context` report context, input, output, thinking, and request token counts.
+`verbosity.status` controls the live elapsed time and approximate token count on sub-run lines. `verbosity.tools` controls tool detail, and `full` adds execution time and parameters. Every tool line shows its own result token estimate, and legacy `off` maps to `summary`. `verbosity.footer` controls the turn footer, which shows the caller's own total tokens as `✓ Done 1.2s (3,456 tokens)`. Context size stays in `/status` and `/context`, and each sub-agent reports its own tokens when it returns. `/verbosity` shows the effective values, defaults, and allowed options. `/status` and `/context` report context, input, output, thinking, and request token counts.
 
 ### `modes`
 

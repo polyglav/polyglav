@@ -341,10 +341,6 @@ class ReplUI:
         self._ensure_newline()
         self._emit(f'  Refine query to: {new}', DIM)
 
-    def _footer_tokens(self, counts):
-        n = counts.get('context')
-        return f'{n:,} tokens' if n is not None else ''
-
     def footer(self, duration, counts, note=''):
         level = verbosity_level(self._loop.config, 'footer')
         if level == 'off':
@@ -352,19 +348,10 @@ class ReplUI:
         self.flush()
         self._ensure_newline()
         mark = glyph(self._loop.config, 'done', '✓')
-        if level == 'full':
-            seg = self._footer_tokens(counts)
-            body = f'{mark} Done {duration:.1f}s ({seg})' if seg else f'{mark} Done {duration:.1f}s'
-        else:
-            body = f'{mark} Done {duration:.1f}s'
-            own = counts.get('total')
-            tree = counts.get('tree')
-            if own and tree and tree != own:
-                body += f' ({own:,}/{tree:,} tokens)'
-            elif own:
-                body += f' ({own:,} tokens)'
-            elif counts.get('context') is not None:
-                body += f' ({counts["context"]:,} tokens)'
+        body = f'{mark} Done {duration:.1f}s'
+        total = counts.get('total')
+        if total:
+            body += f' ({int(total):,} tokens)'
         if note:
             body += f'  {note}'
         self._emit(body, DIM)

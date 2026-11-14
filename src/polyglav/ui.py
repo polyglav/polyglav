@@ -636,15 +636,9 @@ class HeadlessUI:
         if not self.stream or self.footer_level == 'off':
             return
         tail = f'  {note}' if note else ''
-        if self.footer_level == 'full':
-            n = counts.get('context')
-            seg = f'{n:,} tokens' if n is not None else ''
-            if seg:
-                sys.stderr.write(f'✓ Done {duration:.1f}s ({seg}){tail}\n')
-            else:
-                sys.stderr.write(f'✓ Done {duration:.1f}s{tail}\n')
-        else:
-            sys.stderr.write(f'✓ Done {duration:.1f}s{tail}\n')
+        total = counts.get('total')
+        seg = f' ({int(total):,} tokens)' if total else ''
+        sys.stderr.write(f'✓ Done {duration:.1f}s{seg}{tail}\n')
 
     def info(self, msg):
         if self.verbose:

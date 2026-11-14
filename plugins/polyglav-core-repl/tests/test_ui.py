@@ -428,7 +428,7 @@ class TestWordStreaming(unittest.TestCase):
     def test_footer_flushes_tail(self):
         def run():
             self.ui.token('hard')
-            self.ui.footer(3.0, {'context': 10})
+            self.ui.footer(3.0, {'total': 10})
         value = self._capture(run)
         self.assertIn('hard', value)
         self.assertIn('✓ Done 3.0s (10 tokens)', value)

@@ -1161,7 +1161,6 @@ class Engine:
                 if content:
                     self.current_session.add_text(content, stamp)
                 counts = self._usage_counts(usage_total)
-                counts['tree'] = self._tree_tokens(usage_total)
                 self.ui.footer(duration, counts)
             if paused:
                 turn = self.current_session.open_turn()
@@ -1976,16 +1975,6 @@ class Engine:
             'turn': usage,
             'session': self.session_usage(),
         }
-
-    def _tree_tokens(self, usage: dict | None = None) -> int:
-        total = 0
-        if isinstance(usage, dict):
-            total += int(usage.get('total_tokens') or 0)
-        run = getattr(self, 'current_run', None)
-        if run is not None:
-            for child in self.runs.children(run.id):
-                total += int(self.runs.rollup(child.id).get('total_tokens') or 0)
-        return total
 
     def _human_chars(self, n: int) -> str:
         if n >= 1_000_000:

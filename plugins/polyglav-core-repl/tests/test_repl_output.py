@@ -78,7 +78,7 @@ class TestReplOutput(unittest.TestCase):
         self.assertIn('✓ Thought 1.0s', value)
         self.assertIn(DIM, value)
         value = self._capture(
-            lambda: self.ui.footer(1.0, {'context': 42}))
+            lambda: self.ui.footer(1.0, {'total': 42}))
         self.assertIn('✓ Done 1.0s (42 tokens)', value)
 
     def test_tool_output_hidden(self):
