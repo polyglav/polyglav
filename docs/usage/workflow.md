@@ -12,7 +12,9 @@ A larger task moves through the same steps every time:
 4. **Continue** - as the work changes shape, the next call continues from the previous result. One agent finishes and the assistant calls the next, which continues with its own session intact.
 5. **Watch or pause** - follow live state with `/status`, inspect the durable tree with `/history --tree`, or pause the active turn with Ctrl-C.
 6. **Remember** - after the run, the team and its members refresh their memory, so the next run continues from the change instead of replaying a whole transcript.
-7. **Report** - a summary surfaces when the run finishes or fails, and recurring work reports out of band.
+7. **Report** - a summary surfaces when the run finishes or fails. Recurring work reports out of band through a webhook today, and the report hook is a plugin surface for email, Telegram, or Signal delivery.
+
+In practice, the last three steps collapse into one operating rule: set the boundary and the schedule, then leave it running. Check the log, `/status`, or a report when you come back. There is no dashboard to watch.
 
 ## Plan and todo bookkeeping
 
@@ -42,7 +44,7 @@ For many independent agents, run one process per folder and let the fleet superv
 
 ### Scripted agent
 
-The same loop is available headlessly. Use the CLI for one-shot prompts and the HTTP API for services, so an agent can be a step in a pipeline or a backend for another tool.
+The same loop is available headlessly. Use the CLI for one-shot prompts and the HTTP API for services, so an agent can be a step in a pipeline or a backend for another tool. There is no dashboard to watch. Put it on a server and let it work.
 
 ## Where to go next
 

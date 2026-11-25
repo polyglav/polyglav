@@ -54,6 +54,7 @@ A minimal, self-extensible TypeScript harness with a unified LLM API, a terminal
 
 ## Why teams choose Polyglav
 
+- Unattended by design: a headless CLI, an HTTP API, scheduled jobs, and a fleet supervisor, with no dashboard to watch.
 - Zero external dependencies and a standard-library core, so the entire runtime is easy to audit and there is no supply chain to track.
 - One loop behind a REPL, a CLI, and an HTTP API, so the same agent is interactive, scriptable, and deployable as a service.
 - Orchestration built in: types, delegation, teams, scheduled jobs, and a fleet supervisor, ready without extra infrastructure.

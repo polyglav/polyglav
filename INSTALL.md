@@ -49,7 +49,9 @@ Hello! How can I help you today?
 
 ## Usage
 
-Polyglav runs the same loop in three ways: interactively in the REPL, headlessly from the CLI, and as an HTTP service. For bigger work the flow is ask, compose, run, remember, report. The assistant composes a team and runs it stage by stage, with each stage continuing from the previous result in its own session. See [docs/usage/workflow.md](docs/usage/workflow.md) for the workflows and patterns.
+Polyglav runs the same loop in three ways: interactively in the REPL, headlessly from the CLI, and as an HTTP service. Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open.
+
+For bigger work the flow is ask, compose, run, continue, operate. The assistant composes a team and runs it stage by stage, with each stage continuing from the previous result in its own session. See [docs/usage/workflow.md](docs/usage/workflow.md) for the workflows and patterns.
 
 ### REPL
 
