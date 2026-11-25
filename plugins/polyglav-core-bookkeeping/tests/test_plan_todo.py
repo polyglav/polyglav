@@ -115,6 +115,18 @@ class TestPlanBookkeeping(unittest.TestCase):
         self.assertIsNotNone(loaded)
         self.assertEqual(loaded.plan, self.chat.current_session.plan)
 
+    def test_plan_activity_uses_goal(self):
+        glyph, verb, label, _ = self.chat._tool_registry.activity(
+            'plan_write', {'content': PLAN})
+        self.assertEqual((glyph, verb), ('#', 'Plan'))
+        self.assertEqual(label, 'Add the token cache.')
+
+    def test_plan_activity_prefers_title(self):
+        content = '# Migrate the CLI to argparse\n\n' + PLAN
+        _, _, label, _ = self.chat._tool_registry.activity(
+            'plan_write', {'content': content})
+        self.assertEqual(label, 'Migrate the CLI to argparse')
+
     def test_plan_write_visible_in_read(self):
         names = {tool['function']['name']
                  for tool in self.chat._tool_schema()}

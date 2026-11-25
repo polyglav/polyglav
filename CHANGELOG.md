@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.57.0
+
+- Added plan activity title - `plan_write` labels its activity line with the plan's first `#` heading, or the first non-empty line under `## Goal`, instead of the tool name. Docs (`tools.md`). Tests: `polyglav-core-bookkeeping`
+
 ## v0.56.0 - 2026-11-14
 
 - Fixed multiline block input - a block closes only on its delimiter, so a blank line inside a pasted block is kept, trailing spaces survive, and GNU readline enables bracketed paste. Docs (`testing.md`). Tests: `polyglav-core-repl`

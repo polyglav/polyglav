@@ -22,6 +22,9 @@ REQUIRED_SECTIONS = (
 _FRONTMATTER = re.compile(r'^---\n(.*?)\n---\n?', re.S)
 _STEP_LINE = re.compile(r'^\s*\d+\.\s', re.M)
 _REVISION = re.compile(r'^## Revision \d+', re.M)
+_TITLE = re.compile(r'^\s{0,3}#\s+(.+?)\s*$', re.M)
+_GOAL = re.compile(r'^\s{0,3}##\s+Goal\s*$(.*?)(?=^\s{0,3}##\s|\Z)',
+                   re.M | re.S | re.I)
 
 
 def plans_dir(config) -> Path:
@@ -69,6 +72,20 @@ def _missing_sections(content: str) -> list[str]:
     text = content.lower()
     return [name for name in REQUIRED_SECTIONS
             if f'## {name.lower()}' not in text]
+
+
+def _plan_label(args: dict) -> str:
+    content = str((args or {}).get('content') or '')
+    match = _TITLE.search(content)
+    if match:
+        return match.group(1).strip()
+    match = _GOAL.search(content)
+    if match:
+        for line in match.group(1).splitlines():
+            text = line.strip()
+            if text:
+                return text
+    return ''
 
 
 def _frontmatter(session, path: Path, mode: str, next_mode: str,
@@ -237,6 +254,7 @@ def register_plan_tool(registry, engine) -> Callable:
         short='Write the plan',
         glyph='#',
         verb='Plan',
+        status=_plan_label,
         note=lambda result: result.startswith(('Plan saved', 'Plan updated')),
     )
     def plan_write(content: str, next_mode: str = 'write',
