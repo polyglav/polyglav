@@ -1,5 +1,5 @@
 site_name: Polyglav
-site_description: A lightweight, zero-dependency agentic core for fleets of single-purpose agents
+site_description: A terminal-native, zero-dependency agent core that runs unattended on your server
 site_url: https://polyglav.github.io/polyglav/
 docs_dir: build
 theme:
