@@ -2,6 +2,7 @@
 
 ## v0.57.0
 
+- Fixed MCP policy arguments - `tools/call` now passes the cleaned tool arguments into `ToolPolicy`, so per-invocation resolvers such as catalog write actions, `call` target permissions, and the `run_command` allowlist are enforced for MCP clients. Docs (`mcp.md`, `api.md`). Tests: `polyglav-core-mcp`
 - Added plan activity title - `plan_write` labels its activity line with the plan's first `#` heading, or the first non-empty line under `## Goal`, instead of the tool name. Docs (`tools.md`). Tests: `polyglav-core-bookkeeping`
 
 ## v0.56.0 - 2026-11-14

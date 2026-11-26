@@ -128,7 +128,8 @@ class MCPServer:
         if policy is not None:
             path_arg = registry.path_arg_for(name)
             path = cleaned.get(path_arg) if path_arg else None
-            action = policy.action(name, registry.permission_for(name), path)
+            action = policy.action(name, registry.permission_for(name), path,
+                                   cleaned)
             if action == 'deny':
                 return self._tool_result(rid, f'Error: tool "{name}" is disabled by tool policy',
                                          is_error=True)

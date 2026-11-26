@@ -288,6 +288,19 @@ class TestMCPServer(unittest.TestCase):
                                          '_meta': self.meta}})
         self.assertFalse(allowed['result']['isError'])
 
+    def test_policy_receives_tool_arguments(self):
+        self.engine.resolvers['greet'] = (
+            lambda args: 'deny' if args.get('name') == 'bad' else 'allow')
+        self.srv._mode = 'modern'
+        denied = self._call({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                             'params': {'name': 'greet', 'arguments': {'name': 'bad'},
+                                        '_meta': self.meta}})
+        self.assertTrue(denied['result']['isError'])
+        allowed = self._call({'jsonrpc': '2.0', 'id': 2, 'method': 'tools/call',
+                              'params': {'name': 'greet', 'arguments': {'name': 'Ada'},
+                                         '_meta': self.meta}})
+        self.assertFalse(allowed['result']['isError'])
+
     def test_ask_denied_when_config_off(self):
         self.engine.config.overrides['mcp_server.allow_ask'] = False
         self.srv._mode = 'modern'
@@ -378,6 +391,7 @@ class _FakeEngine:
     def __init__(self):
         self.config = _FakeConfig()
         self.sessions = _FakeSessions()
+        self.resolvers = {}
 
     def _init_tooling(self):
         self._tool_registry = ToolRegistry()
@@ -401,6 +415,7 @@ class _FakeEngine:
         self._tool_policy = ToolPolicy(
             permissions={'bash': 'ask', 'mcp': 'ask'},
             deny=['secret'],
+            resolvers=self.resolvers,
         )
 
 
