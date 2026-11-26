@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A lightweight, zero-dependency agentic core for fleets of single-purpose agents">
+        <meta name="description" content="A terminal-native, zero-dependency agent core that runs unattended and is callable from any interface">
       
       
       
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -1642,7 +1642,7 @@ polyglav<span class="w"> </span><span class="nb">jobs</span><span class="w"> </s
 <li><strong><code>polyglav jobs status</code> / <code>/jobs status</code></strong> prints a <code>last run:</code> line per job (status, duration, reason, session) under the run counts.</li>
 <li><strong><code>polyglav jobs run</code> / <code>/jobs run</code></strong> print the run's result plus a <code>summary:</code> line from the run memory written after the run.</li>
 <li><strong>Delegated and team runs</strong> show their outcome in the REPL stage lines (<code>↳ Call</code>, <code>✓ Worked</code>, <code>↲</code>) when <code>verbosity.output</code> includes the role.</li>
-<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, and memory summary). Empty <code>report.webhook</code> is a no-op. A non-loopback <code>http://</code> URL is refused, so the report goes out over TLS. Set <code>report.webhook_secret</code> to sign the body: the POST then carries <code>X-Polyglav-Timestamp</code> and <code>X-Polyglav-Signature: sha256=&lt;hmac&gt;</code> over <code>&lt;timestamp&gt;.&lt;body&gt;</code>, which lets the receiver authenticate the sender and reject a replayed delivery. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. Per-job destinations are future work (TODO).</li>
+<li><strong>Out-of-band</strong>: after each completed run the scheduler dispatches one <code>job.run.completed</code> event to a registered <code>report</code> service. The bundled <code>polyglav-core-webhook</code> plugin implements it: set <code>report.webhook</code> to a URL and it POSTs the JSON payload (job, status, duration, reason, session, timestamps, content, worktree, and memory summary). Empty <code>report.webhook</code> is a no-op. A non-loopback <code>http://</code> URL is refused, so the report goes out over TLS. Set <code>report.webhook_secret</code> to sign the body: the POST then carries <code>X-Polyglav-Timestamp</code> and <code>X-Polyglav-Signature: sha256=&lt;hmac&gt;</code> over <code>&lt;timestamp&gt;.&lt;body&gt;</code>, which lets the receiver authenticate the sender and reject a replayed delivery. Service failures are logged and never fail the run. A report fires once per completed run (the final status after retries), not per attempt. The <code>report</code> service is a plugin surface, so email, Telegram, or Signal delivery can be added as plugins without changing the core. Per-job destinations are future work (TODO).</li>
 </ul>
 <h2 id="scheduled-teams">Scheduled teams<a class="headerlink" href="#scheduled-teams" title="Permanent link">&para;</a></h2>
 <p>A recurring team run uses <code>polyglav jobs add &lt;name&gt; --team &lt;team&gt; --schedule</code>. The scheduler runs the named team through <code>Engine.run_team</code>, and each stage keeps its own session while the job records the team result.</p>

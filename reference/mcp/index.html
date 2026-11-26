@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A lightweight, zero-dependency agentic core for fleets of single-purpose agents">
+        <meta name="description" content="A terminal-native, zero-dependency agent core that runs unattended and is callable from any interface">
       
       
       
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -826,6 +826,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#polyglav-as-a-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglav as a worker
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1382,6 +1393,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#polyglav-as-a-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Polyglav as a worker
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1562,6 +1584,15 @@
 <p>This implements the streamable HTTP transport: each JSON-RPC request is its own POST, answered with JSON (or SSE for streaming-capable requests).</p>
 <h3 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h3>
 <p>Sessions are exposed as MCP resources under <code>polyglav://session/&lt;name&gt;</code> with <code>resources/list</code> and <code>resources/read</code> returning the session JSON.</p>
+<h3 id="polyglav-as-a-worker">Polyglav as a worker<a class="headerlink" href="#polyglav-as-a-worker" title="Permanent link">&para;</a></h3>
+<p>An MCP client can use Polyglav as a worker:</p>
+<ul>
+<li><code>catalog</code> defines roles, teams, and skills. Writes require write mode and the <code>catalog</code> policy allowance.</li>
+<li><code>call</code> runs a role or team. The target's <code>callable</code> action and the caller's <code>call</code> permission apply.</li>
+<li><code>tools/list</code> exposes the registered tools and <code>resources/*</code> exposes saved sessions.</li>
+<li><code>ask</code>-policy tools are deferred to the MCP client when <code>mcp_server.allow_ask</code> is true, so the client can show its own confirmations.</li>
+</ul>
+<p>For a full free-form turn, planning, composition, and a final answer, use <code>POST /chat</code> or <code>polyglav run</code>. MCP is the structured tool surface.</p>
 <h2 id="config_1">Config<a class="headerlink" href="#config_1" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A lightweight, zero-dependency agentic core for fleets of single-purpose agents">
+        <meta name="description" content="A terminal-native, zero-dependency agent core that runs unattended and is callable from any interface">
       
       
       
@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -523,6 +523,28 @@
     <span class="md-ellipsis">
       
         POST /chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#as-a-tool-for-another-agent-or-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a tool for another agent or UI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-cancel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /cancel
       
     </span>
   </a>
@@ -1243,6 +1265,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#as-a-tool-for-another-agent-or-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a tool for another agent or UI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-cancel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /cancel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#get-sessions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1295,7 +1339,7 @@
 <h1 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
 <p><code>polyglav serve</code> runs an HTTP JSON API on <code>127.0.0.1:8787</code> by default (override with <code>--host</code> / <code>--port</code>).</p>
 <div class="highlight"><pre><span></span><code>polyglav<span class="w"> </span>serve
-<span class="c1"># polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /health, GET /version)</span>
+<span class="c1"># polyglav serve (read mode, no auth) - http://127.0.0.1:8787 (POST /chat, POST /cancel, GET /sessions, GET /health, GET /version)</span>
 </code></pre></div>
 <p>All responses are JSON with <code>Content-Type: application/json</code>.</p>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
@@ -1334,6 +1378,11 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authoriz
 <span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"prompt": "Hi", "session": "api"}'</span>
 </code></pre></div>
 <p>Response is the same <code>TurnResult</code> the CLI returns (see the README). <code>session</code> is the resolved session name. Errors: <code>400</code> for a missing/empty <code>prompt</code> or invalid JSON body.</p>
+<p><code>POST /chat</code> returns the completed turn. The REPL and CLI stream live output.</p>
+<h2 id="as-a-tool-for-another-agent-or-ui">As a tool for another agent or UI<a class="headerlink" href="#as-a-tool-for-another-agent-or-ui" title="Permanent link">&para;</a></h2>
+<p><code>POST /chat</code> is the full-turn entry point for a UI or another agent. <code>POST /cancel</code> stops a paused turn and <code>GET /sessions</code> reads saved sessions. In write mode, the prompt can use the <code>catalog</code> tool to create roles, teams, and skills. The same mode and tool policy apply to every caller. For structured tool calls and session resources, use MCP. Jobs and fleet are CLI-first today.</p>
+<h2 id="post-cancel">POST /cancel<a class="headerlink" href="#post-cancel" title="Permanent link">&para;</a></h2>
+<p>Cancels the current paused turn. The response is <code>{"status": "cancelled"}</code> when a turn was paused, or <code>{"status": "idle"}</code> when there was nothing to cancel.</p>
 <h2 id="get-sessions">GET /sessions<a class="headerlink" href="#get-sessions" title="Permanent link">&para;</a></h2>
 <p>Lists saved session names.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/sessions
@@ -1347,7 +1396,7 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authoriz
 <h2 id="get-version">GET /version<a class="headerlink" href="#get-version" title="Permanent link">&para;</a></h2>
 <p>Returns the installed version.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>localhost:8787/version
-<span class="c1"># {"version": "0.33.0"}</span>
+<span class="c1"># {"version": "0.57.0"}</span>
 </code></pre></div>
 <p>Unknown routes return <code>404 {"error": "not found"}</code>.</p>
 

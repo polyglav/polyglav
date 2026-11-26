@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A lightweight, zero-dependency agentic core for fleets of single-purpose agents">
+        <meta name="description" content="A terminal-native, zero-dependency agent core that runs unattended and is callable from any interface">
       
       
       
@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -1335,33 +1335,37 @@
 <h1 id="polyglav">Polyglav<a class="headerlink" href="#polyglav" title="Permanent link">&para;</a></h1>
 <p><strong>One agent, many heads</strong></p>
 <p><img alt="Polyglav terminal session" src="polyglav.svg" /></p>
-<p>Current version: <strong>v0.50.0</strong> (Python &gt;= 3.11, MIT, zero external dependencies)</p>
-<p>An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers roles, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.</p>
+<p>Current version: <strong>v0.57.0</strong> (Python &gt;= 3.11, MIT, zero external dependencies)</p>
+<p>An agent is a model plus a harness. Polyglav is the harness: a deliberately small, auditable, zero-dependency agentic core. The model plans, the tool registry acts, and a single streaming loop powers an interactive REPL, a headless CLI, and an HTTP API.</p>
+<p>Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open. The UI is optional: a terminal, an IDE, a web UI, or another agent can drive it over the CLI, HTTP API, or MCP. Polyglav can create its own roles, teams, and skills, or the caller can define them through the same catalog. Each process is a self-contained agent scoped to one folder, with its own config, model, and tool permissions. Agents compose into larger systems through three orchestration layers. Swarm covers roles, skills, teams, and delegation. Jobs cover scheduled, durable work. Fleet provides a supervisor for many agents. MCP adds cross-tool interoperability.</p>
 <h2 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h2>
 <p><strong>One runtime, many agents</strong></p>
-<p>Polyglav assembles five replaceable layers around a thin core: access, orchestration, capability, model, and storage. The direction is everything is a plugin: models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI become replaceable plugins, and the REPL itself moves to a plugin. The operator sees one window: the <code>assistant</code> agent greets you, answers small tasks inline, delegates bigger work to sub-agents or teams, runs recurring work unattended, watches your agents for health, and reports back.</p>
-<p>For bigger work the flow is ask, compose, run, remember, report. The assistant composes a team, runs it stage by stage, and each stage continues from the previous result with its own session. You can watch live state with <code>/status</code>, inspect the durable tree with <code>/history --tree</code>, or pause the active turn with Ctrl-C. Control never jumps into a live run. See <a href="reference/usage/workflow/">Workflows and usage</a>.</p>
+<p>Polyglav assembles five replaceable layers around a thin core: access, orchestration, capability, model, and storage. The direction is everything is a plugin: models, tools, skills, sessions, sandboxes, storage, loops, scheduling, and the UI become replaceable plugins, and the REPL itself moves to a plugin. The operator can stay at one prompt when the work needs a person, or leave recurring work running on a server. The <code>assistant</code> agent greets you, answers small tasks inline, delegates bigger work to sub-agents or teams, runs recurring work unattended, watches your agents for health, and reports back.</p>
+<p>For bigger work the flow is ask, compose, run, continue, operate. The assistant composes a team, runs it stage by stage, and each stage continues from the previous result with its own session. When the work is set up, put it on a server with a schedule and check in later. You can inspect live state with <code>/status</code>, the durable tree with <code>/history --tree</code>, or pause the active turn with Ctrl-C. Control never jumps into a live run. See <a href="reference/usage/workflow/">Workflows and usage</a>.</p>
 <p>Read the full vision, decisions, and context economics in <a href="vision/">Vision</a>.</p>
 <h2 id="current-state">Current state<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Core</strong> - one SSE-stream agent loop, multi-provider (Ollama, OpenAI, Groq, Anthropic, OpenCode Zen/Go, any OpenAI-compatible endpoint), tool calling with per-tool permissions and an audit trail, read (plan) and write (work) modes with a durable internal plan and todo, complete append-only session logs, plugins, <code>polyglav run</code> + <code>polyglav serve</code></li>
 <li><strong>Orchestration</strong> - roles, skills, named teams, the <code>call</code> tool for a role, a team, or a role-less sibling, the review loop, jobs (cron, interval, one-shot, retries, approvals, run memory, supervisor recipe), fleet (supervisor with ports, health, restart), MCP client and server</li>
 <li><strong>Sessions</strong> - turn and part logs, <code>/history</code> and <code>/print</code>, durable history trees, stable per-session ids, <code>/compact</code>, Markdown export</li>
-<li><strong>Latest</strong> - v0.50.0: plugin-owned roles, teams, skills, memory, jobs, REPL, and provider management, one session tool log, one model ref, a core catalog registry service, and <code>/spawn</code> for fleets. See <a href="changelog/">Changelog</a></li>
+<li><strong>Latest</strong> - v0.57.0: MCP tool calls now honor per-invocation policy, and <code>plan_write</code> labels its activity line with the plan title. The landing page and this overview now share the operating model: a terminal-native worker you can leave running. See <a href="changelog/">Changelog</a></li>
 <li><strong>Tooling</strong> - bundled plugins for web search, filesystem, shell, edit, git, dev wrappers (test, lint, format), and MCP, all with path-scoped policies. <code>polyglav eval</code> runs fixtures through the headless loop and reports tool-use metrics</li>
 </ul>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
+<li><strong>One agent, many heads</strong> - split an outcome across roles, run them in order, and loop a producer against a reviewer when the work needs it</li>
+<li><strong>Unattended by design</strong> - run it headless from the CLI, over the HTTP API, on a cron schedule, or as a fleet. Results land in append-only logs and optional webhook reports, with no dashboard to watch</li>
+<li><strong>The UI is optional</strong> - the REPL, CLI, HTTP API, and MCP expose the same runtime. A web UI, an IDE, or another agent can be the front end while the work keeps running</li>
 <li><strong>Zero dependencies</strong> - everything is Python standard library. Nothing to audit, no supply chain, no lockfile churn</li>
 <li><strong>One agent loop</strong> - a single SSE stream per turn powers the REPL, the CLI, and the API</li>
 <li><strong>Sequential by design</strong> - one context runs at a time. Sub-agents and stages finish in order, and the durable history tree is read-only</li>
 <li><strong>Local-first</strong> - config and session logs live on your disk. Bring your own provider key, or run fully local</li>
-<li><strong>Agentic REPL</strong> - a plain <code>_</code> input prompt, a mode-colored <code>&gt;</code> or magenta <code>/</code> submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion</li>
+<li><strong>Agentic REPL</strong> - a plain <code>&gt;</code> input prompt, a mode-colored submitted line, streaming output, dimmed thinking, hidden tool bodies with one-line summaries, markdown-aware rendering, readline history, and tab completion</li>
 <li><strong>Long-run memory</strong> - read mode writes a durable internal plan and todo under <code>.polyglav/</code>, injected every turn, with the plan passed to sub-runs, so a long task keeps its instructions, decisions, role split, and current work across compaction and role switches</li>
-<li><strong>Permissions</strong> - every tool is gated by <code>allow</code> / <code>ask</code> / <code>deny</code>, with path-scoped confirmation outside your worktree and an audit trail in session logs</li>
+<li><strong>Permissions</strong> - every tool is gated by <code>allow</code> / <code>ask</code> / <code>deny</code>, with path-scoped confirmation outside your worktree, a bearer token on a non-loopback API bind, and an audit trail in session logs</li>
 <li><strong>Sessions</strong> - complete append-only turn and part logs, <code>/history</code> and <code>/print</code>, <code>/compact</code>, and Markdown export</li>
 <li><strong>Roles, skills, and teams</strong> - reusable agents with per-invocation skills, and named pipelines with shared memory and a review loop</li>
-<li><strong>Plugins</strong> - external repositories register tools, providers, slash commands, services, roles, teams, skills, and eval fixtures. The core stays zero-dependency</li>
+<li><strong>Plugins</strong> - external repositories register tools, providers, slash commands, services, roles, teams, skills, report delivery, and eval fixtures. Bundled jobs, fleet, and MCP stay opt-in. The core stays zero-dependency</li>
 </ul>
 <h2 id="development-plan">Development plan<a class="headerlink" href="#development-plan" title="Permanent link">&para;</a></h2>
 <p>The work packages and milestones live in <a href="roadmap/">Roadmap</a>. The full task backlog (open work, newest first) is in <a href="backlog/">Backlog</a>. The current focus is the sequential run control, first-run onboarding, assistant roles, bounded memory, and the fleet control surface. The roadmap is re-ranked against the backlog before each step.</p>
@@ -1371,7 +1375,7 @@
 <div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>polyglav
 polyglav
 </code></pre></div>
-<p>On first run, Polyglav welcomes you and asks for your provider, model, mode, project purpose, assistant persona, and whether to keep an output log. Press Enter to accept a default. You can rerun it with <code>/onboard</code>, or change the connection later with <code>/connect</code> and <code>/model</code>.</p>
+<p>On first run, Polyglav welcomes you and asks for your provider, model, mode, project purpose, assistant persona, and whether to keep an output log. Press Enter to accept a default. After that, it can run without you. You can rerun onboarding with <code>/onboard</code>, or change the connection later with <code>/connect</code> and <code>/model</code>.</p>
 <p>Or from source: <code>git clone https://github.com/polyglav/polyglav.git &amp;&amp; cd polyglav</code>, then <code>python3 -m venv .venv &amp;&amp; .venv/bin/pip install -e . &amp;&amp; .venv/bin/polyglav</code>.</p>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>Polyglav is MIT licensed (see the LICENSE file in the repository).</p>
