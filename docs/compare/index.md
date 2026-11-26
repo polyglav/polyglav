@@ -15,6 +15,7 @@ Polyglav sits in the harness category, with a clear angle: a zero-dependency, st
 
 - **Complete harness**: loop, tools, permissions, sessions, delegation, teams, jobs, and a fleet supervisor in one package.
 - **Unattended by design**: run it headless from the CLI, over the HTTP API, on a cron schedule, or as a fleet, with no dashboard to watch.
+- **The UI is optional**: drive it from the REPL, CLI, HTTP API, or MCP, and let a web UI, IDE, or another agent be the front end.
 - **Zero external dependencies**: the whole runtime is Python standard library, so it is small, portable, and easy to audit.
 - **One loop, three surfaces**: a REPL, a headless CLI, and an HTTP API from the same code path.
 - **Orchestration included**: types, the `call` and `team` tools, scheduled jobs, and a fleet supervisor, without extra infrastructure.

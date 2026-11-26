@@ -13,12 +13,13 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
 </p>
 
-Polyglav is an AI agent that lives in your terminal. You describe an outcome once, it breaks the job into steps, brings in specialist agents for each one, and lets them work through it in order, handing results from one to the next as they finish. Use it at the prompt when you want. Put it on a server and let it work. The name says it: poly means many, glav means heads.
+Polyglav is an AI agent that lives in your terminal. You describe an outcome once, it breaks the job into steps, brings in specialist agents for each one, and lets them work through it in order, handing results from one to the next as they finish. Use it at the prompt when you want. Put it on a server and let it work. Polyglav can create its own roles, teams, and skills, or another agent can define them over the API or MCP. The name says it: poly means many, glav means heads.
 
 ## Why Polyglav
 
+- **One agent, many heads** - ask for an outcome, and Polyglav splits it across specialists that run one after another in the same process, one context at a time. As soon as one delivers, the next continues. No windows to switch.
 - **Unattended by design** - run it headless from the CLI, over the HTTP API, on a cron schedule, or as a fleet. Results land in append-only logs and optional webhook reports, with no dashboard to watch.
-- **One prompt, many heads** - ask for an outcome, and Polyglav splits it across specialists that run one after another in the same process, one context at a time. As soon as one delivers, the next continues. No windows to switch.
+- **The UI is optional** - drive it from the REPL, CLI, HTTP API, or MCP. A web UI, an IDE, or another agent can be the front end while Polyglav runs the work.
 - **It actually gets work done** - it reads and writes files, searches the web, runs commands, edits code, and commits, all behind permissions you control.
 - **Grows with you** - reusable roles, skills, and plugins, durable plans and todos, bounded memory, scheduled jobs, and a fleet supervisor. Jobs, fleet, and MCP are bundled plugins, off by default.
 - **Your machine, your keys** - keys, sessions, roles, teams, skills, and permissions stay on disk as text. Bring your own provider key, or run fully local.
@@ -36,6 +37,7 @@ Polyglav is an AI agent that lives in your terminal. You describe an outcome onc
 - **Research and write** - point it at a folder of notes or papers and ask for a summary with sources.
 - **Run many agents** - give each folder its own agent and let the fleet supervisor watch them.
 - **Automate with the API** - drive the same loop from scripts, CI, or another program.
+- **Use it as a tool** - call Polyglav from another agent over HTTP or MCP, or from scripts and CI.
 
 ## How it works
 
@@ -44,6 +46,8 @@ Polyglav is an AI agent that lives in your terminal. You describe an outcome onc
 3. **Run** - stages run one after another, each with its own tools and permissions.
 4. **Continue** - the next agent continues from the previous result with its own session, so context moves forward without switching windows.
 5. **Operate** - give it a project, a boundary, and a schedule. Check `/status`, the log, or a webhook report when you come back. Pause a long turn with Ctrl-C, `/continue`, or `/cancel`.
+
+The interface is optional. A terminal, an IDE, a web UI, or another agent can drive it, and the work keeps running when the UI closes.
 
 ## Install
 

@@ -2,7 +2,7 @@
 
 Detailed reference for Polyglav. For the overview and features see the [README](../README.md), and for installation and usage see [INSTALL.md](../INSTALL.md).
 
-Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open.
+Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open. The UI is optional: a terminal, an IDE, a web UI, or another agent can drive it over the CLI, HTTP API, or MCP.
 
 - [Agent fleets](fleet.md) - single-purpose agent fleets, one scoped process per agent, deployment
 - [Agent swarms](swarm.md) - swarm orchestration, delegation, types, auditor and team patterns

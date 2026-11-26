@@ -27,6 +27,8 @@ Providers (`src/polyglav/providers/`) are OpenAI-compatible `/v1/chat/completion
 
 `status` is `ok`, `error`, `empty`, `truncated`, or `cancelled`. Any front-end addresses sessions via `Engine.load_or_create_session(name)`. `Engine.chat_tool(name, args)` runs a `loop`-registered tool (e.g. `call`) as a persisted agent-loop turn: the tool call and result land in the session, then the model streams its final answer.
 
+The same runtime is callable as a tool. A UI or another agent can drive it over HTTP `POST /chat`, call its tools and read sessions over MCP, or use the CLI. In write mode, the `catalog` tool lets the assistant or an external client define roles, teams, and skills, and the same mode and tool policy apply to every caller.
+
 ## Runs
 
 Every engine instance is a run, tracked in a process-local `RunRegistry` (`src/polyglav/runs.py`) shared across the delegation tree. A run records a numeric `id`, the agent `role`, the `session`, the `session_id` (a durable six-character handle, empty for explicit names), the `parent` run id and its ordered `children`, a `status` (`running`, `done`, or `error`), the `task` brief, timestamps, and its `duration` and token `usage`. Delegated and team-stage engines register as children of the caller (`_new_sub_engine` passes the registry and parent id) and are finished when their `chat` returns. `RunRegistry.runs()` is the flat creation-order call log, `children(id)` walks the tree, and `rollup(id)` sums a run and its children. A sub-engine renders through `SubRunUI` when `verbosity.output` includes its role, and otherwise through `NullUI`, so its output either appears under the caller or stays in its own session. `/status` shows live runs, and `/print session:<name>` prints a run's stored output.

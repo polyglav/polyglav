@@ -90,6 +90,17 @@ This implements the streamable HTTP transport: each JSON-RPC request is its own 
 
 Sessions are exposed as MCP resources under `polyglav://session/<name>` with `resources/list` and `resources/read` returning the session JSON.
 
+### Polyglav as a worker
+
+An MCP client can use Polyglav as a worker:
+
+- `catalog` defines roles, teams, and skills. Writes require write mode and the `catalog` policy allowance.
+- `call` runs a role or team. The target's `callable` action and the caller's `call` permission apply.
+- `tools/list` exposes the registered tools and `resources/*` exposes saved sessions.
+- `ask`-policy tools are deferred to the MCP client when `mcp_server.allow_ask` is true, so the client can show its own confirmations.
+
+For a full free-form turn, planning, composition, and a final answer, use `POST /chat` or `polyglav run`. MCP is the structured tool surface.
+
 ## Config
 
 | Key                     | Default        | Description                                                        |

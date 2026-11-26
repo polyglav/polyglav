@@ -4,7 +4,7 @@
 
 ```bash
 polyglav serve
-# polyglav serve - http://127.0.0.1:8787 (POST /chat, POST /mcp, GET /sessions, GET /health, GET /version)
+# polyglav serve (read mode, no auth) - http://127.0.0.1:8787 (POST /chat, POST /cancel, GET /sessions, GET /health, GET /version)
 ```
 
 All responses are JSON with `Content-Type: application/json`.
@@ -40,6 +40,16 @@ curl localhost:8787/chat -X POST -H 'Content-Type: application/json' \
 
 Response is the same `TurnResult` the CLI returns (see the README). `session` is the resolved session name. Errors: `400` for a missing/empty `prompt` or invalid JSON body.
 
+`POST /chat` returns the completed turn. The REPL and CLI stream live output.
+
+## As a tool for another agent or UI
+
+`POST /chat` is the full-turn entry point for a UI or another agent. `POST /cancel` stops a paused turn and `GET /sessions` reads saved sessions. In write mode, the prompt can use the `catalog` tool to create roles, teams, and skills. The same mode and tool policy apply to every caller. For structured tool calls and session resources, use MCP. Jobs and fleet are CLI-first today.
+
+## POST /cancel
+
+Cancels the current paused turn. The response is `{"status": "cancelled"}` when a turn was paused, or `{"status": "idle"}` when there was nothing to cancel.
+
 ## GET /sessions
 
 Lists saved session names.
@@ -64,7 +74,7 @@ Returns the installed version.
 
 ```bash
 curl localhost:8787/version
-# {"version": "0.33.0"}
+# {"version": "0.57.0"}
 ```
 
 Unknown routes return `404 {"error": "not found"}`.

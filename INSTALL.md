@@ -24,11 +24,19 @@ python3 -m venv .venv && .venv/bin/pip install -e .
 .venv/bin/polyglav
 ```
 
-With pip:
+With uv:
 
 ```bash
-pip install polyglav
+uv tool install polyglav
 polyglav
+```
+
+With pip, in a virtual environment:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install polyglav
+.venv/bin/polyglav
 ```
 
 ## First run
@@ -136,6 +144,17 @@ polyglav mcp    # stdio MCP server: serve Polyglav's tools/sessions or import an
 ```
 
 On `polyglav serve`, the same is available at `POST /mcp`. See [docs/mcp.md](docs/mcp.md).
+
+### Another agent or UI
+
+Polyglav can be the worker behind another agent, an IDE, or a web UI.
+
+- HTTP: `POST /chat` runs a full turn. `POST /cancel` cancels a paused turn. `GET /sessions` lists saved sessions.
+- MCP: `polyglav mcp` (stdio) or `POST /mcp` on `polyglav serve` exposes tools and sessions. In write mode, `catalog` defines roles, teams, and skills, and `call` runs them.
+- CLI: `polyglav run` for one-shot turns, `polyglav jobs` and `polyglav fleet` for scheduled and supervised work.
+- Text: the catalog is plain text under `.polyglav/`, so another agent with file access can edit it.
+
+The same mode and tool policy apply to every caller. Jobs and fleet are CLI-first today.
 
 ## Docker
 

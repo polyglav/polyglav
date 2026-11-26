@@ -4,7 +4,7 @@
 
 Polyglav is an agent harness: the runtime that turns a language model into an agent that can act. The model plans, the harness executes, and one streaming loop drives an interactive REPL, a headless CLI, and an HTTP API. Polyglav is deliberately small, zero-dependency, and auditable, so the whole runtime fits in one review.
 
-Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open.
+Use it at the prompt when you want. Put it on a server and let it work. There is no dashboard to watch and no chat window to keep open. The UI is optional: a terminal, an IDE, a web UI, or another agent can be the front end, and the runtime can be called as a tool over the CLI, HTTP API, or MCP.
 
 The main agent, **assistant**, is the point of contact: it greets you on first run and asks what you want to do, answers small tasks inline in the current run, delegates bigger tasks to sub-agents or whole teams one context at a time, runs recurring work in the background, watches your other agents for health, and reports back. Everything you need to see is reachable from one place: sessions, running agents, and configured jobs on the machine. Users never see the machinery. They feel supported and do less work.
 

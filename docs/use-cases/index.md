@@ -21,6 +21,7 @@ The audience guides in this folder assess how that core fits a specific context.
 These capabilities exist now and form the foundation any evaluation builds on:
 
 - **Unattended by design**. Put it on a server with a schedule, or run it as a fleet, and check the log or a report later. There is no dashboard to watch and no chat window to keep open.
+- **The UI is optional**. The same runtime is a REPL, CLI, HTTP API, and MCP server. A web UI, an IDE, or another agent can be the front end while Polyglav does the work.
 - **Auditability by design**. Every session is a complete, append-only log. Each message, tool call with its result, reasoning (`thinking`), and error is persisted with timestamps, duration, model, and provider, and every tool permission decision is recorded in the session `permissions` array. Entries are never removed. Compaction only trims the provider context, never the log. See [session.md](../session.md).
 - **Zero-dependency core**. Python standard library only. Nothing to audit and no supply chain. In a regulated environment this is a supply-chain and security property, not just a convenience.
 - **Local-first data sovereignty**. Config and session logs live on your disk, and all provider traffic is outbound. No external logging or telemetry service holds your data.
