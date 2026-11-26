@@ -102,6 +102,8 @@ def register_tools(registry):
         key_arg='command',
         path_arg='cwd',
         short='Run a shell command',
+        glyph='$',
+        verb='Shell',
         echo=True,
         aliases=['bash', 'exec'],
         param_aliases={'cmd': 'command'},

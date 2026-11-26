@@ -337,7 +337,7 @@ class TestEngine(unittest.TestCase):
         self.engine.config.set('verbosity.tools', 'full')
         self.engine._show_tool_status(
             'run_command', {'command': 'ls', 'cwd': '/workspace', 'timeout': 10000})
-        self.assertEqual(ui.labels, ['$ Run ls [cwd=/workspace, timeout=10000]'])
+        self.assertEqual(ui.labels, ['$ Shell ls [cwd=/workspace, timeout=10000]'])
 
     def test_show_tool_status_omits_params_when_disabled(self):
         ui = _CaptureUI()
@@ -345,7 +345,7 @@ class TestEngine(unittest.TestCase):
         self.engine._ui = ui
         self.engine.config.set('verbosity.tools', 'summary')
         self.engine._show_tool_status('run_command', {'command': 'ls', 'cwd': '/workspace'})
-        self.assertEqual(ui.labels, ['$ Run ls'])
+        self.assertEqual(ui.labels, ['$ Shell ls'])
 
     def test_show_tool_status_includes_result_tokens(self):
         ui = _CaptureUI()
@@ -354,7 +354,7 @@ class TestEngine(unittest.TestCase):
         self.engine.config.set('verbosity.tools', 'summary')
         self.engine._show_tool_status(
             'run_command', {'command': 'ls', 'cwd': '/workspace'}, tokens=1234)
-        self.assertEqual(ui.labels, ['$ Run ls (1,234 tokens)'])
+        self.assertEqual(ui.labels, ['$ Shell ls (1,234 tokens)'])
 
     def test_confirm_label_includes_params(self):
         ui = _CaptureUI()
@@ -362,7 +362,7 @@ class TestEngine(unittest.TestCase):
         self.engine._ui = ui
         self.engine.config.set('verbosity.tools', 'full')
         self.engine._confirm_tool('run_command', {'command': 'ls', 'cwd': '/x'})
-        self.assertEqual(ui.labels, ['confirm: run_command ls [cwd=/x]'])
+        self.assertEqual(ui.labels, ['confirm: Shell ls [cwd=/x]'])
 
     def test_run_tool_error_renders_error_line(self):
         ui = _CaptureUI()
@@ -371,7 +371,7 @@ class TestEngine(unittest.TestCase):
         out = self.engine._run_tool('read_file', {'path': '/definitely/not/here.txt'})
         self.assertIn('Error: file not found', out)
         self.assertEqual(ui.labels[0],
-                         'confirm: read_file /definitely/not/here.txt')
+                         'confirm: Read /definitely/not/here.txt')
         self.assertTrue(ui.labels[1].startswith(
             '← Read /definitely/not/here.txt ('))
         self.assertTrue(ui.labels[1].endswith(' tokens)'))
@@ -391,8 +391,8 @@ class TestEngine(unittest.TestCase):
         self.engine._init_tooling()
         self.engine._ui = ui
         self.engine._run_tool('run_command', {'command': 'echo hi'})
-        self.assertEqual(ui.labels[0], 'confirm: run_command echo hi')
-        self.assertTrue(ui.labels[1].startswith('$ Run echo hi ('))
+        self.assertEqual(ui.labels[0], 'confirm: Shell echo hi')
+        self.assertTrue(ui.labels[1].startswith('$ Shell echo hi ('))
         self.assertTrue(ui.labels[1].endswith(' tokens)'))
         self.assertFalse(any(l.startswith('! ') for l in ui.labels))
 

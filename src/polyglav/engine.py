@@ -1447,11 +1447,17 @@ class Engine:
 
     def _confirm_tool(self, name: str, args: dict) -> bool:
         key_arg = self._tool_registry.key_arg_for(name)
-        label = name
-        if key_arg and args.get(key_arg):
+        activity = self._tool_registry.activity(
+            name, args, glyphs=glyph_map(self.config))
+        if activity is not None:
+            _, verb, activity_label, _ = activity
+            label = f'{verb} {activity_label}'
+        elif key_arg and args.get(key_arg):
             value = str(args[key_arg])
             from .tools.registry import shorten
             label = f'{name} {shorten(value, 80)}'
+        else:
+            label = name
         params = self._tool_registry.params_str(name, args)
         if params and verbosity_level(self.config, 'tools') == 'full':
             label = f'{label} [{params}]'
