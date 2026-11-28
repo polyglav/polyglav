@@ -52,6 +52,13 @@ The interface is optional. A terminal, an IDE, a web UI, or another agent can dr
 ## Install
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh
+polyglav
+```
+
+Or with pipx:
+
+```bash
 pipx install polyglav
 polyglav
 ```

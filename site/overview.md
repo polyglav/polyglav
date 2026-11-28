@@ -55,13 +55,23 @@ The detailed reference is organized in the [Reference index](reference/index.md)
 ## Getting started
 
 ```bash
-pipx install polyglav
+curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh
 polyglav
 ```
 
+The script installs with uv or pipx when available, otherwise pip, and adds pip or Windows readline support when missing. Or use `pipx install polyglav`, then `polyglav`.
+
 On first run, Polyglav welcomes you and asks for your provider, model, mode, project purpose, assistant persona, and whether to keep an output log. Press Enter to accept a default. After that, it can run without you. You can rerun onboarding with `/onboard`, or change the connection later with `/connect` and `/model`.
 
-Or from source: `git clone https://github.com/polyglav/polyglav.git && cd polyglav`, then `python3 -m venv .venv && .venv/bin/pip install -e . && .venv/bin/polyglav`.
+Or from source:
+
+```bash
+git clone https://github.com/polyglav/polyglav.git
+cd polyglav
+python3 -m venv .venv
+.venv/bin/pip install -e .
+.venv/bin/polyglav
+```
 
 ## License
 

@@ -53,6 +53,8 @@ code,pre{font-family:var(--mono)}
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
 }
+.icon-sprite{position:absolute;width:0;height:0;overflow:hidden}
+.ext-icon{width:11px;height:11px;flex:none;fill:currentColor;opacity:.7}
 .skip{
   position:absolute;left:16px;top:-48px;z-index:100;
   background:var(--ink);color:var(--paper);
@@ -78,6 +80,7 @@ code,pre{font-family:var(--mono)}
 .wordmark{font-weight:600;letter-spacing:-.02em;font-size:16px}
 .nav{display:flex;align-items:center;gap:26px;margin-left:auto}
 .nav a{
+  display:inline-flex;align-items:center;gap:6px;
   font-size:14px;color:var(--muted);
   transition:color .16s ease;
 }
@@ -101,7 +104,7 @@ code,pre{font-family:var(--mono)}
   min-width:210px;padding:8px 0;
   border:1px solid var(--line-2);background:var(--paper);
 }
-.nav-mobile-panel a{display:block;padding:10px 16px;font-size:14px;color:var(--muted)}
+.nav-mobile-panel a{display:flex;align-items:center;gap:6px;padding:10px 16px;font-size:14px;color:var(--muted)}
 .nav-mobile-panel a:hover{background:var(--wash);color:var(--ink)}
 .github-link{
   display:inline-flex;align-items:center;justify-content:center;
@@ -190,16 +193,10 @@ code,pre{font-family:var(--mono)}
   transition:background .16s ease,color .16s ease;
 }
 .copy-btn:hover{background:var(--ink);color:var(--paper)}
-.install-foot{
-  display:flex;flex-wrap:wrap;align-items:baseline;
-  gap:6px 16px;margin-top:10px;
-}
-.install-note{font-size:12.5px;color:var(--muted)}
-.install-more{
+.install-note{
+  margin-top:10px;
   font-size:12.5px;color:var(--muted);
-  border-bottom:1px solid var(--line-2);padding-bottom:1px;
 }
-.install-more:hover{color:var(--ink);border-color:var(--ink)}
 
 /* section shell */
 .sec{padding:80px 0;border-bottom:1px solid var(--line)}
@@ -300,13 +297,6 @@ code,pre{font-family:var(--mono)}
   margin:0;padding:0;list-style:none;
   border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
-.how li{
-  padding:26px 24px 30px;
-  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-}
-.how .n{font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
-.how h3{margin-top:18px;font-size:16px;font-weight:600;letter-spacing:-.015em}
-.how p{margin-top:9px;font-size:14px;line-height:1.62;color:var(--muted)}
 
 /* run it anywhere */
 .iface-flow{
@@ -314,59 +304,43 @@ code,pre{font-family:var(--mono)}
   grid-template-columns:repeat(3,minmax(0,1fr));
   border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
-.iface-node{
-  min-width:0;padding:22px 20px;
-  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  background:var(--paper);
-}
-.iface-kicker{font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
-.iface-node h3{margin-top:14px;font-size:16px;font-weight:600;letter-spacing:-.015em}
-.iface-node p{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.iface-node{min-width:0;background:var(--paper)}
 .iface-facts{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  margin-top:26px;border-top:1px solid var(--line);border-left:1px solid var(--line);
+  gap:24px;margin-top:28px;
 }
-.iface-facts li{
-  min-width:0;padding:22px 20px;
-  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  font-size:12.5px;line-height:1.6;color:var(--muted);
-}
+.iface-facts li{min-width:0;font-size:14px;line-height:1.6;color:var(--muted)}
 .iface-facts strong{display:block;margin-bottom:4px;color:var(--ink);font-weight:500}
-.iface-note{margin-top:16px;font-size:12.5px;line-height:1.6;color:var(--muted);text-wrap:balance}
+.iface-note{margin-top:18px;font-size:12.5px;line-height:1.6;color:var(--muted);text-wrap:balance}
 
 /* features */
 .features{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
-.feature{
-  padding:24px 20px 26px;
-  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
-  transition:background .18s ease;
-}
+.feature{transition:background .18s ease}
 .feature:hover{background:var(--wash)}
-.feature h3{font-size:16px;font-weight:600;letter-spacing:-.015em}
-.feature p{margin-top:9px;font-size:14px;line-height:1.62;color:var(--muted)}
+
+/* shared boxes */
+.feature,.how li,.iface-node{
+  min-width:0;padding:24px 20px 26px;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.box-label{font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
+.feature h3,.how h3,.iface-node h3{margin-top:16px;font-size:16px;font-weight:600;letter-spacing:-.015em}
+.feature p,.how p,.iface-node p{margin-top:8px;font-size:14px;line-height:1.62;color:var(--muted)}
 .works-with{
-  margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  margin-top:24px;
   font-size:12.5px;line-height:1.6;color:var(--muted);
 }
 .works-with strong{color:var(--ink);font-weight:500}
-.works-with a{border-bottom:1px solid var(--line-2)}
+.works-with a{display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid var(--line-2)}
 .works-with a:hover{color:var(--ink);border-color:var(--ink)}
 
 /* cta */
 .cta{background:var(--ink);color:var(--paper);padding:76px 0}
-.cta-in{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.cta-in{display:block;max-width:760px}
 .cta h2{font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.04;letter-spacing:-.04em;font-weight:600;max-width:18ch}
-.cta p{margin-top:16px;color:#a8a8ae;font-size:14px;max-width:44ch}
+.cta p{margin-top:16px;color:#a8a8ae;font-size:14px;max-width:52ch}
 .cta :focus-visible{outline-color:var(--paper)}
 .cta ::selection{background:var(--paper);color:var(--ink)}
-.cta-cmd{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;
-  border:1px solid #34343a;background:#141416;
-  padding:14px 14px 14px 16px;
-}
-.cta-cmd code{font-size:13px;color:#e8e8e6;min-width:0;overflow-wrap:anywhere}
-.cta-cmd .copy-btn{background:transparent;color:#b9b9bf;border-left-color:#34343a;width:auto;padding:6px 10px}
-.cta-cmd .copy-btn:hover{background:var(--paper);color:var(--ink)}
 .cta-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 .cta .btn{border-color:var(--paper);background:var(--paper);color:var(--ink)}
 .cta .btn:hover{background:transparent;color:var(--paper)}
@@ -378,7 +352,7 @@ code,pre{font-family:var(--mono)}
 .foot-in{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap}
 .foot-left p{margin-top:12px;font-size:12.5px;color:var(--muted);max-width:46ch;text-wrap:balance}
 .foot-links{display:flex;flex-wrap:wrap;gap:10px 24px}
-.foot-links a{font-size:12.5px;color:var(--muted)}
+.foot-links a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
 .foot-links a:hover{color:var(--ink)}
 .foot-note{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font:400 11px/1.6 var(--mono);color:var(--faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
@@ -392,7 +366,6 @@ code,pre{font-family:var(--mono)}
   .scene-desc{margin-top:16px}
   .how{grid-template-columns:repeat(2,1fr)}
   .features{grid-template-columns:repeat(2,1fr)}
-  .cta-in{grid-template-columns:1fr;gap:32px}
 }
 @media (max-width:900px){
   .nav{display:none}
@@ -424,6 +397,7 @@ code,pre{font-family:var(--mono)}
 </head>
 <body id="top">
 <a class="skip" href="#main">Skip to content</a>
+<svg class="icon-sprite" aria-hidden="true" focusable="false"><symbol id="icon-external" viewBox="0 0 16 16" fill="currentColor"><path d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></symbol></svg>
 
 <header class="site-head">
   <div class="wrap head-in">
@@ -439,7 +413,7 @@ code,pre{font-family:var(--mono)}
       <a href="#use-cases">Use cases</a>
       <a href="#how">How it works</a>
       <a href="#run-anywhere">Run it anywhere</a>
-      <a href="https://polyglav.github.io/polyglav/">Docs</a>
+      <a href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Docs</a>
     </nav>
 
     <div class="head-actions">
@@ -450,7 +424,7 @@ code,pre{font-family:var(--mono)}
           <a href="#use-cases">Use cases</a>
           <a href="#how">How it works</a>
           <a href="#run-anywhere">Run it anywhere</a>
-          <a href="https://polyglav.github.io/polyglav/">Docs</a>
+          <a href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Docs</a>
         </nav>
       </details>
       <a class="github-link" href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener" aria-label="Polyglav on GitHub"><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
@@ -477,21 +451,21 @@ code,pre{font-family:var(--mono)}
       <div class="install">
         <div class="install-head">
           <div class="install-tabs" role="tablist" aria-label="Install method">
+            <button class="install-tab" type="button" role="tab" id="tab-curl" aria-controls="install-panel" aria-selected="true" tabindex="0" data-key="curl">curl</button>
+            <button class="install-tab" type="button" role="tab" id="tab-docker" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="docker">docker</button>
             <button class="install-tab" type="button" role="tab" id="tab-pip" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="pip">pip</button>
-            <button class="install-tab" type="button" role="tab" id="tab-pipx" aria-controls="install-panel" aria-selected="true" tabindex="0" data-key="pipx">pipx</button>
+            <button class="install-tab" type="button" role="tab" id="tab-pipx" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="pipx">pipx</button>
+            <button class="install-tab" type="button" role="tab" id="tab-source" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="source">source</button>
             <button class="install-tab" type="button" role="tab" id="tab-uv" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="uv">uv</button>
           </div>
           <button class="copy-btn" id="copy" type="button">Copy</button>
         </div>
-        <div class="install-panel" id="install-panel" role="tabpanel" aria-labelledby="tab-pipx" tabindex="0">
-          <code id="cmd">pipx install polyglav
+        <div class="install-panel" id="install-panel" role="tabpanel" aria-labelledby="tab-curl" tabindex="0">
+          <code id="cmd">curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh
 polyglav</code>
         </div>
       </div>
-      <div class="install-foot">
-        <p class="install-note" id="note">Python 3.11 or newer. Installs into an isolated environment.</p>
-        <a class="install-more" href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md">All install methods</a>
-      </div>
+      <p class="install-note" id="note">Installs with uv or pipx when available, otherwise pip. Adds pip or Windows readline support when missing.</p>
     </div>
 
     <ul class="hero-meta">
@@ -513,24 +487,28 @@ polyglav</code>
 
     <div class="features">
       <article class="feature">
+        <span class="box-label" aria-hidden="true">01</span>
         <h3>Compose a team</h3>
         <p>Ask for an outcome. Polyglav splits it across specialist roles, runs them in order, and loops a producer against a reviewer when the work needs it.</p>
       </article>
       <article class="feature">
+        <span class="box-label" aria-hidden="true">02</span>
         <h3>Unattended by design</h3>
         <p>Put it on a server with a schedule, or run it as a fleet. Results land in append-only logs and optional webhook reports.</p>
       </article>
       <article class="feature">
+        <span class="box-label" aria-hidden="true">03</span>
         <h3>Safe by default</h3>
         <p>Allow, ask, or deny by tool and category. File access outside the project is scoped, and every action lands in the session log.</p>
       </article>
       <article class="feature">
+        <span class="box-label" aria-hidden="true">04</span>
         <h3>Zero dependencies</h3>
         <p>Pure Python standard library, no supply chain, and local-first. Keys, sessions, roles, and config stay on disk as text, with any provider you choose.</p>
       </article>
     </div>
 
-    <p class="works-with"><strong>Works with</strong> Anthropic, OpenAI, Groq, Ollama, OpenCode, and any OpenAI-compatible cloud or local endpoint. <a href="https://polyglav.github.io/polyglav/reference/providers/">Providers</a></p>
+    <p class="works-with"><strong>Works with</strong> Anthropic, OpenAI, Groq, Ollama, OpenCode, and any OpenAI-compatible cloud or local endpoint. <a href="https://polyglav.github.io/polyglav/reference/providers/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Providers</a></p>
   </div>
 </section>
 
@@ -580,22 +558,22 @@ polyglav</code>
 
     <ol class="how">
       <li>
-        <span class="n" aria-hidden="true">01</span>
+        <span class="box-label" aria-hidden="true">01</span>
         <h3>Ask</h3>
         <p>Describe an outcome in one sentence, the way you would to a colleague.</p>
       </li>
       <li>
-        <span class="n" aria-hidden="true">02</span>
+        <span class="box-label" aria-hidden="true">02</span>
         <h3>Compose</h3>
         <p>For bigger work it designs a small team and the order its members run in.</p>
       </li>
       <li>
-        <span class="n" aria-hidden="true">03</span>
+        <span class="box-label" aria-hidden="true">03</span>
         <h3>Run</h3>
         <p>Each stage gets its own context, tool access, model, and session.</p>
       </li>
       <li>
-        <span class="n" aria-hidden="true">04</span>
+        <span class="box-label" aria-hidden="true">04</span>
         <h3>Continue</h3>
         <p>Every result feeds the next specialist, without switching windows.</p>
       </li>
@@ -613,17 +591,17 @@ polyglav</code>
 
     <div class="iface-flow">
       <div class="iface-node">
-        <span class="iface-kicker">YOUR INTERFACE</span>
+        <span class="box-label">YOUR INTERFACE</span>
         <h3>Terminal, IDE, web UI, or another agent</h3>
         <p>Use the REPL, a script, an editor, or a UI built by someone else.</p>
       </div>
       <div class="iface-node">
-        <span class="iface-kicker">THE CONTRACT</span>
+        <span class="box-label">THE CONTRACT</span>
         <h3>CLI, HTTP API, MCP</h3>
         <p>Full turns, direct tools, sessions, and control.</p>
       </div>
       <div class="iface-node">
-        <span class="iface-kicker">THE WORKER</span>
+        <span class="box-label">THE WORKER</span>
         <h3>Polyglav</h3>
         <p>Roles, teams, jobs, fleet, and append-only logs.</p>
       </div>
@@ -641,19 +619,11 @@ polyglav</code>
 
 <section class="cta">
   <div class="wrap cta-in">
-    <div>
-      <h2>Start at one prompt.<br>Let it work.</h2>
-      <p>Install in a minute, point it at your project, and describe what you want finished. Then schedule it, serve it, or put it in a fleet.</p>
-      <div class="cta-actions">
-        <a class="btn" href="https://github.com/polyglav/polyglav">View on GitHub</a>
-        <a class="btn btn-ghost" href="https://polyglav.github.io/polyglav/">Read the docs</a>
-      </div>
-    </div>
-    <div>
-      <div class="cta-cmd">
-        <code id="ctaCmd">pipx install polyglav</code>
-        <button class="copy-btn" id="ctaCopy" type="button" aria-live="polite">Copy</button>
-      </div>
+    <h2>Start at one prompt.<br>Let it work.</h2>
+    <p>Point it at your project and describe what you want finished. Then schedule it, serve it, or put it in a fleet.</p>
+    <div class="cta-actions">
+      <a class="btn" href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>View on GitHub</a>
+      <a class="btn btn-ghost" href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Read the docs</a>
     </div>
   </div>
 </section>
@@ -673,11 +643,11 @@ polyglav</code>
         <p>One agent, many heads. Built to run unattended. Logs, keys, and config stay local.</p>
       </div>
       <nav class="foot-links" aria-label="Footer">
-        <a href="https://github.com/polyglav/polyglav">GitHub</a>
-        <a href="https://pypi.org/project/polyglav/">PyPI</a>
-        <a href="https://polyglav.github.io/polyglav/">Docs</a>
-        <a href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md">Install guide</a>
-        <a href="https://github.com/polyglav/polyglav/blob/main/LICENSE">MIT License</a>
+        <a href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>GitHub</a>
+        <a href="https://pypi.org/project/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>PyPI</a>
+        <a href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Docs</a>
+        <a href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Install guide</a>
+        <a href="https://github.com/polyglav/polyglav/blob/main/LICENSE" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>MIT License</a>
       </nav>
     </div>
     <div class="foot-note">
@@ -690,11 +660,23 @@ polyglav</code>
 <script>
 (function(){
   var installs = {
+    curl: {cmd:'curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh', next:'polyglav', note:'Installs with uv or pipx when available, otherwise pip. Adds pip or Windows readline support when missing.'},
+    docker: {cmd:[
+      'git clone https://github.com/polyglav/polyglav',
+      'cd polyglav',
+      'docker build -t polyglav .'
+    ].join('\n'), next:'docker run --rm -p 127.0.0.1:8787:8787 -e POLYGLAV_TOKEN polyglav', note:'Builds the image. Set POLYGLAV_TOKEN first; the run command serves the HTTP API on 127.0.0.1:8787.'},
     pip: {cmd:[
       'python3 -m venv .venv',
       '.venv/bin/pip install polyglav'
     ].join('\n'), next:'.venv/bin/polyglav', note:'Installs into a project virtual environment. Python 3.11 or newer.'},
     pipx: {cmd:'pipx install polyglav', next:'polyglav', note:'Python 3.11 or newer. Installs into an isolated environment.'},
+    source: {cmd:[
+      'git clone https://github.com/polyglav/polyglav',
+      'cd polyglav',
+      'python3 -m venv .venv',
+      '.venv/bin/pip install -e .'
+    ].join('\n'), next:'.venv/bin/polyglav', note:'Editable install for development. Python 3.11 or newer.'},
     uv: {cmd:'uv tool install polyglav', next:'polyglav', note:'Python 3.11 or newer. Isolated tool install, no venv required.'}
   };
 
@@ -973,8 +955,6 @@ polyglav</code>
   var cmd = document.getElementById('cmd');
   var note = document.getElementById('note');
   var copyBtn = document.getElementById('copy');
-  var ctaCmd = document.getElementById('ctaCmd');
-  var ctaCopy = document.getElementById('ctaCopy');
 
   function applyInstall(key, scroll){
     var item = installs[key];
@@ -1009,7 +989,7 @@ polyglav</code>
     });
   });
 
-  applyInstall('pipx');
+  applyInstall('curl');
 
   function fallbackCopy(text){
     var area = document.createElement('textarea');
@@ -1037,7 +1017,6 @@ polyglav</code>
   }
 
   bindCopy(copyBtn, function(){ return cmd.textContent; });
-  bindCopy(ctaCopy, function(){ return ctaCmd.textContent; });
 
   var mobileNav = document.querySelector('.nav-mobile');
   if (mobileNav){

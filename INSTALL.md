@@ -5,9 +5,18 @@ Polyglav is a terminal AI agent. This guide covers installation, first-run setup
 ## Requirements
 
 - Python >= 3.11
-- No external dependencies (pure standard library)
+- No external dependencies (pure standard library). On Windows, the installer adds `pyreadline3` so the REPL has line editing.
 
 ## Install
+
+With the install script:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh
+polyglav
+```
+
+The script installs with uv or pipx when available, otherwise pip, and adds pip or Windows readline support when missing.
 
 With pipx:
 
@@ -19,8 +28,10 @@ polyglav
 From source:
 
 ```bash
-git clone https://github.com/polyglav/polyglav.git && cd polyglav
-python3 -m venv .venv && .venv/bin/pip install -e .
+git clone https://github.com/polyglav/polyglav.git
+cd polyglav
+python3 -m venv .venv
+.venv/bin/pip install -e .
 .venv/bin/polyglav
 ```
 
