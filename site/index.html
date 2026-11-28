@@ -197,6 +197,13 @@ code,pre{font-family:var(--mono)}
   margin-top:10px;
   font-size:12.5px;color:var(--muted);
 }
+.text-link{
+  display:inline-flex;align-items:center;gap:6px;
+  border-bottom:1px solid var(--line-2);
+  font-size:12.5px;color:var(--muted);
+}
+.text-link:hover{color:var(--ink);border-color:var(--ink)}
+.install-link{margin-top:8px}
 
 /* section shell */
 .sec{padding:80px 0;border-bottom:1px solid var(--line)}
@@ -305,14 +312,6 @@ code,pre{font-family:var(--mono)}
   border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
 .iface-node{min-width:0;background:var(--paper)}
-.iface-facts{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:24px;margin-top:28px;
-}
-.iface-facts li{min-width:0;font-size:14px;line-height:1.6;color:var(--muted)}
-.iface-facts strong{display:block;margin-bottom:4px;color:var(--ink);font-weight:500}
-.iface-note{margin-top:18px;font-size:12.5px;line-height:1.6;color:var(--muted);text-wrap:balance}
-
 /* features */
 .features{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .feature{transition:background .18s ease}
@@ -331,12 +330,10 @@ code,pre{font-family:var(--mono)}
   font-size:12.5px;line-height:1.6;color:var(--muted);
 }
 .works-with strong{color:var(--ink);font-weight:500}
-.works-with a{display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid var(--line-2)}
-.works-with a:hover{color:var(--ink);border-color:var(--ink)}
 
 /* cta */
 .cta{background:var(--ink);color:var(--paper);padding:76px 0}
-.cta-in{display:block;max-width:760px}
+.cta-in{display:block}
 .cta h2{font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.04;letter-spacing:-.04em;font-weight:600;max-width:18ch}
 .cta p{margin-top:16px;color:#a8a8ae;font-size:14px;max-width:52ch}
 .cta :focus-visible{outline-color:var(--paper)}
@@ -352,7 +349,7 @@ code,pre{font-family:var(--mono)}
 .foot-in{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;flex-wrap:wrap}
 .foot-left p{margin-top:12px;font-size:12.5px;color:var(--muted);max-width:46ch;text-wrap:balance}
 .foot-links{display:flex;flex-wrap:wrap;gap:10px 24px}
-.foot-links a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.foot-links a{font-size:12.5px;color:var(--muted)}
 .foot-links a:hover{color:var(--ink)}
 .foot-note{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font:400 11px/1.6 var(--mono);color:var(--faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
@@ -381,7 +378,6 @@ code,pre{font-family:var(--mono)}
   .features{grid-template-columns:1fr}
   .how{grid-template-columns:1fr}
   .iface-flow{grid-template-columns:1fr}
-  .iface-facts{grid-template-columns:1fr}
   .cta{padding:56px 0}
 }
 @media (max-width:440px){
@@ -418,7 +414,7 @@ code,pre{font-family:var(--mono)}
 
     <div class="head-actions">
       <details class="nav-mobile">
-        <summary>Sections</summary>
+        <summary>Menu</summary>
         <nav class="nav-mobile-panel" aria-label="Sections">
           <a href="#why">Why Polyglav</a>
           <a href="#use-cases">Use cases</a>
@@ -481,34 +477,34 @@ polyglav</code>
   <div class="wrap">
     <div class="sec-head">
       <span class="sec-num">01 / WHY POLYGLAV</span>
-      <h2>Built to be boring where it matters.</h2>
+      <h2>Built to be boring<br>where it matters.</h2>
       <p>No browser, no account, no dependency tree. A small core you can read, with every action on the record.</p>
     </div>
 
     <div class="features">
       <article class="feature">
-        <span class="box-label" aria-hidden="true">01</span>
+        <span class="box-label" aria-hidden="true">STRUCTURED</span>
         <h3>Compose a team</h3>
-        <p>Ask for an outcome. Polyglav splits it across specialist roles, runs them in order, and loops a producer against a reviewer when the work needs it.</p>
+        <p>Ask for an outcome, split it across specialist roles. Run them sequentially, or manage hierarchically when the work needs it.</p>
       </article>
       <article class="feature">
-        <span class="box-label" aria-hidden="true">02</span>
+        <span class="box-label" aria-hidden="true">AUTOMATED</span>
         <h3>Unattended by design</h3>
-        <p>Put it on a server with a schedule, or run it as a fleet. Results land in append-only logs and optional webhook reports.</p>
+        <p>Wait for the end result, put it on a server with a schedule, or run it as a fleet. Results land in append-only logs and optional webhook reports.</p>
       </article>
       <article class="feature">
-        <span class="box-label" aria-hidden="true">03</span>
+        <span class="box-label" aria-hidden="true">SECURE</span>
         <h3>Safe by default</h3>
         <p>Allow, ask, or deny by tool and category. File access outside the project is scoped, and every action lands in the session log.</p>
       </article>
       <article class="feature">
-        <span class="box-label" aria-hidden="true">04</span>
+        <span class="box-label" aria-hidden="true">LIGHTWEIGHT</span>
         <h3>Zero dependencies</h3>
         <p>Pure Python standard library, no supply chain, and local-first. Keys, sessions, roles, and config stay on disk as text, with any provider you choose.</p>
       </article>
     </div>
 
-    <p class="works-with"><strong>Works with</strong> Anthropic, OpenAI, Groq, Ollama, OpenCode, and any OpenAI-compatible cloud or local endpoint. <a href="https://polyglav.github.io/polyglav/reference/providers/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Providers</a></p>
+    <p class="works-with"><strong>Works with</strong> Anthropic, OpenAI, Groq, Ollama, OpenCode, and any OpenAI-compatible cloud or local endpoint.</p>
   </div>
 </section>
 
@@ -516,7 +512,7 @@ polyglav</code>
   <div class="wrap">
     <div class="sec-head">
       <span class="sec-num">02 / USE CASES</span>
-      <h2>The same prompt, pointed at real work.</h2>
+      <h2>The same prompt,<br>pointed at real work.</h2>
       <p>Pick a scenario. It plays a condensed session: a prompt or command, the specialists it brings in, the tools it runs, and the result it hands back.</p>
     </div>
 
@@ -552,29 +548,29 @@ polyglav</code>
   <div class="wrap">
     <div class="sec-head">
       <span class="sec-num">03 / HOW IT WORKS</span>
-      <h2>Ask once. It does the handoffs.</h2>
+      <h2>Ask once.<br>It does the handoffs.</h2>
       <p>One loop, one stream, one prompt. Specialists run one after another in the same process, each with its own context and permissions.</p>
     </div>
 
     <ol class="how">
       <li>
-        <span class="box-label" aria-hidden="true">01</span>
-        <h3>Ask</h3>
+        <span class="box-label">ASK</span>
+        <h3>Start with one outcome</h3>
         <p>Describe an outcome in one sentence, the way you would to a colleague.</p>
       </li>
       <li>
-        <span class="box-label" aria-hidden="true">02</span>
-        <h3>Compose</h3>
+        <span class="box-label">COMPOSE</span>
+        <h3>Design the team</h3>
         <p>For bigger work it designs a small team and the order its members run in.</p>
       </li>
       <li>
-        <span class="box-label" aria-hidden="true">03</span>
-        <h3>Run</h3>
+        <span class="box-label">RUN</span>
+        <h3>Give each stage its own scope</h3>
         <p>Each stage gets its own context, tool access, model, and session.</p>
       </li>
       <li>
-        <span class="box-label" aria-hidden="true">04</span>
-        <h3>Continue</h3>
+        <span class="box-label">CONTINUE</span>
+        <h3>Carry every result forward</h3>
         <p>Every result feeds the next specialist, without switching windows.</p>
       </li>
     </ol>
@@ -591,29 +587,36 @@ polyglav</code>
 
     <div class="iface-flow">
       <div class="iface-node">
-        <span class="box-label">YOUR INTERFACE</span>
+        <span class="box-label">INTERFACE</span>
         <h3>Terminal, IDE, web UI, or another agent</h3>
         <p>Use the REPL, a script, an editor, or a UI built by someone else.</p>
       </div>
       <div class="iface-node">
-        <span class="box-label">THE CONTRACT</span>
+        <span class="box-label">CONTRACT</span>
         <h3>CLI, HTTP API, MCP</h3>
         <p>Full turns, direct tools, sessions, and control.</p>
       </div>
       <div class="iface-node">
-        <span class="box-label">THE WORKER</span>
-        <h3>Polyglav</h3>
+        <span class="box-label">WORKER</span>
+        <h3>One runtime</h3>
         <p>Roles, teams, jobs, fleet, and append-only logs.</p>
       </div>
+      <div class="iface-node">
+        <span class="box-label">CATALOG</span>
+        <h3>It configures itself</h3>
+        <p>In write mode, the assistant creates roles, teams, and skills through the catalog. The caller can do the same.</p>
+      </div>
+      <div class="iface-node">
+        <span class="box-label">HEADLESS</span>
+        <h3>The UI can close</h3>
+        <p>The server, scheduler, and fleet keep running after the window closes.</p>
+      </div>
+      <div class="iface-node">
+        <span class="box-label">POLICY</span>
+        <h3>The policy travels</h3>
+        <p>The same mode and tool policy apply to every caller, whichever interface starts the work.</p>
+      </div>
     </div>
-
-    <ul class="iface-facts">
-      <li><strong>It configures itself</strong> In write mode, the assistant creates roles, teams, and skills through the catalog. The caller can do the same.</li>
-      <li><strong>The UI can close</strong> <code>polyglav serve</code>, <code>polyglav jobs daemon</code>, and <code>polyglav fleet up --detach</code> keep running.</li>
-      <li><strong>The policy travels</strong> The same mode and tool policy apply to every caller, over the CLI, HTTP API, or MCP.</li>
-    </ul>
-
-    <p class="iface-note"><code>POST /chat</code> or <code>polyglav run</code> for a full turn, MCP for tools and sessions, and the CLI for jobs and fleet.</p>
   </div>
 </section>
 
@@ -622,8 +625,8 @@ polyglav</code>
     <h2>Start at one prompt.<br>Let it work.</h2>
     <p>Point it at your project and describe what you want finished. Then schedule it, serve it, or put it in a fleet.</p>
     <div class="cta-actions">
-      <a class="btn" href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>View on GitHub</a>
-      <a class="btn btn-ghost" href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Read the docs</a>
+      <a class="btn" href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener">View on GitHub</a>
+      <a class="btn btn-ghost" href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener">Read the docs</a>
     </div>
   </div>
 </section>
@@ -643,11 +646,11 @@ polyglav</code>
         <p>One agent, many heads. Built to run unattended. Logs, keys, and config stay local.</p>
       </div>
       <nav class="foot-links" aria-label="Footer">
-        <a href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>GitHub</a>
-        <a href="https://pypi.org/project/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>PyPI</a>
-        <a href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Docs</a>
-        <a href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>Install guide</a>
-        <a href="https://github.com/polyglav/polyglav/blob/main/LICENSE" target="_blank" rel="noopener"><svg class="ext-icon" aria-hidden="true" focusable="false"><use href="#icon-external"></use></svg>MIT License</a>
+        <a href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://pypi.org/project/polyglav/" target="_blank" rel="noopener">PyPI</a>
+        <a href="https://polyglav.github.io/polyglav/" target="_blank" rel="noopener">Docs</a>
+        <a href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md" target="_blank" rel="noopener">Install guide</a>
+        <a href="https://github.com/polyglav/polyglav/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
       </nav>
     </div>
     <div class="foot-note">
