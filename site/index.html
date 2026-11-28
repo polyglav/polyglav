@@ -5,22 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Polyglav - one agent, many heads</title>
 <meta name="description" content="Polyglav is a terminal-native, headless AI agent that splits an outcome across specialist agents and runs unattended on your server. Zero dependencies, local-first, permission controlled.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Polyglav - one agent, many heads">
+<meta property="og:description" content="A terminal-native, headless agent that splits an outcome across specialist agents and runs unattended on your server. Zero dependencies, local-first, permission controlled.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Polyglav - one agent, many heads">
+<meta name="twitter:description" content="A terminal-native, headless agent that splits an outcome across specialist agents and runs unattended on your server. Zero dependencies, local-first, permission controlled.">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
 :root{
   --paper:#ffffff;
   --ink:#0b0b0c;
-  --ink-2:#2b2b2e;
   --muted:#6c6c72;
   --faint:#9c9ca2;
   --line:#e5e5e2;
   --line-2:#d3d3cf;
   --wash:#f6f6f4;
   --term:#0b0b0c;
-  --term-2:#141416;
-  --term-line:#2c2c30;
-  --term-text:#e8e8e6;
-  --term-muted:#8e8e94;
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
   --max:1120px;
@@ -48,6 +49,10 @@ ul{padding:0;list-style:none}
 code,pre{font-family:var(--mono)}
 :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 32px;min-width:0}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 .skip{
   position:absolute;left:16px;top:-48px;z-index:100;
   background:var(--ink);color:var(--paper);
@@ -73,22 +78,42 @@ code,pre{font-family:var(--mono)}
 .wordmark{font-weight:600;letter-spacing:-.02em;font-size:16px}
 .nav{display:flex;align-items:center;gap:26px;margin-left:auto}
 .nav a{
-  font-size:13.5px;color:var(--muted);
+  font-size:14px;color:var(--muted);
   transition:color .16s ease;
 }
 .nav a:hover{color:var(--ink)}
 .head-actions{display:flex;align-items:center;gap:12px;margin-left:0;flex:none}
-[data-component="github-link"]{
+.nav-mobile{display:none;position:relative}
+.nav-mobile summary{
+  list-style:none;cursor:pointer;
+  padding:8px 0;font-size:14px;color:var(--muted);
+  transition:color .16s ease;
+}
+.nav-mobile summary::-webkit-details-marker{display:none}
+.nav-mobile summary::after{
+  content:"";display:inline-block;width:5px;height:5px;margin-left:7px;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg) translateY(-2px);
+}
+.nav-mobile summary:hover,.nav-mobile[open] summary{color:var(--ink)}
+.nav-mobile-panel{
+  position:absolute;right:0;top:calc(100% + 10px);z-index:60;
+  min-width:210px;padding:8px 0;
+  border:1px solid var(--line-2);background:var(--paper);
+}
+.nav-mobile-panel a{display:block;padding:10px 16px;font-size:14px;color:var(--muted)}
+.nav-mobile-panel a:hover{background:var(--wash);color:var(--ink)}
+.github-link{
   display:inline-flex;align-items:center;justify-content:center;
   width:34px;height:34px;color:var(--muted);
   transition:color .16s ease,background .16s ease;
 }
-[data-component="github-link"]:hover{color:var(--ink);background:var(--wash)}
+.github-link:hover{color:var(--ink);background:var(--wash)}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   height:38px;padding:0 16px;
   border:1px solid var(--ink);background:var(--ink);color:var(--paper);
-  font-size:13.5px;font-weight:500;line-height:1;
+  font-size:14px;font-weight:500;line-height:1;
   transition:background .16s ease,color .16s ease;
 }
 .btn:hover{background:var(--paper);color:var(--ink)}
@@ -118,7 +143,7 @@ code,pre{font-family:var(--mono)}
 .hero-sub strong{color:var(--ink);font-weight:500}
 .hero-meta{
   display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;
-  margin-top:32px;font:500 11.5px/1 var(--mono);color:var(--muted);
+  margin-top:32px;font:500 11px/1 var(--mono);color:var(--muted);
 }
 .hero-meta li{display:flex;align-items:center;gap:8px}
 .hero-meta li + li::before{content:"";width:1px;height:11px;background:var(--line-2)}
@@ -145,7 +170,7 @@ code,pre{font-family:var(--mono)}
   height:100%;padding:0 12px;margin-bottom:-1px;
   border:0;border-bottom:2px solid transparent;
   background:transparent;color:var(--muted);
-  font:400 12px/1 var(--mono);white-space:nowrap;
+  font:400 12.5px/1 var(--mono);white-space:nowrap;
   transition:color .15s ease,border-color .15s ease;
 }
 .install-tab:first-child{padding-left:16px}
@@ -161,15 +186,20 @@ code,pre{font-family:var(--mono)}
   flex:none;display:inline-flex;align-items:center;justify-content:center;
   padding:0 14px;border:0;border-left:1px solid var(--line);
   background:var(--wash);color:var(--muted);
-  font:400 12px/1 var(--mono);
+  font:400 12.5px/1 var(--mono);
   transition:background .16s ease,color .16s ease;
 }
-.copy-btn:hover:not(:disabled){background:var(--ink);color:var(--paper)}
-.copy-btn:disabled{color:var(--faint);cursor:not-allowed}
-.install-note{
-  margin-top:10px;
-  font-size:12.5px;color:var(--muted);
+.copy-btn:hover{background:var(--ink);color:var(--paper)}
+.install-foot{
+  display:flex;flex-wrap:wrap;align-items:baseline;
+  gap:6px 16px;margin-top:10px;
 }
+.install-note{font-size:12.5px;color:var(--muted)}
+.install-more{
+  font-size:12.5px;color:var(--muted);
+  border-bottom:1px solid var(--line-2);padding-bottom:1px;
+}
+.install-more:hover{color:var(--ink);border-color:var(--ink)}
 
 /* section shell */
 .sec{padding:80px 0;border-bottom:1px solid var(--line)}
@@ -182,9 +212,7 @@ code,pre{font-family:var(--mono)}
   font-size:clamp(1.7rem,3.2vw,2.5rem);
   line-height:1.06;letter-spacing:-.035em;font-weight:600;max-width:22ch;
 }
-.sec-head p{max-width:56ch;color:var(--muted);font-size:15px}
-.link-arrow{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;border-bottom:1px solid var(--ink);padding-bottom:2px}
-.link-arrow::after{content:"";width:5px;height:5px;border-top:1.5px solid var(--ink);border-right:1.5px solid var(--ink);transform:rotate(45deg);margin-bottom:1px}
+.sec-head p{max-width:56ch;color:var(--muted);font-size:14px}
 
 /* use cases */
 .usecases{display:grid;grid-template-columns:300px minmax(0,1fr);gap:40px;align-items:start}
@@ -198,14 +226,15 @@ code,pre{font-family:var(--mono)}
   transition:background .16s ease,color .16s ease;
 }
 .scene-btn:hover{background:var(--wash);color:var(--ink)}
-.scene-btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.scene-btn .n{font:500 10.5px/1 var(--mono);letter-spacing:.08em;color:var(--faint)}
-.scene-btn[aria-pressed="true"] .n{color:#9a9aa0}
+.scene-btn[aria-pressed="true"]{background:var(--wash);color:var(--ink);box-shadow:inset 2px 0 0 var(--ink)}
+.scene-btn .n{font:500 11px/1 var(--mono);letter-spacing:.08em;color:var(--faint)}
+.scene-btn[aria-pressed="true"] .n{color:var(--muted)}
 .scene-desc{
   margin-top:18px;padding-left:10px;
-  font-size:13px;line-height:1.6;color:var(--muted);
+  font-size:12.5px;line-height:1.6;color:var(--muted);
   border-left:1px solid var(--line-2);
 }
+.scene-note{margin-top:12px;font-size:12.5px;line-height:1.6;color:var(--muted)}
 /* terminal window */
 .stage{min-width:0}
 .term{
@@ -218,6 +247,7 @@ code,pre{font-family:var(--mono)}
   overflow:hidden;
   min-width:0;
 }
+.term ::selection{background:#3a3a40;color:#fff}
 .term-bar{
   position:relative;display:flex;align-items:center;
   height:40px;padding:0 14px;
@@ -245,34 +275,28 @@ code,pre{font-family:var(--mono)}
 .term-progress span{display:block;height:100%;width:0;background:#8f8f97;transition:width .4s ease}
 .tl{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:start;opacity:0;transform:translateY(3px);transition:opacity .22s ease,transform .22s ease}
 .tl-mark{color:inherit;white-space:nowrap}
-.tl-title,.tl-help,.tl-mode,.tl-out,.tl-prose,.tl-json{grid-template-columns:1fr}
+.tl-title,.tl-help,.tl-mode,.tl-out,.tl-prose{grid-template-columns:1fr}
 .tl-title{color:#eeeeec}
 .tl-title strong{font-weight:600;color:#fff}
 .tl-title .path{color:#8f8f97}
 .tl-help{color:#7c7c84;font-style:italic}
 .tl-mode{color:#8f8f97}
-.tl-thought,.tl-worked,.tl-approved,.tl-done,.tl-read,.tl-write,.tl-tool,.tl-fetch,.tl-plan,.tl-todo{color:#8f8f97}
+.tl-thought,.tl-worked,.tl-approved,.tl-done,.tl-write,.tl-plan,.tl-todo{color:#8f8f97}
 .tl-call{color:#6f9bff}
 .tl-run{color:#5fd75f}
-.tl-slash{color:#ff5fff}
 .tl-ask{color:#ff8700}
 .tl-out{color:#a7a7ae}
-.tl-prose,.tl-json{color:#eeeeec}
-.tl-cmd{color:#eeeeec}
-.tl-cmd .tl-mark{color:#5fd75f}
+.tl-prose{color:#eeeeec}
 .tl-prompt{grid-template-columns:18px minmax(0,1fr);opacity:1;transform:none}
 .tl-title,.tl-help,.tl-mode{opacity:1;transform:none}
 .tl-prompt .tl-text{overflow-wrap:anywhere;color:#00afaf;white-space:pre-wrap;overflow-wrap:anywhere}
 .term.is-write .tl-prompt .tl-text{overflow-wrap:anywhere;color:#ff8700}
-.term.is-shell .tl-prompt .tl-text{overflow-wrap:anywhere;color:#eeeeec}
-.term.is-shell .tl-prompt .tl-mark{color:#5fd75f}
-.term.is-slash .tl-prompt .tl-text,.term.is-slash .tl-prompt .tl-mark{color:#ff5fff}
 .caret{display:inline-block;width:7px;height:14px;background:currentColor;vertical-align:-1px;margin-left:1px;animation:blink 1.05s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 
 /* how */
 .how{
-  display:grid;grid-template-columns:repeat(5,1fr);
+  display:grid;grid-template-columns:repeat(4,1fr);
   margin:0;padding:0;list-style:none;
   border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
@@ -280,91 +304,61 @@ code,pre{font-family:var(--mono)}
   padding:26px 24px 30px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line);
 }
-.how .n{font:500 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
+.how .n{font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
 .how h3{margin-top:18px;font-size:16px;font-weight:600;letter-spacing:-.015em}
-.how p{margin-top:9px;font-size:13.5px;line-height:1.62;color:var(--muted)}
+.how p{margin-top:9px;font-size:14px;line-height:1.62;color:var(--muted)}
 
-/* unattended */
-.operate{display:grid;gap:18px;max-width:780px}
-.operate-list{display:grid;gap:12px}
-.operate-list li{
-  display:grid;grid-template-columns:140px minmax(0,1fr);gap:14px;
-  padding-top:12px;border-top:1px solid var(--line);
-  font-size:13.5px;line-height:1.55;color:var(--muted);
-}
-.operate-list strong{color:var(--ink);font-weight:500}
-.operate-list code{font-size:12.5px;color:var(--ink)}
-.operate-note{font-size:12.5px;line-height:1.6;color:var(--muted)}
-
-/* interfaces */
+/* run it anywhere */
 .iface-flow{
   display:grid;align-items:stretch;
-  grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
 .iface-node{
   min-width:0;padding:22px 20px;
-  border:1px solid var(--line);background:var(--paper);
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--paper);
 }
-.iface-kicker{font:500 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
-.iface-node h3{margin-top:14px;font-size:15px;font-weight:600;letter-spacing:-.015em}
-.iface-node p{margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted)}
-.iface-arrow{display:grid;place-items:center;color:var(--faint);font:400 15px/1 var(--mono)}
-.iface-detail{
+.iface-kicker{font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
+.iface-node h3{margin-top:14px;font-size:16px;font-weight:600;letter-spacing:-.015em}
+.iface-node p{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.iface-facts{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   margin-top:26px;border-top:1px solid var(--line);border-left:1px solid var(--line);
 }
-.iface-detail article{
+.iface-facts li{
   min-width:0;padding:22px 20px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-size:12.5px;line-height:1.6;color:var(--muted);
 }
-.iface-detail h3{font-size:15px;font-weight:600;letter-spacing:-.015em}
-.iface-detail p{margin-top:8px;font-size:13px;line-height:1.62;color:var(--muted)}
+.iface-facts strong{display:block;margin-bottom:4px;color:var(--ink);font-weight:500}
 .iface-note{margin-top:16px;font-size:12.5px;line-height:1.6;color:var(--muted);text-wrap:balance}
 
 /* features */
-.features{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.features{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .feature{
-  padding:26px 24px 30px;
+  padding:24px 20px 26px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line);
   transition:background .18s ease;
 }
 .feature:hover{background:var(--wash)}
-.feature .n{font:500 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--faint)}
-.feature h3{margin-top:18px;font-size:16px;font-weight:600;letter-spacing:-.015em}
-.feature p{margin-top:9px;font-size:13.5px;line-height:1.62;color:var(--muted)}
-
-/* providers */
-#providers{background:var(--wash)}
-.providers{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
-.chip{
-  position:relative;cursor:help;
-  display:inline-flex;align-items:center;height:34px;padding:0 13px;
-  border:1px solid var(--line);border-radius:6px;background:var(--paper);
-  font:500 12px/1 var(--mono);color:var(--ink-2);
-  transition:border-color .16s ease,background .16s ease;
+.feature h3{font-size:16px;font-weight:600;letter-spacing:-.015em}
+.feature p{margin-top:9px;font-size:14px;line-height:1.62;color:var(--muted)}
+.works-with{
+  margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  font-size:12.5px;line-height:1.6;color:var(--muted);
 }
-.chip:hover,.chip:focus{border-color:var(--ink);background:var(--wash)}
-.chip-pop{
-  position:absolute;left:0;top:calc(100% + 8px);z-index:20;
-  width:max-content;max-width:min(260px,calc(100vw - 40px));padding:9px 11px;
-  border:1px solid var(--ink);background:var(--paper);color:var(--ink);
-  font:400 12px/1.5 var(--sans);letter-spacing:0;
-  box-shadow:4px 4px 0 var(--line-2);
-  opacity:0;visibility:hidden;transform:translateY(-2px);
-  transition:opacity .14s ease,transform .14s ease,visibility .14s;
-  pointer-events:none;
-}
-.chip:hover .chip-pop,.chip:focus .chip-pop{
-  opacity:1;visibility:visible;transform:translateY(0);
-}
-.provider-note{margin-top:18px;font-size:13px;color:var(--muted);max-width:60ch;text-wrap:balance}
-.provider-note code{white-space:nowrap}
+.works-with strong{color:var(--ink);font-weight:500}
+.works-with a{border-bottom:1px solid var(--line-2)}
+.works-with a:hover{color:var(--ink);border-color:var(--ink)}
 
 /* cta */
 .cta{background:var(--ink);color:var(--paper);padding:76px 0}
 .cta-in{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
 .cta h2{font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.04;letter-spacing:-.04em;font-weight:600;max-width:18ch}
-.cta p{margin-top:16px;color:#a8a8ae;font-size:14.5px;max-width:44ch}
+.cta p{margin-top:16px;color:#a8a8ae;font-size:14px;max-width:44ch}
+.cta :focus-visible{outline-color:var(--paper)}
+.cta ::selection{background:var(--paper);color:var(--ink)}
 .cta-cmd{
   display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;
   border:1px solid #34343a;background:#141416;
@@ -386,51 +380,41 @@ code,pre{font-family:var(--mono)}
 .foot-links{display:flex;flex-wrap:wrap;gap:10px 24px}
 .foot-links a{font-size:12.5px;color:var(--muted)}
 .foot-links a:hover{color:var(--ink)}
-.foot-note{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font:400 11.5px/1.6 var(--mono);color:var(--faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot-note{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font:400 11px/1.6 var(--mono);color:var(--faint);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 /* responsive */
 @media (max-width:980px){
   .usecases{grid-template-columns:1fr;gap:28px}
-  .scenes{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--line);border-top:1px solid var(--line)}
+  .scenes{display:grid;grid-template-columns:repeat(2,1fr);border-left:1px solid var(--line);border-top:1px solid var(--line)}
   .scene-btn{border-right:1px solid var(--line);padding:13px 12px}
-  .scene-btn:nth-child(3n){border-right:0}
-  .scene-btn:nth-child(n+4){border-bottom:0}
-  .scene-desc{margin-top:0;grid-column:1/-1}
+  .scene-btn:nth-child(2n){border-right:0}
+  .scene-btn:nth-child(n+3){border-bottom:0}
+  .scene-desc{margin-top:16px}
   .how{grid-template-columns:repeat(2,1fr)}
-  .how li:last-child{grid-column:1/-1}
   .features{grid-template-columns:repeat(2,1fr)}
   .cta-in{grid-template-columns:1fr;gap:32px}
 }
 @media (max-width:900px){
   .nav{display:none}
+  .nav-mobile{display:block}
   .head-actions{margin-left:auto}
 }
 @media (max-width:760px){
   .wrap{padding:0 20px}
-  .nav{display:none}
-  .head-actions{margin-left:auto}
   .hero{padding:60px 0 54px}
   .hero h1{max-width:12ch}
   .sec{padding:60px 0}
   .term-body{height:380px;font-size:12px;padding:16px}
   .features{grid-template-columns:1fr}
-  .feature{border-right:1px solid var(--line)}
   .how{grid-template-columns:1fr}
-  .how li{border-right:1px solid var(--line)}
-  .scenes{grid-template-columns:repeat(2,1fr)}
-  .scene-btn:nth-child(3n){border-right:1px solid var(--line)}
-  .scene-btn:nth-child(2n){border-right:0}
-  .scene-btn:nth-child(n+3){border-bottom:0}
-  .iface-flow{grid-template-columns:1fr;gap:8px}
-  .iface-arrow{transform:rotate(90deg);padding:2px 0}
-  .iface-detail{grid-template-columns:1fr}
+  .iface-flow{grid-template-columns:1fr}
+  .iface-facts{grid-template-columns:1fr}
   .cta{padding:56px 0}
 }
 @media (max-width:440px){
   .install-tab{padding:0 10px}
   .install-tab:first-child{padding-left:14px}
   .copy-btn{padding:0 10px}
-  .operate-list li{grid-template-columns:1fr;gap:4px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -451,16 +435,25 @@ code,pre{font-family:var(--mono)}
     </a>
 
     <nav class="nav" aria-label="Primary">
+      <a href="#why">Why Polyglav</a>
       <a href="#use-cases">Use cases</a>
       <a href="#how">How it works</a>
-      <a href="#unattended">Unattended</a>
-      <a href="#interfaces">Interfaces</a>
-      <a href="#features">Features</a>
+      <a href="#run-anywhere">Run it anywhere</a>
       <a href="https://polyglav.github.io/polyglav/">Docs</a>
     </nav>
 
     <div class="head-actions">
-      <a href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener" data-component="github-link" data-owner="corner" aria-label="Polyglav on GitHub"><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
+      <details class="nav-mobile">
+        <summary>Sections</summary>
+        <nav class="nav-mobile-panel" aria-label="Sections">
+          <a href="#why">Why Polyglav</a>
+          <a href="#use-cases">Use cases</a>
+          <a href="#how">How it works</a>
+          <a href="#run-anywhere">Run it anywhere</a>
+          <a href="https://polyglav.github.io/polyglav/">Docs</a>
+        </nav>
+      </details>
+      <a class="github-link" href="https://github.com/polyglav/polyglav" target="_blank" rel="noopener" aria-label="Polyglav on GitHub"><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg></a>
     </div>
   </div>
 </header>
@@ -484,11 +477,8 @@ code,pre{font-family:var(--mono)}
       <div class="install">
         <div class="install-head">
           <div class="install-tabs" role="tablist" aria-label="Install method">
-            <button class="install-tab" type="button" role="tab" id="tab-curl" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="curl">curl</button>
-            <button class="install-tab" type="button" role="tab" id="tab-docker" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="docker">docker</button>
             <button class="install-tab" type="button" role="tab" id="tab-pip" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="pip">pip</button>
             <button class="install-tab" type="button" role="tab" id="tab-pipx" aria-controls="install-panel" aria-selected="true" tabindex="0" data-key="pipx">pipx</button>
-            <button class="install-tab" type="button" role="tab" id="tab-source" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="source">source</button>
             <button class="install-tab" type="button" role="tab" id="tab-uv" aria-controls="install-panel" aria-selected="false" tabindex="-1" data-key="uv">uv</button>
           </div>
           <button class="copy-btn" id="copy" type="button">Copy</button>
@@ -498,51 +488,83 @@ code,pre{font-family:var(--mono)}
 polyglav</code>
         </div>
       </div>
-      <p class="install-note" id="note">Python 3.11 or newer. Installs into an isolated environment.</p>
+      <div class="install-foot">
+        <p class="install-note" id="note">Python 3.11 or newer. Installs into an isolated environment.</p>
+        <a class="install-more" href="https://github.com/polyglav/polyglav/blob/main/INSTALL.md">All install methods</a>
+      </div>
     </div>
 
     <ul class="hero-meta">
       <li>Headless</li>
       <li>Local-first</li>
       <li>MIT licensed</li>
-      <li>Python 3.11+</li>
       <li>Zero dependencies</li>
     </ul>
+  </div>
+</section>
+
+<section class="sec" id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01 / WHY POLYGLAV</span>
+      <h2>Built to be boring where it matters.</h2>
+      <p>No browser, no account, no dependency tree. A small core you can read, with every action on the record.</p>
+    </div>
+
+    <div class="features">
+      <article class="feature">
+        <h3>Compose a team</h3>
+        <p>Ask for an outcome. Polyglav splits it across specialist roles, runs them in order, and loops a producer against a reviewer when the work needs it.</p>
+      </article>
+      <article class="feature">
+        <h3>Unattended by design</h3>
+        <p>Put it on a server with a schedule, or run it as a fleet. Results land in append-only logs and optional webhook reports.</p>
+      </article>
+      <article class="feature">
+        <h3>Safe by default</h3>
+        <p>Allow, ask, or deny by tool and category. File access outside the project is scoped, and every action lands in the session log.</p>
+      </article>
+      <article class="feature">
+        <h3>Zero dependencies</h3>
+        <p>Pure Python standard library, no supply chain, and local-first. Keys, sessions, roles, and config stay on disk as text, with any provider you choose.</p>
+      </article>
+    </div>
+
+    <p class="works-with"><strong>Works with</strong> Anthropic, OpenAI, Groq, Ollama, OpenCode, and any OpenAI-compatible cloud or local endpoint. <a href="https://polyglav.github.io/polyglav/reference/providers/">Providers</a></p>
   </div>
 </section>
 
 <section class="sec" id="use-cases">
   <div class="wrap">
     <div class="sec-head">
-      <span class="sec-num">01 / USE CASES</span>
+      <span class="sec-num">02 / USE CASES</span>
       <h2>The same prompt, pointed at real work.</h2>
       <p>Pick a scenario. It plays a condensed session: a prompt or command, the specialists it brings in, the tools it runs, and the result it hands back.</p>
     </div>
 
     <div class="usecases">
       <div>
-        <div class="scenes" aria-label="Use cases">
+        <div class="scenes" role="group" aria-label="Use cases">
           <button class="scene-btn" type="button" aria-pressed="true" data-scene="0"><span class="n" aria-hidden="true">01</span><span>Ship a change</span></button>
           <button class="scene-btn" type="button" aria-pressed="false" data-scene="1"><span class="n" aria-hidden="true">02</span><span>Plan a long run</span></button>
           <button class="scene-btn" type="button" aria-pressed="false" data-scene="2"><span class="n" aria-hidden="true">03</span><span>Leave it running</span></button>
-          <button class="scene-btn" type="button" aria-pressed="false" data-scene="3"><span class="n" aria-hidden="true">04</span><span>Research and write</span></button>
-          <button class="scene-btn" type="button" aria-pressed="false" data-scene="4"><span class="n" aria-hidden="true">05</span><span>Run many agents</span></button>
-          <button class="scene-btn" type="button" aria-pressed="false" data-scene="5"><span class="n" aria-hidden="true">06</span><span>Automate with the API</span></button>
+          <button class="scene-btn" type="button" aria-pressed="false" data-scene="3"><span class="n" aria-hidden="true">04</span><span>Run many agents</span></button>
         </div>
         <p class="scene-desc" id="sceneDesc">A planner, a programmer and a reviewer take one feature from request to green tests.</p>
       </div>
 
       <div class="stage" id="stage">
-        <div class="term is-read">
+        <div class="term is-write">
           <div class="term-bar">
             <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="term-title" id="termTitle">~/project</span>
-            <span class="term-tag" id="sceneTag">01 / 06</span>
+            <span class="term-tag" id="sceneTag">01 / 04</span>
           </div>
           <div class="term-body" id="termBody" aria-hidden="true"></div>
           <div class="term-progress" aria-hidden="true"><span id="progress"></span></div>
         </div>
-        <noscript><p class="provider-note">Enable JavaScript to watch the session play. The written use cases are in the documentation.</p></noscript>
+        <p class="sr-only" id="termSummary"></p>
+        <noscript><p class="scene-note">Enable JavaScript to watch the session play. The written use cases are in the documentation.</p></noscript>
       </div>
     </div>
   </div>
@@ -551,7 +573,7 @@ polyglav</code>
 <section class="sec" id="how">
   <div class="wrap">
     <div class="sec-head">
-      <span class="sec-num">02 / HOW IT WORKS</span>
+      <span class="sec-num">03 / HOW IT WORKS</span>
       <h2>Ask once. It does the handoffs.</h2>
       <p>One loop, one stream, one prompt. Specialists run one after another in the same process, each with its own context and permissions.</p>
     </div>
@@ -577,40 +599,16 @@ polyglav</code>
         <h3>Continue</h3>
         <p>Every result feeds the next specialist, without switching windows.</p>
       </li>
-      <li>
-        <span class="n" aria-hidden="true">05</span>
-        <h3>Operate</h3>
-        <p>Give it a project, a boundary, and a schedule. Check <code>/status</code>, the log, or a webhook report when you come back.</p>
-      </li>
     </ol>
   </div>
 </section>
 
-<section class="sec" id="unattended">
+<section class="sec" id="run-anywhere">
   <div class="wrap">
     <div class="sec-head">
-      <span class="sec-num">03 / UNATTENDED</span>
-      <h2>Set it once. Let it work.</h2>
-      <p>Polyglav does not ask you to sit in a chat window or watch a dashboard. It is a worker you point at a job. Give it a project, a permission boundary, and a schedule, put it on a server, and let it work. No dashboard to check and no chat window to keep open.</p>
-    </div>
-
-    <div class="operate">
-      <ul class="operate-list">
-        <li><strong>Configure once</strong><span>Provider, model, mode, and permissions in <code>.polyglav/</code>.</span></li>
-        <li><strong>Schedule once</strong><span>Give it a cron, interval, or one-shot job, then approve it.</span></li>
-        <li><strong>Leave it</strong><span>Start the scheduler, the HTTP API, or a fleet, and let it run.</span></li>
-      </ul>
-      <p class="operate-note">Check in when you want: job status, the health endpoint, the append-only session log, or a webhook report. The report hook is a plugin surface, so email, Telegram, or Signal delivery can be added without changing the core.</p>
-    </div>
-  </div>
-</section>
-
-<section class="sec" id="interfaces">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num">04 / INTERFACES</span>
+      <span class="sec-num">04 / RUN IT ANYWHERE</span>
       <h2>The UI is optional.</h2>
-      <p>Polyglav is the worker, not the window. Put a terminal, an IDE, a web UI, or another agent in front. The interface can change. The work stays here.</p>
+      <p>Polyglav is the worker, not the window. Give it a project, a permission boundary, and a schedule, and it keeps working after the window closes.</p>
     </div>
 
     <div class="iface-flow">
@@ -619,13 +617,11 @@ polyglav</code>
         <h3>Terminal, IDE, web UI, or another agent</h3>
         <p>Use the REPL, a script, an editor, or a UI built by someone else.</p>
       </div>
-      <div class="iface-arrow" aria-hidden="true">-&gt;</div>
       <div class="iface-node">
         <span class="iface-kicker">THE CONTRACT</span>
         <h3>CLI, HTTP API, MCP</h3>
         <p>Full turns, direct tools, sessions, and control.</p>
       </div>
-      <div class="iface-arrow" aria-hidden="true">-&gt;</div>
       <div class="iface-node">
         <span class="iface-kicker">THE WORKER</span>
         <h3>Polyglav</h3>
@@ -633,85 +629,13 @@ polyglav</code>
       </div>
     </div>
 
-    <div class="iface-detail">
-      <article>
-        <h3>It configures itself</h3>
-        <p>In write mode, the assistant uses the <code>catalog</code> tool to create roles, teams, and skills, validate them, and reload the catalog. The next call can use them.</p>
-      </article>
-      <article>
-        <h3>Or the caller does</h3>
-        <p>In write mode, an MCP client can call <code>catalog</code> to define the team and <code>call</code> to run it. Over HTTP, send a prompt to <code>POST /chat</code>. Over the CLI, use <code>polyglav run</code>. The catalog is plain text under <code>.polyglav/</code>, so it can also be edited directly.</p>
-      </article>
-      <article>
-        <h3>The UI can close</h3>
-        <p><code>polyglav serve</code>, <code>polyglav jobs daemon</code>, and <code>polyglav fleet up --detach</code> keep running. Results land in logs, <code>/jobs status</code>, <code>GET /health</code>, or a webhook report.</p>
-      </article>
-    </div>
-    <p class="iface-note">The contract: <code>POST /chat</code> or <code>polyglav run</code> for a full turn, MCP for tools and sessions, and the CLI for jobs and fleet. The same mode and tool policy apply to every caller. The catalog covers agents. Providers and modes are separate config.</p>
-  </div>
-</section>
-
-<section class="sec" id="features">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num">05 / WHY POLYGLAV</span>
-      <h2>Built to be boring where it matters.</h2>
-      <p>No browser, no account, no dependency tree. A small core you can read, with every action on the record.</p>
-    </div>
-
-    <div class="features">
-      <article class="feature">
-        <span class="n" aria-hidden="true">01</span>
-        <h3>One agent, many heads</h3>
-        <p>Ask for an outcome. Polyglav splits it across specialist roles, runs them in order, and loops a producer against a reviewer when the work needs it. Roles and skills stay reusable, and plugins extend the core.</p>
-      </article>
-      <article class="feature">
-        <span class="n" aria-hidden="true">02</span>
-        <h3>Unattended by design</h3>
-        <p>Use it in the terminal when you want. Put it on a server and let it work. Headless CLI, HTTP API, jobs, and fleet keep running without a dashboard.</p>
-      </article>
-      <article class="feature">
-        <span class="n" aria-hidden="true">03</span>
-        <h3>The UI is optional</h3>
-        <p>The REPL, CLI, and HTTP API run the same loop. MCP exposes its tools and sessions to another agent. Put a terminal, an IDE, a web UI, or another agent in front.</p>
-      </article>
-      <article class="feature">
-        <span class="n" aria-hidden="true">04</span>
-        <h3>Safe by default</h3>
-        <p>Allow, ask, or deny by tool and category. File access outside the project asks first, a non-loopback API bind needs a token, and every action lands in the session log. The agent can ask you a question mid-run.</p>
-      </article>
-      <article class="feature">
-        <span class="n" aria-hidden="true">05</span>
-        <h3>Zero dependencies</h3>
-        <p>Pure Python standard library. No supply chain, no lockfile churn. The code that runs is the code in the repository.</p>
-      </article>
-      <article class="feature">
-        <span class="n" aria-hidden="true">06</span>
-        <h3>Your machine, your config</h3>
-        <p>Keys, sessions, roles, teams, skills, permissions, plans, todos, and bounded memory stay on disk as text. Bring your own provider or run local.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="sec" id="providers">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num">06 / PROVIDERS</span>
-      <h2>Any model, any endpoint.</h2>
-      <p>Point Polyglav at an endpoint and it detects the provider. Keys stay on your machine, never in the page, never in a session log.</p>
-    </div>
-    <ul class="providers">
-      <li class="chip" tabindex="0" aria-describedby="prov-anthropic">Anthropic<span class="chip-pop" id="prov-anthropic" role="tooltip">Claude models through the Anthropic API.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-cloud">Cloud<span class="chip-pop" id="prov-cloud" role="tooltip">Any OpenAI-compatible cloud endpoint, gateway, or custom base URL.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-groq">Groq<span class="chip-pop" id="prov-groq" role="tooltip">Hosted open models on Groq.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-local">Local<span class="chip-pop" id="prov-local" role="tooltip">Ollama, LM Studio, or any OpenAI-compatible localhost server.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-ollama">Ollama<span class="chip-pop" id="prov-ollama" role="tooltip">Local daemon or Ollama Cloud.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-openai">OpenAI<span class="chip-pop" id="prov-openai" role="tooltip">OpenAI models through the OpenAI API.</span></li>
-      <li class="chip" tabindex="0" aria-describedby="prov-opencode">OpenCode<span class="chip-pop" id="prov-opencode" role="tooltip">OpenCode Zen and OpenCode Go.</span></li>
+    <ul class="iface-facts">
+      <li><strong>It configures itself</strong> In write mode, the assistant creates roles, teams, and skills through the catalog. The caller can do the same.</li>
+      <li><strong>The UI can close</strong> <code>polyglav serve</code>, <code>polyglav jobs daemon</code>, and <code>polyglav fleet up --detach</code> keep running.</li>
+      <li><strong>The policy travels</strong> The same mode and tool policy apply to every caller, over the CLI, HTTP API, or MCP.</li>
     </ul>
-    <p class="provider-note">Hover a provider for details. Cloud covers any OpenAI-compatible endpoint. Local covers Ollama, LM Studio, and other localhost servers.</p>
-    <p class="provider-note">Use <code>/model</code> to switch models. Use <code>/connect</code> to add an endpoint.</p>
+
+    <p class="iface-note"><code>POST /chat</code> or <code>polyglav run</code> for a full turn, MCP for tools and sessions, and the CLI for jobs and fleet.</p>
   </div>
 </section>
 
@@ -730,7 +654,6 @@ polyglav</code>
         <code id="ctaCmd">pipx install polyglav</code>
         <button class="copy-btn" id="ctaCopy" type="button" aria-live="polite">Copy</button>
       </div>
-      <p class="provider-note" style="margin-top:14px;color:#8e8e94">Then run <code style="color:#e8e8e6">polyglav</code>. First run walks you through provider, model, mode, and project setup. After that, it can run without you.</p>
     </div>
   </div>
 </section>
@@ -767,24 +690,12 @@ polyglav</code>
 <script>
 (function(){
   var installs = {
-    pipx: {cmd:'pipx install polyglav', next:'polyglav', note:'Python 3.11 or newer. Installs into an isolated environment.', disabled:false},
-    uv: {cmd:'uv tool install polyglav', next:'polyglav', note:'Python 3.11 or newer. Isolated tool install, no venv required.', disabled:false},
     pip: {cmd:[
       'python3 -m venv .venv',
       '.venv/bin/pip install polyglav'
-    ].join('\n'), next:'.venv/bin/polyglav', note:'Installs into a project virtual environment. Python 3.11 or newer.', disabled:false},
-    docker: {cmd:[
-      'git clone https://github.com/polyglav/polyglav \\',
-      '  && cd polyglav \\',
-      '  && docker build -t polyglav .'
-    ].join('\n'), next:'docker run --rm -p 127.0.0.1:8787:8787 -e POLYGLAV_TOKEN polyglav', note:'Builds the image; the run command serves the HTTP API on 127.0.0.1:8787. Set POLYGLAV_TOKEN first and mount a project folder for real use.', disabled:false},
-    source: {cmd:[
-      'git clone https://github.com/polyglav/polyglav \\',
-      '  && cd polyglav \\',
-      '  && python3 -m venv .venv \\',
-      '  && .venv/bin/pip install -e .'
-    ].join('\n'), next:'.venv/bin/polyglav', note:'Editable install for development. Python 3.11 or newer.', disabled:false},
-    curl: {cmd:'curl -fsSL https://raw.githubusercontent.com/polyglav/polyglav/refs/heads/main/install.sh | sh', next:'polyglav', note:'Installs with uv or pipx when available, otherwise pip.', disabled:false}
+    ].join('\n'), next:'.venv/bin/polyglav', note:'Installs into a project virtual environment. Python 3.11 or newer.'},
+    pipx: {cmd:'pipx install polyglav', next:'polyglav', note:'Python 3.11 or newer. Installs into an isolated environment.'},
+    uv: {cmd:'uv tool install polyglav', next:'polyglav', note:'Python 3.11 or newer. Isolated tool install, no venv required.'}
   };
 
   var MODEL = 'ollama/gpt-oss:20b';
@@ -833,29 +744,14 @@ polyglav</code>
       prompt:'Keep docs and changelog fresh every Tuesday at 09:00',
       lines:[
         {k:'thought', t:'Thought 2.1s'},
-        {k:'ask', t:'Shell polyglav jobs add docs-refresh --cron "0 9 * * 2" --prompt "refresh docs and changelog" --approval auto - approve? [Y/n]'},
+        {k:'ask', t:'Shell polyglav jobs add docs-refresh --cron "0 9 * * 2" --prompt "refresh docs and... - approve? [Y/n]'},
         {k:'approved', t:'approved'},
-        {k:'run', t:'Shell polyglav jobs add docs-refresh --cron "0 9 * * 2" --prompt "refresh docs and changelog" --approval auto (48 tokens)'},
+        {k:'run', t:'Shell polyglav jobs add docs-refresh --cron "0 9 * * 2" --prompt "refresh docs and... (48 tokens)'},
         {k:'out', t:'Added job: docs-refresh [approved]'},
         {k:'out', t:"  schedule: cron '0 9 * * 2'"},
         {k:'out', t:'  status:   approved - runs on schedule'},
         {k:'prose', t:'Runs every Tuesday at 09:00. Start the scheduler with polyglav jobs daemon.'},
         {k:'done', t:'Done 8.2s (2,914 tokens)'}
-      ]
-    },
-    {
-      title:'~/papers', mode:'write',
-      desc:'Point it at a folder of sources and ask for a summary with citations you can check.',
-      prompt:'Summarize papers/ with sources and write report.md',
-      lines:[
-        {k:'thought', t:'Thought 2.1s'},
-        {k:'tool', t:'List papers (21 tokens)'},
-        {k:'read', t:'Read papers/attention.md (12,840 tokens)'},
-        {k:'read', t:'Read papers/scaling.md (9,221 tokens)'},
-        {k:'fetch', t:'Fetch https://arxiv.org/abs/2401.00001 (1,204 tokens)'},
-        {k:'write', t:'Write report.md (20 tokens)'},
-        {k:'prose', t:'report.md written: 9 findings, 31 citations, 2 conflicts flagged.'},
-        {k:'done', t:'Done 34.9s (52,310 tokens)'}
       ]
     },
     {
@@ -875,27 +771,12 @@ polyglav</code>
         {k:'prose', t:'4 agents running. /status summarizes the fleet.'},
         {k:'done', t:'Done 6.4s (3,118 tokens)'}
       ]
-    },
-    {
-      title:'~/ci', mode:'write',
-      desc:'The same loop behind an HTTP API, so scripts, CI, and other programs can drive it.',
-      prompt:'Start the HTTP API for our CI',
-      lines:[
-        {k:'thought', t:'Thought 1.4s'},
-        {k:'ask', t:'Shell polyglav serve --token "$TOKEN" & - approve? [Y/n]'},
-        {k:'approved', t:'approved'},
-        {k:'run', t:'Shell polyglav serve --token "$TOKEN" & (38 tokens)'},
-        {k:'out', t:'[1] 48211'},
-        {k:'out', t:'polyglav serve (read mode, token) - http://127.0.0.1:8787 (POST /chat, POST /cancel, GET /sessions, GET /health, GET /version)'},
-        {k:'prose', t:'API is live. CI can POST /chat with the bearer token and read the same turn record as the CLI.'},
-        {k:'done', t:'Done 4.6s (1,208 tokens)'}
-      ]
     }
   ];
 
   var GLYPHS = {
-    thought:'✓', call:'↳', worked:'✓', read:'←', write:'→', tool:'*', fetch:'↓',
-    plan:'#', todo:'-', run:'$', ask:'?', approved:'✓', done:'✓', cmd:'$', slash:'/'
+    thought:'✓', call:'↳', worked:'✓', write:'→', plan:'#', todo:'-',
+    run:'$', ask:'?', approved:'✓', done:'✓'
   };
 
   var body = document.getElementById('termBody');
@@ -906,9 +787,9 @@ polyglav</code>
   var progress = document.getElementById('progress');
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.scene-btn'));
   var stage = document.getElementById('stage');
+  var summary = document.getElementById('termSummary');
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  var index = 0;
   var runId = 0;
   var hoverPaused = false;
   var visible = false;
@@ -952,17 +833,13 @@ polyglav</code>
     return frag;
   }
 
-  function promptGlyph(scene){
-    if (scene.slash){ return '/'; }
-    return scene.mode === 'shell' ? '$' : '>';
-  }
-
   function chrome(i){
     var scene = scenes[i];
-    termEl.className = 'term is-' + scene.mode + (scene.slash ? ' is-slash' : '');
+    termEl.className = 'term is-' + scene.mode;
     titleEl.textContent = scene.title;
     tag.textContent = (i < 9 ? '0' : '') + (i + 1) + ' / 0' + scenes.length;
     desc.textContent = scene.desc;
+    summary.textContent = scene.desc;
   }
 
   function staticScene(i){
@@ -970,8 +847,8 @@ polyglav</code>
     body.innerHTML = '';
     chrome(i);
     var scene = scenes[i];
-    if (scene.mode !== 'shell'){ body.appendChild(banner(scene)); }
-    body.appendChild(row('prompt', scene.prompt, promptGlyph(scene)));
+    body.appendChild(banner(scene));
+    body.appendChild(row('prompt', scene.prompt, '>'));
     scene.lines.forEach(function(l){
       var line = row(l.k, l.t);
       line.style.opacity = '1';
@@ -1005,12 +882,10 @@ polyglav</code>
     chrome(i);
     progress.style.width = '0%';
 
-    if (scene.mode !== 'shell'){
-      body.appendChild(banner(scene));
-      progress.style.width = '4%';
-    }
+    body.appendChild(banner(scene));
+    progress.style.width = '4%';
 
-    var prompt = row('prompt', '', promptGlyph(scene));
+    var prompt = row('prompt', '', '>');
     var typed = prompt.querySelector('.tl-text');
     var caret = document.createElement('span');
     caret.className = 'caret';
@@ -1048,7 +923,6 @@ polyglav</code>
   }
 
   function go(i){
-    index = i;
     tabs.forEach(function(tab, n){
       tab.setAttribute('aria-pressed', n === i ? 'true' : 'false');
     });
@@ -1066,6 +940,9 @@ polyglav</code>
   stage.addEventListener('mouseleave', function(){ hoverPaused = false; });
   stage.addEventListener('focusin', function(){ hoverPaused = true; });
   stage.addEventListener('focusout', function(){ hoverPaused = false; });
+  stage.addEventListener('pointerdown', function(){ hoverPaused = true; });
+  stage.addEventListener('pointerup', function(){ hoverPaused = false; });
+  stage.addEventListener('pointercancel', function(){ hoverPaused = false; });
 
   if (reduced){
     staticScene(0);
@@ -1099,7 +976,7 @@ polyglav</code>
   var ctaCmd = document.getElementById('ctaCmd');
   var ctaCopy = document.getElementById('ctaCopy');
 
-  function applyInstall(key){
+  function applyInstall(key, scroll){
     var item = installs[key];
     cmd.textContent = item.cmd + '\n' + item.next;
     note.textContent = item.note;
@@ -1107,15 +984,17 @@ polyglav</code>
       var on = tab.dataset.key === key;
       tab.setAttribute('aria-selected', on ? 'true' : 'false');
       tab.tabIndex = on ? 0 : -1;
-      if (on){ panel.setAttribute('aria-labelledby', tab.id); }
+      if (on){
+        panel.setAttribute('aria-labelledby', tab.id);
+        if (scroll){ tab.scrollIntoView({block: 'nearest', inline: 'nearest'}); }
+      }
     });
-    copyBtn.disabled = item.disabled;
-    copyBtn.textContent = item.disabled ? 'Soon' : 'Copy';
+    copyBtn.textContent = 'Copy';
   }
 
   installTabs.forEach(function(tab, pos){
     tab.addEventListener('click', function(){
-      applyInstall(tab.dataset.key);
+      applyInstall(tab.dataset.key, true);
     });
     tab.addEventListener('keydown', function(event){
       var target = null;
@@ -1126,7 +1005,7 @@ polyglav</code>
       if (target === null){ return; }
       event.preventDefault();
       installTabs[target].focus();
-      applyInstall(installTabs[target].dataset.key);
+      applyInstall(installTabs[target].dataset.key, true);
     });
   });
 
@@ -1153,14 +1032,19 @@ polyglav</code>
         fallbackCopy(text);
       }
       button.textContent = 'Copied';
-      setTimeout(function(){
-        if (!button.disabled){ button.textContent = 'Copy'; }
-      }, 1600);
+      setTimeout(function(){ button.textContent = 'Copy'; }, 1600);
     });
   }
 
   bindCopy(copyBtn, function(){ return cmd.textContent; });
   bindCopy(ctaCopy, function(){ return ctaCmd.textContent; });
+
+  var mobileNav = document.querySelector('.nav-mobile');
+  if (mobileNav){
+    mobileNav.querySelectorAll('a').forEach(function(link){
+      link.addEventListener('click', function(){ mobileNav.open = false; });
+    });
+  }
 })();
 </script>
 </body>
